@@ -1,0 +1,308 @@
+import React, { useEffect, useState } from 'react';
+import { Plus, Search, Trash2, Edit } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { User, Company, PaginatedResponse } from '../types';
+import { usersApi, companiesApi } from '../services/api';
+import Layout from '../components/layout/Layout';
+import Button from '../components/ui/Button';
+// import Input from '../components/ui/Input';
+import Table from '../components/ui/Table';
+// import Modal from '../components/ui/Modal';
+import InviteUserModal from '../components/modals/InviteUserModal';
+import EditUserModal from '../components/modals/EditUserModal';
+
+const Users: React.FC = () => {
+  const { user: currentUser } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedCompany, setSelectedCompany] = useState<string>('all');
+  const [selectedRole, setSelectedRole] = useState<string>('all');
+  const [showInviteModal, setShowInviteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchData();
+  }, [selectedCompany]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch users based on role
+      let usersResponse: PaginatedResponse<User>;
+      if (currentUser?.role === 'superAdmin') {
+        usersResponse = selectedCompany === 'all'
+          ? await usersApi.getUsers()
+          : await usersApi.getUsers({ companyId: selectedCompany });
+        // Also fetch companies for filtering
+        const companiesResponse = await companiesApi.getCompanies();
+        setCompanies(companiesResponse.data);
+      } else {
+        // Admin users see only their company's users
+        usersResponse = await usersApi.getUsers();
+      }
+
+      setUsers(usersResponse.data || []);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!window.confirm('Are you sure you want to delete this user?')) {
+      return;
+    }
+
+    try {
+      setActionLoading(userId);
+      await usersApi.deleteUser(userId);
+      setUsers(users.filter(u => u.id !== userId));
+    } catch (error) {
+      console.error('Error deleting user:', error);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setSelectedUser(user);
+    setShowEditModal(true);
+  };
+
+  const handleUserUpdated = (updatedUser: User) => {
+    setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+    setShowEditModal(false);
+    setSelectedUser(null);
+  };
+
+  const handleUserInvited = () => {
+    setShowInviteModal(false);
+    fetchData(); // Refresh the list
+  };
+
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = searchTerm === '' ||
+      (user.firstName && user.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.lastName && user.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (user.companyName && user.companyName.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesRole = selectedRole === 'all' || user.role === selectedRole;
+
+    return matchesSearch && matchesRole;
+  });
+
+  const getRoleBadgeColor = (role: string) => {
+    switch (role) {
+      case 'superAdmin':
+        return 'bg-purple-100 text-purple-800';
+      case 'admin':
+        return 'bg-blue-100 text-blue-800';
+      case 'member':
+        return 'bg-green-100 text-green-800';
+      default:
+        return 'bg-secondary-100 text-secondary-800';
+    }
+  };
+
+  const getStatusBadgeColor = (isActive: boolean) => {
+    return isActive
+      ? 'bg-green-100 text-green-800'
+      : 'bg-red-100 text-red-800';
+  };
+
+  // Column definitions
+  const columns = [
+    {
+      key: 'name',
+      header: 'Name',
+      render: (_: any, user: User) => (
+        <div>
+          <div className="font-medium text-secondary-900">
+            {user.firstName || 'N/A'} {user.lastName || ''}
+          </div>
+          <div className="text-sm text-secondary-500">{user.email}</div>
+        </div>
+      ),
+    },
+    ...(currentUser?.role === 'superAdmin' ? [{
+      key: 'company',
+      header: 'Company',
+      render: (_: any, user: User) => (
+        <span className="text-sm text-secondary-900">
+          {user.companyName || 'Platform Admin'}
+        </span>
+      ),
+    }] : []),
+    {
+      key: 'role',
+      header: 'Role',
+      render: (_: any, user: User) => (
+        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleBadgeColor(user.role)}`}>
+          {user.role}
+        </span>
+      ),
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (_: any, user: User) => (
+        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(user.isActive)}`}>
+          {user.isActive ? 'Active' : 'Inactive'}
+        </span>
+      ),
+    },
+    {
+      key: 'emailVerified',
+      header: 'Email Verified',
+      render: (_: any, user: User) => (
+        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(user.emailVerified)}`}>
+          {user.emailVerified ? 'Verified' : 'Pending'}
+        </span>
+      ),
+    },
+    {
+      key: 'actions',
+      header: 'Actions',
+      render: (_: any, user: User) => (
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={() => handleEditUser(user)}
+            className="text-secondary-400 hover:text-secondary-600"
+            title="Edit user"
+          >
+            <Edit className="h-4 w-4" />
+          </button>
+          {user.id !== currentUser?.id && (
+            <button
+              onClick={() => handleDeleteUser(user.id)}
+              disabled={actionLoading === user.id}
+              className="text-red-400 hover:text-red-600 disabled:opacity-50"
+              title="Delete user"
+            >
+              {actionLoading === user.id ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
+              ) : (
+                <Trash2 className="h-4 w-4" />
+              )}
+            </button>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <Layout>
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-2xl font-bold text-secondary-900">User Management</h1>
+            <p className="text-secondary-600 mt-1">
+              Manage users and their permissions
+            </p>
+          </div>
+          <Button onClick={() => setShowInviteModal(true)} className="flex items-center">
+            <Plus className="h-4 w-4 mr-2" />
+            Invite User
+          </Button>
+        </div>
+
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-secondary-200">
+          <div className="flex-1">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 h-4 w-4" />
+              <input
+                type="text"
+                placeholder="Search users..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          {currentUser?.role === 'superAdmin' && (
+            <div className="w-full sm:w-48">
+              <select
+                value={selectedCompany}
+                onChange={(e) => setSelectedCompany(e.target.value)}
+                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+              >
+                <option value="all">All Companies</option>
+                {companies.map((company) => (
+                  <option key={company.id} value={company.id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          <div className="w-full sm:w-32">
+            <select
+              value={selectedRole}
+              onChange={(e) => setSelectedRole(e.target.value)}
+              className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            >
+              <option value="all">All Roles</option>
+              <option value="member">Member</option>
+              <option value="admin">Admin</option>
+              {currentUser?.role === 'superAdmin' && (
+                <option value="superAdmin">Super Admin</option>
+              )}
+            </select>
+          </div>
+        </div>
+
+        {/* Users Table */}
+        <div className="bg-white rounded-lg border border-secondary-200">
+          {loading ? (
+            <div className="p-8 text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
+              <p className="text-secondary-600 mt-4">Loading users...</p>
+            </div>
+          ) : (
+            <Table
+              data={filteredUsers}
+              columns={columns}
+              emptyMessage="No users found"
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Invite User Modal */}
+      {showInviteModal && (
+        <InviteUserModal
+          isOpen={showInviteModal}
+          onClose={() => setShowInviteModal(false)}
+          onSuccess={handleUserInvited}
+        />
+      )}
+
+      {/* Edit User Modal */}
+      {showEditModal && selectedUser && (
+        <EditUserModal
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setSelectedUser(null);
+          }}
+          user={selectedUser}
+          onSuccess={handleUserUpdated}
+        />
+      )}
+    </Layout>
+  );
+};
+
+export default Users;
