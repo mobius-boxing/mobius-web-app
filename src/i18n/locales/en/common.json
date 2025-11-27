@@ -234,6 +234,70 @@
       "updateFailed": "Failed to update customer. Please try again."
     }
   },
+  "customers": {
+    "title": "Customers",
+    "subtitle": "Manage customer catalog",
+    "addCustomer": "Add Customer",
+    "searchPlaceholder": "Search customers...",
+    "allCustomers": "All Customers",
+    "columns": {
+      "customerName": "Customer Name",
+      "supplierCode": "Supplier Code",
+      "category": "Category",
+      "salesPerson": "Sales Person",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "empty": {
+      "title": "No customers found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by creating a new customer"
+    },
+    "deleteConfirm": "Are you sure you want to delete this customer?",
+    "deleteFailed": "Failed to delete customer"
+  },
+  "customerCategories": {
+    "title": "Customer Categories",
+    "subtitle": "Manage customer category catalog",
+    "addCategory": "Add Category",
+    "searchPlaceholder": "Search categories...",
+    "allCategories": "All Categories",
+    "columns": {
+      "categoryName": "Category Name",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No categories found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by creating a new category"
+    },
+    "deleteConfirm": "Are you sure you want to delete this category?",
+    "deleteFailed": "Failed to delete category",
+    "createTitle": "Create Customer Category",
+    "editTitle": "Edit Customer Category",
+    "name": "Category Name",
+    "namePlaceholder": "Enter category name",
+    "company": "Company",
+    "selectCompany": "Select a company",
+    "cancel": "Cancel",
+    "createButton": "Create Category",
+    "updateButton": "Update Category",
+    "validation": {
+      "nameRequired": "Category name is required",
+      "nameMinLength": "Category name must be at least 2 characters",
+      "nameMaxLength": "Category name must be less than 100 characters",
+      "companyRequired": "Company is required"
+    },
+    "errors": {
+      "createFailed": "Failed to create customer category. Please try again.",
+      "updateFailed": "Failed to update customer category. Please try again."
+    }
+  },
   "paperTypes": {
     "title": "Paper Types",
     "subtitle": "Manage paper type catalog",

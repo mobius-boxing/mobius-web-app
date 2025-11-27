@@ -44,14 +44,14 @@ const CustomerCategories: React.FC = () => {
     setShowEditModal(true);
   };
 
-  const handleDelete = async (categoryId: string) => {
+  const handleDelete = async (category: CustomerCategory) => {
     if (!window.confirm(t('customerCategories.deleteConfirm'))) {
       return;
     }
 
     try {
-      setActionLoading(categoryId);
-      await customerCategoriesApi.deleteCategory(categoryId);
+      setActionLoading(category.uuid);
+      await customerCategoriesApi.deleteCategory(category.uuid);
       await fetchCategories();
     } catch (error) {
       console.error('Error deleting customer category:', error);
@@ -117,15 +117,15 @@ const CustomerCategories: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => handleEdit(category)}
-            disabled={actionLoading === category?.id || !category}
+            disabled={actionLoading === category?.uuid || !category}
           >
             <Edit className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => handleDelete(category?.id)}
-            disabled={actionLoading === category?.id || !category}
+            onClick={() => handleDelete(category)}
+            disabled={actionLoading === category?.uuid || !category}
             className="text-red-600 hover:text-red-700"
           >
             <Trash2 className="h-4 w-4" />

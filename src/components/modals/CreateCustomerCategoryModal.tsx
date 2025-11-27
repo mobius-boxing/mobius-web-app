@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { CreateCustomerCategoryForm, Company } from '../../types';
 import { customerCategoriesApi, companiesApi } from '../../services/api';
@@ -22,6 +23,7 @@ const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = 
   onClose,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loading, setLoading] = useState(false);
@@ -77,7 +79,7 @@ const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = 
       console.error('Error creating customer category:', err);
       setError(
         err.response?.data?.message ||
-        'Failed to create customer category. Please try again.'
+        t('customerCategories.errors.createFailed')
       );
     } finally {
       setLoading(false);
@@ -91,7 +93,7 @@ const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = 
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Create Customer Category">
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('customerCategories.createTitle')}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
@@ -101,33 +103,33 @@ const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = 
 
         <Input
           {...register('name', {
-            required: 'Category name is required',
+            required: t('customerCategories.validation.nameRequired'),
             minLength: {
               value: 2,
-              message: 'Category name must be at least 2 characters',
+              message: t('customerCategories.validation.nameMinLength'),
             },
             maxLength: {
               value: 100,
-              message: 'Category name must be less than 100 characters',
+              message: t('customerCategories.validation.nameMaxLength'),
             },
           })}
-          label="Category Name"
-          placeholder="Enter category name"
+          label={t('customerCategories.name')}
+          placeholder={t('customerCategories.namePlaceholder')}
           error={errors.name?.message as string}
         />
 
         {currentUser?.role === 'superAdmin' && (
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">
-              Company
+              {t('customerCategories.company')}
             </label>
             <select
-              {...register('companyId', { required: 'Company is required' })}
+              {...register('companyId', { required: t('customerCategories.validation.companyRequired') })}
               className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
-              <option value="">Select a company</option>
+              <option value="">{t('customerCategories.selectCompany')}</option>
               {companies.map((company) => (
-                <option key={company.id} value={company.id}>
+                <option key={company.uuid} value={company.uuid}>
                   {company.name}
                 </option>
               ))}
@@ -145,10 +147,10 @@ const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = 
             onClick={handleClose}
             disabled={loading}
           >
-            Cancel
+            {t('customerCategories.cancel')}
           </Button>
           <Button type="submit" loading={loading}>
-            Create Category
+            {t('customerCategories.createButton')}
           </Button>
         </div>
       </form>

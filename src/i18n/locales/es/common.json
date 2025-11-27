@@ -234,6 +234,70 @@
       "updateFailed": "Error al actualizar el cliente. Por favor, intente nuevamente."
     }
   },
+  "customers": {
+    "title": "Clientes",
+    "subtitle": "Gestionar catálogo de clientes",
+    "addCustomer": "Agregar Cliente",
+    "searchPlaceholder": "Buscar clientes...",
+    "allCustomers": "Todos los Clientes",
+    "columns": {
+      "customerName": "Nombre del Cliente",
+      "supplierCode": "Código de Proveedor",
+      "category": "Categoría",
+      "salesPerson": "Vendedor",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "empty": {
+      "title": "No se encontraron clientes",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience creando un nuevo cliente"
+    },
+    "deleteConfirm": "¿Está seguro de que desea eliminar este cliente?",
+    "deleteFailed": "Error al eliminar el cliente"
+  },
+  "customerCategories": {
+    "title": "Categorías de Clientes",
+    "subtitle": "Gestionar catálogo de categorías de clientes",
+    "addCategory": "Agregar Categoría",
+    "searchPlaceholder": "Buscar categorías...",
+    "allCategories": "Todas las Categorías",
+    "columns": {
+      "categoryName": "Nombre de Categoría",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron categorías",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience creando una nueva categoría"
+    },
+    "deleteConfirm": "¿Está seguro de que desea eliminar esta categoría?",
+    "deleteFailed": "Error al eliminar la categoría",
+    "createTitle": "Crear Categoría de Cliente",
+    "editTitle": "Editar Categoría de Cliente",
+    "name": "Nombre de Categoría",
+    "namePlaceholder": "Ingrese nombre de categoría",
+    "company": "Empresa",
+    "selectCompany": "Seleccionar una empresa",
+    "cancel": "Cancelar",
+    "createButton": "Crear Categoría",
+    "updateButton": "Actualizar Categoría",
+    "validation": {
+      "nameRequired": "El nombre de la categoría es requerido",
+      "nameMinLength": "El nombre de la categoría debe tener al menos 2 caracteres",
+      "nameMaxLength": "El nombre de la categoría debe tener menos de 100 caracteres",
+      "companyRequired": "La empresa es requerida"
+    },
+    "errors": {
+      "createFailed": "Error al crear la categoría de cliente. Por favor, intente nuevamente.",
+      "updateFailed": "Error al actualizar la categoría de cliente. Por favor, intente nuevamente."
+    }
+  },
   "paperTypes": {
     "title": "Tipos de Papel",
     "subtitle": "Gestionar catálogo de tipos de papel",

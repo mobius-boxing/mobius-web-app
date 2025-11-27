@@ -45,7 +45,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
     setError('');
 
     try {
-      await companiesApi.updateCompany(company.id, data);
+      await companiesApi.updateCompany(company.uuid, data);
       reset();
       onSuccess();
     } catch (err: any) {

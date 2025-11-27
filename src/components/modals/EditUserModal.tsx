@@ -45,9 +45,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       setValue('email', user.email);
       setValue('role', user.role);
       setValue('isActive', user.isActive);
-      if (user.companyId) {
-        setValue('companyId', user.companyId);
-      }
 
       // Fetch companies if superAdmin
       if (currentUser?.role === 'superAdmin') {
@@ -55,6 +52,18 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       }
     }
   }, [isOpen, user, setValue, currentUser]);
+
+  // Set company value after companies are loaded
+  useEffect(() => {
+    if (isOpen && companies.length > 0 && user.companyId) {
+      // Find the company matching the user's companyId (numeric ID)
+      // Company.id is the numeric ID as string, user.companyId might be number or string
+      const userCompany = companies.find(c => String(c.id) === String(user.companyId));
+      if (userCompany) {
+        setValue('companyId', userCompany.uuid);
+      }
+    }
+  }, [isOpen, companies, user.companyId, setValue]);
 
   const fetchCompanies = async () => {
     try {
@@ -76,7 +85,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
         companyId: currentUser?.role === 'superAdmin' ? data.companyId : user.companyId,
       };
 
-      const updatedUser = await usersApi.updateUser(user.id, updateData);
+      const updatedUser = await usersApi.updateUser(user.uuid, updateData);
       onSuccess(updatedUser);
     } catch (err: any) {
       console.error('Error updating user:', err);
@@ -103,7 +112,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   };
 
   const canEditStatus = () => {
-    if (currentUser?.id === user.id) return false; // Can't deactivate self
+    if (currentUser?.uuid === user.uuid) return false; // Can't deactivate self
     if (currentUser?.role === 'superAdmin') return true;
     if (currentUser?.role === 'admin' && user.role !== 'superAdmin') return true;
     return false;
@@ -192,7 +201,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             >
               <option value="">Select a company</option>
               {companies.map((company) => (
-                <option key={company.id} value={company.id}>
+                <option key={company.uuid} value={company.uuid}>
                   {company.name}
                 </option>
               ))}

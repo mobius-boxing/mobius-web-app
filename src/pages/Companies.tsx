@@ -50,14 +50,14 @@ const Companies: React.FC = () => {
     setShowEditModal(true);
   };
 
-  const handleDelete = async (companyId: string) => {
+  const handleDelete = async (company: Company) => {
     if (!window.confirm(t('companies.deleteConfirm'))) {
       return;
     }
 
     try {
-      setActionLoading(companyId);
-      await companiesApi.deleteCompany(companyId);
+      setActionLoading(company.uuid);
+      await companiesApi.deleteCompany(company.uuid);
       await fetchCompanies();
     } catch (error) {
       console.error('Error deleting company:', error);
@@ -69,8 +69,8 @@ const Companies: React.FC = () => {
 
   const handleToggleStatus = async (company: Company) => {
     try {
-      setActionLoading(company.id);
-      await companiesApi.updateCompanyStatus(company.id, !company.isActive);
+      setActionLoading(company.uuid);
+      await companiesApi.updateCompanyStatus(company.uuid, !company.isActive);
       await fetchCompanies();
     } catch (error) {
       console.error('Error updating company status:', error);
@@ -155,7 +155,7 @@ const Companies: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => handleEdit(company)}
-            disabled={actionLoading === company?.id || !company}
+            disabled={actionLoading === company?.uuid || !company}
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -163,7 +163,7 @@ const Companies: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => handleToggleStatus(company)}
-            disabled={actionLoading === company?.id || !company}
+            disabled={actionLoading === company?.uuid || !company}
             className={company?.isActive ? 'text-red-600 hover:text-red-700' : 'text-green-600 hover:text-green-700'}
           >
             {company?.isActive ? t('companies.actions.deactivate') : t('companies.actions.activate')}
@@ -171,8 +171,8 @@ const Companies: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => handleDelete(company?.id)}
-            disabled={actionLoading === company?.id || !company}
+            onClick={() => handleDelete(company)}
+            disabled={actionLoading === company?.uuid || !company}
             className="text-red-600 hover:text-red-700"
           >
             <Trash2 className="h-4 w-4" />

@@ -54,15 +54,15 @@ const Users: React.FC = () => {
     }
   };
 
-  const handleDeleteUser = async (userId: string) => {
+  const handleDeleteUser = async (user: User) => {
     if (!window.confirm('Are you sure you want to delete this user?')) {
       return;
     }
 
     try {
-      setActionLoading(userId);
-      await usersApi.deleteUser(userId);
-      setUsers(users.filter(u => u.id !== userId));
+      setActionLoading(user.uuid);
+      await usersApi.deleteUser(user.uuid);
+      setUsers(users.filter(u => u.uuid !== user.uuid));
     } catch (error) {
       console.error('Error deleting user:', error);
     } finally {
@@ -76,7 +76,7 @@ const Users: React.FC = () => {
   };
 
   const handleUserUpdated = (updatedUser: User) => {
-    setUsers(users.map(u => u.id === updatedUser.id ? updatedUser : u));
+    setUsers(users.map(u => u.uuid === updatedUser.uuid ? updatedUser : u));
     setShowEditModal(false);
     setSelectedUser(null);
   };
@@ -179,14 +179,14 @@ const Users: React.FC = () => {
           >
             <Edit className="h-4 w-4" />
           </button>
-          {user.id !== currentUser?.id && (
+          {user.uuid !== currentUser?.uuid && (
             <button
-              onClick={() => handleDeleteUser(user.id)}
-              disabled={actionLoading === user.id}
+              onClick={() => handleDeleteUser(user)}
+              disabled={actionLoading === user.uuid}
               className="text-red-400 hover:text-red-600 disabled:opacity-50"
               title="Delete user"
             >
-              {actionLoading === user.id ? (
+              {actionLoading === user.uuid ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
               ) : (
                 <Trash2 className="h-4 w-4" />
@@ -239,7 +239,7 @@ const Users: React.FC = () => {
               >
                 <option value="all">All Companies</option>
                 {companies.map((company) => (
-                  <option key={company.id} value={company.id}>
+                  <option key={company.uuid} value={company.uuid}>
                     {company.name}
                   </option>
                 ))}

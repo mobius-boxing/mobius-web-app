@@ -1,6 +1,7 @@
 // User types
 export interface User {
   id: string;
+  uuid: string;
   email: string;
   firstName?: string;
   lastName?: string;
@@ -16,6 +17,7 @@ export interface User {
 // Company types
 export interface Company {
   id: string;
+  uuid: string;
   name: string;
   description?: string;
   isActive: boolean;
@@ -45,6 +47,7 @@ export interface LoginCredentials {
 
 export interface AuthUser {
   id: string;
+  uuid: string;
   email: string;
   firstName?: string;
   lastName?: string;
@@ -157,7 +160,7 @@ export interface InvitationStats {
 // Customer Category types
 export interface CustomerCategory {
   id: string;
-  customerCategoryUuid: string;
+  uuid: string;
   name: string;
   companyId: string;
   createdAt: string;
