@@ -175,6 +175,8 @@
     "enterCustomerName": "Enter customer name",
     "legalName": "Legal Name",
     "enterLegalName": "Enter legal name (optional)",
+    "legalCode": "Legal Code",
+    "enterLegalCode": "Enter legal code (optional)",
     "tradeName": "Trade Name",
     "enterTradeName": "Enter trade name (optional)",
     "supplierCode": "Supplier Code",

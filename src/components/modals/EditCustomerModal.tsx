@@ -39,12 +39,13 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
       // Set form values with current customer data
       setValue('name', customer.name);
       setValue('legalName', customer.legalName || '');
+      setValue('legalCode', customer.legalCode || '');
       setValue('tradeName', customer.tradeName || '');
       setValue('supplierCode', customer.supplierCode || '');
       setValue('address', customer.address || '');
       setValue('active', customer.active);
-      setValue('categoryId', customer.categoryId ? String(customer.categoryId) : '');
-      setValue('salesPersonId', customer.salesPersonId ? String(customer.salesPersonId) : '');
+      setValue('categoryId', customer.category?.uuid || '');
+      setValue('salesPersonId', customer.salesPerson?.uuid || '');
 
       // Initialize arrays
       setContacts(customer.contacts || []);
@@ -84,6 +85,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
         salesPersonId: data.salesPersonId || undefined,
         supplierCode: data.supplierCode || undefined,
         legalName: data.legalName || undefined,
+        legalCode: data.legalCode || undefined,
         tradeName: data.tradeName || undefined,
         address: data.address || undefined,
         contacts: contacts.length > 0 ? contacts : undefined,

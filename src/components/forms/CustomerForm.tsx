@@ -82,7 +82,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             >
               <option value="">{t('common:customerModal.selectCompany')}</option>
               {companies?.map((company) => (
-                <option key={company.id} value={company.id}>
+                <option key={company.uuid} value={company.uuid}>
                   {company.name}
                 </option>
               ))}
@@ -112,6 +112,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             label={t('common:customerModal.legalName')}
             placeholder={t('common:customerModal.enterLegalName')}
             error={errors.legalName?.message as string}
+          />
+
+          <Input
+            {...register('legalCode')}
+            label={t('common:customerModal.legalCode')}
+            placeholder={t('common:customerModal.enterLegalCode')}
+            error={errors.legalCode?.message as string}
           />
 
           <Input
@@ -174,7 +181,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             >
               <option value="">{t('common:customerModal.selectCategory')}</option>
               {categories.map((category) => (
-                <option key={category.id} value={category.id}>
+                <option key={category.uuid} value={category.uuid}>
                   {category.name}
                 </option>
               ))}
@@ -194,7 +201,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             >
               <option value="">{t('common:customerModal.selectSalesPerson')}</option>
               {salesPersons.map((person) => (
-                <option key={person.id} value={person.id}>
+                <option key={person.uuid} value={person.uuid}>
                   {person.firstName} {person.lastName} ({person.email})
                 </option>
               ))}

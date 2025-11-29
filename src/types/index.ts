@@ -204,6 +204,7 @@ export interface Customer {
   categoryName?: string;
   active: boolean;
   legalName?: string;
+  legalCode?: string;
   address?: string;
   tradeName?: string;
   contacts: ContactInfo[];
@@ -211,6 +212,10 @@ export interface Customer {
   deliveryDays: DeliveryDay[];
   createdAt: string;
   updatedAt: string;
+  // Related objects with UUIDs (from getCustomerWithDetails)
+  category?: CustomerCategory;
+  salesPerson?: User;
+  company?: Company;
 }
 
 export interface CreateCustomerCategoryForm {
@@ -225,6 +230,7 @@ export interface CreateCustomerForm {
   categoryId?: string;
   active?: boolean;
   legalName?: string;
+  legalCode?: string;
   address?: string;
   tradeName?: string;
   contacts?: ContactInfo[];

@@ -97,6 +97,7 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
         salesPersonId: data.salesPersonId || undefined,
         supplierCode: data.supplierCode || undefined,
         legalName: data.legalName || undefined,
+        legalCode: data.legalCode || undefined,
         tradeName: data.tradeName || undefined,
         address: data.address || undefined,
         contacts: contacts.length > 0 ? contacts : undefined,

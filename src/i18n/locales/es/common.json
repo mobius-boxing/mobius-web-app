@@ -175,6 +175,8 @@
     "enterCustomerName": "Ingrese el nombre del cliente",
     "legalName": "Razón Social",
     "enterLegalName": "Ingrese la razón social (opcional)",
+    "legalCode": "CUIT",
+    "enterLegalCode": "Ingrese el CUIT (opcional)",
     "tradeName": "Nombre Comercial",
     "enterTradeName": "Ingrese el nombre comercial (opcional)",
     "supplierCode": "Código de Proveedor",
