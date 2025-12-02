@@ -110,11 +110,11 @@ const FluteTypes: React.FC = () => {
       ),
     },
     {
-      key: 'flueFactor',
-      header: t('fluteTypes.columns.flueFactor'),
+      key: 'fluteFactor',
+      header: t('fluteTypes.columns.fluteFactor'),
       render: (value: any, fluteType: FluteType) => (
         <span className="text-sm text-secondary-900">
-          {fluteType?.flueFactor !== undefined ? fluteType.flueFactor : '-'}
+          {fluteType?.fluteFactor !== undefined ? fluteType.fluteFactor : '-'}
         </span>
       ),
     },

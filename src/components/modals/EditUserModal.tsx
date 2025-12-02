@@ -80,10 +80,15 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 
     try {
       // For non-superAdmin users, preserve the company
-      const updateData = {
+      const updateData: UpdateUserRequest = {
         ...data,
         companyId: currentUser?.role === 'superAdmin' ? data.companyId : user.companyId,
       };
+
+      // Only include password if it's not empty
+      if (!updateData.password) {
+        delete updateData.password;
+      }
 
       const updatedUser = await usersApi.updateUser(user.uuid, updateData);
       onSuccess(updatedUser);
@@ -231,6 +236,26 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
             <label htmlFor="isActive" className="ml-2 block text-sm text-secondary-900">
               User is active
             </label>
+          </div>
+        )}
+
+        {currentUser?.role === 'superAdmin' && (
+          <div>
+            <Input
+              {...register('password', {
+                minLength: {
+                  value: 8,
+                  message: 'Password must be at least 8 characters',
+                },
+              })}
+              type="password"
+              label="New Password"
+              placeholder="Leave empty to keep current password"
+              error={errors.password?.message as string}
+            />
+            <p className="mt-1 text-xs text-secondary-500">
+              Only fill this if you want to change the user's password.
+            </p>
           </div>
         )}
 

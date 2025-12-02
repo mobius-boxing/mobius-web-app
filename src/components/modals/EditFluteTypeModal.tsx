@@ -36,7 +36,7 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
     if (isOpen && fluteType) {
       setValue('code', fluteType.code);
       setValue('description', fluteType.description || '');
-      setValue('flueFactor', fluteType.flueFactor);
+      setValue('fluteFactor', fluteType.fluteFactor);
       setValue('length', fluteType.length);
       setValue('width', fluteType.width);
       setValue('height', fluteType.height);
@@ -53,7 +53,7 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
       // Convert string values to numbers for numeric fields
       const formData = {
         ...data,
-        flueFactor: data.flueFactor ? Number(data.flueFactor) : undefined,
+        fluteFactor: data.fluteFactor ? Number(data.fluteFactor) : undefined,
         length: data.length ? Number(data.length) : undefined,
         width: data.width ? Number(data.width) : undefined,
         height: data.height ? Number(data.height) : undefined,
@@ -121,12 +121,12 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <Input
-            {...register('flueFactor')}
+            {...register('fluteFactor')}
             type="number"
             step="0.01"
-            label={t('fluteTypes.flueFactor')}
-            placeholder={t('fluteTypes.flueFactorPlaceholder')}
-            error={errors.flueFactor?.message as string}
+            label={t('fluteTypes.fluteFactor')}
+            placeholder={t('fluteTypes.fluteFactorPlaceholder')}
+            error={errors.fluteFactor?.message as string}
           />
 
           <Input

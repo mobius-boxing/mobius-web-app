@@ -341,8 +341,8 @@
     "codePlaceholder": "Enter flute type code",
     "description": "Description",
     "descriptionPlaceholder": "Enter description (optional)",
-    "flueFactor": "Flue Factor",
-    "flueFactorPlaceholder": "Enter flue factor (optional)",
+    "fluteFactor": "Flute Factor",
+    "fluteFactorPlaceholder": "Enter flute factor (optional)",
     "length": "Length",
     "lengthPlaceholder": "Enter length (optional)",
     "width": "Width",
@@ -356,7 +356,7 @@
     "columns": {
       "code": "Code",
       "description": "Description",
-      "flueFactor": "Flue Factor",
+      "fluteFactor": "Flute Factor",
       "created": "Created",
       "actions": "Actions"
     },

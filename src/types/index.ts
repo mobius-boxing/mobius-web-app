@@ -110,6 +110,7 @@ export interface UpdateUserRequest {
   role: 'member' | 'admin' | 'superAdmin';
   isActive: boolean;
   companyId?: string;
+  password?: string;
 }
 
 export interface AcceptInvitationForm {
@@ -260,7 +261,7 @@ export interface FluteType {
   uuid: string;
   code: string;
   description?: string;
-  flueFactor?: number;
+  fluteFactor?: number;
   length?: number;
   width?: number;
   height?: number;
@@ -271,7 +272,7 @@ export interface FluteType {
 export interface CreateFluteTypeForm {
   code: string;
   description?: string;
-  flueFactor?: number;
+  fluteFactor?: number;
   length?: number;
   width?: number;
   height?: number;

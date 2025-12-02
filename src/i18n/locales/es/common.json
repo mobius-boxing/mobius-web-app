@@ -341,8 +341,8 @@
     "codePlaceholder": "Ingrese código de tipo de onda",
     "description": "Descripción",
     "descriptionPlaceholder": "Ingrese descripción (opcional)",
-    "flueFactor": "Factor de Onda",
-    "flueFactorPlaceholder": "Ingrese factor de onda (opcional)",
+    "fluteFactor": "Factor de Onda",
+    "fluteFactorPlaceholder": "Ingrese factor de onda (opcional)",
     "length": "Largo",
     "lengthPlaceholder": "Ingrese largo (opcional)",
     "width": "Ancho",
@@ -356,7 +356,7 @@
     "columns": {
       "code": "Código",
       "description": "Descripción",
-      "flueFactor": "Factor de Onda",
+      "fluteFactor": "Factor de Onda",
       "created": "Creado",
       "actions": "Acciones"
     },
