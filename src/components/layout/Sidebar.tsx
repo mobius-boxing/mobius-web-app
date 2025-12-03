@@ -19,6 +19,7 @@ import {
   ChevronDown,
   ChevronRight,
   Truck,
+  Database,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -33,119 +34,121 @@ const Sidebar: React.FC = () => {
 
   const navigationItems: NavItem[] = [
     {
-      id: 'dashboard',
-      label: t('nav.dashboard'),
-      path: '/dashboard',
-      icon: 'LayoutDashboard',
-      roles: ['member', 'admin', 'superAdmin'],
-    },
-    {
-      id: 'users',
-      label: t('nav.userManagement'),
-      path: '/users',
-      icon: 'Users',
-      roles: ['superAdmin'],
-    },
-    {
-      id: 'companies',
-      label: t('nav.companyManagement'),
-      path: '/companies',
-      icon: 'Building',
-      roles: ['superAdmin'],
-    },
-    {
-      id: 'customers',
-      label: t('nav.customers'),
-      path: '/customers',
-      icon: 'UserCircle',
-      roles: ['admin', 'superAdmin'],
-    },
-    {
-      id: 'customer-categories',
-      label: t('nav.customerCategories'),
-      path: '/customer-categories',
-      icon: 'Tag',
-      roles: ['admin', 'superAdmin'],
-    },
-    {
-      id: 'products',
-      label: t('nav.products'),
-      path: '/products',
-      icon: 'Package',
-      roles: ['admin', 'superAdmin'],
-    },
-    {
-      id: 'materials',
-      label: t('nav.materials'),
-      icon: 'Box',
+      id: 'configuration',
+      label: t('nav.configuration'),
+      icon: 'Settings',
       roles: ['admin', 'superAdmin'],
       children: [
         {
-          id: 'paper-types',
-          label: t('nav.paperTypes'),
-          path: '/paper-types',
-          icon: 'FileText',
+          id: 'users',
+          label: t('nav.userManagement'),
+          path: '/users',
+          icon: 'Users',
           roles: ['admin', 'superAdmin'],
         },
         {
-          id: 'flute-types',
-          label: t('nav.fluteTypes'),
-          path: '/flute-types',
-          icon: 'Layers',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'paper-classes',
-          label: t('nav.paperClasses'),
-          path: '/paper-classes',
-          icon: 'BookOpen',
-          roles: ['admin', 'superAdmin'],
+          id: 'companies',
+          label: t('nav.companyManagement'),
+          path: '/companies',
+          icon: 'Building',
+          roles: ['superAdmin'],
         },
       ],
     },
     {
-      id: 'others',
-      label: t('nav.others'),
-      icon: 'Box',
+      id: 'masters',
+      label: t('nav.masters'),
+      icon: 'Database',
       roles: ['admin', 'superAdmin'],
       children: [
         {
-          id: 'manufacturers',
-          label: t('nav.manufacturers'),
-          path: '/manufacturers',
-          icon: 'Wrench',
+          id: 'customers',
+          label: t('nav.customers'),
+          path: '/customers',
+          icon: 'UserCircle',
           roles: ['admin', 'superAdmin'],
         },
         {
-          id: 'suppliers',
-          label: t('nav.suppliers'),
-          path: '/suppliers',
-          icon: 'Truck',
+          id: 'customer-categories',
+          label: t('nav.customerCategories'),
+          path: '/customer-categories',
+          icon: 'Tag',
           roles: ['admin', 'superAdmin'],
         },
-      ],
-    },
-    {
-      id: 'supplies',
-      label: t('nav.supplies'),
-      icon: 'Package',
-      roles: ['admin', 'superAdmin'],
-      children: [
         {
-          id: 'paper-supplies',
-          label: t('nav.paperSupplies'),
-          path: '/supplies',
+          id: 'products',
+          label: t('nav.products'),
+          path: '/products',
           icon: 'Package',
           roles: ['admin', 'superAdmin'],
         },
+        {
+          id: 'materials',
+          label: t('nav.materials'),
+          icon: 'Box',
+          roles: ['admin', 'superAdmin'],
+          children: [
+            {
+              id: 'paper-types',
+              label: t('nav.paperTypes'),
+              path: '/paper-types',
+              icon: 'FileText',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'flute-types',
+              label: t('nav.fluteTypes'),
+              path: '/flute-types',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'paper-classes',
+              label: t('nav.paperClasses'),
+              path: '/paper-classes',
+              icon: 'BookOpen',
+              roles: ['admin', 'superAdmin'],
+            },
+          ],
+        },
+        {
+          id: 'others',
+          label: t('nav.others'),
+          icon: 'Box',
+          roles: ['admin', 'superAdmin'],
+          children: [
+            {
+              id: 'manufacturers',
+              label: t('nav.manufacturers'),
+              path: '/manufacturers',
+              icon: 'Wrench',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'suppliers',
+              label: t('nav.suppliers'),
+              path: '/suppliers',
+              icon: 'Truck',
+              roles: ['admin', 'superAdmin'],
+            },
+          ],
+        },
+        {
+          id: 'supplies',
+          label: t('nav.supplies'),
+          icon: 'Package',
+          roles: ['admin', 'superAdmin'],
+          children: [
+            {
+              id: 'paper-supplies',
+              label: t('nav.paperSupplies'),
+              path: '/supplies',
+              icon: 'Package',
+              roles: ['admin', 'superAdmin'],
+            },
+          ],
+        },
       ],
-    },
-    {
-      id: 'settings',
-      label: t('nav.settings'),
-      path: '/settings',
-      icon: 'Settings',
-      roles: ['member', 'admin', 'superAdmin'],
     },
   ];
 
@@ -168,6 +171,7 @@ const Sidebar: React.FC = () => {
       ChevronDown,
       ChevronRight,
       Truck,
+      Database,
     };
     const IconComponent = icons[iconName as keyof typeof icons];
     return IconComponent ? <IconComponent className={className} /> : null;
@@ -185,18 +189,42 @@ const Sidebar: React.FC = () => {
     });
   };
 
+  // Recursive function to check if any child (at any depth) is active
   const isChildActive = (children?: NavItem[]): boolean => {
     if (!children) return false;
-    return children.some((child) => child.path === location.pathname);
+    return children.some((child) => {
+      if (child.path === location.pathname) return true;
+      if (child.children) return isChildActive(child.children);
+      return false;
+    });
   };
 
-  // Auto-expand parent when a child is active
-  useEffect(() => {
-    navigationItems.forEach((item) => {
-      if (item.children && isChildActive(item.children)) {
-        setExpandedItems((prev) => new Set(prev).add(item.id));
+  // Recursive function to find all parent IDs of an active item
+  const findParentIds = (items: NavItem[], targetPath: string, parentIds: string[] = []): string[] => {
+    for (const item of items) {
+      if (item.path === targetPath) {
+        return parentIds;
       }
-    });
+      if (item.children) {
+        const foundIds = findParentIds(item.children, targetPath, [...parentIds, item.id]);
+        if (foundIds.length > parentIds.length) {
+          return foundIds;
+        }
+      }
+    }
+    return [];
+  };
+
+  // Auto-expand parents when a child is active
+  useEffect(() => {
+    const parentIds = findParentIds(navigationItems, location.pathname);
+    if (parentIds.length > 0) {
+      setExpandedItems((prev) => {
+        const newSet = new Set(prev);
+        parentIds.forEach(id => newSet.add(id));
+        return newSet;
+      });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
@@ -210,6 +238,57 @@ const Sidebar: React.FC = () => {
     } catch (error) {
       console.error('Logout error:', error);
     }
+  };
+
+  // Recursive function to render navigation items at any depth
+  const renderNavItem = (item: NavItem, depth: number): React.ReactNode => {
+    const hasChildren = item.children && item.children.length > 0;
+    const isExpanded = expandedItems.has(item.id);
+    const isActive = item.path ? location.pathname === item.path : false;
+    const hasActiveChild = isChildActive(item.children);
+
+    // Determine icon size and text size based on depth
+    const iconSize = depth === 0 ? 'h-5 w-5' : 'h-4 w-4';
+    const textSize = depth === 0 ? '' : 'text-sm';
+
+    if (hasChildren) {
+      return (
+        <div key={item.id} className="space-y-1">
+          <button
+            onClick={() => toggleExpanded(item.id)}
+            className={`sidebar-item ${
+              hasActiveChild ? 'sidebar-item-active' : 'sidebar-item-inactive'
+            } w-full text-left justify-between`}
+          >
+            <div className="flex items-center">
+              {getIcon(item.icon, iconSize)}
+              <span className={`ml-3 ${textSize}`}>{item.label}</span>
+            </div>
+            {getIcon(isExpanded ? 'ChevronDown' : 'ChevronRight', 'h-4 w-4')}
+          </button>
+          {isExpanded && item.children && (
+            <div className="ml-4 space-y-1 border-l-2 border-secondary-200 pl-4">
+              {item.children
+                .filter((child) => user ? child.roles.includes(user.role) : false)
+                .map((child) => renderNavItem(child, depth + 1))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    return (
+      <NavLink
+        key={item.id}
+        to={item.path!}
+        className={`sidebar-item ${
+          isActive ? 'sidebar-item-active' : 'sidebar-item-inactive'
+        }`}
+      >
+        {getIcon(item.icon, iconSize)}
+        <span className={`ml-3 ${textSize}`}>{item.label}</span>
+      </NavLink>
+    );
   };
 
   return (
@@ -241,65 +320,7 @@ const Sidebar: React.FC = () => {
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-        {filteredNavigation.map((item) => {
-          const hasChildren = item.children && item.children.length > 0;
-          const isExpanded = expandedItems.has(item.id);
-          const isActive = item.path ? location.pathname === item.path : false;
-          const hasActiveChild = isChildActive(item.children);
-
-          if (hasChildren) {
-            return (
-              <div key={item.id} className="space-y-1">
-                <button
-                  onClick={() => toggleExpanded(item.id)}
-                  className={`sidebar-item ${
-                    hasActiveChild ? 'sidebar-item-active' : 'sidebar-item-inactive'
-                  } w-full text-left justify-between`}
-                >
-                  <div className="flex items-center">
-                    {getIcon(item.icon)}
-                    <span className="ml-3">{item.label}</span>
-                  </div>
-                  {getIcon(isExpanded ? 'ChevronDown' : 'ChevronRight', 'h-4 w-4')}
-                </button>
-                {isExpanded && item.children && (
-                  <div className="ml-4 space-y-1 border-l-2 border-secondary-200 pl-4">
-                    {item.children
-                      .filter((child) => user ? child.roles.includes(user.role) : false)
-                      .map((child) => {
-                        const isChildActiveNow = child.path === location.pathname;
-                        return (
-                          <NavLink
-                            key={child.id}
-                            to={child.path!}
-                            className={`sidebar-item ${
-                              isChildActiveNow ? 'sidebar-item-active' : 'sidebar-item-inactive'
-                            }`}
-                          >
-                            {getIcon(child.icon, 'h-4 w-4')}
-                            <span className="ml-3 text-sm">{child.label}</span>
-                          </NavLink>
-                        );
-                      })}
-                  </div>
-                )}
-              </div>
-            );
-          }
-
-          return (
-            <NavLink
-              key={item.id}
-              to={item.path!}
-              className={`sidebar-item ${
-                isActive ? 'sidebar-item-active' : 'sidebar-item-inactive'
-              }`}
-            >
-              {getIcon(item.icon)}
-              <span className="ml-3">{item.label}</span>
-            </NavLink>
-          );
-        })}
+        {filteredNavigation.map((item) => renderNavItem(item, 0))}
       </nav>
 
       {/* Language Switcher */}
