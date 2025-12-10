@@ -353,6 +353,19 @@ export interface CreateSupplierForm {
   suppliesTooling?: boolean;
 }
 
+// Warehouse types
+export interface Warehouse {
+  id: string;
+  uuid: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateWarehouseForm {
+  name: string;
+}
+
 // Paper Supply types
 export interface PaperSupply {
   id: string;

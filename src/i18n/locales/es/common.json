@@ -16,6 +16,7 @@
     "others": "Varios",
     "manufacturers": "Fabricantes",
     "suppliers": "Proveedores",
+    "warehouses": "Depósitos",
     "supplies": "Insumos",
     "paperSupplies": "Insumos de Papel",
     "settings": "Configuración",
@@ -522,6 +523,36 @@
     "updateFailed": "Error al actualizar el proveedor. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el proveedor",
     "deleteConfirm": "¿Está seguro de que desea eliminar este proveedor?"
+  },
+  "warehouses": {
+    "title": "Depósitos",
+    "subtitle": "Gestionar depósitos",
+    "addWarehouse": "Agregar Depósito",
+    "allWarehouses": "Todos los Depósitos",
+    "searchPlaceholder": "Buscar depósitos...",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese nombre del depósito",
+    "createTitle": "Crear Depósito",
+    "editTitle": "Editar Depósito",
+    "createButton": "Crear Depósito",
+    "updateButton": "Actualizar Depósito",
+    "columns": {
+      "name": "Nombre",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron depósitos",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience creando un nuevo depósito"
+    },
+    "validation": {
+      "nameRequired": "El nombre es requerido"
+    },
+    "createFailed": "Error al crear el depósito. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el depósito. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el depósito",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este depósito?"
   },
   "paperSupplies": {
     "title": "Insumos de papel",

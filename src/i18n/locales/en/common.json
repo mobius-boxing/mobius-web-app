@@ -16,6 +16,7 @@
     "others": "Others",
     "manufacturers": "Manufacturers",
     "suppliers": "Suppliers",
+    "warehouses": "Warehouses",
     "supplies": "Supplies",
     "paperSupplies": "Paper Supplies",
     "settings": "Settings",
@@ -522,6 +523,36 @@
     "updateFailed": "Failed to update supplier. Please try again.",
     "deleteFailed": "Failed to delete supplier",
     "deleteConfirm": "Are you sure you want to delete this supplier?"
+  },
+  "warehouses": {
+    "title": "Warehouses",
+    "subtitle": "Manage warehouse locations",
+    "addWarehouse": "Add Warehouse",
+    "allWarehouses": "All Warehouses",
+    "searchPlaceholder": "Search warehouses...",
+    "name": "Name",
+    "namePlaceholder": "Enter warehouse name",
+    "createTitle": "Create Warehouse",
+    "editTitle": "Edit Warehouse",
+    "createButton": "Create Warehouse",
+    "updateButton": "Update Warehouse",
+    "columns": {
+      "name": "Name",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No warehouses found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by creating a new warehouse"
+    },
+    "validation": {
+      "nameRequired": "Name is required"
+    },
+    "createFailed": "Failed to create warehouse. Please try again.",
+    "updateFailed": "Failed to update warehouse. Please try again.",
+    "deleteFailed": "Failed to delete warehouse",
+    "deleteConfirm": "Are you sure you want to delete this warehouse?"
   },
   "paperSupplies": {
     "title": "Supplies",

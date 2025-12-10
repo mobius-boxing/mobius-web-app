@@ -32,6 +32,8 @@ import {
   CreateManufacturerForm,
   Supplier,
   CreateSupplierForm,
+  Warehouse,
+  CreateWarehouseForm,
   PaperSupply,
   CreatePaperSupplyForm
 } from '../types';
@@ -605,6 +607,44 @@ export const suppliersApi = {
 
   deleteSupplier: async (id: string): Promise<void> => {
     await api.delete(`/api/supplier/${id}`);
+  },
+};
+
+// Warehouses API
+export const warehousesApi = {
+  getWarehouses: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<PaginatedResponse<Warehouse>> => {
+    const response = await api.get('/api/warehouse', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getWarehouseById: async (id: string): Promise<Warehouse> => {
+    const response: AxiosResponse<ApiResponse<Warehouse>> = await api.get(`/api/warehouse/${id}`);
+    return response.data.data!;
+  },
+
+  createWarehouse: async (data: CreateWarehouseForm): Promise<Warehouse> => {
+    const response: AxiosResponse<ApiResponse<Warehouse>> = await api.post('/api/warehouse', data);
+    return response.data.data!;
+  },
+
+  updateWarehouse: async (id: string, data: Partial<CreateWarehouseForm>): Promise<Warehouse> => {
+    const response: AxiosResponse<ApiResponse<Warehouse>> = await api.put(`/api/warehouse/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteWarehouse: async (id: string): Promise<void> => {
+    await api.delete(`/api/warehouse/${id}`);
   },
 };
 

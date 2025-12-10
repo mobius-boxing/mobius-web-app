@@ -14,6 +14,7 @@ import PaperClasses from './pages/PaperClasses';
 import Products from './pages/Products';
 import Manufacturers from './pages/Manufacturers';
 import Suppliers from './pages/Suppliers';
+import Warehouses from './pages/Warehouses';
 import PaperSupplies from './pages/PaperSupplies';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ForgotPassword from './pages/ForgotPassword';
@@ -128,6 +129,15 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
                   <Suppliers />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/warehouses"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <Warehouses />
                 </ProtectedRoute>
               }
             />

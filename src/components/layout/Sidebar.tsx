@@ -83,6 +83,13 @@ const Sidebar: React.FC = () => {
           roles: ['admin', 'superAdmin'],
         },
         {
+          id: 'warehouses',
+          label: t('nav.warehouses'),
+          path: '/warehouses',
+          icon: 'Warehouse',
+          roles: ['admin', 'superAdmin'],
+        },
+        {
           id: 'materials',
           label: t('nav.materials'),
           icon: 'Box',
