@@ -90,6 +90,12 @@ const EditWarehouseModal: React.FC<EditWarehouseModalProps> = ({
           />
         </div>
 
+        <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+          <p className="text-sm text-blue-800">
+            ℹ️ To resize the grid, use the Grid Editor (grid icon) which allows you to configure locations after resizing.
+          </p>
+        </div>
+
         <div className="flex justify-end space-x-3 pt-4">
           <Button
             type="button"

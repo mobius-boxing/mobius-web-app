@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Trash2, Edit, Warehouse as WarehouseIcon } from 'lucide-react';
+import { Plus, Search, Trash2, Edit, Warehouse as WarehouseIcon, Grid } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
 import { Warehouse } from '../types';
 import { warehousesApi } from '../services/api';
 import Layout from '../components/layout/Layout';
@@ -10,15 +9,16 @@ import Input from '../components/ui/Input';
 import Table from '../components/ui/Table';
 import CreateWarehouseModal from '../components/modals/CreateWarehouseModal';
 import EditWarehouseModal from '../components/modals/EditWarehouseModal';
+import WarehouseGridEditorModal from '../components/modals/WarehouseGridEditorModal';
 
 const Warehouses: React.FC = () => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showGridEditorModal, setShowGridEditorModal] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -73,6 +73,17 @@ const Warehouses: React.FC = () => {
     fetchWarehouses();
   };
 
+  const handleOpenGridEditor = (warehouse: Warehouse) => {
+    setSelectedWarehouse(warehouse);
+    setShowGridEditorModal(true);
+  };
+
+  const handleGridEditorSuccess = () => {
+    setShowGridEditorModal(false);
+    setSelectedWarehouse(null);
+    fetchWarehouses();
+  };
+
   // Filter warehouses based on search term
   const filteredWarehouses = warehouses.filter((warehouse) => {
     if (!warehouse) return false;
@@ -110,8 +121,18 @@ const Warehouses: React.FC = () => {
           <Button
             variant="ghost"
             size="sm"
+            onClick={() => handleOpenGridEditor(warehouse)}
+            disabled={actionLoading === warehouse?.uuid || !warehouse}
+            title={t('warehouses.editGrid')}
+          >
+            <Grid className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => handleEdit(warehouse)}
             disabled={actionLoading === warehouse?.uuid || !warehouse}
+            title={t('warehouses.editWarehouse')}
           >
             <Edit className="h-4 w-4" />
           </Button>
@@ -121,6 +142,7 @@ const Warehouses: React.FC = () => {
             onClick={() => handleDelete(warehouse?.uuid)}
             disabled={actionLoading === warehouse?.uuid || !warehouse}
             className="text-red-600 hover:text-red-700"
+            title={t('warehouses.deleteWarehouse')}
           >
             <Trash2 className="h-4 w-4" />
           </Button>
@@ -219,6 +241,16 @@ const Warehouses: React.FC = () => {
           setSelectedWarehouse(null);
         }}
         onSuccess={handleEditSuccess}
+        warehouse={selectedWarehouse}
+      />
+
+      <WarehouseGridEditorModal
+        isOpen={showGridEditorModal}
+        onClose={() => {
+          setShowGridEditorModal(false);
+          setSelectedWarehouse(null);
+        }}
+        onSuccess={handleGridEditorSuccess}
         warehouse={selectedWarehouse}
       />
     </Layout>

@@ -358,12 +358,49 @@ export interface Warehouse {
   id: string;
   uuid: string;
   name: string;
+  gridRows?: number;
+  gridCols?: number;
+  companyId?: string;
   createdAt: string;
   updatedAt: string;
 }
 
 export interface CreateWarehouseForm {
   name: string;
+  gridRows?: number;
+  gridCols?: number;
+  companyId?: string;
+}
+
+// Warehouse Location types
+export interface WarehouseLocation {
+  id: string;
+  uuid: string;
+  warehouseId: number;
+  row: number;
+  col: number;
+  status: 'active' | 'inactive';
+  locationType: 'storage' | 'receiving' | 'shipping' | 'quarantine' | 'wip';
+  locationCode: string;
+  capacity?: {
+    maxWeight?: number;
+    maxVolume?: number;
+    maxPallets?: number;
+    unit?: string;
+  };
+  metadata?: any;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BatchUpdateLocation {
+  row: number;
+  col: number;
+  status?: string;
+  locationType?: string;
+  locationCode?: string;
+  capacity?: any;
+  metadata?: any;
 }
 
 // Paper Supply types

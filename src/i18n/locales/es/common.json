@@ -59,6 +59,7 @@
     "loading": "Cargando...",
     "search": "Buscar",
     "save": "Guardar",
+    "saving": "Guardando...",
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "edit": "Editar",
@@ -532,6 +533,8 @@
     "searchPlaceholder": "Buscar depósitos...",
     "name": "Nombre",
     "namePlaceholder": "Ingrese nombre del depósito",
+    "gridRows": "Filas",
+    "gridCols": "Columnas",
     "createTitle": "Crear Depósito",
     "editTitle": "Editar Depósito",
     "createButton": "Crear Depósito",
@@ -552,7 +555,28 @@
     "createFailed": "Error al crear el depósito. Por favor, intente nuevamente.",
     "updateFailed": "Error al actualizar el depósito. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el depósito",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este depósito?"
+    "deleteConfirm": "¿Está seguro de que desea eliminar este depósito?",
+    "grid": {
+      "title": "Configurar Cuadrícula - {{name}}",
+      "selectType": "Seleccionar Tipo de Ubicación",
+      "instructions": "Haga clic para alternar celdas individuales o haga clic y arrastre para pintar varias celdas",
+      "legend": "Leyenda",
+      "inactive": "Inactivo",
+      "unsavedChanges": "Tiene cambios sin guardar. ¿Está seguro de que desea cerrar?",
+      "unsavedCount": "{{count}} cambios sin guardar",
+      "resizeTitle": "Redimensionar Cuadrícula",
+      "resizeWarning": "⚠️ Advertencia: Redimensionar eliminará todas las ubicaciones existentes y creará nuevas ubicaciones de almacenamiento inactivas. Deberá reconfigurar los tipos y estados de ubicación.",
+      "resizing": "Redimensionando Cuadrícula...",
+      "applyResize": "Aplicar Redimensión",
+      "validation": {
+        "dimensionsRange": "Las filas y columnas deben estar entre 1 y 50",
+        "dimensionsUnchanged": "Las dimensiones de la cuadrícula no han cambiado"
+      },
+      "errors": {
+        "resizeFailed": "Error al redimensionar cuadrícula. Por favor, intente nuevamente.",
+        "saveFailed": "Error al guardar los cambios. Por favor, intente nuevamente."
+      }
+    }
   },
   "paperSupplies": {
     "title": "Insumos de papel",

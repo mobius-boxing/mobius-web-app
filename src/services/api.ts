@@ -34,6 +34,8 @@ import {
   CreateSupplierForm,
   Warehouse,
   CreateWarehouseForm,
+  WarehouseLocation,
+  BatchUpdateLocation,
   PaperSupply,
   CreatePaperSupplyForm
 } from '../types';
@@ -645,6 +647,19 @@ export const warehousesApi = {
 
   deleteWarehouse: async (id: string): Promise<void> => {
     await api.delete(`/api/warehouse/${id}`);
+  },
+
+  // Warehouse Locations API
+  getWarehouseLocations: async (warehouseUuid: string): Promise<WarehouseLocation[]> => {
+    const response: AxiosResponse<ApiResponse<WarehouseLocation[]>> = await api.get(`/api/warehouseLocation/warehouse/${warehouseUuid}`);
+    return response.data.data!;
+  },
+
+  batchUpdateLocations: async (warehouseUuid: string, locations: BatchUpdateLocation[]): Promise<WarehouseLocation[]> => {
+    const response: AxiosResponse<ApiResponse<WarehouseLocation[]>> = await api.put(`/api/warehouseLocation/warehouse/${warehouseUuid}/batch`, {
+      locations,
+    });
+    return response.data.data!;
   },
 };
 
