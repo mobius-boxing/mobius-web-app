@@ -295,6 +295,45 @@ export interface CreatePaperClassForm {
   papers?: number[]; // Array of paper supply IDs
 }
 
+// Corrugation Class types
+export interface CorrugationClass {
+  id: string;
+  uuid: string;
+  code: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCorrugationClassForm {
+  code: string;
+  description?: string;
+}
+
+// Corrugation types
+export interface Corrugation {
+  id: string;
+  uuid: string;
+  code: string;
+  description?: string;
+  theoreticalGrammage?: number;
+  suggestedWidth?: number;
+  caliper?: number;
+  corrugationClassId?: number;
+  corrugationClass?: CorrugationClass;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCorrugationForm {
+  code: string;
+  description?: string;
+  theoreticalGrammage?: number;
+  suggestedWidth?: number;
+  caliper?: number;
+  corrugationClassId?: number;
+}
+
 // Product types
 export interface Product {
   id: string;

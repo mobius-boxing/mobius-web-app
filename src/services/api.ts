@@ -26,6 +26,10 @@ import {
   CreateFluteTypeForm,
   PaperClass,
   CreatePaperClassForm,
+  CorrugationClass,
+  CreateCorrugationClassForm,
+  Corrugation,
+  CreateCorrugationForm,
   Product,
   CreateProductForm,
   Manufacturer,
@@ -494,6 +498,82 @@ export const paperClassesApi = {
 
   deletePaperClass: async (id: string): Promise<void> => {
     await api.delete(`/api/paper-class/${id}`);
+  },
+};
+
+// Corrugation Classes API
+export const corrugationClassesApi = {
+  getCorrugationClasses: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<PaginatedResponse<CorrugationClass>> => {
+    const response = await api.get('/api/corrugation-class', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getCorrugationClassById: async (id: string): Promise<CorrugationClass> => {
+    const response: AxiosResponse<ApiResponse<CorrugationClass>> = await api.get(`/api/corrugation-class/${id}`);
+    return response.data.data!;
+  },
+
+  createCorrugationClass: async (data: CreateCorrugationClassForm): Promise<CorrugationClass> => {
+    const response: AxiosResponse<ApiResponse<CorrugationClass>> = await api.post('/api/corrugation-class', data);
+    return response.data.data!;
+  },
+
+  updateCorrugationClass: async (id: string, data: Partial<CreateCorrugationClassForm>): Promise<CorrugationClass> => {
+    const response: AxiosResponse<ApiResponse<CorrugationClass>> = await api.put(`/api/corrugation-class/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteCorrugationClass: async (id: string): Promise<void> => {
+    await api.delete(`/api/corrugation-class/${id}`);
+  },
+};
+
+// Corrugations API
+export const corrugationsApi = {
+  getCorrugations: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+  } = {}): Promise<PaginatedResponse<Corrugation>> => {
+    const response = await api.get('/api/corrugation', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getCorrugationById: async (id: string): Promise<Corrugation> => {
+    const response: AxiosResponse<ApiResponse<Corrugation>> = await api.get(`/api/corrugation/${id}`);
+    return response.data.data!;
+  },
+
+  createCorrugation: async (data: CreateCorrugationForm): Promise<Corrugation> => {
+    const response: AxiosResponse<ApiResponse<Corrugation>> = await api.post('/api/corrugation', data);
+    return response.data.data!;
+  },
+
+  updateCorrugation: async (id: string, data: Partial<CreateCorrugationForm>): Promise<Corrugation> => {
+    const response: AxiosResponse<ApiResponse<Corrugation>> = await api.put(`/api/corrugation/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteCorrugation: async (id: string): Promise<void> => {
+    await api.delete(`/api/corrugation/${id}`);
   },
 };
 

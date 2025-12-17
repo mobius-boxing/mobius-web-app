@@ -19,6 +19,8 @@
     "warehouses": "Depósitos",
     "supplies": "Insumos",
     "paperSupplies": "Insumos de Papel",
+    "corrugationClasses": "Clases de Corrugado",
+    "corrugations": "Corrugados",
     "settings": "Configuración",
     "signOut": "Cerrar Sesión"
   },
@@ -625,5 +627,87 @@
     "updateFailed": "Error al actualizar el papel. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el papel",
     "deleteConfirm": "¿Está seguro de que desea eliminar este papel?"
+  },
+  "corrugationClasses": {
+    "title": "Clases de Corrugado",
+    "subtitle": "Gestionar catálogo de clases de corrugado",
+    "addClass": "Agregar Clase de Corrugado",
+    "allClasses": "Todas las Clases de Corrugado",
+    "searchPlaceholder": "Buscar clases de corrugado...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código de clase de corrugado",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "createTitle": "Crear Clase de Corrugado",
+    "editTitle": "Editar Clase de Corrugado",
+    "createButton": "Crear Clase de Corrugado",
+    "updateButton": "Actualizar Clase de Corrugado",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron clases de corrugado",
+      "description": "Comience creando una nueva clase de corrugado",
+      "noData": "No hay clases de corrugado disponibles"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido",
+      "codeMinLength": "El código debe tener al menos 1 carácter",
+      "codeMaxLength": "El código debe tener menos de 50 caracteres"
+    },
+    "createFailed": "Error al crear la clase de corrugado. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar la clase de corrugado. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar la clase de corrugado",
+    "deleteConfirm": "¿Está seguro de que desea eliminar esta clase de corrugado?"
+  },
+  "corrugations": {
+    "title": "Corrugados",
+    "subtitle": "Gestionar catálogo de corrugados",
+    "addCorrugation": "Agregar Corrugado",
+    "allCorrugations": "Todos los Corrugados",
+    "searchPlaceholder": "Buscar corrugados...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código de corrugado",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "theoreticalGrammage": "Gramaje Teórico",
+    "theoreticalGrammagePlaceholder": "Ingrese gramaje teórico",
+    "suggestedWidth": "Ancho Sugerido",
+    "suggestedWidthPlaceholder": "Ingrese ancho sugerido",
+    "caliper": "Calibre",
+    "caliperPlaceholder": "Ingrese calibre",
+    "corrugationClass": "Clase de Corrugado",
+    "selectCorrugationClass": "Seleccione clase de corrugado (opcional)",
+    "createTitle": "Crear Corrugado",
+    "editTitle": "Editar Corrugado",
+    "createButton": "Crear Corrugado",
+    "updateButton": "Actualizar Corrugado",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "corrugationClass": "Clase de Corrugado",
+      "theoreticalGrammage": "Gramaje Teórico",
+      "suggestedWidth": "Ancho Sugerido",
+      "caliper": "Calibre",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron corrugados",
+      "description": "Comience creando un nuevo corrugado",
+      "noData": "No hay corrugados disponibles"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido",
+      "codeMinLength": "El código debe tener al menos 1 carácter",
+      "codeMaxLength": "El código debe tener menos de 50 caracteres"
+    },
+    "createFailed": "Error al crear el corrugado. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el corrugado. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el corrugado",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este corrugado?"
   }
 }

@@ -16,6 +16,8 @@ import Manufacturers from './pages/Manufacturers';
 import Suppliers from './pages/Suppliers';
 import Warehouses from './pages/Warehouses';
 import PaperSupplies from './pages/PaperSupplies';
+import CorrugationClasses from './pages/CorrugationClasses';
+import Corrugations from './pages/Corrugations';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -147,6 +149,24 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
                   <PaperSupplies />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/corrugation-classes"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <CorrugationClasses />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/corrugations"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <Corrugations />
                 </ProtectedRoute>
               }
             />

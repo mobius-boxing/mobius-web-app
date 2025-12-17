@@ -116,6 +116,20 @@ const Sidebar: React.FC = () => {
               icon: 'BookOpen',
               roles: ['admin', 'superAdmin'],
             },
+            {
+              id: 'corrugation-classes',
+              label: t('nav.corrugationClasses'),
+              path: '/corrugation-classes',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'corrugations',
+              label: t('nav.corrugations'),
+              path: '/corrugations',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
           ],
         },
         {
