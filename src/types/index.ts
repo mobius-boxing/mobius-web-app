@@ -296,8 +296,8 @@ export interface CreatePaperClassForm {
 }
 
 // Corrugation Class types
+// SECURITY: No numeric IDs - only UUIDs exposed to frontend
 export interface CorrugationClass {
-  id: string;
   uuid: string;
   code: string;
   description?: string;
@@ -311,15 +311,15 @@ export interface CreateCorrugationClassForm {
 }
 
 // Corrugation types
+// SECURITY: No numeric IDs - only UUIDs exposed to frontend
 export interface Corrugation {
-  id: string;
   uuid: string;
   code: string;
   description?: string;
   theoreticalGrammage?: number;
   suggestedWidth?: number;
   caliper?: number;
-  corrugationClassId?: number;
+  // Related object with UUID (not numeric foreign key)
   corrugationClass?: CorrugationClass;
   createdAt: string;
   updatedAt: string;
@@ -331,7 +331,8 @@ export interface CreateCorrugationForm {
   theoreticalGrammage?: number;
   suggestedWidth?: number;
   caliper?: number;
-  corrugationClassId?: number;
+  // Use UUID to reference corrugation class, not numeric ID
+  corrugationClassUuid?: string;
 }
 
 // Product types

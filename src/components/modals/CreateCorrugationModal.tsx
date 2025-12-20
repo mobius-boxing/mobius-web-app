@@ -55,7 +55,8 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
         theoreticalGrammage: data.theoreticalGrammage ? Number(data.theoreticalGrammage) : undefined,
         suggestedWidth: data.suggestedWidth ? Number(data.suggestedWidth) : undefined,
         caliper: data.caliper ? Number(data.caliper) : undefined,
-        corrugationClassId: data.corrugationClassId ? Number(data.corrugationClassId) : undefined,
+        // SECURITY: Send UUID, not numeric ID
+        corrugationClassUuid: data.corrugationClassUuid || undefined,
       };
       await corrugationsApi.createCorrugation(submitData);
       reset();
@@ -120,12 +121,12 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
             {t('corrugations.corrugationClass')}
           </label>
           <select
-            {...register('corrugationClassId')}
+            {...register('corrugationClassUuid')}
             className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           >
             <option value="">{t('corrugations.selectCorrugationClass')}</option>
             {corrugationClasses.map((cc) => (
-              <option key={cc.id} value={cc.id}>
+              <option key={cc.uuid} value={cc.uuid}>
                 {cc.code}
               </option>
             ))}

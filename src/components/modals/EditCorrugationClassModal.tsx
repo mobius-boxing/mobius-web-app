@@ -46,7 +46,8 @@ const EditCorrugationClassModal: React.FC<EditCorrugationClassModalProps> = ({
     setError('');
 
     try {
-      await corrugationClassesApi.updateCorrugationClass(corrugationClass.id, data);
+      // SECURITY: Use UUID, not numeric ID
+      await corrugationClassesApi.updateCorrugationClass(corrugationClass.uuid, data);
       reset();
       onSuccess();
     } catch (err: any) {

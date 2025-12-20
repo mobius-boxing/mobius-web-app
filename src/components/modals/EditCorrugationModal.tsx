@@ -46,7 +46,8 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
       setValue('theoreticalGrammage', corrugation.theoreticalGrammage);
       setValue('suggestedWidth', corrugation.suggestedWidth);
       setValue('caliper', corrugation.caliper);
-      setValue('corrugationClassId', corrugation.corrugationClassId);
+      // SECURITY: Use corrugation class UUID from related object, not numeric ID
+      setValue('corrugationClassUuid', corrugation.corrugationClass?.uuid || '');
     }
   }, [isOpen, corrugation, setValue]);
 
@@ -71,9 +72,11 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
         theoreticalGrammage: data.theoreticalGrammage ? Number(data.theoreticalGrammage) : undefined,
         suggestedWidth: data.suggestedWidth ? Number(data.suggestedWidth) : undefined,
         caliper: data.caliper ? Number(data.caliper) : undefined,
-        corrugationClassId: data.corrugationClassId ? Number(data.corrugationClassId) : undefined,
+        // SECURITY: Send UUID, not numeric ID
+        corrugationClassUuid: data.corrugationClassUuid || undefined,
       };
-      await corrugationsApi.updateCorrugation(corrugation.id, submitData);
+      // SECURITY: Use corrugation UUID, not numeric ID
+      await corrugationsApi.updateCorrugation(corrugation.uuid, submitData);
       reset();
       onSuccess();
     } catch (err: any) {
@@ -138,12 +141,12 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
             {t('corrugations.corrugationClass')}
           </label>
           <select
-            {...register('corrugationClassId')}
+            {...register('corrugationClassUuid')}
             className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           >
             <option value="">{t('corrugations.selectCorrugationClass')}</option>
             {corrugationClasses.map((cc) => (
-              <option key={cc.id} value={cc.id}>
+              <option key={cc.uuid} value={cc.uuid}>
                 {cc.code}
               </option>
             ))}
