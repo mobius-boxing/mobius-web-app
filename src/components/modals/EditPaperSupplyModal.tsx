@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { PaperSupply, CreatePaperSupplyForm, Manufacturer, Supplier } from '../../types';
-import { paperSuppliesApi, manufacturersApi, suppliersApi } from '../../services/api';
+import { PaperSupply, CreatePaperSupplyForm, Manufacturer, Supplier, PaperType } from '../../types';
+import { paperSuppliesApi, manufacturersApi, suppliersApi, paperTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
@@ -25,6 +25,8 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
   const [error, setError] = useState('');
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [paperTypes, setPaperTypes] = useState<PaperType[]>([]);
+  const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
     register,
@@ -35,29 +37,42 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
 
   useEffect(() => {
     if (isOpen && paperSupply) {
+      setDropdownsLoaded(false);
+      fetchDropdownData();
+    }
+  }, [isOpen, paperSupply]);
+
+  useEffect(() => {
+    if (isOpen && paperSupply && dropdownsLoaded) {
       reset({
         code: paperSupply.code,
         name: paperSupply.name,
         description: paperSupply.description || '',
         manufacturerId: paperSupply.manufacturer?.uuid || '',
         supplierId: paperSupply.supplier?.uuid || '',
+        paperTypeId: paperSupply.paperType?.uuid || '',
+        grammage: paperSupply.grammage || undefined,
+        price: paperSupply.price || undefined,
         minimumStockPallets: paperSupply.minimumStock?.pallets || 0,
         minimumStockBoxes: paperSupply.minimumStock?.boxes || 0,
       });
-      fetchDropdownData();
     }
-  }, [isOpen, paperSupply, reset]);
+  }, [isOpen, paperSupply, dropdownsLoaded, reset]);
 
   const fetchDropdownData = async () => {
     try {
-      const [manufacturersRes, suppliersRes] = await Promise.all([
+      const [manufacturersRes, suppliersRes, paperTypesRes] = await Promise.all([
         manufacturersApi.getManufacturers(),
         suppliersApi.getSuppliers(),
+        paperTypesApi.getPaperTypes(),
       ]);
       setManufacturers(manufacturersRes.data || []);
       setSuppliers(suppliersRes.data || []);
+      setPaperTypes(paperTypesRes.data || []);
     } catch (error) {
       console.error('Error fetching dropdown data:', error);
+    } finally {
+      setDropdownsLoaded(true);
     }
   };
 
@@ -75,6 +90,9 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
         description: data.description || undefined,
         manufacturerId: data.manufacturerId || undefined,
         supplierId: data.supplierId || undefined,
+        paperTypeId: data.paperTypeId || undefined,
+        grammage: data.grammage || undefined,
+        price: data.price || undefined,
         minimumStock: {
           pallets: data.minimumStockPallets || 0,
           boxes: data.minimumStockBoxes || 0,
@@ -180,6 +198,53 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
               </option>
             ))}
           </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('paperSupplies.paperType')}
+          </label>
+          <select
+            {...register('paperTypeId')}
+            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">{t('paperSupplies.selectPaperType')}</option>
+            {paperTypes.map((paperType) => (
+              <option key={paperType.uuid} value={paperType.uuid}>
+                {paperType.code}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('paperSupplies.grammage')}
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              {...register('grammage', {
+                valueAsNumber: true,
+              })}
+              placeholder={t('paperSupplies.grammagePlaceholder')}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('paperSupplies.price')}
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              {...register('price', {
+                valueAsNumber: true,
+              })}
+              placeholder={t('paperSupplies.pricePlaceholder')}
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">

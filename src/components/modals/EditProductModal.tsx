@@ -26,6 +26,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
     register,
@@ -36,15 +37,21 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 
   useEffect(() => {
     if (isOpen && product) {
+      setDropdownsLoaded(false);
+      fetchCustomers();
+    }
+  }, [isOpen, product]);
+
+  useEffect(() => {
+    if (isOpen && product && dropdownsLoaded) {
       reset({
         code: product.code,
         clientCode: product.clientCode || '',
         description: product.description || '',
         customerId: product.customerId,
       });
-      fetchCustomers();
     }
-  }, [isOpen, product, reset]);
+  }, [isOpen, product, dropdownsLoaded, reset]);
 
   const fetchCustomers = async () => {
     try {
@@ -52,6 +59,8 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
       setCustomers(response.data || []);
     } catch (error) {
       console.error('Error fetching customers:', error);
+    } finally {
+      setDropdownsLoaded(true);
     }
   };
 

@@ -41,7 +41,9 @@ import {
   WarehouseLocation,
   BatchUpdateLocation,
   PaperSupply,
-  CreatePaperSupplyForm
+  CreatePaperSupplyForm,
+  PaperSheet,
+  CreatePaperSheetForm
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -751,6 +753,7 @@ export const paperSuppliesApi = {
     search?: string;
     manufacturerId?: string;
     supplierId?: string;
+    paperTypeId?: string;
   } = {}): Promise<PaginatedResponse<PaperSupply>> => {
     const response = await api.get('/api/paper-supply', { params });
     const backendData = response.data;
@@ -780,6 +783,47 @@ export const paperSuppliesApi = {
 
   deletePaperSupply: async (id: string): Promise<void> => {
     await api.delete(`/api/paper-supply/${id}`);
+  },
+};
+
+// Paper Sheets API
+export const paperSheetsApi = {
+  getPaperSheets: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    supplierId?: string;
+    manufacturerId?: string;
+    corrugationId?: string;
+  } = {}): Promise<PaginatedResponse<PaperSheet>> => {
+    const response = await api.get('/api/paper-sheet', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getPaperSheetById: async (id: string): Promise<PaperSheet> => {
+    const response: AxiosResponse<ApiResponse<PaperSheet>> = await api.get(`/api/paper-sheet/${id}`);
+    return response.data.data!;
+  },
+
+  createPaperSheet: async (data: CreatePaperSheetForm): Promise<PaperSheet> => {
+    const response: AxiosResponse<ApiResponse<PaperSheet>> = await api.post('/api/paper-sheet', data);
+    return response.data.data!;
+  },
+
+  updatePaperSheet: async (id: string, data: Partial<CreatePaperSheetForm>): Promise<PaperSheet> => {
+    const response: AxiosResponse<ApiResponse<PaperSheet>> = await api.put(`/api/paper-sheet/${id}`, data);
+    return response.data.data!;
+  },
+
+  deletePaperSheet: async (id: string): Promise<void> => {
+    await api.delete(`/api/paper-sheet/${id}`);
   },
 };
 

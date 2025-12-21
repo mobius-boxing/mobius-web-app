@@ -225,7 +225,7 @@ export const waitForLoadingToFinish = async () => {
 
 // Form utilities
 export const fillInput = async (
-  user: ReturnType<typeof import('@testing-library/user-event').default.setup>,
+  user: { clear: (element: HTMLElement) => Promise<void>; type: (element: HTMLElement, text: string) => Promise<void> },
   input: HTMLElement,
   value: string
 ) => {

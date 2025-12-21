@@ -24,6 +24,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [corrugationClasses, setCorrugationClasses] = useState<CorrugationClass[]>([]);
+  const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
     register,
@@ -34,13 +35,14 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
   } = useForm<CreateCorrugationForm>();
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && corrugation) {
+      setDropdownsLoaded(false);
       fetchCorrugationClasses();
     }
-  }, [isOpen]);
+  }, [isOpen, corrugation]);
 
   useEffect(() => {
-    if (isOpen && corrugation) {
+    if (isOpen && corrugation && dropdownsLoaded) {
       setValue('code', corrugation.code);
       setValue('description', corrugation.description || '');
       setValue('theoreticalGrammage', corrugation.theoreticalGrammage);
@@ -49,7 +51,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
       // SECURITY: Use corrugation class UUID from related object, not numeric ID
       setValue('corrugationClassUuid', corrugation.corrugationClass?.uuid || '');
     }
-  }, [isOpen, corrugation, setValue]);
+  }, [isOpen, corrugation, dropdownsLoaded, setValue]);
 
   const fetchCorrugationClasses = async () => {
     try {
@@ -57,6 +59,8 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
       setCorrugationClasses(response.data || []);
     } catch (error) {
       console.error('Error fetching corrugation classes:', error);
+    } finally {
+      setDropdownsLoaded(true);
     }
   };
 

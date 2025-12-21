@@ -456,6 +456,10 @@ export interface PaperSupply {
   supplierId?: string;
   supplierCode?: string; // Deprecated: use supplier.code instead
   supplier?: Supplier; // Full supplier object from API
+  paperTypeId?: string;
+  paperType?: PaperType; // Full paper type object from API
+  grammage?: number;
+  price?: number;
   minimumStock?: {
     pallets: number;
     boxes: number;
@@ -472,6 +476,36 @@ export interface CreatePaperSupplyForm {
   name: string;
   manufacturerId?: string;
   supplierId?: string;
+  paperTypeId?: string;
+  grammage?: number;
+  price?: number;
   minimumStockPallets?: number;
   minimumStockBoxes?: number;
+}
+
+export interface PaperSheet {
+  uuid: string;
+  code: string;
+  name: string;
+  description?: string;
+  minimumStock?: number;
+  length?: number;
+  width?: number;
+  supplier?: Supplier;
+  manufacturer?: Manufacturer;
+  corrugation?: Corrugation;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePaperSheetForm {
+  code: string;
+  name: string;
+  description?: string;
+  supplierId?: string;
+  manufacturerId?: string;
+  corrugationId?: string;
+  minimumStock?: number;
+  length?: number;
+  width?: number;
 }

@@ -29,6 +29,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   const [contacts, setContacts] = useState<ContactInfo[]>([]);
   const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocation[]>([]);
   const [deliveryDays, setDeliveryDays] = useState<DeliveryDay[]>([]);
+  const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const form = useForm<CreateCustomerForm>();
 
@@ -36,7 +37,13 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
 
   useEffect(() => {
     if (isOpen && customer) {
-      // Set form values with current customer data
+      setDropdownsLoaded(false);
+      fetchDropdownData();
+    }
+  }, [isOpen, customer]);
+
+  useEffect(() => {
+    if (isOpen && customer && dropdownsLoaded) {
       setValue('name', customer.name);
       setValue('legalName', customer.legalName || '');
       setValue('legalCode', customer.legalCode || '');
@@ -51,23 +58,21 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
       setContacts(customer.contacts || []);
       setDeliveryLocations(customer.deliveryLocations || []);
       setDeliveryDays(customer.deliveryDays || []);
-
-      // Fetch dropdown data
-      fetchDropdownData();
     }
-  }, [isOpen, customer, setValue]);
+  }, [isOpen, customer, dropdownsLoaded, setValue]);
 
   const fetchDropdownData = async () => {
     try {
-      // Fetch categories
-      const categoriesResponse = await customerCategoriesApi.getCategories();
+      const [categoriesResponse, usersResponse] = await Promise.all([
+        customerCategoriesApi.getCategories(),
+        usersApi.getUsers(),
+      ]);
       setCategories(categoriesResponse.data || []);
-
-      // Fetch users (sales persons)
-      const usersResponse = await usersApi.getUsers();
       setSalesPersons(usersResponse.data || []);
     } catch (error) {
       console.error('Error fetching dropdown data:', error);
+    } finally {
+      setDropdownsLoaded(true);
     }
   };
 

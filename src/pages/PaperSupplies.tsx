@@ -128,6 +128,33 @@ const PaperSupplies: React.FC = () => {
       ),
     },
     {
+      key: 'paperType',
+      header: t('paperSupplies.columns.paperType'),
+      render: (value: any, paperSupply: PaperSupply) => (
+        <span className="text-sm text-secondary-900">
+          {paperSupply.paperType?.code || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      key: 'grammage',
+      header: t('paperSupplies.columns.grammage'),
+      render: (value: any, paperSupply: PaperSupply) => (
+        <span className="text-sm text-secondary-900">
+          {paperSupply.grammage != null ? `${paperSupply.grammage} g/m²` : 'N/A'}
+        </span>
+      ),
+    },
+    {
+      key: 'price',
+      header: t('paperSupplies.columns.price'),
+      render: (value: any, paperSupply: PaperSupply) => (
+        <span className="text-sm text-secondary-900">
+          {paperSupply.price != null ? `$${paperSupply.price.toFixed(2)}` : 'N/A'}
+        </span>
+      ),
+    },
+    {
       key: 'minimumStock',
       header: t('paperSupplies.columns.minimumStock'),
       render: (value: any, paperSupply: PaperSupply) => (

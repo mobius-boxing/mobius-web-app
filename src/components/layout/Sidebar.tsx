@@ -167,6 +167,13 @@ const Sidebar: React.FC = () => {
               icon: 'Package',
               roles: ['admin', 'superAdmin'],
             },
+            {
+              id: 'paper-sheets',
+              label: t('nav.paperSheets'),
+              path: '/paper-sheets',
+              icon: 'FileText',
+              roles: ['admin', 'superAdmin'],
+            },
           ],
         },
       ],
