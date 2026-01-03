@@ -26,6 +26,8 @@
     "stock": "Stock",
     "paperStock": "Stock de Bobinas",
     "sheetStock": "Stock de Planchas",
+    "toolingTypes": "Tipos de Herramental",
+    "toolings": "Herramentales",
     "settings": "Configuración",
     "signOut": "Cerrar Sesión"
   },
@@ -921,5 +923,93 @@
     "updateFailed": "Error al actualizar el stock. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el stock",
     "deleteConfirm": "¿Está seguro de que desea eliminar este stock?"
+  },
+  "toolingTypes": {
+    "title": "Tipos de Herramental",
+    "subtitle": "Gestionar catálogo de tipos de herramental",
+    "addType": "Agregar Tipo",
+    "allTypes": "Todos los Tipos",
+    "searchPlaceholder": "Buscar tipos de herramental...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código del tipo",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese nombre del tipo",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "automaticConsumption": "Consumo Automático",
+    "createTitle": "Crear Tipo de Herramental",
+    "editTitle": "Editar Tipo de Herramental",
+    "createButton": "Crear Tipo",
+    "updateButton": "Actualizar Tipo",
+    "columns": {
+      "code": "Código",
+      "name": "Nombre",
+      "description": "Descripción",
+      "automaticConsumption": "Consumo Auto.",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron tipos de herramental",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience creando un nuevo tipo de herramental"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido",
+      "codeMinLength": "El código debe tener al menos 1 carácter",
+      "codeMaxLength": "El código debe tener menos de 50 caracteres",
+      "nameRequired": "El nombre es requerido",
+      "nameMinLength": "El nombre debe tener al menos 1 carácter",
+      "nameMaxLength": "El nombre debe tener menos de 255 caracteres"
+    },
+    "createFailed": "Error al crear el tipo de herramental. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el tipo de herramental. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el tipo de herramental",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de herramental?"
+  },
+  "toolings": {
+    "title": "Herramentales",
+    "subtitle": "Gestionar inventario de herramentales",
+    "addTooling": "Agregar Herramental",
+    "allToolings": "Todos los Herramentales",
+    "searchPlaceholder": "Buscar herramentales...",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese nombre del herramental",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "toolingType": "Tipo de Herramental",
+    "selectToolingType": "Seleccione tipo de herramental",
+    "manufacturer": "Fabricante",
+    "selectManufacturer": "Seleccione fabricante (opcional)",
+    "supplier": "Proveedor",
+    "selectSupplier": "Seleccione proveedor (opcional)",
+    "minimumStock": "Stock Mínimo",
+    "createTitle": "Crear Herramental",
+    "editTitle": "Editar Herramental",
+    "createButton": "Crear Herramental",
+    "updateButton": "Actualizar Herramental",
+    "columns": {
+      "name": "Nombre",
+      "toolingType": "Tipo",
+      "manufacturer": "Fabricante",
+      "supplier": "Proveedor",
+      "minimumStock": "Stock Mín.",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron herramentales",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience agregando un nuevo herramental"
+    },
+    "validation": {
+      "nameRequired": "El nombre es requerido",
+      "nameMinLength": "El nombre debe tener al menos 1 carácter",
+      "nameMaxLength": "El nombre debe tener menos de 255 caracteres",
+      "toolingTypeRequired": "El tipo de herramental es requerido",
+      "minimumStockMin": "El stock mínimo debe ser al menos 0"
+    },
+    "createFailed": "Error al crear el herramental. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el herramental. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el herramental",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este herramental?"
   }
 }

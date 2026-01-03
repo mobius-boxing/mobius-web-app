@@ -26,6 +26,8 @@
     "stock": "Stock",
     "paperStock": "Paper Stock",
     "sheetStock": "Sheet Stock",
+    "toolingTypes": "Tooling Types",
+    "toolings": "Toolings",
     "settings": "Settings",
     "signOut": "Sign Out"
   },
@@ -921,5 +923,93 @@
     "updateFailed": "Failed to update sheet stock. Please try again.",
     "deleteFailed": "Failed to delete sheet stock",
     "deleteConfirm": "Are you sure you want to delete this sheet stock?"
+  },
+  "toolingTypes": {
+    "title": "Tooling Types",
+    "subtitle": "Manage tooling type catalog",
+    "addType": "Add Tooling Type",
+    "allTypes": "All Tooling Types",
+    "searchPlaceholder": "Search tooling types...",
+    "code": "Code",
+    "codePlaceholder": "Enter tooling type code",
+    "name": "Name",
+    "namePlaceholder": "Enter tooling type name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "automaticConsumption": "Automatic Consumption",
+    "createTitle": "Create Tooling Type",
+    "editTitle": "Edit Tooling Type",
+    "createButton": "Create Tooling Type",
+    "updateButton": "Update Tooling Type",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "automaticConsumption": "Auto Consumption",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No tooling types found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by creating a new tooling type"
+    },
+    "validation": {
+      "codeRequired": "Code is required",
+      "codeMinLength": "Code must be at least 1 character",
+      "codeMaxLength": "Code must be less than 50 characters",
+      "nameRequired": "Name is required",
+      "nameMinLength": "Name must be at least 1 character",
+      "nameMaxLength": "Name must be less than 255 characters"
+    },
+    "createFailed": "Failed to create tooling type. Please try again.",
+    "updateFailed": "Failed to update tooling type. Please try again.",
+    "deleteFailed": "Failed to delete tooling type",
+    "deleteConfirm": "Are you sure you want to delete this tooling type?"
+  },
+  "toolings": {
+    "title": "Toolings",
+    "subtitle": "Manage tooling inventory",
+    "addTooling": "Add Tooling",
+    "allToolings": "All Toolings",
+    "searchPlaceholder": "Search toolings...",
+    "name": "Name",
+    "namePlaceholder": "Enter tooling name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "toolingType": "Tooling Type",
+    "selectToolingType": "Select tooling type",
+    "manufacturer": "Manufacturer",
+    "selectManufacturer": "Select manufacturer (optional)",
+    "supplier": "Supplier",
+    "selectSupplier": "Select supplier (optional)",
+    "minimumStock": "Minimum Stock",
+    "createTitle": "Create Tooling",
+    "editTitle": "Edit Tooling",
+    "createButton": "Create Tooling",
+    "updateButton": "Update Tooling",
+    "columns": {
+      "name": "Name",
+      "toolingType": "Tooling Type",
+      "manufacturer": "Manufacturer",
+      "supplier": "Supplier",
+      "minimumStock": "Min Stock",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No toolings found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by adding a new tooling"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "nameMinLength": "Name must be at least 1 character",
+      "nameMaxLength": "Name must be less than 255 characters",
+      "toolingTypeRequired": "Tooling type is required",
+      "minimumStockMin": "Minimum stock must be at least 0"
+    },
+    "createFailed": "Failed to create tooling. Please try again.",
+    "updateFailed": "Failed to update tooling. Please try again.",
+    "deleteFailed": "Failed to delete tooling",
+    "deleteConfirm": "Are you sure you want to delete this tooling?"
   }
 }

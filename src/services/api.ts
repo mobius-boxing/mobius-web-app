@@ -48,7 +48,11 @@ import {
   CreatePaperStockForm,
   SheetStock,
   CreateSheetStockForm,
-  WarehouseStockResponse
+  WarehouseStockResponse,
+  ToolingType,
+  CreateToolingTypeForm,
+  Tooling,
+  CreateToolingForm
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -918,6 +922,89 @@ export const sheetStockApi = {
 
   deleteSheetStock: async (id: string): Promise<void> => {
     await api.delete(`/api/sheet-stock/${id}`);
+  },
+};
+
+// Tooling Types API
+export const toolingTypesApi = {
+  getToolingTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    code?: string;
+    name?: string;
+    automaticConsumption?: boolean;
+  } = {}): Promise<PaginatedResponse<ToolingType>> => {
+    const response = await api.get('/api/tooling-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getToolingTypeById: async (id: string): Promise<ToolingType> => {
+    const response: AxiosResponse<ApiResponse<ToolingType>> = await api.get(`/api/tooling-type/${id}`);
+    return response.data.data!;
+  },
+
+  createToolingType: async (data: CreateToolingTypeForm): Promise<ToolingType> => {
+    const response: AxiosResponse<ApiResponse<ToolingType>> = await api.post('/api/tooling-type', data);
+    return response.data.data!;
+  },
+
+  updateToolingType: async (id: string, data: Partial<CreateToolingTypeForm>): Promise<ToolingType> => {
+    const response: AxiosResponse<ApiResponse<ToolingType>> = await api.put(`/api/tooling-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteToolingType: async (id: string): Promise<void> => {
+    await api.delete(`/api/tooling-type/${id}`);
+  },
+};
+
+// Toolings API
+export const toolingsApi = {
+  getToolings: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    name?: string;
+    toolingTypeId?: string;
+    manufacturerId?: string;
+    supplierId?: string;
+  } = {}): Promise<PaginatedResponse<Tooling>> => {
+    const response = await api.get('/api/tooling', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getToolingById: async (id: string): Promise<Tooling> => {
+    const response: AxiosResponse<ApiResponse<Tooling>> = await api.get(`/api/tooling/${id}`);
+    return response.data.data!;
+  },
+
+  createTooling: async (data: CreateToolingForm): Promise<Tooling> => {
+    const response: AxiosResponse<ApiResponse<Tooling>> = await api.post('/api/tooling', data);
+    return response.data.data!;
+  },
+
+  updateTooling: async (id: string, data: Partial<CreateToolingForm>): Promise<Tooling> => {
+    const response: AxiosResponse<ApiResponse<Tooling>> = await api.put(`/api/tooling/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteTooling: async (id: string): Promise<void> => {
+    await api.delete(`/api/tooling/${id}`);
   },
 };
 

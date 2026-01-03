@@ -589,3 +589,43 @@ export interface WarehouseStockResponse {
   totalPaperStock: number;
   totalSheetStock: number;
 }
+
+// Tooling Type types
+export interface ToolingType {
+  uuid: string;
+  code: string;
+  name: string;
+  description?: string;
+  automaticConsumption?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateToolingTypeForm {
+  code: string;
+  name: string;
+  description?: string;
+  automaticConsumption?: boolean;
+}
+
+// Tooling types
+export interface Tooling {
+  uuid: string;
+  name: string;
+  description?: string;
+  minimumStock?: number;
+  manufacturer?: Manufacturer;
+  supplier?: Supplier;
+  toolingType?: ToolingType;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateToolingForm {
+  name: string;
+  description?: string;
+  manufacturerUuid?: string;
+  supplierUuid?: string;
+  minimumStock?: number;
+  toolingTypeUuid: string;
+}

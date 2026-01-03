@@ -21,6 +21,8 @@ import CorrugationClasses from './pages/CorrugationClasses';
 import Corrugations from './pages/Corrugations';
 import PaperStock from './pages/PaperStock';
 import SheetStock from './pages/SheetStock';
+import ToolingTypes from './pages/ToolingTypes';
+import Toolings from './pages/Toolings';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -197,6 +199,24 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
                   <SheetStock />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/tooling-types"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <ToolingTypes />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/toolings"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <Toolings />
                 </ProtectedRoute>
               }
             />
