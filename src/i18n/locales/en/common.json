@@ -22,6 +22,10 @@
     "paperSheets": "Paper Sheets",
     "corrugationClasses": "Corrugation Classes",
     "corrugations": "Corrugations",
+    "production": "Production",
+    "stock": "Stock",
+    "paperStock": "Paper Stock",
+    "sheetStock": "Sheet Stock",
     "settings": "Settings",
     "signOut": "Sign Out"
   },
@@ -71,7 +75,8 @@
     "close": "Close",
     "confirm": "Confirm",
     "yes": "Yes",
-    "no": "No"
+    "no": "No",
+    "change": "Change"
   },
   "auth": {
     "accessDenied": "Access Denied",
@@ -579,6 +584,47 @@
         "resizeFailed": "Failed to resize grid. Please try again.",
         "saveFailed": "Failed to save changes. Please try again."
       }
+    },
+    "viewStock": "View Stock",
+    "editGrid": "Edit Grid",
+    "editWarehouse": "Edit Warehouse",
+    "deleteWarehouse": "Delete Warehouse",
+    "stockView": {
+      "title": "Warehouse Stock - {{name}}",
+      "loading": "Loading stock data...",
+      "error": "Failed to load stock data",
+      "fetchError": "Failed to load warehouse stock data",
+      "unassignedStock": "Unassigned Stock",
+      "noGridConfigured": "This warehouse has no grid configured",
+      "paperRolls": "Paper Rolls",
+      "paperStock": "Paper Stock",
+      "sheets": "Sheets",
+      "sheetStock": "Sheet Stock",
+      "items": "items",
+      "quantity": "Qty",
+      "selectCellToViewStock": "Select a cell to view stock details",
+      "clickForDetails": "Click a cell with stock to see details",
+      "noStockAtLocation": "No stock at this location",
+      "noStock": "No stock at this location",
+      "noUnassignedStock": "No unassigned stock",
+      "editItem": "Edit",
+      "locationDetails": "Location Details",
+      "instructions": "Click on a cell with stock to view details. Red badges show item count.",
+      "gridTitle": "Warehouse Grid",
+      "locationStock": "Stock at {{code}}",
+      "selectCell": "Stock Details",
+      "unassigned": "Unassigned",
+      "clickToView": "Click a cell to view stock",
+      "stockCount": "Item Count"
+    },
+    "locationSelector": {
+      "title": "Select Location - {{name}}",
+      "selectLocation": "Click a cell to select a location",
+      "noActiveLocations": "No active locations available",
+      "fetchError": "Failed to load warehouse locations",
+      "instructions": "Click on an active cell to select a location for this stock item.",
+      "selected": "Selected",
+      "confirm": "Confirm Selection"
     }
   },
   "paperSupplies": {
@@ -772,5 +818,108 @@
     "updateFailed": "Failed to update paper sheet. Please try again.",
     "deleteFailed": "Failed to delete paper sheet",
     "deleteConfirm": "Are you sure you want to delete this paper sheet?"
+  },
+  "paperStock": {
+    "title": "Paper Stock",
+    "subtitle": "Manage paper roll inventory",
+    "addPaperStock": "Add Paper Stock",
+    "allPaperStock": "All Paper Stock",
+    "searchPlaceholder": "Search paper stock...",
+    "warehouse": "Warehouse",
+    "selectWarehouse": "Select warehouse",
+    "warehouseLocation": "Warehouse Location",
+    "selectLocation": "Select Location",
+    "paperSupply": "Paper Supply",
+    "selectPaperSupply": "Select paper supply",
+    "supplier": "Supplier",
+    "selectSupplier": "Select supplier (optional)",
+    "manufacturer": "Manufacturer",
+    "selectManufacturer": "Select manufacturer (optional)",
+    "weight": "Weight (kg)",
+    "weightPlaceholder": "Enter weight",
+    "diameter": "Diameter (cm)",
+    "diameterPlaceholder": "Enter diameter",
+    "width": "Width (cm)",
+    "widthPlaceholder": "Enter width",
+    "price": "Price",
+    "pricePlaceholder": "Enter price",
+    "comments": "Comments",
+    "commentsPlaceholder": "Enter comments (optional)",
+    "createTitle": "Create Paper Stock",
+    "editTitle": "Edit Paper Stock",
+    "createButton": "Create Paper Stock",
+    "updateButton": "Update Paper Stock",
+    "columns": {
+      "paperSupply": "Paper Supply",
+      "warehouse": "Warehouse",
+      "supplier": "Supplier",
+      "manufacturer": "Manufacturer",
+      "dimensions": "Dimensions",
+      "price": "Price",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No paper stock found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by adding paper stock"
+    },
+    "validation": {
+      "warehouseRequired": "Warehouse is required",
+      "paperSupplyRequired": "Paper supply is required"
+    },
+    "createFailed": "Failed to create paper stock. Please try again.",
+    "updateFailed": "Failed to update paper stock. Please try again.",
+    "deleteFailed": "Failed to delete paper stock",
+    "deleteConfirm": "Are you sure you want to delete this paper stock?"
+  },
+  "sheetStock": {
+    "title": "Sheet Stock",
+    "subtitle": "Manage paper sheet inventory",
+    "addSheetStock": "Add Sheet Stock",
+    "allSheetStock": "All Sheet Stock",
+    "searchPlaceholder": "Search sheet stock...",
+    "warehouse": "Warehouse",
+    "selectWarehouse": "Select warehouse",
+    "warehouseLocation": "Warehouse Location",
+    "selectLocation": "Select Location",
+    "paperSheet": "Paper Sheet",
+    "selectPaperSheet": "Select paper sheet",
+    "supplier": "Supplier",
+    "selectSupplier": "Select supplier (optional)",
+    "manufacturer": "Manufacturer",
+    "selectManufacturer": "Select manufacturer (optional)",
+    "quantity": "Quantity",
+    "quantityPlaceholder": "Enter quantity",
+    "price": "Price",
+    "pricePlaceholder": "Enter price",
+    "comments": "Comments",
+    "commentsPlaceholder": "Enter comments (optional)",
+    "createTitle": "Create Sheet Stock",
+    "editTitle": "Edit Sheet Stock",
+    "createButton": "Create Sheet Stock",
+    "updateButton": "Update Sheet Stock",
+    "columns": {
+      "paperSheet": "Paper Sheet",
+      "warehouse": "Warehouse",
+      "supplier": "Supplier",
+      "manufacturer": "Manufacturer",
+      "quantity": "Quantity",
+      "price": "Price",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No sheet stock found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by adding sheet stock"
+    },
+    "validation": {
+      "warehouseRequired": "Warehouse is required",
+      "paperSheetRequired": "Paper sheet is required",
+      "quantityRequired": "Quantity is required"
+    },
+    "createFailed": "Failed to create sheet stock. Please try again.",
+    "updateFailed": "Failed to update sheet stock. Please try again.",
+    "deleteFailed": "Failed to delete sheet stock",
+    "deleteConfirm": "Are you sure you want to delete this sheet stock?"
   }
 }

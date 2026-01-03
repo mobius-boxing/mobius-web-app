@@ -509,3 +509,83 @@ export interface CreatePaperSheetForm {
   length?: number;
   width?: number;
 }
+
+// Paper Stock types
+export interface PaperStock {
+  uuid: string;
+  warehouseLocationId?: number;
+  comments?: string;
+  price?: number;
+  weight?: number;
+  diameter?: number;
+  width?: number;
+  warehouse?: Warehouse;
+  warehouseLocation?: WarehouseLocation;
+  supplier?: Supplier;
+  manufacturer?: Manufacturer;
+  paperSupply?: PaperSupply;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePaperStockForm {
+  warehouseId: string;
+  warehouseLocationId?: string;
+  supplierId?: string;
+  manufacturerId?: string;
+  paperSupplyId: string;
+  comments?: string;
+  price?: number;
+  weight?: number;
+  diameter?: number;
+  width?: number;
+}
+
+// Sheet Stock types
+export interface SheetStock {
+  uuid: string;
+  warehouseLocationId?: number;
+  comments?: string;
+  price?: number;
+  quantity: number;
+  warehouse?: Warehouse;
+  warehouseLocation?: WarehouseLocation;
+  supplier?: Supplier;
+  manufacturer?: Manufacturer;
+  paperSheet?: PaperSheet;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateSheetStockForm {
+  warehouseId: string;
+  warehouseLocationId?: string;
+  supplierId?: string;
+  manufacturerId?: string;
+  paperSheetId: string;
+  comments?: string;
+  price?: number;
+  quantity: number;
+}
+
+// Warehouse Stock types
+export interface LocationStock {
+  locationId: number;
+  locationUuid: string;
+  locationCode: string;
+  row: number;
+  col: number;
+  locationType: string;
+  paperStock: PaperStock[];
+  sheetStock: SheetStock[];
+  totalItems: number;
+}
+
+export interface WarehouseStockResponse {
+  warehouse: Warehouse;
+  locations: LocationStock[];
+  unassignedPaperStock: PaperStock[];
+  unassignedSheetStock: SheetStock[];
+  totalPaperStock: number;
+  totalSheetStock: number;
+}

@@ -19,6 +19,8 @@ import PaperSupplies from './pages/PaperSupplies';
 import PaperSheets from './pages/PaperSheets';
 import CorrugationClasses from './pages/CorrugationClasses';
 import Corrugations from './pages/Corrugations';
+import PaperStock from './pages/PaperStock';
+import SheetStock from './pages/SheetStock';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -177,6 +179,24 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
                   <Corrugations />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/paper-stock"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <PaperStock />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/sheet-stock"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <SheetStock />
                 </ProtectedRoute>
               }
             />

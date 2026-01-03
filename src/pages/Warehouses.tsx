@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Trash2, Edit, Warehouse as WarehouseIcon, Grid } from 'lucide-react';
+import { Plus, Search, Trash2, Edit, Warehouse as WarehouseIcon, Grid, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Warehouse } from '../types';
 import { warehousesApi } from '../services/api';
@@ -10,6 +10,7 @@ import Table from '../components/ui/Table';
 import CreateWarehouseModal from '../components/modals/CreateWarehouseModal';
 import EditWarehouseModal from '../components/modals/EditWarehouseModal';
 import WarehouseGridEditorModal from '../components/modals/WarehouseGridEditorModal';
+import WarehouseStockViewModal from '../components/modals/WarehouseStockViewModal';
 
 const Warehouses: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +20,7 @@ const Warehouses: React.FC = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showGridEditorModal, setShowGridEditorModal] = useState(false);
+  const [showStockViewModal, setShowStockViewModal] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
@@ -84,6 +86,11 @@ const Warehouses: React.FC = () => {
     fetchWarehouses();
   };
 
+  const handleOpenStockView = (warehouse: Warehouse) => {
+    setSelectedWarehouse(warehouse);
+    setShowStockViewModal(true);
+  };
+
   // Filter warehouses based on search term
   const filteredWarehouses = warehouses.filter((warehouse) => {
     if (!warehouse) return false;
@@ -118,6 +125,15 @@ const Warehouses: React.FC = () => {
       header: t('warehouses.columns.actions'),
       render: (value: any, warehouse: Warehouse) => (
         <div className="flex items-center space-x-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => handleOpenStockView(warehouse)}
+            disabled={actionLoading === warehouse?.uuid || !warehouse}
+            title={t('warehouses.viewStock')}
+          >
+            <Package className="h-4 w-4" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -251,6 +267,15 @@ const Warehouses: React.FC = () => {
           setSelectedWarehouse(null);
         }}
         onSuccess={handleGridEditorSuccess}
+        warehouse={selectedWarehouse}
+      />
+
+      <WarehouseStockViewModal
+        isOpen={showStockViewModal}
+        onClose={() => {
+          setShowStockViewModal(false);
+          setSelectedWarehouse(null);
+        }}
         warehouse={selectedWarehouse}
       />
     </Layout>

@@ -1,0 +1,371 @@
+import React, { useState, useEffect } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
+import { useTranslation } from 'react-i18next';
+import { CreatePaperStockForm, PaperStock, Manufacturer, Supplier, Warehouse, PaperSupply, WarehouseLocation } from '../../types';
+import { paperStockApi, manufacturersApi, suppliersApi, warehousesApi, paperSuppliesApi } from '../../services/api';
+import Modal from '../ui/Modal';
+import Input from '../ui/Input';
+import Button from '../ui/Button';
+import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
+import { MapPin, X } from 'lucide-react';
+
+interface EditPaperStockModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSuccess: () => void;
+  paperStock: PaperStock | null;
+}
+
+const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  paperStock,
+}) => {
+  const { t } = useTranslation();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [paperSupplies, setPaperSupplies] = useState<PaperSupply[]>([]);
+  const [locationSelectorOpen, setLocationSelectorOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState<WarehouseLocation | null>(null);
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm<CreatePaperStockForm>();
+
+  const selectedWarehouseId = useWatch({ control, name: 'warehouseId' });
+  const selectedWarehouse = warehouses.find(w => w.uuid === selectedWarehouseId) || null;
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchDropdownData();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (paperStock && isOpen && warehouses.length > 0 && paperSupplies.length > 0) {
+      setValue('warehouseId', paperStock.warehouse?.uuid || '');
+      setValue('paperSupplyId', paperStock.paperSupply?.uuid || '');
+      setValue('supplierId', paperStock.supplier?.uuid || '');
+      setValue('manufacturerId', paperStock.manufacturer?.uuid || '');
+      setValue('comments', paperStock.comments || '');
+      setValue('price', paperStock.price || undefined);
+      setValue('weight', paperStock.weight || undefined);
+      setValue('diameter', paperStock.diameter || undefined);
+      setValue('width', paperStock.width || undefined);
+      // Set warehouse location if available
+      setSelectedLocation(paperStock.warehouseLocation || null);
+    }
+  }, [paperStock, isOpen, warehouses, paperSupplies, setValue]);
+
+  // Clear location when warehouse changes (only if it's actually different)
+  const previousWarehouseId = React.useRef(selectedWarehouseId);
+  useEffect(() => {
+    if (previousWarehouseId.current && selectedWarehouseId !== previousWarehouseId.current) {
+      setSelectedLocation(null);
+    }
+    previousWarehouseId.current = selectedWarehouseId;
+  }, [selectedWarehouseId]);
+
+  const fetchDropdownData = async () => {
+    try {
+      const [manufacturersRes, suppliersRes, warehousesRes, paperSuppliesRes] = await Promise.all([
+        manufacturersApi.getManufacturers(),
+        suppliersApi.getSuppliers(),
+        warehousesApi.getWarehouses(),
+        paperSuppliesApi.getPaperSupplies(),
+      ]);
+      setManufacturers(manufacturersRes.data || []);
+      setSuppliers(suppliersRes.data || []);
+      setWarehouses(warehousesRes.data || []);
+      setPaperSupplies(paperSuppliesRes.data || []);
+    } catch (error) {
+      console.error('Error fetching dropdown data:', error);
+    }
+  };
+
+  const onSubmit = async (data: CreatePaperStockForm) => {
+    if (!paperStock) return;
+
+    setLoading(true);
+    setError('');
+
+    try {
+      const stockData = {
+        warehouseId: data.warehouseId,
+        warehouseLocationId: selectedLocation?.uuid || undefined,
+        paperSupplyId: data.paperSupplyId,
+        supplierId: data.supplierId || undefined,
+        manufacturerId: data.manufacturerId || undefined,
+        comments: data.comments || undefined,
+        price: data.price || undefined,
+        weight: data.weight || undefined,
+        diameter: data.diameter || undefined,
+        width: data.width || undefined,
+      };
+
+      await paperStockApi.updatePaperStock(paperStock.uuid, stockData);
+      reset();
+      setSelectedLocation(null);
+      onSuccess();
+    } catch (err: any) {
+      console.error('Error updating paper stock:', err);
+      setError(
+        err.response?.data?.message ||
+        t('paperStock.updateFailed')
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClose = () => {
+    reset();
+    setError('');
+    setSelectedLocation(null);
+    onClose();
+  };
+
+  const handleLocationSelect = (location: WarehouseLocation) => {
+    setSelectedLocation(location);
+  };
+
+  const clearLocation = () => {
+    setSelectedLocation(null);
+  };
+
+  // When location selector is open, replace the main modal with it
+  if (locationSelectorOpen && selectedWarehouse) {
+    return (
+      <WarehouseLocationSelectorModal
+        isOpen={true}
+        onClose={() => setLocationSelectorOpen(false)}
+        onSelect={handleLocationSelect}
+        warehouse={selectedWarehouse}
+        currentLocationUuid={selectedLocation?.uuid}
+      />
+    );
+  }
+
+  return (
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('paperStock.editTitle')}>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            {error}
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('paperStock.warehouse')} *
+          </label>
+          <select
+            {...register('warehouseId', {
+              required: t('paperStock.validation.warehouseRequired'),
+            })}
+            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">{t('paperStock.selectWarehouse')}</option>
+            {warehouses.map((warehouse) => (
+              <option key={warehouse.uuid} value={warehouse.uuid}>
+                {warehouse.name}
+              </option>
+            ))}
+          </select>
+          {errors.warehouseId && (
+            <p className="mt-1 text-sm text-red-600">{errors.warehouseId.message}</p>
+          )}
+        </div>
+
+        {/* Warehouse Location Selector */}
+        {selectedWarehouse && (
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('paperStock.warehouseLocation')}
+            </label>
+            {selectedLocation ? (
+              <div className="flex items-center gap-2 p-2 bg-primary-50 border border-primary-200 rounded-md">
+                <MapPin className="w-4 h-4 text-primary-600" />
+                <span className="flex-1 text-sm text-primary-800 font-medium">
+                  {selectedLocation.locationCode}
+                </span>
+                <button
+                  type="button"
+                  onClick={clearLocation}
+                  className="p-1 text-primary-600 hover:text-primary-800 hover:bg-primary-100 rounded"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLocationSelectorOpen(true)}
+                  className="text-xs text-primary-600 hover:text-primary-800 underline"
+                >
+                  {t('common.change')}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setLocationSelectorOpen(true)}
+                className="w-full px-3 py-2 border border-dashed border-secondary-300 rounded-md text-secondary-500 hover:border-primary-500 hover:text-primary-600 transition-colors flex items-center justify-center gap-2"
+              >
+                <MapPin className="w-4 h-4" />
+                {t('paperStock.selectLocation')}
+              </button>
+            )}
+          </div>
+        )}
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('paperStock.paperSupply')} *
+          </label>
+          <select
+            {...register('paperSupplyId', {
+              required: t('paperStock.validation.paperSupplyRequired'),
+            })}
+            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">{t('paperStock.selectPaperSupply')}</option>
+            {paperSupplies.map((supply) => (
+              <option key={supply.uuid} value={supply.uuid}>
+                {supply.code} - {supply.name}
+              </option>
+            ))}
+          </select>
+          {errors.paperSupplyId && (
+            <p className="mt-1 text-sm text-red-600">{errors.paperSupplyId.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('paperStock.supplier')}
+          </label>
+          <select
+            {...register('supplierId')}
+            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">{t('paperStock.selectSupplier')}</option>
+            {suppliers.map((supplier) => (
+              <option key={supplier.uuid} value={supplier.uuid}>
+                {supplier.code}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('paperStock.manufacturer')}
+          </label>
+          <select
+            {...register('manufacturerId')}
+            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">{t('paperStock.selectManufacturer')}</option>
+            {manufacturers.map((manufacturer) => (
+              <option key={manufacturer.uuid} value={manufacturer.uuid}>
+                {manufacturer.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('paperStock.weight')}
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              {...register('weight', {
+                valueAsNumber: true,
+              })}
+              placeholder={t('paperStock.weightPlaceholder')}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('paperStock.diameter')}
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              {...register('diameter', {
+                valueAsNumber: true,
+              })}
+              placeholder={t('paperStock.diameterPlaceholder')}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('paperStock.width')}
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              {...register('width', {
+                valueAsNumber: true,
+              })}
+              placeholder={t('paperStock.widthPlaceholder')}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('paperStock.price')}
+          </label>
+          <Input
+            type="number"
+            step="0.01"
+            {...register('price', {
+              valueAsNumber: true,
+            })}
+            placeholder={t('paperStock.pricePlaceholder')}
+          />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('paperStock.comments')}
+          </label>
+          <Input
+            {...register('comments')}
+            placeholder={t('paperStock.commentsPlaceholder')}
+          />
+        </div>
+
+        <div className="flex justify-end space-x-3 pt-4">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleClose}
+            disabled={loading}
+          >
+            {t('common.cancel')}
+          </Button>
+          <Button type="submit" disabled={loading}>
+            {loading ? t('common.loading') : t('paperStock.updateButton')}
+          </Button>
+        </div>
+      </form>
+    </Modal>
+  );
+};
+
+export default EditPaperStockModal;

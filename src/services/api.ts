@@ -43,7 +43,12 @@ import {
   PaperSupply,
   CreatePaperSupplyForm,
   PaperSheet,
-  CreatePaperSheetForm
+  CreatePaperSheetForm,
+  PaperStock,
+  CreatePaperStockForm,
+  SheetStock,
+  CreateSheetStockForm,
+  WarehouseStockResponse
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -743,6 +748,11 @@ export const warehousesApi = {
     });
     return response.data.data!;
   },
+
+  getWarehouseStock: async (warehouseUuid: string): Promise<WarehouseStockResponse> => {
+    const response: AxiosResponse<ApiResponse<WarehouseStockResponse>> = await api.get(`/api/warehouse/${warehouseUuid}/stock`);
+    return response.data.data!;
+  },
 };
 
 // Paper Supplies API
@@ -824,6 +834,90 @@ export const paperSheetsApi = {
 
   deletePaperSheet: async (id: string): Promise<void> => {
     await api.delete(`/api/paper-sheet/${id}`);
+  },
+};
+
+// Paper Stock API
+export const paperStockApi = {
+  getPaperStock: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    warehouseId?: string;
+    supplierId?: string;
+    manufacturerId?: string;
+    paperSupplyId?: string;
+  } = {}): Promise<PaginatedResponse<PaperStock>> => {
+    const response = await api.get('/api/paper-stock', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getPaperStockById: async (id: string): Promise<PaperStock> => {
+    const response: AxiosResponse<ApiResponse<PaperStock>> = await api.get(`/api/paper-stock/${id}`);
+    return response.data.data!;
+  },
+
+  createPaperStock: async (data: CreatePaperStockForm): Promise<PaperStock> => {
+    const response: AxiosResponse<ApiResponse<PaperStock>> = await api.post('/api/paper-stock', data);
+    return response.data.data!;
+  },
+
+  updatePaperStock: async (id: string, data: Partial<CreatePaperStockForm>): Promise<PaperStock> => {
+    const response: AxiosResponse<ApiResponse<PaperStock>> = await api.put(`/api/paper-stock/${id}`, data);
+    return response.data.data!;
+  },
+
+  deletePaperStock: async (id: string): Promise<void> => {
+    await api.delete(`/api/paper-stock/${id}`);
+  },
+};
+
+// Sheet Stock API
+export const sheetStockApi = {
+  getSheetStock: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    warehouseId?: string;
+    supplierId?: string;
+    manufacturerId?: string;
+    paperSheetId?: string;
+  } = {}): Promise<PaginatedResponse<SheetStock>> => {
+    const response = await api.get('/api/sheet-stock', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getSheetStockById: async (id: string): Promise<SheetStock> => {
+    const response: AxiosResponse<ApiResponse<SheetStock>> = await api.get(`/api/sheet-stock/${id}`);
+    return response.data.data!;
+  },
+
+  createSheetStock: async (data: CreateSheetStockForm): Promise<SheetStock> => {
+    const response: AxiosResponse<ApiResponse<SheetStock>> = await api.post('/api/sheet-stock', data);
+    return response.data.data!;
+  },
+
+  updateSheetStock: async (id: string, data: Partial<CreateSheetStockForm>): Promise<SheetStock> => {
+    const response: AxiosResponse<ApiResponse<SheetStock>> = await api.put(`/api/sheet-stock/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteSheetStock: async (id: string): Promise<void> => {
+    await api.delete(`/api/sheet-stock/${id}`);
   },
 };
 

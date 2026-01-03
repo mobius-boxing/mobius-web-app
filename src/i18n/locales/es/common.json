@@ -22,6 +22,10 @@
     "paperSheets": "Planchas de Papel",
     "corrugationClasses": "Clases de Corrugado",
     "corrugations": "Corrugados",
+    "production": "Producción",
+    "stock": "Stock",
+    "paperStock": "Stock de Bobinas",
+    "sheetStock": "Stock de Planchas",
     "settings": "Configuración",
     "signOut": "Cerrar Sesión"
   },
@@ -71,7 +75,8 @@
     "close": "Cerrar",
     "confirm": "Confirmar",
     "yes": "Sí",
-    "no": "No"
+    "no": "No",
+    "change": "Cambiar"
   },
   "auth": {
     "accessDenied": "Acceso Denegado",
@@ -579,6 +584,47 @@
         "resizeFailed": "Error al redimensionar cuadrícula. Por favor, intente nuevamente.",
         "saveFailed": "Error al guardar los cambios. Por favor, intente nuevamente."
       }
+    },
+    "viewStock": "Ver Stock",
+    "editGrid": "Editar Cuadrícula",
+    "editWarehouse": "Editar Depósito",
+    "deleteWarehouse": "Eliminar Depósito",
+    "stockView": {
+      "title": "Stock del Depósito - {{name}}",
+      "loading": "Cargando datos de stock...",
+      "error": "Error al cargar datos de stock",
+      "fetchError": "Error al cargar datos de stock del depósito",
+      "unassignedStock": "Stock Sin Asignar",
+      "noGridConfigured": "Este depósito no tiene cuadrícula configurada",
+      "paperRolls": "Bobinas",
+      "paperStock": "Stock de Bobinas",
+      "sheets": "Planchas",
+      "sheetStock": "Stock de Planchas",
+      "items": "items",
+      "quantity": "Cant",
+      "selectCellToViewStock": "Seleccione una celda para ver detalles",
+      "clickForDetails": "Haga clic en una celda con stock para ver detalles",
+      "noStockAtLocation": "No hay stock en esta ubicación",
+      "noStock": "No hay stock en esta ubicación",
+      "noUnassignedStock": "No hay stock sin asignar",
+      "editItem": "Editar",
+      "locationDetails": "Detalles de Ubicación",
+      "instructions": "Haga clic en una celda con stock para ver detalles. Las insignias rojas muestran la cantidad.",
+      "gridTitle": "Cuadrícula del Depósito",
+      "locationStock": "Stock en {{code}}",
+      "selectCell": "Detalles de Stock",
+      "unassigned": "Sin Asignar",
+      "clickToView": "Haga clic en una celda para ver stock",
+      "stockCount": "Cantidad de Items"
+    },
+    "locationSelector": {
+      "title": "Seleccionar Ubicación - {{name}}",
+      "selectLocation": "Haga clic en una celda para seleccionar ubicación",
+      "noActiveLocations": "No hay ubicaciones activas disponibles",
+      "fetchError": "Error al cargar ubicaciones del depósito",
+      "instructions": "Haga clic en una celda activa para seleccionar una ubicación para este stock.",
+      "selected": "Seleccionado",
+      "confirm": "Confirmar Selección"
     }
   },
   "paperSupplies": {
@@ -772,5 +818,108 @@
     "updateFailed": "Error al actualizar la plancha. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar la plancha",
     "deleteConfirm": "¿Está seguro de que desea eliminar esta plancha?"
+  },
+  "paperStock": {
+    "title": "Stock de Bobinas",
+    "subtitle": "Gestionar inventario de bobinas de papel",
+    "addPaperStock": "Agregar Stock",
+    "allPaperStock": "Todo el Stock",
+    "searchPlaceholder": "Buscar stock de bobinas...",
+    "warehouse": "Depósito",
+    "selectWarehouse": "Seleccione depósito",
+    "warehouseLocation": "Ubicación en Depósito",
+    "selectLocation": "Seleccionar Ubicación",
+    "paperSupply": "Insumo de Papel",
+    "selectPaperSupply": "Seleccione insumo de papel",
+    "supplier": "Proveedor",
+    "selectSupplier": "Seleccione proveedor (opcional)",
+    "manufacturer": "Fabricante",
+    "selectManufacturer": "Seleccione fabricante (opcional)",
+    "weight": "Peso (kg)",
+    "weightPlaceholder": "Ingrese peso",
+    "diameter": "Diámetro (cm)",
+    "diameterPlaceholder": "Ingrese diámetro",
+    "width": "Ancho (cm)",
+    "widthPlaceholder": "Ingrese ancho",
+    "price": "Precio",
+    "pricePlaceholder": "Ingrese precio",
+    "comments": "Comentarios",
+    "commentsPlaceholder": "Ingrese comentarios (opcional)",
+    "createTitle": "Crear Stock de Bobina",
+    "editTitle": "Editar Stock de Bobina",
+    "createButton": "Crear Stock",
+    "updateButton": "Actualizar Stock",
+    "columns": {
+      "paperSupply": "Insumo",
+      "warehouse": "Depósito",
+      "supplier": "Proveedor",
+      "manufacturer": "Fabricante",
+      "dimensions": "Dimensiones",
+      "price": "Precio",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontró stock de bobinas",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience agregando stock de bobinas"
+    },
+    "validation": {
+      "warehouseRequired": "El depósito es requerido",
+      "paperSupplyRequired": "El insumo de papel es requerido"
+    },
+    "createFailed": "Error al crear el stock. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el stock. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el stock",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este stock?"
+  },
+  "sheetStock": {
+    "title": "Stock de Planchas",
+    "subtitle": "Gestionar inventario de planchas de papel",
+    "addSheetStock": "Agregar Stock",
+    "allSheetStock": "Todo el Stock",
+    "searchPlaceholder": "Buscar stock de planchas...",
+    "warehouse": "Depósito",
+    "selectWarehouse": "Seleccione depósito",
+    "warehouseLocation": "Ubicación en Depósito",
+    "selectLocation": "Seleccionar Ubicación",
+    "paperSheet": "Plancha de Papel",
+    "selectPaperSheet": "Seleccione plancha de papel",
+    "supplier": "Proveedor",
+    "selectSupplier": "Seleccione proveedor (opcional)",
+    "manufacturer": "Fabricante",
+    "selectManufacturer": "Seleccione fabricante (opcional)",
+    "quantity": "Cantidad",
+    "quantityPlaceholder": "Ingrese cantidad",
+    "price": "Precio",
+    "pricePlaceholder": "Ingrese precio",
+    "comments": "Comentarios",
+    "commentsPlaceholder": "Ingrese comentarios (opcional)",
+    "createTitle": "Crear Stock de Plancha",
+    "editTitle": "Editar Stock de Plancha",
+    "createButton": "Crear Stock",
+    "updateButton": "Actualizar Stock",
+    "columns": {
+      "paperSheet": "Plancha",
+      "warehouse": "Depósito",
+      "supplier": "Proveedor",
+      "manufacturer": "Fabricante",
+      "quantity": "Cantidad",
+      "price": "Precio",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontró stock de planchas",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience agregando stock de planchas"
+    },
+    "validation": {
+      "warehouseRequired": "El depósito es requerido",
+      "paperSheetRequired": "La plancha de papel es requerida",
+      "quantityRequired": "La cantidad es requerida"
+    },
+    "createFailed": "Error al crear el stock. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el stock. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el stock",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este stock?"
   }
 }

@@ -178,6 +178,36 @@ const Sidebar: React.FC = () => {
         },
       ],
     },
+    {
+      id: 'production',
+      label: t('nav.production'),
+      icon: 'Package',
+      roles: ['admin', 'superAdmin'],
+      children: [
+        {
+          id: 'stock',
+          label: t('nav.stock'),
+          icon: 'Warehouse',
+          roles: ['admin', 'superAdmin'],
+          children: [
+            {
+              id: 'paper-stock',
+              label: t('nav.paperStock'),
+              path: '/paper-stock',
+              icon: 'Package',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'sheet-stock',
+              label: t('nav.sheetStock'),
+              path: '/sheet-stock',
+              icon: 'FileText',
+              roles: ['admin', 'superAdmin'],
+            },
+          ],
+        },
+      ],
+    },
   ];
 
   const getIcon = (iconName: string, className: string = "h-5 w-5") => {
