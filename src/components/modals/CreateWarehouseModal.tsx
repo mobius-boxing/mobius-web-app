@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreateWarehouseForm } from '../../types';
 import { warehousesApi } from '../../services/api';
-import { useAuth } from '../../contexts/AuthContext';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
@@ -20,7 +20,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -43,7 +43,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
     try {
       await warehousesApi.createWarehouse({
         ...data,
-        companyId: user?.companyId,
+        companyId: effectiveCompanyId,
       });
       reset();
       onSuccess();

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Search, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperStock } from '../types';
 import { paperStockApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -12,6 +13,7 @@ import EditPaperStockModal from '../components/modals/EditPaperStockModal';
 
 const PaperStockPage: React.FC = () => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [paperStock, setPaperStock] = useState<PaperStock[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,14 +22,11 @@ const PaperStockPage: React.FC = () => {
   const [selectedPaperStock, setSelectedPaperStock] = useState<PaperStock | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchPaperStock();
-  }, []);
-
-  const fetchPaperStock = async () => {
+  const fetchPaperStock = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await paperStockApi.getPaperStock();
+      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await paperStockApi.getPaperStock(params);
       setPaperStock(response.data || []);
     } catch (error) {
       console.error('Error fetching paper stock:', error);
@@ -35,7 +34,11 @@ const PaperStockPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [effectiveCompanyId]);
+
+  useEffect(() => {
+    fetchPaperStock();
+  }, [fetchPaperStock]);
 
   const handleEdit = (stock: PaperStock) => {
     setSelectedPaperStock(stock);

@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
-import { CreateCustomerForm, CustomerCategory, User, Company, ContactInfo, DeliveryLocation, DeliveryDay } from '../../types';
-import { customersApi, customerCategoriesApi, usersApi, companiesApi } from '../../services/api';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { CreateCustomerForm, CustomerCategory, User, ContactInfo, DeliveryLocation, DeliveryDay } from '../../types';
+import { customersApi, customerCategoriesApi, usersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
 
@@ -13,10 +14,6 @@ interface CreateCustomerModalProps {
   onSuccess: () => void;
 }
 
-interface CreateCustomerFormWithCompany extends CreateCustomerForm {
-  companyId?: string;
-}
-
 const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   isOpen,
   onClose,
@@ -24,16 +21,16 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [companies, setCompanies] = useState<Company[]>([]);
   const [categories, setCategories] = useState<CustomerCategory[]>([]);
   const [salesPersons, setSalesPersons] = useState<User[]>([]);
   const [contacts, setContacts] = useState<ContactInfo[]>([]);
   const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocation[]>([]);
   const [deliveryDays, setDeliveryDays] = useState<DeliveryDay[]>([]);
 
-  const form = useForm<CreateCustomerFormWithCompany>({
+  const form = useForm<CreateCustomerForm>({
     defaultValues: {
       active: true,
     },
@@ -44,20 +41,8 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   useEffect(() => {
     if (isOpen) {
       fetchDropdownData();
-      if (currentUser?.role === 'superAdmin') {
-        fetchCompanies();
-      }
     }
-  }, [isOpen, currentUser]);
-
-  const fetchCompanies = async () => {
-    try {
-      const companiesData = await companiesApi.getCompanies();
-      setCompanies(companiesData.data);
-    } catch (error) {
-      console.error('Error fetching companies:', error);
-    }
-  };
+  }, [isOpen]);
 
   const fetchDropdownData = async () => {
     try {
@@ -73,26 +58,15 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreateCustomerFormWithCompany) => {
+  const onSubmit = async (data: CreateCustomerForm) => {
     setLoading(true);
     setError('');
 
     try {
-      // Determine companyId based on user role
-      let companyId: string | undefined;
-
-      if (currentUser?.role === 'superAdmin') {
-        // SuperAdmin must select a company
-        companyId = data.companyId;
-      } else {
-        // Regular admin uses their own company
-        companyId = currentUser?.companyId;
-      }
-
       // Convert empty strings to undefined for optional fields
       const customerData = {
         ...data,
-        companyId,
+        companyId: effectiveCompanyId,
         categoryId: data.categoryId || undefined,
         salesPersonId: data.salesPersonId || undefined,
         supplierCode: data.supplierCode || undefined,
@@ -135,7 +109,6 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
         currentUser={currentUser}
         categories={categories}
         salesPersons={salesPersons}
-        companies={companies}
         form={form}
         contacts={contacts}
         setContacts={setContacts}

@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../contexts/AuthContext';
-import { CreateCustomerCategoryForm, Company } from '../../types';
-import { customerCategoriesApi, companiesApi } from '../../services/api';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { CreateCustomerCategoryForm } from '../../types';
+import { customerCategoriesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -14,18 +14,13 @@ interface CreateCustomerCategoryModalProps {
   onSuccess: () => void;
 }
 
-interface CreateCustomerCategoryFormWithCompany extends CreateCustomerCategoryForm {
-  companyId?: string;
-}
-
 const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = ({
   isOpen,
   onClose,
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -34,42 +29,16 @@ const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = 
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<CreateCustomerCategoryFormWithCompany>();
+  } = useForm<CreateCustomerCategoryForm>();
 
-  useEffect(() => {
-    if (isOpen && currentUser?.role === 'superAdmin') {
-      fetchCompanies();
-    }
-  }, [isOpen, currentUser]);
-
-  const fetchCompanies = async () => {
-    try {
-      const companiesData = await companiesApi.getCompanies();
-      setCompanies(companiesData.data);
-    } catch (error) {
-      console.error('Error fetching companies:', error);
-    }
-  };
-
-  const onSubmit = async (data: CreateCustomerCategoryFormWithCompany) => {
+  const onSubmit = async (data: CreateCustomerCategoryForm) => {
     setLoading(true);
     setError('');
 
     try {
-      // Determine companyId based on user role
-      let companyId: string | undefined;
-
-      if (currentUser?.role === 'superAdmin') {
-        // SuperAdmin must select a company
-        companyId = data.companyId;
-      } else {
-        // Regular admin uses their own company
-        companyId = currentUser?.companyId;
-      }
-
       const categoryData = {
         ...data,
-        companyId,
+        companyId: effectiveCompanyId,
       };
 
       await customerCategoriesApi.createCategory(categoryData);
@@ -117,28 +86,6 @@ const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = 
           placeholder={t('customerCategories.namePlaceholder')}
           error={errors.name?.message as string}
         />
-
-        {currentUser?.role === 'superAdmin' && (
-          <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
-              {t('customerCategories.company')}
-            </label>
-            <select
-              {...register('companyId', { required: t('customerCategories.validation.companyRequired') })}
-              className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            >
-              <option value="">{t('customerCategories.selectCompany')}</option>
-              {companies.map((company) => (
-                <option key={company.uuid} value={company.uuid}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
-            {errors.companyId && (
-              <p className="mt-1 text-sm text-red-600">{errors.companyId.message as string}</p>
-            )}
-          </div>
-        )}
 
         <div className="flex justify-end space-x-3 pt-4">
           <Button

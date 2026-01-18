@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Search, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SheetStock } from '../types';
 import { sheetStockApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -12,6 +13,7 @@ import EditSheetStockModal from '../components/modals/EditSheetStockModal';
 
 const SheetStockPage: React.FC = () => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [sheetStock, setSheetStock] = useState<SheetStock[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,14 +22,11 @@ const SheetStockPage: React.FC = () => {
   const [selectedSheetStock, setSelectedSheetStock] = useState<SheetStock | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchSheetStock();
-  }, []);
-
-  const fetchSheetStock = async () => {
+  const fetchSheetStock = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await sheetStockApi.getSheetStock();
+      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await sheetStockApi.getSheetStock(params);
       setSheetStock(response.data || []);
     } catch (error) {
       console.error('Error fetching sheet stock:', error);
@@ -35,7 +34,11 @@ const SheetStockPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [effectiveCompanyId]);
+
+  useEffect(() => {
+    fetchSheetStock();
+  }, [fetchSheetStock]);
 
   const handleEdit = (stock: SheetStock) => {
     setSelectedSheetStock(stock);

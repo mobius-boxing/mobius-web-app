@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Search, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
 import { Product } from '../types';
 import { productsApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -13,7 +13,7 @@ import EditProductModal from '../components/modals/EditProductModal';
 
 const Products: React.FC = () => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,14 +22,11 @@ const Products: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await productsApi.getProducts();
+      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await productsApi.getProducts(params);
       setProducts(response.data || []);
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -37,7 +34,11 @@ const Products: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [effectiveCompanyId]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);

@@ -1,4 +1,9 @@
 {
+  "companySelector": {
+    "label": "Operating as",
+    "placeholder": "Select a company",
+    "noCompanySelected": "Please select a company"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "userManagement": "User Management",
@@ -560,8 +565,15 @@
       "noData": "Get started by creating a new warehouse"
     },
     "validation": {
-      "nameRequired": "Name is required"
+      "nameRequired": "Name is required",
+      "gridRowsRequired": "Number of rows is required",
+      "gridRowsMin": "Minimum 1 row required",
+      "gridRowsMax": "Maximum 50 rows allowed",
+      "gridColsRequired": "Number of columns is required",
+      "gridColsMin": "Minimum 1 column required",
+      "gridColsMax": "Maximum 50 columns allowed"
     },
+    "gridSizeInfo": "The grid defines the warehouse layout for stock location management",
     "createFailed": "Failed to create warehouse. Please try again.",
     "updateFailed": "Failed to update warehouse. Please try again.",
     "deleteFailed": "Failed to delete warehouse",

@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Search, Trash2, Edit, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperSheet } from '../types';
 import { paperSheetsApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -12,6 +13,7 @@ import EditPaperSheetModal from '../components/modals/EditPaperSheetModal';
 
 const PaperSheets: React.FC = () => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [paperSheets, setPaperSheets] = useState<PaperSheet[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -20,14 +22,11 @@ const PaperSheets: React.FC = () => {
   const [selectedPaperSheet, setSelectedPaperSheet] = useState<PaperSheet | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchPaperSheets();
-  }, []);
-
-  const fetchPaperSheets = async () => {
+  const fetchPaperSheets = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await paperSheetsApi.getPaperSheets();
+      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await paperSheetsApi.getPaperSheets(params);
       setPaperSheets(response.data || []);
     } catch (error) {
       console.error('Error fetching paper sheets:', error);
@@ -35,7 +34,11 @@ const PaperSheets: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [effectiveCompanyId]);
+
+  useEffect(() => {
+    fetchPaperSheets();
+  }, [fetchPaperSheets]);
 
   const handleEdit = (paperSheet: PaperSheet) => {
     setSelectedPaperSheet(paperSheet);

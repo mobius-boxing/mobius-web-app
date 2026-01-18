@@ -5,7 +5,6 @@ import {
   AuthUser,
   CustomerCategory,
   User,
-  Company,
   ContactInfo,
   DeliveryLocation,
   DeliveryDay,
@@ -19,7 +18,6 @@ export interface CustomerFormProps {
   currentUser: AuthUser | null;
   categories: CustomerCategory[];
   salesPersons: User[];
-  companies?: Company[];
   form: UseFormReturn<CreateCustomerForm>;
   contacts: ContactInfo[];
   setContacts: React.Dispatch<React.SetStateAction<ContactInfo[]>>;
@@ -38,7 +36,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   currentUser,
   categories,
   salesPersons,
-  companies,
   form,
   contacts,
   setContacts,
@@ -70,28 +67,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         <h3 className="text-sm font-semibold text-secondary-900 border-b pb-2">
           {t('common:customerModal.basicInformation')}
         </h3>
-
-        {mode === 'create' && currentUser?.role === 'superAdmin' && (
-          <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
-              {t('common:customerModal.company')} *
-            </label>
-            <select
-              {...register('companyId', { required: t('common:customerModal.validation.companyRequired') })}
-              className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            >
-              <option value="">{t('common:customerModal.selectCompany')}</option>
-              {companies?.map((company) => (
-                <option key={company.uuid} value={company.uuid}>
-                  {company.name}
-                </option>
-              ))}
-            </select>
-            {errors.companyId && (
-              <p className="mt-1 text-sm text-red-600">{errors.companyId.message as string}</p>
-            )}
-          </div>
-        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input

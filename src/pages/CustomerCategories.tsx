@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Search, Trash2, Edit, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
 import { CustomerCategory } from '../types';
 import { customerCategoriesApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -13,7 +13,7 @@ import EditCustomerCategoryModal from '../components/modals/EditCustomerCategory
 
 const CustomerCategories: React.FC = () => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [categories, setCategories] = useState<CustomerCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,14 +22,11 @@ const CustomerCategories: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<CustomerCategory | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
-
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await customerCategoriesApi.getCategories();
+      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await customerCategoriesApi.getCategories(params);
       setCategories(response.data || []);
     } catch (error) {
       console.error('Error fetching customer categories:', error);
@@ -37,7 +34,11 @@ const CustomerCategories: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [effectiveCompanyId]);
+
+  useEffect(() => {
+    fetchCategories();
+  }, [fetchCategories]);
 
   const handleEdit = (category: CustomerCategory) => {
     setSelectedCategory(category);

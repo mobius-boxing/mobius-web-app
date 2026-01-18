@@ -76,6 +76,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } finally {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
+      localStorage.removeItem('selected_company_uuid');
       setUser(null);
     }
   };

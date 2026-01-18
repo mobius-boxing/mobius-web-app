@@ -1,11 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { CompanyProvider } from './contexts/CompanyContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import Users from './pages/Users';
-import Companies from './pages/Companies';
 import CustomerCategories from './pages/CustomerCategories';
 import Customers from './pages/Customers';
 import PaperTypes from './pages/PaperTypes';
@@ -31,8 +30,9 @@ import './i18n/config';
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <div className="App">
+      <CompanyProvider>
+        <Router>
+          <div className="App">
           <Routes>
             {/* Public routes */}
             <Route path="/login" element={<Login />} />
@@ -46,24 +46,6 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/users"
-              element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
-                  <Users />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/companies"
-              element={
-                <ProtectedRoute requiredRoles={['superAdmin']}>
-                  <Companies />
                 </ProtectedRoute>
               }
             />
@@ -227,8 +209,9 @@ function App() {
             {/* Catch all route */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
-        </div>
-      </Router>
+          </div>
+        </Router>
+      </CompanyProvider>
     </AuthProvider>
   );
 }

@@ -595,6 +595,7 @@ export const productsApi = {
     limit?: number;
     search?: string;
     customerId?: string;
+    companyId?: string;
   } = {}): Promise<PaginatedResponse<Product>> => {
     const response = await api.get('/api/product', { params });
     const backendData = response.data;
@@ -709,6 +710,7 @@ export const warehousesApi = {
     page?: number;
     limit?: number;
     search?: string;
+    companyId?: string;
   } = {}): Promise<PaginatedResponse<Warehouse>> => {
     const response = await api.get('/api/warehouse', { params });
     const backendData = response.data;
@@ -768,6 +770,7 @@ export const paperSuppliesApi = {
     manufacturerId?: string;
     supplierId?: string;
     paperTypeId?: string;
+    companyId?: string;
   } = {}): Promise<PaginatedResponse<PaperSupply>> => {
     const response = await api.get('/api/paper-supply', { params });
     const backendData = response.data;
@@ -809,6 +812,7 @@ export const paperSheetsApi = {
     supplierId?: string;
     manufacturerId?: string;
     corrugationId?: string;
+    companyId?: string;
   } = {}): Promise<PaginatedResponse<PaperSheet>> => {
     const response = await api.get('/api/paper-sheet', { params });
     const backendData = response.data;
@@ -851,6 +855,7 @@ export const paperStockApi = {
     supplierId?: string;
     manufacturerId?: string;
     paperSupplyId?: string;
+    companyId?: string;
   } = {}): Promise<PaginatedResponse<PaperStock>> => {
     const response = await api.get('/api/paper-stock', { params });
     const backendData = response.data;
@@ -893,6 +898,7 @@ export const sheetStockApi = {
     supplierId?: string;
     manufacturerId?: string;
     paperSheetId?: string;
+    companyId?: string;
   } = {}): Promise<PaginatedResponse<SheetStock>> => {
     const response = await api.get('/api/sheet-stock', { params });
     const backendData = response.data;

@@ -2,10 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
-  Users,
-  Building,
-  Mail,
-  Settings,
   LogOut,
   Tag,
   UserCircle,
@@ -25,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { NavItem } from '../../types';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
+import CompanySwitcher from '../ui/CompanySwitcher';
 
 const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
@@ -33,28 +30,6 @@ const Sidebar: React.FC = () => {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   const navigationItems: NavItem[] = [
-    {
-      id: 'configuration',
-      label: t('nav.configuration'),
-      icon: 'Settings',
-      roles: ['admin', 'superAdmin'],
-      children: [
-        {
-          id: 'users',
-          label: t('nav.userManagement'),
-          path: '/users',
-          icon: 'Users',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'companies',
-          label: t('nav.companyManagement'),
-          path: '/companies',
-          icon: 'Building',
-          roles: ['superAdmin'],
-        },
-      ],
-    },
     {
       id: 'masters',
       label: t('nav.masters'),
@@ -227,10 +202,6 @@ const Sidebar: React.FC = () => {
   const getIcon = (iconName: string, className: string = "h-5 w-5") => {
     const icons = {
       LayoutDashboard,
-      Users,
-      Building,
-      Mail,
-      Settings,
       Tag,
       UserCircle,
       Warehouse,
@@ -389,6 +360,13 @@ const Sidebar: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Company Switcher - Only for superAdmin */}
+      {user?.role === 'superAdmin' && (
+        <div className="px-4 py-2 border-b border-secondary-200">
+          <CompanySwitcher />
+        </div>
+      )}
 
       {/* Navigation */}
       <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">

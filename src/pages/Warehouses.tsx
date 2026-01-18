@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Search, Trash2, Edit, Warehouse as WarehouseIcon, Grid, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Warehouse } from '../types';
 import { warehousesApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -14,6 +15,7 @@ import WarehouseStockViewModal from '../components/modals/WarehouseStockViewModa
 
 const Warehouses: React.FC = () => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -24,14 +26,11 @@ const Warehouses: React.FC = () => {
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchWarehouses();
-  }, []);
-
-  const fetchWarehouses = async () => {
+  const fetchWarehouses = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await warehousesApi.getWarehouses();
+      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await warehousesApi.getWarehouses(params);
       setWarehouses(response.data || []);
     } catch (error) {
       console.error('Error fetching warehouses:', error);
@@ -39,7 +38,11 @@ const Warehouses: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [effectiveCompanyId]);
+
+  useEffect(() => {
+    fetchWarehouses();
+  }, [fetchWarehouses]);
 
   const handleEdit = (warehouse: Warehouse) => {
     setSelectedWarehouse(warehouse);

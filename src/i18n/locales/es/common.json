@@ -1,4 +1,9 @@
 {
+  "companySelector": {
+    "label": "Operando como",
+    "placeholder": "Seleccionar empresa",
+    "noCompanySelected": "Por favor seleccione una empresa"
+  },
   "nav": {
     "dashboard": "Panel de Control",
     "userManagement": "Gestión de Usuarios",
@@ -560,8 +565,15 @@
       "noData": "Comience creando un nuevo depósito"
     },
     "validation": {
-      "nameRequired": "El nombre es requerido"
+      "nameRequired": "El nombre es requerido",
+      "gridRowsRequired": "El numero de filas es requerido",
+      "gridRowsMin": "Minimo 1 fila requerida",
+      "gridRowsMax": "Maximo 50 filas permitidas",
+      "gridColsRequired": "El numero de columnas es requerido",
+      "gridColsMin": "Minimo 1 columna requerida",
+      "gridColsMax": "Maximo 50 columnas permitidas"
     },
+    "gridSizeInfo": "La cuadricula define el diseno del deposito para la gestion de ubicaciones de stock",
     "createFailed": "Error al crear el depósito. Por favor, intente nuevamente.",
     "updateFailed": "Error al actualizar el depósito. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el depósito",

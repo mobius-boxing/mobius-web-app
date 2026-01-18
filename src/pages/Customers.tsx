@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Search, Trash2, Edit, User as UserIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
 import { Customer } from '../types';
 import { customersApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -13,7 +13,7 @@ import EditCustomerModal from '../components/modals/EditCustomerModal';
 
 const Customers: React.FC = () => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,14 +22,11 @@ const Customers: React.FC = () => {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchCustomers();
-  }, []);
-
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await customersApi.getCustomers();
+      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await customersApi.getCustomers(params);
       setCustomers(response.data || []);
     } catch (error) {
       console.error('Error fetching customers:', error);
@@ -37,7 +34,11 @@ const Customers: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [effectiveCompanyId]);
+
+  useEffect(() => {
+    fetchCustomers();
+  }, [fetchCustomers]);
 
   const handleEdit = (customer: Customer) => {
     setSelectedCustomer(customer);

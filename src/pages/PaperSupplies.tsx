@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Plus, Search, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
 import { PaperSupply } from '../types';
 import { paperSuppliesApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
@@ -13,7 +13,7 @@ import EditPaperSupplyModal from '../components/modals/EditPaperSupplyModal';
 
 const PaperSupplies: React.FC = () => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [paperSupplies, setPaperSupplies] = useState<PaperSupply[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -22,14 +22,11 @@ const PaperSupplies: React.FC = () => {
   const [selectedPaperSupply, setSelectedPaperSupply] = useState<PaperSupply | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchPaperSupplies();
-  }, []);
-
-  const fetchPaperSupplies = async () => {
+  const fetchPaperSupplies = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await paperSuppliesApi.getPaperSupplies();
+      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await paperSuppliesApi.getPaperSupplies(params);
       setPaperSupplies(response.data || []);
     } catch (error) {
       console.error('Error fetching paper supplies:', error);
@@ -37,7 +34,11 @@ const PaperSupplies: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [effectiveCompanyId]);
+
+  useEffect(() => {
+    fetchPaperSupplies();
+  }, [fetchPaperSupplies]);
 
   const handleEdit = (paperSupply: PaperSupply) => {
     setSelectedPaperSupply(paperSupply);
