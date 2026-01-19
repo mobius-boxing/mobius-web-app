@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-// import { X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Company, InviteUserRequest } from '../../types';
 import { invitationsApi, companiesApi } from '../../services/api';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { useModalForm } from '../../hooks/useModalForm';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface InviteUserModalProps {
   isOpen: boolean;
@@ -21,16 +21,22 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
 }) => {
   const { user: currentUser } = useAuth();
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      watch,
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-    watch,
-  } = useForm<InviteUserRequest>();
+    handleClose,
+  } = useModalForm<InviteUserRequest>({
+    onSuccess,
+    onClose,
+  });
 
   const selectedRole = watch('role');
 
@@ -49,58 +55,33 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: InviteUserRequest) => {
-    setLoading(true);
-    setError('');
+  const onSubmit = handleSubmit((data) => {
+    // Determine companyId based on role and user
+    let companyId: string | undefined;
 
-    try {
-      // Determine companyId based on role and user
-      let companyId: string | undefined;
-
-      if (data.role === 'superAdmin') {
-        // SuperAdmins don't need a company
-        companyId = undefined;
-      } else if (currentUser?.role === 'superAdmin') {
-        // SuperAdmin creating non-superAdmin user
-        companyId = data.companyId;
-      } else {
-        // Regular admin creating user in their company
-        companyId = currentUser?.companyId;
-      }
-
-      const inviteData = {
-        ...data,
-        companyId,
-      };
-
-      await invitationsApi.createInvitation(inviteData);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error inviting user:', err);
-      setError(
-        err.response?.data?.message ||
-        'Failed to send invitation. Please try again.'
-      );
-    } finally {
-      setLoading(false);
+    if (data.role === 'superAdmin') {
+      // SuperAdmins don't need a company
+      companyId = undefined;
+    } else if (currentUser?.role === 'superAdmin') {
+      // SuperAdmin creating non-superAdmin user
+      companyId = data.companyId;
+    } else {
+      // Regular admin creating user in their company
+      companyId = currentUser?.companyId;
     }
-  };
 
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+    const inviteData = {
+      ...data,
+      companyId,
+    };
+
+    return invitationsApi.createInvitation(inviteData);
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Invite New User">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
@@ -194,19 +175,11 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
           </div>
         )}
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" loading={loading}>
-            Send Invitation
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText="Send Invitation"
+        />
       </form>
     </Modal>
   );

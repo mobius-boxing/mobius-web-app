@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreateSheetStockForm, Manufacturer, Supplier, Warehouse, PaperSheet, WarehouseLocation } from '../../types';
 import { sheetStockApi, manufacturersApi, suppliersApi, warehousesApi, paperSheetsApi } from '../../services/api';
+import { useModalForm } from '../../hooks/useModalForm';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { MapPin, X } from 'lucide-react';
 
@@ -21,8 +23,6 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -31,12 +31,20 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
   const [selectedLocation, setSelectedLocation] = useState<WarehouseLocation | null>(null);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      control,
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    control,
-    formState: { errors },
-  } = useForm<CreateSheetStockForm>();
+    handleClose: modalHandleClose,
+  } = useModalForm<CreateSheetStockForm>({
+    onSuccess,
+    onClose,
+  });
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseId' });
   const selectedWarehouse = warehouses.find(w => w.uuid === selectedWarehouseId) || null;
@@ -70,42 +78,23 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreateSheetStockForm) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const stockData = {
-        warehouseId: data.warehouseId,
-        warehouseLocationId: selectedLocation?.uuid || undefined,
-        paperSheetId: data.paperSheetId,
-        supplierId: data.supplierId || undefined,
-        manufacturerId: data.manufacturerId || undefined,
-        comments: data.comments || undefined,
-        price: data.price || undefined,
-        quantity: data.quantity || 0,
-      };
-
-      await sheetStockApi.createSheetStock(stockData);
-      reset();
-      setSelectedLocation(null);
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating sheet stock:', err);
-      setError(
-        err.response?.data?.message ||
-        t('sheetStock.createFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const onSubmit = handleSubmit((data) => {
+    const stockData = {
+      warehouseId: data.warehouseId,
+      warehouseLocationId: selectedLocation?.uuid || undefined,
+      paperSheetId: data.paperSheetId,
+      supplierId: data.supplierId || undefined,
+      manufacturerId: data.manufacturerId || undefined,
+      comments: data.comments || undefined,
+      price: data.price || undefined,
+      quantity: data.quantity || 0,
+    };
+    return sheetStockApi.createSheetStock(stockData);
+  });
 
   const handleClose = () => {
-    reset();
-    setError('');
     setSelectedLocation(null);
-    onClose();
+    modalHandleClose();
   };
 
   const handleLocationSelect = (location: WarehouseLocation) => {
@@ -131,12 +120,8 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('sheetStock.createTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -297,19 +282,11 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('sheetStock.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('sheetStock.createButton')}
+        />
       </form>
     </Modal>
   );

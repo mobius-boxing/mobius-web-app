@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreateToolingForm, ToolingType, Manufacturer, Supplier } from '../../types';
 import { toolingsApi, toolingTypesApi, manufacturersApi, suppliersApi } from '../../services/api';
+import { useModalForm } from '../../hooks/useModalForm';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface CreateToolingModalProps {
   isOpen: boolean;
@@ -19,18 +20,24 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [toolingTypes, setToolingTypes] = useState<ToolingType[]>([]);
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<CreateToolingForm>();
+    handleClose: modalHandleClose,
+  } = useModalForm<CreateToolingForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -53,39 +60,12 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreateToolingForm) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      await toolingsApi.createTooling(data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating tooling:', err);
-      setError(
-        err.response?.data?.message ||
-        t('toolings.createFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+  const onSubmit = handleSubmit((data) => toolingsApi.createTooling(data));
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={t('toolings.createTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+    <Modal isOpen={isOpen} onClose={modalHandleClose} title={t('toolings.createTitle')}>
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('name', {
@@ -186,19 +166,11 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
           error={errors.minimumStock?.message as string}
         />
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('toolings.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={modalHandleClose}
+          submitText={t('toolings.createButton')}
+        />
       </form>
     </Modal>
   );

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreateCorrugationForm, CorrugationClass } from '../../types';
 import { corrugationsApi, corrugationClassesApi } from '../../services/api';
+import { useModalForm } from '../../hooks/useModalForm';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface CreateCorrugationModalProps {
   isOpen: boolean;
@@ -19,16 +20,22 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [corrugationClasses, setCorrugationClasses] = useState<CorrugationClass[]>([]);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<CreateCorrugationForm>();
+    handleClose: modalHandleClose,
+  } = useModalForm<CreateCorrugationForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -45,47 +52,22 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreateCorrugationForm) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const submitData = {
-        ...data,
-        theoreticalGrammage: data.theoreticalGrammage ? Number(data.theoreticalGrammage) : undefined,
-        suggestedWidth: data.suggestedWidth ? Number(data.suggestedWidth) : undefined,
-        caliper: data.caliper ? Number(data.caliper) : undefined,
-        // SECURITY: Send UUID, not numeric ID
-        corrugationClassUuid: data.corrugationClassUuid || undefined,
-      };
-      await corrugationsApi.createCorrugation(submitData);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating corrugation:', err);
-      setError(
-        err.response?.data?.message ||
-        t('corrugations.createFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+  const onSubmit = handleSubmit((data) => {
+    const submitData = {
+      ...data,
+      theoreticalGrammage: data.theoreticalGrammage ? Number(data.theoreticalGrammage) : undefined,
+      suggestedWidth: data.suggestedWidth ? Number(data.suggestedWidth) : undefined,
+      caliper: data.caliper ? Number(data.caliper) : undefined,
+      // SECURITY: Send UUID, not numeric ID
+      corrugationClassUuid: data.corrugationClassUuid || undefined,
+    };
+    return corrugationsApi.createCorrugation(submitData);
+  });
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={t('corrugations.createTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+    <Modal isOpen={isOpen} onClose={modalHandleClose} title={t('corrugations.createTitle')}>
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('code', {
@@ -159,19 +141,11 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('corrugations.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={modalHandleClose}
+          submitText={t('corrugations.createButton')}
+        />
       </form>
     </Modal>
   );

@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { CreatePaperTypeForm } from '../../types';
 import { paperTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { useModalForm } from '../../hooks/useModalForm';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface CreatePaperTypeModalProps {
   isOpen: boolean;
@@ -19,49 +20,28 @@ const CreatePaperTypeModal: React.FC<CreatePaperTypeModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<CreatePaperTypeForm>();
+    handleClose,
+  } = useModalForm<CreatePaperTypeForm>({
+    onSuccess,
+    onClose,
+  });
 
-  const onSubmit = async (data: CreatePaperTypeForm) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      await paperTypesApi.createPaperType(data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating paper type:', err);
-      setError(
-        err.response?.data?.message ||
-        'Failed to create paper type. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+  const onSubmit = handleSubmit((data) => paperTypesApi.createPaperType(data));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperTypes.createTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('code', {
@@ -95,19 +75,11 @@ const CreatePaperTypeModal: React.FC<CreatePaperTypeModalProps> = ({
           )}
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('paperTypes.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('paperTypes.createButton')}
+        />
       </form>
     </Modal>
   );

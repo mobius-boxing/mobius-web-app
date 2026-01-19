@@ -1,44 +1,37 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Plus, Search, Trash2, Edit, Package } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Product } from '../types';
 import { productsApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
 import Table from '../components/ui/Table';
+import { SearchInput } from '../components/ui/SearchInput';
+import { useEntityList } from '../hooks/useEntityList';
 import CreateProductModal from '../components/modals/CreateProductModal';
 import EditProductModal from '../components/modals/EditProductModal';
 
 const Products: React.FC = () => {
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const fetchProducts = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      const response = await productsApi.getProducts(params);
-      setProducts(response.data || []);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setProducts([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [effectiveCompanyId]);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+  // Use the entity list hook for data management
+  const {
+    filteredData: products,
+    loading,
+    search,
+    setSearch,
+    refresh,
+  } = useEntityList<Product>({
+    fetchFn: productsApi.getProducts,
+    searchFields: ['code', 'clientCode', 'description', 'customerName'],
+    defaultFilters: effectiveCompanyId ? { companyId: effectiveCompanyId } : {},
+  });
 
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
@@ -53,7 +46,7 @@ const Products: React.FC = () => {
     try {
       setActionLoading(productId);
       await productsApi.deleteProduct(productId);
-      await fetchProducts();
+      await refresh();
     } catch (error: any) {
       console.error('Error deleting product:', error);
       const errorMessage = error.response?.data?.message || t('products.deleteFailed');
@@ -65,27 +58,14 @@ const Products: React.FC = () => {
 
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
-    fetchProducts();
+    refresh();
   };
 
   const handleEditSuccess = () => {
     setShowEditModal(false);
     setSelectedProduct(null);
-    fetchProducts();
+    refresh();
   };
-
-  // Filter products based on search term
-  const filteredProducts = products.filter((product) => {
-    if (!product) return false;
-
-    const matchesSearch = searchTerm === '' ||
-      (product.code && product.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (product.clientCode && product.clientCode.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (product.description && product.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (product.customerName && product.customerName.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    return matchesSearch;
-  });
 
   const columns = [
     {
@@ -173,16 +153,11 @@ const Products: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary-400" />
-                <Input
-                  type="text"
-                  placeholder={t('products.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder={t('products.searchPlaceholder')}
+              />
             </div>
           </div>
         </div>
@@ -192,7 +167,7 @@ const Products: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
-                {t('products.allProducts')} ({filteredProducts.length})
+                {t('products.allProducts')} ({products.length})
               </h2>
             </div>
 
@@ -200,14 +175,14 @@ const Products: React.FC = () => {
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               </div>
-            ) : filteredProducts.length === 0 ? (
+            ) : products.length === 0 ? (
               <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('products.empty.title')}</h3>
                 <p className="mt-1 text-sm text-secondary-500">
-                  {searchTerm ? t('products.empty.description') : t('products.empty.noData')}
+                  {search ? t('products.empty.description') : t('products.empty.noData')}
                 </p>
-                {!searchTerm && (
+                {!search && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -219,7 +194,7 @@ const Products: React.FC = () => {
             ) : (
               <Table
                 columns={columns}
-                data={filteredProducts}
+                data={products}
                 loading={loading}
               />
             )}

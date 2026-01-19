@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useModalForm } from '../../hooks/useModalForm';
 import { PaperSheet, CreatePaperSheetForm, Manufacturer, Supplier, Corrugation } from '../../types';
 import { paperSheetsApi, manufacturersApi, suppliersApi, corrugationsApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface EditPaperSheetModalProps {
   isOpen: boolean;
@@ -21,19 +22,26 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
   paperSheet,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [corrugations, setCorrugations] = useState<Corrugation[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      reset,
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreatePaperSheetForm>();
+    handleClose,
+  } = useModalForm<CreatePaperSheetForm>({
+    onSuccess,
+    onClose,
+  });
 
   // Effect 1: Fetch dropdown data when modal opens
   useEffect(() => {
@@ -77,55 +85,30 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreatePaperSheetForm) => {
+  const onSubmit = handleSubmit(async (data) => {
     if (!paperSheet) return;
 
-    setLoading(true);
-    setError('');
+    const paperSheetData = {
+      code: data.code,
+      name: data.name,
+      description: data.description || undefined,
+      supplierId: data.supplierId || undefined,
+      manufacturerId: data.manufacturerId || undefined,
+      corrugationId: data.corrugationId || undefined,
+      minimumStock: data.minimumStock || undefined,
+      length: data.length || undefined,
+      width: data.width || undefined,
+    };
 
-    try {
-      const paperSheetData = {
-        code: data.code,
-        name: data.name,
-        description: data.description || undefined,
-        supplierId: data.supplierId || undefined,
-        manufacturerId: data.manufacturerId || undefined,
-        corrugationId: data.corrugationId || undefined,
-        minimumStock: data.minimumStock || undefined,
-        length: data.length || undefined,
-        width: data.width || undefined,
-      };
-
-      await paperSheetsApi.updatePaperSheet(paperSheet.uuid, paperSheetData);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating paper sheet:', err);
-      setError(
-        err.response?.data?.message ||
-        t('paperSheets.updateFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+    await paperSheetsApi.updatePaperSheet(paperSheet.uuid, paperSheetData);
+  });
 
   if (!paperSheet) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperSheets.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -257,19 +240,7 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('paperSheets.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter loading={loading} onCancel={handleClose} submitText={t('paperSheets.updateButton')} />
       </form>
     </Modal>
   );

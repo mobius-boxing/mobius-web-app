@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { useModalForm } from '../../hooks/useModalForm';
 import { CreateCustomerForm, CustomerCategory, User, ContactInfo, DeliveryLocation, DeliveryDay } from '../../types';
 import { customersApi, customerCategoriesApi, usersApi } from '../../services/api';
 import Modal from '../ui/Modal';
@@ -22,21 +22,25 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const { effectiveCompanyId } = useEffectiveCompany();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [categories, setCategories] = useState<CustomerCategory[]>([]);
   const [salesPersons, setSalesPersons] = useState<User[]>([]);
   const [contacts, setContacts] = useState<ContactInfo[]>([]);
   const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocation[]>([]);
   const [deliveryDays, setDeliveryDays] = useState<DeliveryDay[]>([]);
 
-  const form = useForm<CreateCustomerForm>({
+  const {
+    form,
+    loading,
+    error,
+    handleSubmit,
+    handleClose: modalHandleClose,
+  } = useModalForm<CreateCustomerForm>({
     defaultValues: {
       active: true,
     },
+    onSuccess,
+    onClose,
   });
-
-  const { handleSubmit, reset } = form;
 
   useEffect(() => {
     if (isOpen) {
@@ -58,48 +62,30 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreateCustomerForm) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      // Convert empty strings to undefined for optional fields
-      const customerData = {
-        ...data,
-        companyId: effectiveCompanyId,
-        categoryId: data.categoryId || undefined,
-        salesPersonId: data.salesPersonId || undefined,
-        supplierCode: data.supplierCode || undefined,
-        legalName: data.legalName || undefined,
-        legalCode: data.legalCode || undefined,
-        tradeName: data.tradeName || undefined,
-        address: data.address || undefined,
-        contacts: contacts.length > 0 ? contacts : undefined,
-        deliveryLocations: deliveryLocations.length > 0 ? deliveryLocations : undefined,
-        deliveryDays: deliveryDays.length > 0 ? deliveryDays : undefined,
-      };
-
-      await customersApi.createCustomer(customerData);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating customer:', err);
-      setError(
-        err.response?.data?.message ||
-        t('common:customerModal.errors.createFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const onSubmit = handleSubmit((data) => {
+    // Convert empty strings to undefined for optional fields
+    const customerData = {
+      ...data,
+      companyId: effectiveCompanyId,
+      categoryId: data.categoryId || undefined,
+      salesPersonId: data.salesPersonId || undefined,
+      supplierCode: data.supplierCode || undefined,
+      legalName: data.legalName || undefined,
+      legalCode: data.legalCode || undefined,
+      tradeName: data.tradeName || undefined,
+      address: data.address || undefined,
+      contacts: contacts.length > 0 ? contacts : undefined,
+      deliveryLocations: deliveryLocations.length > 0 ? deliveryLocations : undefined,
+      deliveryDays: deliveryDays.length > 0 ? deliveryDays : undefined,
+    };
+    return customersApi.createCustomer(customerData);
+  });
 
   const handleClose = () => {
-    reset();
-    setError('');
     setContacts([]);
     setDeliveryLocations([]);
     setDeliveryDays([]);
-    onClose();
+    modalHandleClose();
   };
 
   return (
@@ -119,7 +105,7 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
         loading={loading}
         error={error}
         onClose={handleClose}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit)}
       />
     </Modal>
   );

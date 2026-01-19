@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { CreateToolingTypeForm } from '../../types';
 import { toolingTypesApi } from '../../services/api';
+import { useModalForm } from '../../hooks/useModalForm';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface CreateToolingTypeModalProps {
   isOpen: boolean;
@@ -19,49 +20,28 @@ const CreateToolingTypeModal: React.FC<CreateToolingTypeModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<CreateToolingTypeForm>();
+    handleClose,
+  } = useModalForm<CreateToolingTypeForm>({
+    onSuccess,
+    onClose,
+  });
 
-  const onSubmit = async (data: CreateToolingTypeForm) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      await toolingTypesApi.createToolingType(data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating tooling type:', err);
-      setError(
-        err.response?.data?.message ||
-        t('toolingTypes.createFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+  const onSubmit = handleSubmit((data) => toolingTypesApi.createToolingType(data));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('toolingTypes.createTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('code', {
@@ -124,19 +104,11 @@ const CreateToolingTypeModal: React.FC<CreateToolingTypeModalProps> = ({
           </label>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('toolingTypes.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('toolingTypes.createButton')}
+        />
       </form>
     </Modal>
   );

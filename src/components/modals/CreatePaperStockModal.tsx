@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreatePaperStockForm, Manufacturer, Supplier, Warehouse, PaperSupply, WarehouseLocation } from '../../types';
 import { paperStockApi, manufacturersApi, suppliersApi, warehousesApi, paperSuppliesApi } from '../../services/api';
+import { useModalForm } from '../../hooks/useModalForm';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { MapPin, X } from 'lucide-react';
 
@@ -21,8 +23,6 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -31,12 +31,20 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
   const [selectedLocation, setSelectedLocation] = useState<WarehouseLocation | null>(null);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      control,
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    control,
-    formState: { errors },
-  } = useForm<CreatePaperStockForm>();
+    handleClose: modalHandleClose,
+  } = useModalForm<CreatePaperStockForm>({
+    onSuccess,
+    onClose,
+  });
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseId' });
   const selectedWarehouse = warehouses.find(w => w.uuid === selectedWarehouseId) || null;
@@ -70,44 +78,25 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreatePaperStockForm) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      const stockData = {
-        warehouseId: data.warehouseId,
-        warehouseLocationId: selectedLocation?.uuid || undefined,
-        paperSupplyId: data.paperSupplyId,
-        supplierId: data.supplierId || undefined,
-        manufacturerId: data.manufacturerId || undefined,
-        comments: data.comments || undefined,
-        price: data.price || undefined,
-        weight: data.weight || undefined,
-        diameter: data.diameter || undefined,
-        width: data.width || undefined,
-      };
-
-      await paperStockApi.createPaperStock(stockData);
-      reset();
-      setSelectedLocation(null);
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating paper stock:', err);
-      setError(
-        err.response?.data?.message ||
-        t('paperStock.createFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+  const onSubmit = handleSubmit((data) => {
+    const stockData = {
+      warehouseId: data.warehouseId,
+      warehouseLocationId: selectedLocation?.uuid || undefined,
+      paperSupplyId: data.paperSupplyId,
+      supplierId: data.supplierId || undefined,
+      manufacturerId: data.manufacturerId || undefined,
+      comments: data.comments || undefined,
+      price: data.price || undefined,
+      weight: data.weight || undefined,
+      diameter: data.diameter || undefined,
+      width: data.width || undefined,
+    };
+    return paperStockApi.createPaperStock(stockData);
+  });
 
   const handleClose = () => {
-    reset();
-    setError('');
     setSelectedLocation(null);
-    onClose();
+    modalHandleClose();
   };
 
   const handleLocationSelect = (location: WarehouseLocation) => {
@@ -133,12 +122,8 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperStock.createTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -326,19 +311,11 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('paperStock.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('paperStock.createButton')}
+        />
       </form>
     </Modal>
   );

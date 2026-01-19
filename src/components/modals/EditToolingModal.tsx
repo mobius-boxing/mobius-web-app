@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Tooling, CreateToolingForm, ToolingType, Manufacturer, Supplier } from '../../types';
 import { toolingsApi, toolingTypesApi, manufacturersApi, suppliersApi } from '../../services/api';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import ErrorMessage from '../ui/ErrorMessage';
+import ModalFooter from '../ui/ModalFooter';
+import { useModalForm } from '../../hooks/useModalForm';
 
 interface EditToolingModalProps {
   isOpen: boolean;
@@ -21,36 +22,46 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [toolingTypes, setToolingTypes] = useState<ToolingType[]>([]);
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      reset,
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-  } = useForm<CreateToolingForm>();
-
-  useEffect(() => {
-    if (isOpen) {
-      fetchDropdownData();
-    }
-  }, [isOpen]);
+    handleClose,
+  } = useModalForm<CreateToolingForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen && tooling) {
-      setValue('name', tooling.name);
-      setValue('description', tooling.description || '');
-      setValue('toolingTypeUuid', tooling.toolingType?.uuid || '');
-      setValue('manufacturerUuid', tooling.manufacturer?.uuid || '');
-      setValue('supplierUuid', tooling.supplier?.uuid || '');
-      setValue('minimumStock', tooling.minimumStock || 0);
+      setDropdownsLoaded(false);
+      fetchDropdownData();
     }
-  }, [isOpen, tooling, setValue]);
+  }, [isOpen, tooling]);
+
+  useEffect(() => {
+    if (isOpen && tooling && dropdownsLoaded) {
+      reset({
+        name: tooling.name,
+        description: tooling.description || '',
+        toolingTypeUuid: tooling.toolingType?.uuid || '',
+        manufacturerUuid: tooling.manufacturer?.uuid || '',
+        supplierUuid: tooling.supplier?.uuid || '',
+        minimumStock: tooling.minimumStock || 0,
+      });
+    }
+  }, [isOpen, tooling, dropdownsLoaded, reset]);
 
   const fetchDropdownData = async () => {
     try {
@@ -64,46 +75,21 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
       setSuppliers(suppliersRes.data || []);
     } catch (err) {
       console.error('Error fetching dropdown data:', err);
-    }
-  };
-
-  const onSubmit = async (data: CreateToolingForm) => {
-    if (!tooling) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      await toolingsApi.updateTooling(tooling.uuid, data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating tooling:', err);
-      setError(
-        err.response?.data?.message ||
-        t('toolings.updateFailed')
-      );
     } finally {
-      setLoading(false);
+      setDropdownsLoaded(true);
     }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
   };
 
   if (!tooling) return null;
 
+  const onSubmit = handleSubmit((data) =>
+    toolingsApi.updateTooling(tooling.uuid, data)
+  );
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('toolings.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('name', {
@@ -204,19 +190,11 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
           error={errors.minimumStock?.message as string}
         />
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('toolings.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('toolings.updateButton')}
+        />
       </form>
     </Modal>
   );

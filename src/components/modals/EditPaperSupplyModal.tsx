@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useModalForm } from '../../hooks/useModalForm';
 import { PaperSupply, CreatePaperSupplyForm, Manufacturer, Supplier, PaperType } from '../../types';
 import { paperSuppliesApi, manufacturersApi, suppliersApi, paperTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface EditPaperSupplyModalProps {
   isOpen: boolean;
@@ -21,19 +22,26 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
   paperSupply,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [paperTypes, setPaperTypes] = useState<PaperType[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      reset,
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreatePaperSupplyForm>();
+    handleClose,
+  } = useModalForm<CreatePaperSupplyForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen && paperSupply) {
@@ -76,59 +84,34 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreatePaperSupplyForm) => {
+  const onSubmit = handleSubmit(async (data) => {
     if (!paperSupply) return;
 
-    setLoading(true);
-    setError('');
+    // Transform flat form fields to API format
+    const paperSupplyData = {
+      code: data.code,
+      name: data.name,
+      description: data.description || undefined,
+      manufacturerId: data.manufacturerId || undefined,
+      supplierId: data.supplierId || undefined,
+      paperTypeId: data.paperTypeId || undefined,
+      grammage: data.grammage || undefined,
+      price: data.price || undefined,
+      minimumStock: {
+        pallets: data.minimumStockPallets || 0,
+        boxes: data.minimumStockBoxes || 0,
+      },
+    };
 
-    try {
-      // Transform flat form fields to API format
-      const paperSupplyData = {
-        code: data.code,
-        name: data.name,
-        description: data.description || undefined,
-        manufacturerId: data.manufacturerId || undefined,
-        supplierId: data.supplierId || undefined,
-        paperTypeId: data.paperTypeId || undefined,
-        grammage: data.grammage || undefined,
-        price: data.price || undefined,
-        minimumStock: {
-          pallets: data.minimumStockPallets || 0,
-          boxes: data.minimumStockBoxes || 0,
-        },
-      };
-
-      await paperSuppliesApi.updatePaperSupply(paperSupply.uuid, paperSupplyData);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating paper supply:', err);
-      setError(
-        err.response?.data?.message ||
-        t('paperSupplies.updateFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+    await paperSuppliesApi.updatePaperSupply(paperSupply.uuid, paperSupplyData);
+  });
 
   if (!paperSupply) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperSupplies.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -275,19 +258,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('paperSupplies.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter loading={loading} onCancel={handleClose} submitText={t('paperSupplies.updateButton')} />
       </form>
     </Modal>
   );

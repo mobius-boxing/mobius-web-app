@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreatePaperClassForm, PaperSupply } from '../../types';
 import { paperClassesApi, paperSuppliesApi } from '../../services/api';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
 import DualListSelector from '../ui/DualListSelector';
+import { useModalForm } from '../../hooks/useModalForm';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface CreatePaperClassModalProps {
   isOpen: boolean;
@@ -20,18 +21,28 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [loadingSupplies, setLoadingSupplies] = useState(false);
   const [availableSupplies, setAvailableSupplies] = useState<PaperSupply[]>([]);
   const [assignedSupplies, setAssignedSupplies] = useState<PaperSupply[]>([]);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+    },
+    loading,
+    error,
+    setError,
     handleSubmit,
-    formState: { errors },
-    reset,
-  } = useForm<CreatePaperClassForm>();
+    handleClose: baseHandleClose,
+  } = useModalForm<CreatePaperClassForm>({
+    onSuccess: () => {
+      setAssignedSupplies([]);
+      onSuccess();
+    },
+    onClose,
+  });
 
   // Fetch paper supplies when modal opens
   useEffect(() => {
@@ -58,34 +69,18 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreatePaperClassForm) => {
-    setLoading(true);
-    setError('');
+  const onSubmit = handleSubmit((data) => {
+    // Extract IDs from assigned supplies
+    const papers = assignedSupplies.map(supply => parseInt(supply.id));
 
-    try {
-      // Extract IDs from assigned supplies
-      const papers = assignedSupplies.map(supply => parseInt(supply.id));
+    const formData = {
+      code: data.code,
+      name: data.name,
+      papers,
+    };
 
-      const formData = {
-        code: data.code,
-        name: data.name,
-        papers,
-      };
-
-      await paperClassesApi.createPaperClass(formData);
-      reset();
-      setAssignedSupplies([]);
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating paper class:', err);
-      setError(
-        err.response?.data?.message ||
-        'Failed to create paper class. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    return paperClassesApi.createPaperClass(formData);
+  });
 
   const handleAssign = (items: PaperSupply[]) => {
     setAssignedSupplies([...assignedSupplies, ...items]);
@@ -102,19 +97,15 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
   };
 
   const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
+    setAssignedSupplies([]);
+    setAvailableSupplies([]);
+    baseHandleClose();
   };
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperClasses.createTitle')} size="xl">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('code', {
@@ -165,19 +156,11 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
           disabled={loading}
         />
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('paperClasses.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('paperClasses.createButton')}
+        />
       </form>
     </Modal>
   );

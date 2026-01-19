@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Warehouse, CreateWarehouseForm } from '../../types';
 import { warehousesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import ErrorMessage from '../ui/ErrorMessage';
+import ModalFooter from '../ui/ModalFooter';
+import { useModalForm } from '../../hooks/useModalForm';
 
 interface EditWarehouseModalProps {
   isOpen: boolean;
@@ -21,15 +22,22 @@ const EditWarehouseModal: React.FC<EditWarehouseModalProps> = ({
   warehouse,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      reset,
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateWarehouseForm>();
+    handleClose,
+  } = useModalForm<CreateWarehouseForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen && warehouse) {
@@ -39,43 +47,16 @@ const EditWarehouseModal: React.FC<EditWarehouseModalProps> = ({
     }
   }, [isOpen, warehouse, reset]);
 
-  const onSubmit = async (data: CreateWarehouseForm) => {
-    if (!warehouse) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      await warehousesApi.updateWarehouse(warehouse.uuid, data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating warehouse:', err);
-      setError(
-        err.response?.data?.message ||
-        t('warehouses.updateFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
-
   if (!warehouse) return null;
+
+  const onSubmit = handleSubmit((data) =>
+    warehousesApi.updateWarehouse(warehouse.uuid, data)
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('warehouses.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -92,23 +73,15 @@ const EditWarehouseModal: React.FC<EditWarehouseModalProps> = ({
 
         <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
           <p className="text-sm text-blue-800">
-            ℹ️ To resize the grid, use the Grid Editor (grid icon) which allows you to configure locations after resizing.
+            To resize the grid, use the Grid Editor (grid icon) which allows you to configure locations after resizing.
           </p>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('warehouses.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('warehouses.updateButton')}
+        />
       </form>
     </Modal>
   );

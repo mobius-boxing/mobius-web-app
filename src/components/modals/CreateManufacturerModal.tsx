@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { CreateManufacturerForm } from '../../types';
 import { manufacturersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { useModalForm } from '../../hooks/useModalForm';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface CreateManufacturerModalProps {
   isOpen: boolean;
@@ -19,49 +20,28 @@ const CreateManufacturerModal: React.FC<CreateManufacturerModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateManufacturerForm>();
+    handleClose,
+  } = useModalForm<CreateManufacturerForm>({
+    onSuccess,
+    onClose,
+  });
 
-  const onSubmit = async (data: CreateManufacturerForm) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      await manufacturersApi.createManufacturer(data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating manufacturer:', err);
-      setError(
-        err.response?.data?.message ||
-        t('manufacturers.createFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+  const onSubmit = handleSubmit((data) => manufacturersApi.createManufacturer(data));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('manufacturers.createTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -89,19 +69,11 @@ const CreateManufacturerModal: React.FC<CreateManufacturerModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('manufacturers.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('manufacturers.createButton')}
+        />
       </form>
     </Modal>
   );

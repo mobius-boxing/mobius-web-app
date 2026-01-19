@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import React, { useState, useEffect, useRef } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreatePaperStockForm, PaperStock, Manufacturer, Supplier, Warehouse, PaperSupply, WarehouseLocation } from '../../types';
 import { paperStockApi, manufacturersApi, suppliersApi, warehousesApi, paperSuppliesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import ErrorMessage from '../ui/ErrorMessage';
+import ModalFooter from '../ui/ModalFooter';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
+import { useModalForm } from '../../hooks/useModalForm';
 import { MapPin, X } from 'lucide-react';
 
 interface EditPaperStockModalProps {
@@ -23,51 +25,65 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
   paperStock,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [paperSupplies, setPaperSupplies] = useState<PaperSupply[]>([]);
   const [locationSelectorOpen, setLocationSelectorOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<WarehouseLocation | null>(null);
+  const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
+
+  const {
+    form,
+    loading,
+    error,
+    handleSubmit,
+    handleClose: baseHandleClose,
+  } = useModalForm<CreatePaperStockForm>({
+    onSuccess,
+    onClose,
+  });
 
   const {
     register,
-    handleSubmit,
-    reset,
-    setValue,
-    control,
+    handleSubmit: formSubmit,
     formState: { errors },
-  } = useForm<CreatePaperStockForm>();
+    reset,
+    control,
+  } = form;
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseId' });
   const selectedWarehouse = warehouses.find(w => w.uuid === selectedWarehouseId) || null;
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchDropdownData();
-    }
-  }, [isOpen]);
+  // Track previous warehouse ID to clear location on change
+  const previousWarehouseId = useRef(selectedWarehouseId);
 
   useEffect(() => {
-    if (paperStock && isOpen && warehouses.length > 0 && paperSupplies.length > 0) {
-      setValue('warehouseId', paperStock.warehouse?.uuid || '');
-      setValue('paperSupplyId', paperStock.paperSupply?.uuid || '');
-      setValue('supplierId', paperStock.supplier?.uuid || '');
-      setValue('manufacturerId', paperStock.manufacturer?.uuid || '');
-      setValue('comments', paperStock.comments || '');
-      setValue('price', paperStock.price || undefined);
-      setValue('weight', paperStock.weight || undefined);
-      setValue('diameter', paperStock.diameter || undefined);
-      setValue('width', paperStock.width || undefined);
+    if (isOpen && paperStock) {
+      setDropdownsLoaded(false);
+      fetchDropdownData();
+    }
+  }, [isOpen, paperStock]);
+
+  useEffect(() => {
+    if (paperStock && isOpen && dropdownsLoaded) {
+      reset({
+        warehouseId: paperStock.warehouse?.uuid || '',
+        paperSupplyId: paperStock.paperSupply?.uuid || '',
+        supplierId: paperStock.supplier?.uuid || '',
+        manufacturerId: paperStock.manufacturer?.uuid || '',
+        comments: paperStock.comments || '',
+        price: paperStock.price || undefined,
+        weight: paperStock.weight || undefined,
+        diameter: paperStock.diameter || undefined,
+        width: paperStock.width || undefined,
+      });
       // Set warehouse location if available
       setSelectedLocation(paperStock.warehouseLocation || null);
     }
-  }, [paperStock, isOpen, warehouses, paperSupplies, setValue]);
+  }, [paperStock, isOpen, dropdownsLoaded, reset]);
 
   // Clear location when warehouse changes (only if it's actually different)
-  const previousWarehouseId = React.useRef(selectedWarehouseId);
   useEffect(() => {
     if (previousWarehouseId.current && selectedWarehouseId !== previousWarehouseId.current) {
       setSelectedLocation(null);
@@ -89,49 +105,14 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
       setPaperSupplies(paperSuppliesRes.data || []);
     } catch (error) {
       console.error('Error fetching dropdown data:', error);
-    }
-  };
-
-  const onSubmit = async (data: CreatePaperStockForm) => {
-    if (!paperStock) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const stockData = {
-        warehouseId: data.warehouseId,
-        warehouseLocationId: selectedLocation?.uuid || undefined,
-        paperSupplyId: data.paperSupplyId,
-        supplierId: data.supplierId || undefined,
-        manufacturerId: data.manufacturerId || undefined,
-        comments: data.comments || undefined,
-        price: data.price || undefined,
-        weight: data.weight || undefined,
-        diameter: data.diameter || undefined,
-        width: data.width || undefined,
-      };
-
-      await paperStockApi.updatePaperStock(paperStock.uuid, stockData);
-      reset();
-      setSelectedLocation(null);
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating paper stock:', err);
-      setError(
-        err.response?.data?.message ||
-        t('paperStock.updateFailed')
-      );
     } finally {
-      setLoading(false);
+      setDropdownsLoaded(true);
     }
   };
 
   const handleClose = () => {
-    reset();
-    setError('');
     setSelectedLocation(null);
-    onClose();
+    baseHandleClose();
   };
 
   const handleLocationSelect = (location: WarehouseLocation) => {
@@ -141,6 +122,25 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
   const clearLocation = () => {
     setSelectedLocation(null);
   };
+
+  if (!paperStock) return null;
+
+  const onSubmit = handleSubmit(async (data) => {
+    const stockData = {
+      warehouseId: data.warehouseId,
+      warehouseLocationId: selectedLocation?.uuid || undefined,
+      paperSupplyId: data.paperSupplyId,
+      supplierId: data.supplierId || undefined,
+      manufacturerId: data.manufacturerId || undefined,
+      comments: data.comments || undefined,
+      price: data.price || undefined,
+      weight: data.weight || undefined,
+      diameter: data.diameter || undefined,
+      width: data.width || undefined,
+    };
+
+    await paperStockApi.updatePaperStock(paperStock.uuid, stockData);
+  });
 
   // When location selector is open, replace the main modal with it
   if (locationSelectorOpen && selectedWarehouse) {
@@ -157,12 +157,8 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperStock.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -350,19 +346,11 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('paperStock.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('paperStock.updateButton')}
+        />
       </form>
     </Modal>
   );

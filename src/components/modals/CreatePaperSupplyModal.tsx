@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreatePaperSupplyForm, Manufacturer, Supplier, PaperType } from '../../types';
 import { paperSuppliesApi, manufacturersApi, suppliersApi, paperTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { useModalForm } from '../../hooks/useModalForm';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface CreatePaperSupplyModalProps {
   isOpen: boolean;
@@ -19,18 +20,24 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [paperTypes, setPaperTypes] = useState<PaperType[]>([]);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreatePaperSupplyForm>();
+    handleClose,
+  } = useModalForm<CreatePaperSupplyForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -53,55 +60,30 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreatePaperSupplyForm) => {
-    setLoading(true);
-    setError('');
+  const onSubmit = handleSubmit((data) => {
+    // Transform flat form fields to API format
+    const paperSupplyData = {
+      code: data.code,
+      name: data.name,
+      description: data.description || undefined,
+      manufacturerId: data.manufacturerId || undefined,
+      supplierId: data.supplierId || undefined,
+      paperTypeId: data.paperTypeId || undefined,
+      grammage: data.grammage || undefined,
+      price: data.price || undefined,
+      minimumStock: {
+        pallets: data.minimumStockPallets || 0,
+        boxes: data.minimumStockBoxes || 0,
+      },
+    };
 
-    try {
-      // Transform flat form fields to API format
-      const paperSupplyData = {
-        code: data.code,
-        name: data.name,
-        description: data.description || undefined,
-        manufacturerId: data.manufacturerId || undefined,
-        supplierId: data.supplierId || undefined,
-        paperTypeId: data.paperTypeId || undefined,
-        grammage: data.grammage || undefined,
-        price: data.price || undefined,
-        minimumStock: {
-          pallets: data.minimumStockPallets || 0,
-          boxes: data.minimumStockBoxes || 0,
-        },
-      };
-
-      await paperSuppliesApi.createPaperSupply(paperSupplyData);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating paper supply:', err);
-      setError(
-        err.response?.data?.message ||
-        t('paperSupplies.createFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+    return paperSuppliesApi.createPaperSupply(paperSupplyData);
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperSupplies.createTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -248,19 +230,11 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('paperSupplies.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('paperSupplies.createButton')}
+        />
       </form>
     </Modal>
   );

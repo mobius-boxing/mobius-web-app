@@ -1,22 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Trash2, Edit } from 'lucide-react';
+import { Plus, Trash2, Edit } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { User, Company, PaginatedResponse } from '../types';
+import { User, Company } from '../types';
 import { usersApi, companiesApi } from '../services/api';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-// import Input from '../components/ui/Input';
 import Table from '../components/ui/Table';
-// import Modal from '../components/ui/Modal';
+import { SearchInput } from '../components/ui/SearchInput';
+import { useEntityList } from '../hooks/useEntityList';
 import InviteUserModal from '../components/modals/InviteUserModal';
 import EditUserModal from '../components/modals/EditUserModal';
 
 const Users: React.FC = () => {
   const { user: currentUser } = useAuth();
-  const [users, setUsers] = useState<User[]>([]);
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [selectedCompany, setSelectedCompany] = useState<string>('all');
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [showInviteModal, setShowInviteModal] = useState(false);
@@ -24,35 +21,38 @@ const Users: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
+  // Use the entity list hook for data management
+  const {
+    filteredData: users,
+    loading,
+    search,
+    setSearch,
+    refresh,
+    setFilters,
+  } = useEntityList<User>({
+    fetchFn: usersApi.getUsers,
+    searchFields: ['email', 'firstName', 'lastName', 'companyName'],
+  });
+
+  // Fetch companies for super admin dropdown
   useEffect(() => {
-    fetchData();
-  }, [selectedCompany]);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-
-      // Fetch users based on role
-      let usersResponse: PaginatedResponse<User>;
-      if (currentUser?.role === 'superAdmin') {
-        usersResponse = selectedCompany === 'all'
-          ? await usersApi.getUsers()
-          : await usersApi.getUsers({ companyId: selectedCompany });
-        // Also fetch companies for filtering
-        const companiesResponse = await companiesApi.getCompanies();
-        setCompanies(companiesResponse.data);
-      } else {
-        // Admin users see only their company's users
-        usersResponse = await usersApi.getUsers();
-      }
-
-      setUsers(usersResponse.data || []);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
+    if (currentUser?.role === 'superAdmin') {
+      companiesApi.getCompanies().then((response) => {
+        setCompanies(response.data);
+      }).catch((error) => {
+        console.error('Error fetching companies:', error);
+      });
     }
-  };
+  }, [currentUser?.role]);
+
+  // Update filters when company selection changes
+  useEffect(() => {
+    if (selectedCompany === 'all') {
+      setFilters({});
+    } else {
+      setFilters({ companyId: selectedCompany });
+    }
+  }, [selectedCompany, setFilters]);
 
   const handleDeleteUser = async (user: User) => {
     if (!window.confirm('Are you sure you want to delete this user?')) {
@@ -62,7 +62,7 @@ const Users: React.FC = () => {
     try {
       setActionLoading(user.uuid);
       await usersApi.deleteUser(user.uuid);
-      setUsers(users.filter(u => u.uuid !== user.uuid));
+      await refresh();
     } catch (error) {
       console.error('Error deleting user:', error);
     } finally {
@@ -75,27 +75,20 @@ const Users: React.FC = () => {
     setShowEditModal(true);
   };
 
-  const handleUserUpdated = (updatedUser: User) => {
-    setUsers(users.map(u => u.uuid === updatedUser.uuid ? updatedUser : u));
+  const handleUserUpdated = () => {
     setShowEditModal(false);
     setSelectedUser(null);
+    refresh();
   };
 
   const handleUserInvited = () => {
     setShowInviteModal(false);
-    fetchData(); // Refresh the list
+    refresh();
   };
 
+  // Apply role filter (client-side) - search is handled by useEntityList
   const filteredUsers = users.filter(user => {
-    const matchesSearch = searchTerm === '' ||
-      (user.firstName && user.firstName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (user.lastName && user.lastName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (user.companyName && user.companyName.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    const matchesRole = selectedRole === 'all' || user.role === selectedRole;
-
-    return matchesSearch && matchesRole;
+    return selectedRole === 'all' || user.role === selectedRole;
   });
 
   const getRoleBadgeColor = (role: string) => {
@@ -217,17 +210,12 @@ const Users: React.FC = () => {
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-secondary-200">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-secondary-400 h-4 w-4" />
-              <input
-                type="text"
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              />
-            </div>
+          <div className="flex-1 max-w-md">
+            <SearchInput
+              value={search}
+              onChange={setSearch}
+              placeholder="Search users..."
+            />
           </div>
 
           {currentUser?.role === 'superAdmin' && (

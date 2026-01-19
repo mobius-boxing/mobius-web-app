@@ -1,43 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, Search, Trash2, Edit, FileText } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash2, Edit, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
 import { PaperType } from '../types';
 import { paperTypesApi } from '../services/api';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
 import Table from '../components/ui/Table';
+import { SearchInput } from '../components/ui/SearchInput';
+import { useEntityList } from '../hooks/useEntityList';
 import CreatePaperTypeModal from '../components/modals/CreatePaperTypeModal';
 import EditPaperTypeModal from '../components/modals/EditPaperTypeModal';
 
 const PaperTypes: React.FC = () => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
-  const [paperTypes, setPaperTypes] = useState<PaperType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPaperType, setSelectedPaperType] = useState<PaperType | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchPaperTypes();
-  }, []);
-
-  const fetchPaperTypes = async () => {
-    try {
-      setLoading(true);
-      const response = await paperTypesApi.getPaperTypes();
-      setPaperTypes(response.data || []);
-    } catch (error) {
-      console.error('Error fetching paper types:', error);
-      setPaperTypes([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use the entity list hook for data management
+  const {
+    filteredData: paperTypes,
+    loading,
+    search,
+    setSearch,
+    refresh,
+  } = useEntityList<PaperType>({
+    fetchFn: paperTypesApi.getPaperTypes,
+    searchFields: ['code', 'description'],
+  });
 
   const handleEdit = (paperType: PaperType) => {
     setSelectedPaperType(paperType);
@@ -52,7 +43,7 @@ const PaperTypes: React.FC = () => {
     try {
       setActionLoading(paperTypeId);
       await paperTypesApi.deletePaperType(paperTypeId);
-      await fetchPaperTypes();
+      await refresh();
     } catch (error) {
       console.error('Error deleting paper type:', error);
       alert(t('paperTypes.deleteFailed'));
@@ -63,25 +54,14 @@ const PaperTypes: React.FC = () => {
 
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
-    fetchPaperTypes();
+    refresh();
   };
 
   const handleEditSuccess = () => {
     setShowEditModal(false);
     setSelectedPaperType(null);
-    fetchPaperTypes();
+    refresh();
   };
-
-  // Filter paper types based on search term
-  const filteredPaperTypes = paperTypes.filter((paperType) => {
-    if (!paperType) return false;
-
-    const matchesSearch = searchTerm === '' ||
-      (paperType.code && paperType.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (paperType.description && paperType.description.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    return matchesSearch;
-  });
 
   const columns = [
     {
@@ -167,16 +147,11 @@ const PaperTypes: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary-400" />
-                <Input
-                  type="text"
-                  placeholder={t('paperTypes.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder={t('paperTypes.searchPlaceholder')}
+              />
             </div>
           </div>
         </div>
@@ -186,7 +161,7 @@ const PaperTypes: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
-                {t('paperTypes.allTypes')} ({filteredPaperTypes.length})
+                {t('paperTypes.allTypes')} ({paperTypes.length})
               </h2>
             </div>
 
@@ -194,14 +169,14 @@ const PaperTypes: React.FC = () => {
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               </div>
-            ) : filteredPaperTypes.length === 0 ? (
+            ) : paperTypes.length === 0 ? (
               <div className="text-center py-12">
                 <FileText className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('paperTypes.empty.title')}</h3>
                 <p className="mt-1 text-sm text-secondary-500">
-                  {searchTerm ? t('paperTypes.empty.description') : t('paperTypes.empty.noData')}
+                  {search ? t('paperTypes.empty.description') : t('paperTypes.empty.noData')}
                 </p>
-                {!searchTerm && (
+                {!search && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -213,7 +188,7 @@ const PaperTypes: React.FC = () => {
             ) : (
               <Table
                 columns={columns}
-                data={filteredPaperTypes}
+                data={paperTypes}
                 loading={loading}
               />
             )}

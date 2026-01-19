@@ -1,43 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, Search, Trash2, Edit, Layers } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash2, Edit, Layers } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Corrugation } from '../types';
 import { corrugationsApi } from '../services/api';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
 import Table from '../components/ui/Table';
+import { SearchInput } from '../components/ui/SearchInput';
+import { useEntityList } from '../hooks/useEntityList';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateCorrugationModal from '../components/modals/CreateCorrugationModal';
 import EditCorrugationModal from '../components/modals/EditCorrugationModal';
 
 const Corrugations: React.FC = () => {
   const { t } = useTranslation();
-  const [corrugations, setCorrugations] = useState<Corrugation[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCorrugation, setSelectedCorrugation] = useState<Corrugation | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  useEffect(() => {
-    fetchCorrugations();
-  }, []);
-
-  const fetchCorrugations = async () => {
-    try {
-      setLoading(true);
-      const response = await corrugationsApi.getCorrugations();
-      setCorrugations(response.data || []);
-    } catch (error) {
-      console.error('Error fetching corrugations:', error);
-      setCorrugations([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use the entity list hook for data management
+  const {
+    filteredData: corrugations,
+    loading,
+    search,
+    setSearch,
+    refresh,
+  } = useEntityList<Corrugation>({
+    fetchFn: corrugationsApi.getCorrugations,
+    searchFields: ['code', 'description'],
+  });
 
   const handleEdit = (corrugation: Corrugation) => {
     setSelectedCorrugation(corrugation);
@@ -57,7 +50,7 @@ const Corrugations: React.FC = () => {
       await corrugationsApi.deleteCorrugation(selectedCorrugation.uuid);
       setShowDeleteModal(false);
       setSelectedCorrugation(null);
-      await fetchCorrugations();
+      await refresh();
     } catch (error) {
       console.error('Error deleting corrugation:', error);
     } finally {
@@ -67,25 +60,14 @@ const Corrugations: React.FC = () => {
 
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
-    fetchCorrugations();
+    refresh();
   };
 
   const handleEditSuccess = () => {
     setShowEditModal(false);
     setSelectedCorrugation(null);
-    fetchCorrugations();
+    refresh();
   };
-
-  // Filter corrugations based on search term
-  const filteredCorrugations = corrugations.filter((corrugation) => {
-    if (!corrugation) return false;
-
-    const matchesSearch = searchTerm === '' ||
-      (corrugation.code && corrugation.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (corrugation.description && corrugation.description.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    return matchesSearch;
-  });
 
   const columns = [
     {
@@ -198,16 +180,11 @@ const Corrugations: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary-400" />
-                <Input
-                  type="text"
-                  placeholder={t('corrugations.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder={t('corrugations.searchPlaceholder')}
+              />
             </div>
           </div>
         </div>
@@ -217,7 +194,7 @@ const Corrugations: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
-                {t('corrugations.allCorrugations')} ({filteredCorrugations.length})
+                {t('corrugations.allCorrugations')} ({corrugations.length})
               </h2>
             </div>
 
@@ -225,14 +202,14 @@ const Corrugations: React.FC = () => {
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               </div>
-            ) : filteredCorrugations.length === 0 ? (
+            ) : corrugations.length === 0 ? (
               <div className="text-center py-12">
                 <Layers className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('corrugations.empty.title')}</h3>
                 <p className="mt-1 text-sm text-secondary-500">
-                  {searchTerm ? t('corrugations.empty.description') : t('corrugations.empty.noData')}
+                  {search ? t('corrugations.empty.description') : t('corrugations.empty.noData')}
                 </p>
-                {!searchTerm && (
+                {!search && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -244,7 +221,7 @@ const Corrugations: React.FC = () => {
             ) : (
               <Table
                 columns={columns}
-                data={filteredCorrugations}
+                data={corrugations}
                 loading={loading}
               />
             )}

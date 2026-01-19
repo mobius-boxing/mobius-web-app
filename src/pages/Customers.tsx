@@ -1,44 +1,48 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Plus, Search, Trash2, Edit, User as UserIcon } from 'lucide-react';
+import React, { useState, useCallback, useEffect } from 'react';
+import { Plus, Trash2, Edit, User as UserIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Customer } from '../types';
 import { customersApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
 import Table from '../components/ui/Table';
+import { SearchInput } from '../components/ui/SearchInput';
+import { useEntityList } from '../hooks/useEntityList';
 import CreateCustomerModal from '../components/modals/CreateCustomerModal';
 import EditCustomerModal from '../components/modals/EditCustomerModal';
 
 const Customers: React.FC = () => {
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const fetchCustomers = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      const response = await customersApi.getCustomers(params);
-      setCustomers(response.data || []);
-    } catch (error) {
-      console.error('Error fetching customers:', error);
-      setCustomers([]);
-    } finally {
-      setLoading(false);
-    }
+  // Create fetch function with company filter
+  const fetchCustomers = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return customersApi.getCustomers(fetchParams);
   }, [effectiveCompanyId]);
 
+  // Use the entity list hook for data management
+  const {
+    filteredData: customers,
+    loading,
+    search,
+    setSearch,
+    refresh,
+  } = useEntityList<Customer>({
+    fetchFn: fetchCustomers,
+    searchFields: ['name', 'supplierCode', 'categoryName', 'salesPersonName'],
+  });
+
+  // Refetch when effectiveCompanyId changes
   useEffect(() => {
-    fetchCustomers();
-  }, [fetchCustomers]);
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (customer: Customer) => {
     setSelectedCustomer(customer);
@@ -53,7 +57,7 @@ const Customers: React.FC = () => {
     try {
       setActionLoading(customerId);
       await customersApi.deleteCustomer(customerId);
-      await fetchCustomers();
+      await refresh();
     } catch (error: any) {
       console.error('Error deleting customer:', error);
       const errorMessage = error.response?.data?.message || t('customers.deleteFailed');
@@ -65,27 +69,14 @@ const Customers: React.FC = () => {
 
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
-    fetchCustomers();
+    refresh();
   };
 
   const handleEditSuccess = () => {
     setShowEditModal(false);
     setSelectedCustomer(null);
-    fetchCustomers();
+    refresh();
   };
-
-  // Filter customers based on search term
-  const filteredCustomers = customers.filter((customer) => {
-    if (!customer) return false;
-
-    const matchesSearch = searchTerm === '' ||
-      (customer.name && customer.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (customer.supplierCode && customer.supplierCode.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (customer.categoryName && customer.categoryName.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (customer.salesPersonName && customer.salesPersonName.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    return matchesSearch;
-  });
 
   const getStatusBadgeColor = (isActive: boolean) => {
     return isActive
@@ -198,16 +189,11 @@ const Customers: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary-400" />
-                <Input
-                  type="text"
-                  placeholder={t('customers.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder={t('customers.searchPlaceholder')}
+              />
             </div>
           </div>
         </div>
@@ -217,7 +203,7 @@ const Customers: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
-                {t('customers.allCustomers')} ({filteredCustomers.length})
+                {t('customers.allCustomers')} ({customers.length})
               </h2>
             </div>
 
@@ -225,14 +211,14 @@ const Customers: React.FC = () => {
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               </div>
-            ) : filteredCustomers.length === 0 ? (
+            ) : customers.length === 0 ? (
               <div className="text-center py-12">
                 <UserIcon className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('customers.empty.title')}</h3>
                 <p className="mt-1 text-sm text-secondary-500">
-                  {searchTerm ? t('customers.empty.description') : t('customers.empty.noData')}
+                  {search ? t('customers.empty.description') : t('customers.empty.noData')}
                 </p>
-                {!searchTerm && (
+                {!search && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -244,7 +230,7 @@ const Customers: React.FC = () => {
             ) : (
               <Table
                 columns={columns}
-                data={filteredCustomers}
+                data={customers}
                 loading={loading}
               />
             )}

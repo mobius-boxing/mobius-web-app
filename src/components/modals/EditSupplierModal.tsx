@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useModalForm } from '../../hooks/useModalForm';
 import { Supplier, CreateSupplierForm } from '../../types';
 import { suppliersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface EditSupplierModalProps {
   isOpen: boolean;
@@ -21,15 +22,22 @@ const EditSupplierModal: React.FC<EditSupplierModalProps> = ({
   supplier,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      reset,
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateSupplierForm>();
+    handleClose,
+  } = useModalForm<CreateSupplierForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen && supplier) {
@@ -44,43 +52,17 @@ const EditSupplierModal: React.FC<EditSupplierModalProps> = ({
     }
   }, [isOpen, supplier, reset]);
 
-  const onSubmit = async (data: CreateSupplierForm) => {
+  const onSubmit = handleSubmit(async (data) => {
     if (!supplier) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      await suppliersApi.updateSupplier(supplier.uuid, data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating supplier:', err);
-      setError(
-        err.response?.data?.message ||
-        t('suppliers.updateFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+    await suppliersApi.updateSupplier(supplier.uuid, data);
+  });
 
   if (!supplier) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('suppliers.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -148,19 +130,7 @@ const EditSupplierModal: React.FC<EditSupplierModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('suppliers.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter loading={loading} onCancel={handleClose} submitText={t('suppliers.updateButton')} />
       </form>
     </Modal>
   );

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../contexts/AuthContext';
+import { useModalForm } from '../../hooks/useModalForm';
 import { Product, CreateProductForm, Customer } from '../../types';
 import { productsApi, customersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -22,18 +22,24 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   product,
 }) => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      reset,
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateProductForm>();
+    handleClose,
+  } = useModalForm<CreateProductForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen && product) {
@@ -64,43 +70,17 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreateProductForm) => {
+  const onSubmit = handleSubmit(async (data) => {
     if (!product) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      await productsApi.updateProduct(product.uuid, data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating product:', err);
-      setError(
-        err.response?.data?.message ||
-        t('products.updateFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+    await productsApi.updateProduct(product.uuid, data);
+  });
 
   if (!product) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('products.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -159,19 +139,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('products.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter loading={loading} onCancel={handleClose} submitText={t('products.updateButton')} />
       </form>
     </Modal>
   );

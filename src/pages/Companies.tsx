@@ -1,49 +1,36 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, Search, Trash2, Edit, Building2 } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash2, Edit, Building2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { Company } from '../types';
 import { companiesApi } from '../services/api';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
 import Table from '../components/ui/Table';
+import { SearchInput } from '../components/ui/SearchInput';
+import { useEntityList } from '../hooks/useEntityList';
 import CreateCompanyModal from '../components/modals/CreateCompanyModal';
 import EditCompanyModal from '../components/modals/EditCompanyModal';
 
 const Companies: React.FC = () => {
   const { user: currentUser } = useAuth();
   const { t } = useTranslation();
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchCompanies();
-  }, []);
-
-  const fetchCompanies = async () => {
-    try {
-      setLoading(true);
-      const response = await companiesApi.getCompanies();
-      console.log('🔍 Full API response:', response);
-      console.log('🔍 Companies data:', response.data);
-      if (response.data && response.data.length > 0) {
-        console.log('🔍 First company:', response.data[0]);
-        console.log('🔍 First company name:', response.data[0].name);
-      }
-      setCompanies(response.data || []);
-    } catch (error) {
-      console.error('Error fetching companies:', error);
-      setCompanies([]); // Set empty array on error
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use the entity list hook for data management
+  const {
+    filteredData: companies,
+    loading,
+    search,
+    setSearch,
+    refresh,
+  } = useEntityList<Company>({
+    fetchFn: companiesApi.getCompanies,
+    searchFields: ['name', 'description'],
+  });
 
   const handleEdit = (company: Company) => {
     setSelectedCompany(company);
@@ -58,7 +45,7 @@ const Companies: React.FC = () => {
     try {
       setActionLoading(company.uuid);
       await companiesApi.deleteCompany(company.uuid);
-      await fetchCompanies();
+      await refresh();
     } catch (error) {
       console.error('Error deleting company:', error);
       alert(t('companies.deleteFailed'));
@@ -71,7 +58,7 @@ const Companies: React.FC = () => {
     try {
       setActionLoading(company.uuid);
       await companiesApi.updateCompanyStatus(company.uuid, !company.isActive);
-      await fetchCompanies();
+      await refresh();
     } catch (error) {
       console.error('Error updating company status:', error);
       alert(t('companies.statusUpdateFailed'));
@@ -82,25 +69,14 @@ const Companies: React.FC = () => {
 
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
-    fetchCompanies();
+    refresh();
   };
 
   const handleEditSuccess = () => {
     setShowEditModal(false);
     setSelectedCompany(null);
-    fetchCompanies();
+    refresh();
   };
-
-  // Filter companies based on search term
-  const filteredCompanies = companies.filter((company) => {
-    if (!company) return false;
-
-    const matchesSearch = searchTerm === '' ||
-      (company.name && company.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (company.description && company.description.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    return matchesSearch;
-  });
 
   const getStatusBadgeColor = (isActive: boolean) => {
     return isActive
@@ -217,16 +193,11 @@ const Companies: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary-400" />
-                <Input
-                  type="text"
-                  placeholder={t('companies.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder={t('companies.searchPlaceholder')}
+              />
             </div>
           </div>
         </div>
@@ -236,7 +207,7 @@ const Companies: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
-                {t('companies.allCompanies')} ({filteredCompanies.length})
+                {t('companies.allCompanies')} ({companies.length})
               </h2>
             </div>
 
@@ -244,14 +215,14 @@ const Companies: React.FC = () => {
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               </div>
-            ) : filteredCompanies.length === 0 ? (
+            ) : companies.length === 0 ? (
               <div className="text-center py-12">
                 <Building2 className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('companies.empty.title')}</h3>
                 <p className="mt-1 text-sm text-secondary-500">
-                  {searchTerm ? t('companies.empty.description') : t('companies.empty.noData')}
+                  {search ? t('companies.empty.description') : t('companies.empty.noData')}
                 </p>
-                {!searchTerm && (
+                {!search && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -263,7 +234,7 @@ const Companies: React.FC = () => {
             ) : (
               <Table
                 columns={columns}
-                data={filteredCompanies}
+                data={companies}
                 loading={loading}
               />
             )}

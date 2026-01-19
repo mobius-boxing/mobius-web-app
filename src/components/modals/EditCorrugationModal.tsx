@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Corrugation, CreateCorrugationForm, CorrugationClass } from '../../types';
 import { corrugationsApi, corrugationClassesApi } from '../../services/api';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import ErrorMessage from '../ui/ErrorMessage';
+import ModalFooter from '../ui/ModalFooter';
+import { useModalForm } from '../../hooks/useModalForm';
 
 interface EditCorrugationModalProps {
   isOpen: boolean;
@@ -21,18 +22,24 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [corrugationClasses, setCorrugationClasses] = useState<CorrugationClass[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      reset,
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-  } = useForm<CreateCorrugationForm>();
+    handleClose,
+  } = useModalForm<CreateCorrugationForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen && corrugation) {
@@ -43,15 +50,17 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
 
   useEffect(() => {
     if (isOpen && corrugation && dropdownsLoaded) {
-      setValue('code', corrugation.code);
-      setValue('description', corrugation.description || '');
-      setValue('theoreticalGrammage', corrugation.theoreticalGrammage);
-      setValue('suggestedWidth', corrugation.suggestedWidth);
-      setValue('caliper', corrugation.caliper);
-      // SECURITY: Use corrugation class UUID from related object, not numeric ID
-      setValue('corrugationClassUuid', corrugation.corrugationClass?.uuid || '');
+      reset({
+        code: corrugation.code,
+        description: corrugation.description || '',
+        theoreticalGrammage: corrugation.theoreticalGrammage,
+        suggestedWidth: corrugation.suggestedWidth,
+        caliper: corrugation.caliper,
+        // SECURITY: Use corrugation class UUID from related object, not numeric ID
+        corrugationClassUuid: corrugation.corrugationClass?.uuid || '',
+      });
     }
-  }, [isOpen, corrugation, dropdownsLoaded, setValue]);
+  }, [isOpen, corrugation, dropdownsLoaded, reset]);
 
   const fetchCorrugationClasses = async () => {
     try {
@@ -64,52 +73,25 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreateCorrugationForm) => {
-    if (!corrugation) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const submitData = {
-        ...data,
-        theoreticalGrammage: data.theoreticalGrammage ? Number(data.theoreticalGrammage) : undefined,
-        suggestedWidth: data.suggestedWidth ? Number(data.suggestedWidth) : undefined,
-        caliper: data.caliper ? Number(data.caliper) : undefined,
-        // SECURITY: Send UUID, not numeric ID
-        corrugationClassUuid: data.corrugationClassUuid || undefined,
-      };
-      // SECURITY: Use corrugation UUID, not numeric ID
-      await corrugationsApi.updateCorrugation(corrugation.uuid, submitData);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating corrugation:', err);
-      setError(
-        err.response?.data?.message ||
-        t('corrugations.updateFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
-
   if (!corrugation) return null;
+
+  const onSubmit = handleSubmit(async (data) => {
+    const submitData = {
+      ...data,
+      theoreticalGrammage: data.theoreticalGrammage ? Number(data.theoreticalGrammage) : undefined,
+      suggestedWidth: data.suggestedWidth ? Number(data.suggestedWidth) : undefined,
+      caliper: data.caliper ? Number(data.caliper) : undefined,
+      // SECURITY: Send UUID, not numeric ID
+      corrugationClassUuid: data.corrugationClassUuid || undefined,
+    };
+    // SECURITY: Use corrugation UUID, not numeric ID
+    await corrugationsApi.updateCorrugation(corrugation.uuid, submitData);
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('corrugations.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('code', {
@@ -183,19 +165,11 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('corrugations.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('corrugations.updateButton')}
+        />
       </form>
     </Modal>
   );

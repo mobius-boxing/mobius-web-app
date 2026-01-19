@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
-// import { X } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useModalForm } from '../../hooks/useModalForm';
 import { User, Company, UpdateUserRequest } from '../../types';
 import { usersApi, companiesApi } from '../../services/api';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface EditUserModalProps {
   isOpen: boolean;
@@ -23,17 +23,25 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 }) => {
   const { user: currentUser } = useAuth();
   const [companies, setCompanies] = useState<Company[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      watch,
+      setValue,
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-    watch,
-    setValue,
-  } = useForm<UpdateUserRequest>();
+    handleClose,
+  } = useModalForm<UpdateUserRequest>({
+    onSuccess: () => {
+      // The actual onSuccess with updatedUser is called in onSubmit
+    },
+    onClose,
+  });
 
   const selectedRole = watch('role');
 
@@ -74,40 +82,21 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: UpdateUserRequest) => {
-    setLoading(true);
-    setError('');
+  const onSubmit = handleSubmit(async (data) => {
+    // For non-superAdmin users, preserve the company
+    const updateData: UpdateUserRequest = {
+      ...data,
+      companyId: currentUser?.role === 'superAdmin' ? data.companyId : user.companyId,
+    };
 
-    try {
-      // For non-superAdmin users, preserve the company
-      const updateData: UpdateUserRequest = {
-        ...data,
-        companyId: currentUser?.role === 'superAdmin' ? data.companyId : user.companyId,
-      };
-
-      // Only include password if it's not empty
-      if (!updateData.password) {
-        delete updateData.password;
-      }
-
-      const updatedUser = await usersApi.updateUser(user.uuid, updateData);
-      onSuccess(updatedUser);
-    } catch (err: any) {
-      console.error('Error updating user:', err);
-      setError(
-        err.response?.data?.message ||
-        'Failed to update user. Please try again.'
-      );
-    } finally {
-      setLoading(false);
+    // Only include password if it's not empty
+    if (!updateData.password) {
+      delete updateData.password;
     }
-  };
 
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+    const updatedUser = await usersApi.updateUser(user.uuid, updateData);
+    onSuccess(updatedUser);
+  });
 
   // Check if current user can edit this user
   const canEditRole = () => {
@@ -125,12 +114,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Edit User">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
@@ -259,19 +244,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
           </div>
         )}
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" loading={loading}>
-            Update User
-          </Button>
-        </div>
+        <ModalFooter loading={loading} onCancel={handleClose} submitText="Update User" />
       </form>
     </Modal>
   );

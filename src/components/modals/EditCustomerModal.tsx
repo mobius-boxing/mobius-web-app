@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { Customer, CreateCustomerForm, CustomerCategory, User, ContactInfo, DeliveryLocation, DeliveryDay } from '../../types';
 import { customersApi, customerCategoriesApi, usersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
+import { useModalForm } from '../../hooks/useModalForm';
 
 interface EditCustomerModalProps {
   isOpen: boolean;
@@ -22,8 +22,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [categories, setCategories] = useState<CustomerCategory[]>([]);
   const [salesPersons, setSalesPersons] = useState<User[]>([]);
   const [contacts, setContacts] = useState<ContactInfo[]>([]);
@@ -31,9 +29,18 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   const [deliveryDays, setDeliveryDays] = useState<DeliveryDay[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
-  const form = useForm<CreateCustomerForm>();
+  const {
+    form,
+    loading,
+    error,
+    handleSubmit,
+    handleClose: baseHandleClose,
+  } = useModalForm<CreateCustomerForm>({
+    onSuccess,
+    onClose,
+  });
 
-  const { handleSubmit, reset, setValue } = form;
+  const { handleSubmit: formSubmit, reset } = form;
 
   useEffect(() => {
     if (isOpen && customer) {
@@ -44,22 +51,24 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
 
   useEffect(() => {
     if (isOpen && customer && dropdownsLoaded) {
-      setValue('name', customer.name);
-      setValue('legalName', customer.legalName || '');
-      setValue('legalCode', customer.legalCode || '');
-      setValue('tradeName', customer.tradeName || '');
-      setValue('supplierCode', customer.supplierCode || '');
-      setValue('address', customer.address || '');
-      setValue('active', customer.active);
-      setValue('categoryId', customer.category?.uuid || '');
-      setValue('salesPersonId', customer.salesPerson?.uuid || '');
+      reset({
+        name: customer.name,
+        legalName: customer.legalName || '',
+        legalCode: customer.legalCode || '',
+        tradeName: customer.tradeName || '',
+        supplierCode: customer.supplierCode || '',
+        address: customer.address || '',
+        active: customer.active,
+        categoryId: customer.category?.uuid || '',
+        salesPersonId: customer.salesPerson?.uuid || '',
+      });
 
       // Initialize arrays
       setContacts(customer.contacts || []);
       setDeliveryLocations(customer.deliveryLocations || []);
       setDeliveryDays(customer.deliveryDays || []);
     }
-  }, [isOpen, customer, dropdownsLoaded, setValue]);
+  }, [isOpen, customer, dropdownsLoaded, reset]);
 
   const fetchDropdownData = async () => {
     try {
@@ -76,52 +85,33 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreateCustomerForm) => {
-    if (!customer) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      // Convert empty strings to undefined for optional fields
-      const customerData = {
-        ...data,
-        categoryId: data.categoryId || undefined,
-        salesPersonId: data.salesPersonId || undefined,
-        supplierCode: data.supplierCode || undefined,
-        legalName: data.legalName || undefined,
-        legalCode: data.legalCode || undefined,
-        tradeName: data.tradeName || undefined,
-        address: data.address || undefined,
-        contacts: contacts.length > 0 ? contacts : undefined,
-        deliveryLocations: deliveryLocations.length > 0 ? deliveryLocations : undefined,
-        deliveryDays: deliveryDays.length > 0 ? deliveryDays : undefined,
-      };
-
-      await customersApi.updateCustomer(customer.uuid, customerData);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating customer:', err);
-      setError(
-        err.response?.data?.message ||
-        t('common:customerModal.errors.updateFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleClose = () => {
-    reset();
-    setError('');
     setContacts([]);
     setDeliveryLocations([]);
     setDeliveryDays([]);
-    onClose();
+    baseHandleClose();
   };
 
   if (!customer) return null;
+
+  const onSubmit = handleSubmit(async (data) => {
+    // Convert empty strings to undefined for optional fields
+    const customerData = {
+      ...data,
+      categoryId: data.categoryId || undefined,
+      salesPersonId: data.salesPersonId || undefined,
+      supplierCode: data.supplierCode || undefined,
+      legalName: data.legalName || undefined,
+      legalCode: data.legalCode || undefined,
+      tradeName: data.tradeName || undefined,
+      address: data.address || undefined,
+      contacts: contacts.length > 0 ? contacts : undefined,
+      deliveryLocations: deliveryLocations.length > 0 ? deliveryLocations : undefined,
+      deliveryDays: deliveryDays.length > 0 ? deliveryDays : undefined,
+    };
+
+    await customersApi.updateCustomer(customer.uuid, customerData);
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('common:customerModal.editTitle')} size="xl">
@@ -140,7 +130,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
         loading={loading}
         error={error}
         onClose={handleClose}
-        onSubmit={handleSubmit(onSubmit)}
+        onSubmit={formSubmit(onSubmit)}
       />
     </Modal>
   );

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useForm, useWatch } from 'react-hook-form';
+import React, { useState, useEffect, useRef } from 'react';
+import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { CreateSheetStockForm, SheetStock, Manufacturer, Supplier, Warehouse, PaperSheet, WarehouseLocation } from '../../types';
 import { sheetStockApi, manufacturersApi, suppliersApi, warehousesApi, paperSheetsApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import ErrorMessage from '../ui/ErrorMessage';
+import ModalFooter from '../ui/ModalFooter';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
+import { useModalForm } from '../../hooks/useModalForm';
 import { MapPin, X } from 'lucide-react';
 
 interface EditSheetStockModalProps {
@@ -23,49 +25,63 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
   sheetStock,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
   const [paperSheets, setPaperSheets] = useState<PaperSheet[]>([]);
   const [locationSelectorOpen, setLocationSelectorOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<WarehouseLocation | null>(null);
+  const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
+
+  const {
+    form,
+    loading,
+    error,
+    handleSubmit,
+    handleClose: baseHandleClose,
+  } = useModalForm<CreateSheetStockForm>({
+    onSuccess,
+    onClose,
+  });
 
   const {
     register,
-    handleSubmit,
-    reset,
-    setValue,
-    control,
+    handleSubmit: formSubmit,
     formState: { errors },
-  } = useForm<CreateSheetStockForm>();
+    reset,
+    control,
+  } = form;
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseId' });
   const selectedWarehouse = warehouses.find(w => w.uuid === selectedWarehouseId) || null;
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchDropdownData();
-    }
-  }, [isOpen]);
+  // Track previous warehouse ID to clear location on change
+  const previousWarehouseId = useRef(selectedWarehouseId);
 
   useEffect(() => {
-    if (sheetStock && isOpen && warehouses.length > 0 && paperSheets.length > 0) {
-      setValue('warehouseId', sheetStock.warehouse?.uuid || '');
-      setValue('paperSheetId', sheetStock.paperSheet?.uuid || '');
-      setValue('supplierId', sheetStock.supplier?.uuid || '');
-      setValue('manufacturerId', sheetStock.manufacturer?.uuid || '');
-      setValue('comments', sheetStock.comments || '');
-      setValue('price', sheetStock.price || undefined);
-      setValue('quantity', sheetStock.quantity || 0);
+    if (isOpen && sheetStock) {
+      setDropdownsLoaded(false);
+      fetchDropdownData();
+    }
+  }, [isOpen, sheetStock]);
+
+  useEffect(() => {
+    if (sheetStock && isOpen && dropdownsLoaded) {
+      reset({
+        warehouseId: sheetStock.warehouse?.uuid || '',
+        paperSheetId: sheetStock.paperSheet?.uuid || '',
+        supplierId: sheetStock.supplier?.uuid || '',
+        manufacturerId: sheetStock.manufacturer?.uuid || '',
+        comments: sheetStock.comments || '',
+        price: sheetStock.price || undefined,
+        quantity: sheetStock.quantity || 0,
+      });
       // Set warehouse location if available
       setSelectedLocation(sheetStock.warehouseLocation || null);
     }
-  }, [sheetStock, isOpen, warehouses, paperSheets, setValue]);
+  }, [sheetStock, isOpen, dropdownsLoaded, reset]);
 
   // Clear location when warehouse changes (only if it's actually different)
-  const previousWarehouseId = React.useRef(selectedWarehouseId);
   useEffect(() => {
     if (previousWarehouseId.current && selectedWarehouseId !== previousWarehouseId.current) {
       setSelectedLocation(null);
@@ -87,47 +103,14 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
       setPaperSheets(paperSheetsRes.data || []);
     } catch (error) {
       console.error('Error fetching dropdown data:', error);
-    }
-  };
-
-  const onSubmit = async (data: CreateSheetStockForm) => {
-    if (!sheetStock) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      const stockData = {
-        warehouseId: data.warehouseId,
-        warehouseLocationId: selectedLocation?.uuid || undefined,
-        paperSheetId: data.paperSheetId,
-        supplierId: data.supplierId || undefined,
-        manufacturerId: data.manufacturerId || undefined,
-        comments: data.comments || undefined,
-        price: data.price || undefined,
-        quantity: data.quantity || 0,
-      };
-
-      await sheetStockApi.updateSheetStock(sheetStock.uuid, stockData);
-      reset();
-      setSelectedLocation(null);
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating sheet stock:', err);
-      setError(
-        err.response?.data?.message ||
-        t('sheetStock.updateFailed')
-      );
     } finally {
-      setLoading(false);
+      setDropdownsLoaded(true);
     }
   };
 
   const handleClose = () => {
-    reset();
-    setError('');
     setSelectedLocation(null);
-    onClose();
+    baseHandleClose();
   };
 
   const handleLocationSelect = (location: WarehouseLocation) => {
@@ -137,6 +120,23 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
   const clearLocation = () => {
     setSelectedLocation(null);
   };
+
+  if (!sheetStock) return null;
+
+  const onSubmit = handleSubmit(async (data) => {
+    const stockData = {
+      warehouseId: data.warehouseId,
+      warehouseLocationId: selectedLocation?.uuid || undefined,
+      paperSheetId: data.paperSheetId,
+      supplierId: data.supplierId || undefined,
+      manufacturerId: data.manufacturerId || undefined,
+      comments: data.comments || undefined,
+      price: data.price || undefined,
+      quantity: data.quantity || 0,
+    };
+
+    await sheetStockApi.updateSheetStock(sheetStock.uuid, stockData);
+  });
 
   // When location selector is open, replace the main modal with it
   if (locationSelectorOpen && selectedWarehouse) {
@@ -153,12 +153,8 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('sheetStock.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -319,19 +315,11 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('sheetStock.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('sheetStock.updateButton')}
+        />
       </form>
     </Modal>
   );

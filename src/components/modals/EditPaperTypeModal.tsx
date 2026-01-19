@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useModalForm } from '../../hooks/useModalForm';
 import { PaperType, CreatePaperTypeForm } from '../../types';
 import { paperTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface EditPaperTypeModalProps {
   isOpen: boolean;
@@ -21,61 +22,43 @@ const EditPaperTypeModal: React.FC<EditPaperTypeModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      reset,
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-  } = useForm<CreatePaperTypeForm>();
+    handleClose,
+  } = useModalForm<CreatePaperTypeForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen && paperType) {
-      setValue('code', paperType.code);
-      setValue('description', paperType.description || '');
+      reset({
+        code: paperType.code,
+        description: paperType.description || '',
+      });
     }
-  }, [isOpen, paperType, setValue]);
+  }, [isOpen, paperType, reset]);
 
-  const onSubmit = async (data: CreatePaperTypeForm) => {
+  const onSubmit = handleSubmit(async (data) => {
     if (!paperType) return;
-
-    setLoading(true);
-    setError('');
-
-    try {
-      await paperTypesApi.updatePaperType(paperType.id, data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating paper type:', err);
-      setError(
-        err.response?.data?.message ||
-        'Failed to update paper type. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+    await paperTypesApi.updatePaperType(paperType.id, data);
+  });
 
   if (!paperType) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperTypes.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('code', {
@@ -109,19 +92,7 @@ const EditPaperTypeModal: React.FC<EditPaperTypeModalProps> = ({
           )}
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('paperTypes.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter loading={loading} onCancel={handleClose} submitText={t('paperTypes.updateButton')} />
       </form>
     </Modal>
   );

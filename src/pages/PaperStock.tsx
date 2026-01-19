@@ -1,44 +1,37 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { Plus, Search, Trash2, Edit, Package } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperStock } from '../types';
 import { paperStockApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
 import Table from '../components/ui/Table';
+import { SearchInput } from '../components/ui/SearchInput';
+import { useEntityList } from '../hooks/useEntityList';
 import CreatePaperStockModal from '../components/modals/CreatePaperStockModal';
 import EditPaperStockModal from '../components/modals/EditPaperStockModal';
 
 const PaperStockPage: React.FC = () => {
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
-  const [paperStock, setPaperStock] = useState<PaperStock[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPaperStock, setSelectedPaperStock] = useState<PaperStock | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const fetchPaperStock = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      const response = await paperStockApi.getPaperStock(params);
-      setPaperStock(response.data || []);
-    } catch (error) {
-      console.error('Error fetching paper stock:', error);
-      setPaperStock([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [effectiveCompanyId]);
-
-  useEffect(() => {
-    fetchPaperStock();
-  }, [fetchPaperStock]);
+  // Use the entity list hook for data management
+  const {
+    filteredData: paperStock,
+    loading,
+    search,
+    setSearch,
+    refresh,
+  } = useEntityList<PaperStock>({
+    fetchFn: paperStockApi.getPaperStock,
+    searchFields: ['comments'],
+    defaultFilters: effectiveCompanyId ? { companyId: effectiveCompanyId } : {},
+  });
 
   const handleEdit = (stock: PaperStock) => {
     setSelectedPaperStock(stock);
@@ -53,7 +46,7 @@ const PaperStockPage: React.FC = () => {
     try {
       setActionLoading(stockId);
       await paperStockApi.deletePaperStock(stockId);
-      await fetchPaperStock();
+      await refresh();
     } catch (error: any) {
       console.error('Error deleting paper stock:', error);
       const errorMessage = error.response?.data?.message || t('paperStock.deleteFailed');
@@ -65,27 +58,14 @@ const PaperStockPage: React.FC = () => {
 
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
-    fetchPaperStock();
+    refresh();
   };
 
   const handleEditSuccess = () => {
     setShowEditModal(false);
     setSelectedPaperStock(null);
-    fetchPaperStock();
+    refresh();
   };
-
-  const filteredPaperStock = paperStock.filter((stock) => {
-    if (!stock) return false;
-
-    const matchesSearch = searchTerm === '' ||
-      (stock.comments && stock.comments.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (stock.warehouse?.name && stock.warehouse.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (stock.supplier?.code && stock.supplier.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (stock.manufacturer?.name && stock.manufacturer.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (stock.paperSupply?.code && stock.paperSupply.code.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    return matchesSearch;
-  });
 
   const columns = [
     {
@@ -192,16 +172,11 @@ const PaperStockPage: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary-400" />
-                <Input
-                  type="text"
-                  placeholder={t('paperStock.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder={t('paperStock.searchPlaceholder')}
+              />
             </div>
           </div>
         </div>
@@ -210,7 +185,7 @@ const PaperStockPage: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
-                {t('paperStock.allPaperStock')} ({filteredPaperStock.length})
+                {t('paperStock.allPaperStock')} ({paperStock.length})
               </h2>
             </div>
 
@@ -218,14 +193,14 @@ const PaperStockPage: React.FC = () => {
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               </div>
-            ) : filteredPaperStock.length === 0 ? (
+            ) : paperStock.length === 0 ? (
               <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('paperStock.empty.title')}</h3>
                 <p className="mt-1 text-sm text-secondary-500">
-                  {searchTerm ? t('paperStock.empty.description') : t('paperStock.empty.noData')}
+                  {search ? t('paperStock.empty.description') : t('paperStock.empty.noData')}
                 </p>
-                {!searchTerm && (
+                {!search && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -237,7 +212,7 @@ const PaperStockPage: React.FC = () => {
             ) : (
               <Table
                 columns={columns}
-                data={filteredPaperStock}
+                data={paperStock}
                 loading={loading}
               />
             )}

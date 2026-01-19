@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useModalForm } from '../../hooks/useModalForm';
 import { FluteType, CreateFluteTypeForm } from '../../types';
 import { fluteTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface EditFluteTypeModalProps {
   isOpen: boolean;
@@ -21,74 +22,50 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+    },
+    loading,
+    error,
     handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-  } = useForm<CreateFluteTypeForm>();
+    handleClose,
+  } = useModalForm<CreateFluteTypeForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen && fluteType) {
-      setValue('code', fluteType.code);
-      setValue('description', fluteType.description || '');
-      setValue('fluteFactor', fluteType.fluteFactor);
-      setValue('length', fluteType.length);
-      setValue('width', fluteType.width);
-      setValue('height', fluteType.height);
+      // Note: We don't use form.reset() here since we access form via destructuring
+      // The form will be reset on close via handleClose
     }
-  }, [isOpen, fluteType, setValue]);
+  }, [isOpen, fluteType]);
 
-  const onSubmit = async (data: CreateFluteTypeForm) => {
+  const onSubmit = handleSubmit(async (data) => {
     if (!fluteType) return;
 
-    setLoading(true);
-    setError('');
+    // Convert string values to numbers for numeric fields
+    const formData = {
+      ...data,
+      fluteFactor: data.fluteFactor ? Number(data.fluteFactor) : undefined,
+      length: data.length ? Number(data.length) : undefined,
+      width: data.width ? Number(data.width) : undefined,
+      height: data.height ? Number(data.height) : undefined,
+    };
 
-    try {
-      // Convert string values to numbers for numeric fields
-      const formData = {
-        ...data,
-        fluteFactor: data.fluteFactor ? Number(data.fluteFactor) : undefined,
-        length: data.length ? Number(data.length) : undefined,
-        width: data.width ? Number(data.width) : undefined,
-        height: data.height ? Number(data.height) : undefined,
-      };
-
-      await fluteTypesApi.updateFluteType(fluteType.id, formData);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating flute type:', err);
-      setError(
-        err.response?.data?.message ||
-        'Failed to update flute type. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+    await fluteTypesApi.updateFluteType(fluteType.id, formData);
+  });
 
   if (!fluteType) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('fluteTypes.editTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('code', {
@@ -105,6 +82,7 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
           label={t('fluteTypes.code')}
           placeholder={t('fluteTypes.codePlaceholder')}
           error={errors.code?.message as string}
+          defaultValue={fluteType.code}
         />
 
         <div>
@@ -116,6 +94,7 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
             className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             placeholder={t('fluteTypes.descriptionPlaceholder')}
             rows={3}
+            defaultValue={fluteType.description || ''}
           />
         </div>
 
@@ -127,6 +106,7 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
             label={t('fluteTypes.fluteFactor')}
             placeholder={t('fluteTypes.fluteFactorPlaceholder')}
             error={errors.fluteFactor?.message as string}
+            defaultValue={fluteType.fluteFactor}
           />
 
           <Input
@@ -136,6 +116,7 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
             label={t('fluteTypes.length')}
             placeholder={t('fluteTypes.lengthPlaceholder')}
             error={errors.length?.message as string}
+            defaultValue={fluteType.length}
           />
 
           <Input
@@ -145,6 +126,7 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
             label={t('fluteTypes.width')}
             placeholder={t('fluteTypes.widthPlaceholder')}
             error={errors.width?.message as string}
+            defaultValue={fluteType.width}
           />
 
           <Input
@@ -154,22 +136,11 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
             label={t('fluteTypes.height')}
             placeholder={t('fluteTypes.heightPlaceholder')}
             error={errors.height?.message as string}
+            defaultValue={fluteType.height}
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('fluteTypes.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter loading={loading} onCancel={handleClose} submitText={t('fluteTypes.updateButton')} />
       </form>
     </Modal>
   );

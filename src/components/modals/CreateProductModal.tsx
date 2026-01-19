@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../contexts/AuthContext';
 import { CreateProductForm, Customer } from '../../types';
 import { productsApi, customersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
-import Button from '../ui/Button';
+import { useModalForm } from '../../hooks/useModalForm';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface CreateProductModalProps {
   isOpen: boolean;
@@ -20,17 +20,22 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [customers, setCustomers] = useState<Customer[]>([]);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+    },
+    loading,
+    error,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateProductForm>();
+    handleClose,
+  } = useModalForm<CreateProductForm>({
+    onSuccess,
+    onClose,
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -47,39 +52,12 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreateProductForm) => {
-    setLoading(true);
-    setError('');
-
-    try {
-      await productsApi.createProduct(data);
-      reset();
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error creating product:', err);
-      setError(
-        err.response?.data?.message ||
-        t('products.createFailed')
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
-  };
+  const onSubmit = handleSubmit((data) => productsApi.createProduct(data));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('products.createTitle')}>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-            {error}
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -138,19 +116,11 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
           />
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" disabled={loading}>
-            {loading ? t('common.loading') : t('products.createButton')}
-          </Button>
-        </div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('products.createButton')}
+        />
       </form>
     </Modal>
   );

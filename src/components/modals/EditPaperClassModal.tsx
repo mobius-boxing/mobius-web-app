@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
+import { useModalForm } from '../../hooks/useModalForm';
 import { PaperClass, CreatePaperClassForm, PaperSupply } from '../../types';
 import { paperClassesApi, paperSuppliesApi } from '../../services/api';
 import Modal from '../ui/Modal';
-import Button from '../ui/Button';
 import Input from '../ui/Input';
 import DualListSelector from '../ui/DualListSelector';
+import { ErrorMessage } from '../ui/ErrorMessage';
+import { ModalFooter } from '../ui/ModalFooter';
 
 interface EditPaperClassModalProps {
   isOpen: boolean;
@@ -22,25 +23,34 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const [loadingSupplies, setLoadingSupplies] = useState(false);
   const [availableSupplies, setAvailableSupplies] = useState<PaperSupply[]>([]);
   const [assignedSupplies, setAssignedSupplies] = useState<PaperSupply[]>([]);
 
   const {
-    register,
+    form: {
+      register,
+      handleSubmit: formSubmit,
+      formState: { errors },
+      reset,
+    },
+    loading,
+    error,
+    setError,
     handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-  } = useForm<CreatePaperClassForm>();
+    handleClose: baseHandleClose,
+  } = useModalForm<CreatePaperClassForm>({
+    onSuccess,
+    onClose,
+  });
 
   // Fetch paper supplies and initialize assigned/available lists
   useEffect(() => {
     if (isOpen && paperClass) {
-      setValue('code', paperClass.code);
-      setValue('name', paperClass.name);
+      reset({
+        code: paperClass.code,
+        name: paperClass.name,
+      });
       fetchPaperSupplies();
     } else {
       // Reset state when modal closes
@@ -48,7 +58,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
       setAssignedSupplies([]);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen, paperClass, setValue]);
+  }, [isOpen, paperClass, reset]);
 
   const fetchPaperSupplies = async () => {
     if (!paperClass) return;
@@ -71,7 +81,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
 
       setAssignedSupplies(assigned);
       setAvailableSupplies(available);
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Error fetching paper supplies:', err);
       setError('Failed to load paper supplies');
     } finally {
@@ -79,36 +89,21 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
     }
   };
 
-  const onSubmit = async (data: CreatePaperClassForm) => {
+  const onSubmit = handleSubmit(async (data) => {
     if (!paperClass) return;
 
-    setLoading(true);
-    setError('');
+    // Extract IDs from assigned supplies
+    const papers = assignedSupplies.map(supply => parseInt(supply.id));
 
-    try {
-      // Extract IDs from assigned supplies
-      const papers = assignedSupplies.map(supply => parseInt(supply.id));
+    const formData = {
+      code: data.code,
+      name: data.name,
+      papers,
+    };
 
-      const formData = {
-        code: data.code,
-        name: data.name,
-        papers,
-      };
-
-      await paperClassesApi.updatePaperClass(paperClass.id, formData);
-      reset();
-      setAssignedSupplies([]);
-      onSuccess();
-    } catch (err: any) {
-      console.error('Error updating paper class:', err);
-      setError(
-        err.response?.data?.message ||
-        'Failed to update paper class. Please try again.'
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
+    await paperClassesApi.updatePaperClass(paperClass.id, formData);
+    setAssignedSupplies([]);
+  });
 
   const handleAssign = (items: PaperSupply[]) => {
     setAssignedSupplies([...assignedSupplies, ...items]);
@@ -125,21 +120,17 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
   };
 
   const handleClose = () => {
-    reset();
-    setError('');
-    onClose();
+    setAssignedSupplies([]);
+    setAvailableSupplies([]);
+    baseHandleClose();
   };
 
   if (!paperClass) return null;
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperClasses.editTitle')} size="xl">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="text-sm text-red-800">{error}</p>
-          </div>
-        )}
+      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+        <ErrorMessage message={error} />
 
         <Input
           {...register('code', {
@@ -190,19 +181,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
           disabled={loading}
         />
 
-        <div className="flex justify-end space-x-3 pt-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleClose}
-            disabled={loading}
-          >
-            {t('common.cancel')}
-          </Button>
-          <Button type="submit" loading={loading}>
-            {t('paperClasses.updateButton')}
-          </Button>
-        </div>
+        <ModalFooter loading={loading} onCancel={handleClose} submitText={t('paperClasses.updateButton')} />
       </form>
     </Modal>
   );

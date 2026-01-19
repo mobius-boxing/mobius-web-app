@@ -1,43 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { Plus, Search, Trash2, Edit, Layers } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Trash2, Edit, Layers } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../contexts/AuthContext';
 import { FluteType } from '../types';
 import { fluteTypesApi } from '../services/api';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
-import Input from '../components/ui/Input';
 import Table from '../components/ui/Table';
+import { SearchInput } from '../components/ui/SearchInput';
+import { useEntityList } from '../hooks/useEntityList';
 import CreateFluteTypeModal from '../components/modals/CreateFluteTypeModal';
 import EditFluteTypeModal from '../components/modals/EditFluteTypeModal';
 
 const FluteTypes: React.FC = () => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
-  const [fluteTypes, setFluteTypes] = useState<FluteType[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedFluteType, setSelectedFluteType] = useState<FluteType | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchFluteTypes();
-  }, []);
-
-  const fetchFluteTypes = async () => {
-    try {
-      setLoading(true);
-      const response = await fluteTypesApi.getFluteTypes();
-      setFluteTypes(response.data || []);
-    } catch (error) {
-      console.error('Error fetching flute types:', error);
-      setFluteTypes([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Use the entity list hook for data management
+  const {
+    filteredData: fluteTypes,
+    loading,
+    search,
+    setSearch,
+    refresh,
+  } = useEntityList<FluteType>({
+    fetchFn: fluteTypesApi.getFluteTypes,
+    searchFields: ['code', 'description'],
+  });
 
   const handleEdit = (fluteType: FluteType) => {
     setSelectedFluteType(fluteType);
@@ -52,7 +43,7 @@ const FluteTypes: React.FC = () => {
     try {
       setActionLoading(fluteTypeId);
       await fluteTypesApi.deleteFluteType(fluteTypeId);
-      await fetchFluteTypes();
+      await refresh();
     } catch (error) {
       console.error('Error deleting flute type:', error);
       alert(t('fluteTypes.deleteFailed'));
@@ -63,25 +54,14 @@ const FluteTypes: React.FC = () => {
 
   const handleCreateSuccess = () => {
     setShowCreateModal(false);
-    fetchFluteTypes();
+    refresh();
   };
 
   const handleEditSuccess = () => {
     setShowEditModal(false);
     setSelectedFluteType(null);
-    fetchFluteTypes();
+    refresh();
   };
-
-  // Filter flute types based on search term
-  const filteredFluteTypes = fluteTypes.filter((fluteType) => {
-    if (!fluteType) return false;
-
-    const matchesSearch = searchTerm === '' ||
-      (fluteType.code && fluteType.code.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (fluteType.description && fluteType.description.toLowerCase().includes(searchTerm.toLowerCase()));
-
-    return matchesSearch;
-  });
 
   const columns = [
     {
@@ -176,16 +156,11 @@ const FluteTypes: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-secondary-400" />
-                <Input
-                  type="text"
-                  placeholder={t('fluteTypes.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+              <SearchInput
+                value={search}
+                onChange={setSearch}
+                placeholder={t('fluteTypes.searchPlaceholder')}
+              />
             </div>
           </div>
         </div>
@@ -195,7 +170,7 @@ const FluteTypes: React.FC = () => {
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
-                {t('fluteTypes.allTypes')} ({filteredFluteTypes.length})
+                {t('fluteTypes.allTypes')} ({fluteTypes.length})
               </h2>
             </div>
 
@@ -203,14 +178,14 @@ const FluteTypes: React.FC = () => {
               <div className="flex items-center justify-center h-32">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
               </div>
-            ) : filteredFluteTypes.length === 0 ? (
+            ) : fluteTypes.length === 0 ? (
               <div className="text-center py-12">
                 <Layers className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('fluteTypes.empty.title')}</h3>
                 <p className="mt-1 text-sm text-secondary-500">
-                  {searchTerm ? t('fluteTypes.empty.description') : t('fluteTypes.empty.noData')}
+                  {search ? t('fluteTypes.empty.description') : t('fluteTypes.empty.noData')}
                 </p>
-                {!searchTerm && (
+                {!search && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />
@@ -222,7 +197,7 @@ const FluteTypes: React.FC = () => {
             ) : (
               <Table
                 columns={columns}
-                data={filteredFluteTypes}
+                data={fluteTypes}
                 loading={loading}
               />
             )}
