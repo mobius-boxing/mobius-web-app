@@ -1,7 +1,3 @@
-/**
- * Modal Component Unit Tests
- */
-
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Modal from '../../../components/ui/Modal';
@@ -42,7 +38,6 @@ describe('Modal', () => {
   describe('Close Button', () => {
     it('should render close button by default', () => {
       render(<Modal {...defaultProps} title="Title" />);
-      // Close button uses Button component with X icon
       const buttons = screen.getAllByRole('button');
       expect(buttons.length).toBeGreaterThan(0);
     });
@@ -68,7 +63,6 @@ describe('Modal', () => {
       const onClose = jest.fn();
       render(<Modal isOpen={true} onClose={onClose}>Content</Modal>);
 
-      // The backdrop has bg-opacity-75 class
       const backdrop = document.querySelector('.bg-opacity-75');
       fireEvent.click(backdrop!);
 

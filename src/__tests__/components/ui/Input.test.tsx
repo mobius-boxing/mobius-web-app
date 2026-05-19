@@ -1,7 +1,3 @@
-/**
- * Input Component Unit Tests
- */
-
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Input from '../../../components/ui/Input';
@@ -28,7 +24,6 @@ describe('Input', () => {
       expect(screen.getByRole('textbox')).toHaveAttribute('type', 'email');
 
       rerender(<Input type="password" />);
-      // Password inputs don't have role="textbox", so query by selector
       const passwordInput = container.querySelector('input[type="password"]');
       expect(passwordInput).toBeInTheDocument();
     });
@@ -87,7 +82,6 @@ describe('Input', () => {
 
     it('should not render helper text when not provided', () => {
       render(<Input />);
-      // Only input and possibly label should be present
       const container = screen.getByRole('textbox').parentElement;
       expect(container?.querySelectorAll('p').length).toBe(0);
     });

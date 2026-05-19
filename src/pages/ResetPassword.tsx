@@ -55,7 +55,6 @@ const ResetPassword: React.FC = () => {
       await authApi.resetPassword(token, data.newPassword);
       setSuccess(true);
 
-      // Redirect to login after 3 seconds
       setTimeout(() => {
         navigate('/login');
       }, 3000);

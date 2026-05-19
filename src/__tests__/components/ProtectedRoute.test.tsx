@@ -1,19 +1,13 @@
-/**
- * ProtectedRoute Component Unit Tests
- */
-
 import React from 'react';
 import { render, screen, cleanup } from '@testing-library/react';
 import ProtectedRoute from '../../components/ProtectedRoute';
 
-// Mock the useAuth hook
 const mockUseAuth = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuth: () => mockUseAuth(),
 }));
 
-// Mock Navigate component
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
   Navigate: ({ to }: { to: string }) => {
@@ -49,7 +43,6 @@ describe('ProtectedRoute', () => {
         </ProtectedRoute>
       );
 
-      // Should show spinner (animate-spin class)
       const spinner = document.querySelector('.animate-spin');
       expect(spinner).toBeInTheDocument();
       expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
@@ -177,7 +170,6 @@ describe('ProtectedRoute', () => {
         </ProtectedRoute>
       );
 
-      // With null user and required roles, role check is skipped (requiredRoles && user is false)
       expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
 
@@ -194,7 +186,6 @@ describe('ProtectedRoute', () => {
         </ProtectedRoute>
       );
 
-      // User exists but role is undefined, role check fails
       expect(screen.getByText('Access Denied')).toBeInTheDocument();
     });
 
@@ -211,7 +202,6 @@ describe('ProtectedRoute', () => {
         </ProtectedRoute>
       );
 
-      // No role requirements, should render children
       expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
   });

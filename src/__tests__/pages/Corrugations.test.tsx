@@ -1,7 +1,3 @@
-/**
- * Corrugations Page Unit Tests
- */
-
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Corrugations from '../../pages/Corrugations';

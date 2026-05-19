@@ -25,7 +25,6 @@ const ToolingStockPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
 
-  // Create fetch function with company filter
   const fetchToolingStock = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
     return toolingStockApi.getToolingStock(fetchParams);
@@ -43,7 +42,6 @@ const ToolingStockPage: React.FC = () => {
     searchFields: ['comments'],
   });
 
-  // Refetch when effectiveCompanyId changes
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps

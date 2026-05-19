@@ -37,7 +37,6 @@ const CreateFluteTypeModal: React.FC<CreateFluteTypeModalProps> = ({
   });
 
   const onSubmit = handleSubmit((data) => {
-    // Convert string values to numbers for numeric fields
     const formData = {
       ...data,
       fluteFactor: data.fluteFactor ? Number(data.fluteFactor) : undefined,

@@ -24,7 +24,6 @@ const ConsumableSupplies: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const { effectiveCompanyId } = useEffectiveCompany();
 
-  // Fetch function with company filter
   const fetchConsumableSupplies = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
     return consumableSuppliesApi.getConsumableSupplies(fetchParams);
@@ -42,7 +41,6 @@ const ConsumableSupplies: React.FC = () => {
     searchFields: ['code', 'name', 'description'],
   });
 
-  // Refresh when company changes
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps

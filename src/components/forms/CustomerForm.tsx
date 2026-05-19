@@ -62,7 +62,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         </div>
       )}
 
-      {/* Basic Information Section */}
       <div className="space-y-4 bg-secondary-50/30 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-secondary-900 border-b pb-2">
           {t('common:customerModal.basicInformation')}
@@ -139,7 +138,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         </div>
       </div>
 
-      {/* Assignment Section */}
       <div className="space-y-4 bg-secondary-50/30 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-secondary-900 border-b pb-2">
           {t('common:customerModal.assignment')}
@@ -188,7 +186,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         </div>
       </div>
 
-      {/* Contacts Section */}
       <div className="space-y-4 bg-secondary-50/30 rounded-lg p-4">
         <div className="flex justify-between items-center border-b pb-2">
           <h3 className="text-sm font-semibold text-secondary-900">
@@ -301,7 +298,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         ))}
       </div>
 
-      {/* Delivery Locations Section */}
       <div className="space-y-4 bg-secondary-50/30 rounded-lg p-4">
         <div className="flex justify-between items-center border-b pb-2">
           <h3 className="text-sm font-semibold text-secondary-900">
@@ -403,7 +399,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         ))}
       </div>
 
-      {/* Delivery Days Section */}
       <div className="space-y-4 bg-secondary-50/30 rounded-lg p-4">
         <div className="flex justify-between items-center border-b pb-2">
           <h3 className="text-sm font-semibold text-secondary-900">

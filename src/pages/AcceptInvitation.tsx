@@ -31,11 +31,8 @@ const AcceptInvitation: React.FC = () => {
       return;
     }
 
-    // Validate invitation token
     const validateInvitation = async () => {
       try {
-        // You might want to create an API endpoint to validate the invitation
-        // For now, we'll just store the token and validate when submitting
         setLoading(false);
       } catch (err) {
         logger.error('Failed to validate invitation:', err);
@@ -53,12 +50,10 @@ const AcceptInvitation: React.FC = () => {
       ...prev,
       [name]: value
     }));
-    // Clear error when user starts typing
     if (error) setError('');
   };
 
   const validateForm = (): boolean => {
-    // Name validation regex (matches backend validation)
     const nameRegex = /^[a-zA-Z\s\-']+$/;
 
     if (!formData.firstName.trim()) {
@@ -79,7 +74,6 @@ const AcceptInvitation: React.FC = () => {
       return false;
     }
 
-    // Password validation (match backend rules)
     if (!formData.password) {
       setError(t('invitation.validation.passwordRequired'));
       return false;
@@ -123,11 +117,9 @@ const AcceptInvitation: React.FC = () => {
     try {
       const response = await authApi.acceptInvitation(token, formData);
 
-      // Save token and user to localStorage (manual login)
       localStorage.setItem('auth_token', response.token);
       localStorage.setItem('auth_user', JSON.stringify(response.user));
 
-      // Redirect to dashboard - the user state will be updated by AuthProvider
       window.location.href = '/dashboard';
     } catch (err) {
       logger.error('Failed to accept invitation:', err);

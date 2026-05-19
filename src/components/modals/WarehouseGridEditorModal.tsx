@@ -70,7 +70,6 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
   }, [isOpen, warehouse]);
 
   useEffect(() => {
-    // Add global mouseup listener to stop dragging even if mouse leaves the grid
     const handleGlobalMouseUp = () => {
       if (isDragging) {
         setIsDragging(false);
@@ -157,25 +156,21 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
     const key = getLocationKey(row, col);
     const currentStatus = changes.get(key)?.status || location.status;
 
-    // Determine the paint action based on current status
     const action = currentStatus === 'active' ? 'deactivate' : 'activate';
 
     setIsDragging(true);
     setDragAction(action);
 
-    // Apply the action to the first cell
     paintCell(row, col, action);
   };
 
   const handleMouseEnter = (row: number, col: number) => {
-    // Only paint if we're currently dragging
     if (!isDragging || !dragAction) return;
 
     paintCell(row, col, dragAction);
   };
 
   const handleMouseUp = () => {
-    // Stop dragging
     setIsDragging(false);
     setDragAction(null);
   };
@@ -206,19 +201,16 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
   const handleGridResize = async () => {
     if (!warehouse) return;
 
-    // Validate dimensions
     if (newGridRows < 1 || newGridRows > 50 || newGridCols < 1 || newGridCols > 50) {
       setError(t('warehouses.grid.validation.dimensionsRange'));
       return;
     }
 
-    // Check if dimensions actually changed
     if (newGridRows === warehouse.gridRows && newGridCols === warehouse.gridCols) {
       setError(t('warehouses.grid.validation.dimensionsUnchanged'));
       return;
     }
 
-    // No confirmation needed - warning is already displayed in the UI
 
     try {
       setResizing(true);
@@ -229,7 +221,6 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
         gridCols: newGridCols,
       });
 
-      // Update confirmed dimensions and refresh locations
       setGridRows(newGridRows);
       setGridCols(newGridCols);
       await fetchLocations();
@@ -355,7 +346,6 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
           </div>
         )}
 
-        {/* Location Type Selector */}
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
           <label className="block text-sm font-medium text-gray-700 mb-2">
             {t('warehouses.grid.selectType')}
@@ -387,7 +377,6 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
           </p>
         </div>
 
-        {/* Grid */}
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           {loading ? (
             <div className="flex items-center justify-center h-32">
@@ -400,7 +389,6 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
           )}
         </div>
 
-        {/* Grid Resize Controls */}
         <div className="bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
           <h3 className="text-sm font-medium text-gray-700 mb-3">
             {t('warehouses.grid.resizeTitle')}
@@ -457,7 +445,6 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
           </button>
         </div>
 
-        {/* Legend */}
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
           <h3 className="text-sm font-medium text-gray-700 mb-2">{t('warehouses.grid.legend')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
@@ -481,7 +468,6 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex justify-between items-center pt-4 border-t">
           <div className="text-sm text-gray-600">
             {changes.size > 0 && (

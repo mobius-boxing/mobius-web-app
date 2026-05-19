@@ -1,14 +1,9 @@
-/**
- * Companies Page Unit Tests
- */
-
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Companies from '../../pages/Companies';
 import { createMockCompany, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
-// Mock dependencies
 const mockUser = {
   uuid: 'user-uuid-1',
   email: 'admin@example.com',
@@ -77,7 +72,6 @@ jest.mock('react-i18next', () => ({
   }),
 }));
 
-// Mock the modals
 jest.mock('../../components/modals/CreateCompanyModal', () => ({
   __esModule: true,
   default: ({ isOpen, onClose, onSuccess }: any) =>
@@ -101,7 +95,6 @@ jest.mock('../../components/modals/EditCompanyModal', () => ({
     ) : null,
 }));
 
-// Mock Layout component
 jest.mock('../../components/layout/Layout', () => ({
   __esModule: true,
   default: ({ children }: any) => <div data-testid="layout">{children}</div>,
@@ -289,7 +282,6 @@ describe('Companies Page', () => {
         expect(screen.getByText('Company A')).toBeInTheDocument();
       });
 
-      // Find the first edit button (there are multiple in the action column)
       const editButtons = document.querySelectorAll('[class*="ghost"]');
       const editButton = Array.from(editButtons).find(btn =>
         btn.querySelector('svg.lucide-edit') || btn.querySelector('svg[class*="h-4"][class*="w-4"]')
@@ -309,7 +301,6 @@ describe('Companies Page', () => {
         expect(screen.getByText('Company A')).toBeInTheDocument();
       });
 
-      // Find all action button groups and get the delete button (last button with trash icon)
       const actionRows = document.querySelectorAll('.flex.items-center.space-x-2');
       const firstRowButtons = actionRows[0]?.querySelectorAll('button');
       const deleteButton = firstRowButtons?.[2]; // Third button is delete (after edit and toggle status)
@@ -396,7 +387,6 @@ describe('Companies Page', () => {
 
   describe('Access Control', () => {
     it('should show access denied for non-superAdmin users', async () => {
-      // Override the mock for this test
       jest.doMock('../../contexts/AuthContext', () => ({
         useAuth: () => ({
           user: { ...mockUser, role: 'admin' },
@@ -405,8 +395,6 @@ describe('Companies Page', () => {
         }),
       }));
 
-      // Note: This test would need module re-import to work properly
-      // In practice, you might use a different approach like a custom render function
     });
   });
 
@@ -425,7 +413,6 @@ describe('Companies Page', () => {
       renderCompanies();
 
       await waitFor(() => {
-        // Should have two "Add Company" buttons - one in header and one in empty state
         expect(screen.getAllByText('Add Company').length).toBeGreaterThanOrEqual(1);
       });
     });

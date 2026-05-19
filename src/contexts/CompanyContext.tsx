@@ -50,19 +50,16 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
       const fetchedCompanies = response.data || [];
       setCompanies(fetchedCompanies);
 
-      // Restore selected company from localStorage or auto-select first
       const savedCompanyUuid = localStorage.getItem(STORAGE_KEY);
       let companyToSelect: Company | null = null;
 
       if (savedCompanyUuid) {
         companyToSelect = fetchedCompanies.find(c => c.uuid === savedCompanyUuid) || null;
         if (!companyToSelect) {
-          // Saved company not found, clear storage
           localStorage.removeItem(STORAGE_KEY);
         }
       }
 
-      // Auto-select first company if none selected and companies exist
       if (!companyToSelect && fetchedCompanies.length > 0) {
         companyToSelect = fetchedCompanies[0];
         localStorage.setItem(STORAGE_KEY, companyToSelect.uuid);
@@ -81,7 +78,6 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     if (user) {
       fetchCompanies();
     } else {
-      // User logged out, clear state
       setCompanies([]);
       setSelectedCompany(null);
     }

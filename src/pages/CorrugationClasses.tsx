@@ -24,13 +24,11 @@ const CorrugationClasses: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const { effectiveCompanyId } = useEffectiveCompany();
 
-  // Fetch function with company filter
   const fetchCorrugationClasses = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
     return corrugationClassesApi.getCorrugationClasses(fetchParams);
   }, [effectiveCompanyId]);
 
-  // Use the entity list hook for data management
   const {
     filteredData: corrugationClasses,
     loading,
@@ -43,7 +41,6 @@ const CorrugationClasses: React.FC = () => {
     searchFields: ['code', 'description'],
   });
 
-  // Refresh when company changes
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -151,7 +148,6 @@ const CorrugationClasses: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-secondary-900">{t('corrugationClasses.title')}</h1>
@@ -166,7 +162,6 @@ const CorrugationClasses: React.FC = () => {
           </Button>
         </div>
 
-        {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
@@ -179,7 +174,6 @@ const CorrugationClasses: React.FC = () => {
           </div>
         </div>
 
-        {/* Corrugation Classes Table */}
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -222,7 +216,6 @@ const CorrugationClasses: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals */}
       <CreateCorrugationClassModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

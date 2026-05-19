@@ -1,13 +1,8 @@
-/**
- * Users Page Unit Tests
- */
-
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import Users from '../../pages/Users';
 import { createMockUser, createMockCompany, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
-// Mock dependencies
 let mockUser: any = null;
 const mockGetUsers = jest.fn();
 const mockGetCompanies = jest.fn();

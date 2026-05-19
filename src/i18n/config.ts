@@ -12,7 +12,6 @@ const resources = {
   }
 };
 
-// Legacy inline resources (kept for reference but not used)
 const legacyResources = {
   en: {
     common: {
@@ -321,7 +320,6 @@ const legacyResources = {
   }
 };
 
-// Legacy Spanish resources (kept for reference but not used)
 const legacyEsResources = {
   es: {
     common: {
@@ -634,7 +632,7 @@ i18n
   .use(initReactI18next)
   .init({
     debug: process.env.NODE_ENV === 'development',
-    lng: 'es', // Set Spanish as default language
+    lng: 'es',
     fallbackLng: 'es',
     defaultNS: 'common',
     ns: ['common'],

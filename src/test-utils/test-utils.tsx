@@ -1,8 +1,3 @@
-/**
- * Test Utilities for Frontend Tests
- * Provides render functions with all necessary providers and common test helpers
- */
-
 import React, { ReactElement, ReactNode } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter, MemoryRouter } from 'react-router-dom';
@@ -10,7 +5,6 @@ import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 
-// Initialize test i18n instance
 const testI18n = i18n.createInstance();
 testI18n.use(initReactI18next).init({
   lng: 'en',
@@ -20,7 +14,6 @@ testI18n.use(initReactI18next).init({
   resources: {
     en: {
       translation: {
-        // Login page translations
         'login.title': 'Sign In',
         'login.subtitle': 'Sign in to your account',
         'login.emailLabel': 'Email',
@@ -36,7 +29,6 @@ testI18n.use(initReactI18next).init({
         'login.validation.emailInvalid': 'Invalid email address',
         'login.validation.passwordRequired': 'Password is required',
         'login.devCredentials': 'Development Credentials',
-        // Common translations
         'common.loading': 'Loading...',
         'common.save': 'Save',
         'common.cancel': 'Cancel',
@@ -50,39 +42,32 @@ testI18n.use(initReactI18next).init({
         'common.inactive': 'Inactive',
         'common.yes': 'Yes',
         'common.no': 'No',
-        // Navigation
         'nav.dashboard': 'Dashboard',
         'nav.companies': 'Companies',
         'nav.users': 'Users',
         'nav.logout': 'Logout',
-        // Dashboard
         'dashboard.title': 'Dashboard',
         'dashboard.welcome': 'Welcome',
-        // Companies
         'companies.title': 'Companies',
         'companies.create': 'Create Company',
         'companies.name': 'Name',
         'companies.description': 'Description',
         'companies.status': 'Status',
-        // Users
         'users.title': 'Users',
         'users.invite': 'Invite User',
         'users.email': 'Email',
         'users.name': 'Name',
         'users.role': 'Role',
-        // Forgot Password
         'forgotPassword.title': 'Forgot Password',
         'forgotPassword.subtitle': 'Enter your email to reset your password',
         'forgotPassword.emailLabel': 'Email',
         'forgotPassword.sendButton': 'Send Reset Link',
         'forgotPassword.backToLogin': 'Back to Login',
         'forgotPassword.success': 'Password reset email sent',
-        // Reset Password
         'resetPassword.title': 'Reset Password',
         'resetPassword.newPasswordLabel': 'New Password',
         'resetPassword.confirmPasswordLabel': 'Confirm Password',
         'resetPassword.submitButton': 'Reset Password',
-        // Accept Invitation
         'acceptInvitation.title': 'Accept Invitation',
         'acceptInvitation.firstName': 'First Name',
         'acceptInvitation.lastName': 'Last Name',
@@ -97,7 +82,6 @@ testI18n.use(initReactI18next).init({
   },
 });
 
-// Mock AuthContext type
 interface MockAuthContextValue {
   user: any | null;
   isAuthenticated: boolean;
@@ -107,10 +91,8 @@ interface MockAuthContextValue {
   updateUser: jest.Mock;
 }
 
-// Create Auth Context for testing
 const AuthContext = React.createContext<MockAuthContextValue | undefined>(undefined);
 
-// Default mock user
 export const mockUser = {
   id: 'user-1',
   uuid: 'user-uuid-1',
@@ -124,7 +106,6 @@ export const mockUser = {
   emailVerified: true,
 };
 
-// Default mock auth context
 export const createMockAuthContext = (overrides: Partial<MockAuthContextValue> = {}): MockAuthContextValue => ({
   user: mockUser,
   isAuthenticated: true,
@@ -135,14 +116,12 @@ export const createMockAuthContext = (overrides: Partial<MockAuthContextValue> =
   ...overrides,
 });
 
-// Provider wrapper props
 interface AllProvidersProps {
   children: ReactNode;
   authValue?: MockAuthContextValue;
   initialEntries?: string[];
 }
 
-// All providers wrapper for testing
 const AllProviders: React.FC<AllProvidersProps> = ({
   children,
   authValue = createMockAuthContext(),
@@ -159,13 +138,11 @@ const AllProviders: React.FC<AllProvidersProps> = ({
   );
 };
 
-// Custom render options
 interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   authValue?: MockAuthContextValue;
   initialEntries?: string[];
 }
 
-// Custom render function with all providers
 const customRender = (
   ui: ReactElement,
   options: CustomRenderOptions = {}
@@ -182,7 +159,6 @@ const customRender = (
   });
 };
 
-// Render without router (for isolated component tests)
 const renderWithoutRouter = (
   ui: ReactElement,
   options: Omit<CustomRenderOptions, 'initialEntries'> = {}
@@ -201,7 +177,6 @@ const renderWithoutRouter = (
   });
 };
 
-// Hook for accessing auth context in tests
 export const useAuth = () => {
   const context = React.useContext(AuthContext);
   if (context === undefined) {
@@ -210,20 +185,15 @@ export const useAuth = () => {
   return context;
 };
 
-// Re-export everything from testing-library
 export * from '@testing-library/react';
 export { customRender as render, renderWithoutRouter, testI18n };
 
-// Export AuthContext for direct use in tests
 export { AuthContext };
 
-// Wait utilities
 export const waitForLoadingToFinish = async () => {
-  // Wait for any loading spinners to disappear
   await new Promise(resolve => setTimeout(resolve, 0));
 };
 
-// Form utilities
 export const fillInput = async (
   user: { clear: (element: HTMLElement) => Promise<void>; type: (element: HTMLElement, text: string) => Promise<void> },
   input: HTMLElement,
@@ -233,7 +203,6 @@ export const fillInput = async (
   await user.type(input, value);
 };
 
-// Mock localStorage
 export const mockLocalStorage = () => {
   const store: Record<string, string> = {};
 

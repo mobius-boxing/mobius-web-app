@@ -46,7 +46,6 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
     onClose,
   });
 
-  // Effect 1: Fetch dropdown data when modal opens
   useEffect(() => {
     if (isOpen && paperSheet) {
       setDropdownsLoaded(false);
@@ -54,7 +53,6 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
     }
   }, [isOpen, paperSheet, effectiveCompanyId]);
 
-  // Effect 2: Reset form AFTER dropdowns are loaded (prevents race condition)
   useEffect(() => {
     if (isOpen && paperSheet && dropdownsLoaded) {
       reset({

@@ -1,9 +1,3 @@
-/**
- * API Mock for Frontend Tests
- * Provides mock implementations of all API services
- */
-
-// Mock data factories
 export const createMockUser = (overrides: Partial<any> = {}) => ({
   id: 'user-1',
   uuid: 'user-uuid-1',
@@ -226,7 +220,6 @@ export const createMockLoginResponse = (overrides: Partial<any> = {}) => ({
   ...overrides,
 });
 
-// Mock API implementations - these can be used with jest.mock
 export const mockAuthApi = {
   login: jest.fn(),
   logout: jest.fn(),
@@ -370,7 +363,6 @@ export const mockPaperSuppliesApi = {
   deletePaperSupply: jest.fn(),
 };
 
-// Reset all mocks helper
 export const resetAllApiMocks = () => {
   Object.values(mockAuthApi).forEach(mock => mock.mockReset());
   Object.values(mockUsersApi).forEach(mock => mock.mockReset());
@@ -390,7 +382,6 @@ export const resetAllApiMocks = () => {
   Object.values(mockPaperSuppliesApi).forEach(mock => mock.mockReset());
 };
 
-// Setup default successful responses
 export const setupDefaultMocks = () => {
   mockAuthApi.getCurrentUser.mockResolvedValue(createMockAuthUser());
   mockAuthApi.login.mockResolvedValue(createMockLoginResponse());
@@ -423,7 +414,6 @@ export const setupDefaultMocks = () => {
   mockPaperSuppliesApi.getPaperSupplies.mockResolvedValue(createMockPaginatedResponse([createMockPaperSupply()]));
 };
 
-// Create mock API error
 export const createMockApiError = (message: string, statusCode = 400) => {
   const error: any = new Error(message);
   error.response = {

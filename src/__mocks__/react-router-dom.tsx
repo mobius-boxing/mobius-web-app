@@ -1,8 +1,3 @@
-/**
- * Mock for react-router-dom
- * Provides mock implementations of all commonly used components and hooks
- */
-
 import React, { ReactNode } from 'react';
 
 export const useNavigate = jest.fn();
@@ -50,7 +45,6 @@ export const matchPath = jest.fn(() => null);
 export const generatePath = jest.fn((path: string) => path);
 export const createSearchParams = jest.fn((init?: any) => new URLSearchParams(init));
 
-// Re-export for convenience
 export default {
   useNavigate,
   useLocation,

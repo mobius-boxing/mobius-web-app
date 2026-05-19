@@ -31,19 +31,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on app start
     const checkAuth = async () => {
       try {
         const token = localStorage.getItem('auth_token');
         const savedUser = localStorage.getItem('auth_user');
 
         if (token && savedUser) {
-          // Verify token is still valid by fetching current user
           const currentUser = await authApi.getCurrentUser();
           setUser(currentUser);
         }
       } catch (error) {
-        // Token is invalid, clear storage
         localStorage.removeItem('auth_token');
         localStorage.removeItem('auth_user');
       } finally {
@@ -58,7 +55,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       const response: LoginResponse = await authApi.login(credentials);
 
-      // Save token and user to localStorage
       localStorage.setItem('auth_token', response.token);
       localStorage.setItem('auth_user', JSON.stringify(response.user));
 
@@ -72,7 +68,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       await authApi.logout();
     } catch (error) {
-      // Even if logout fails on server, clear local state
       logger.error('Logout error:', error);
     } finally {
       localStorage.removeItem('auth_token');

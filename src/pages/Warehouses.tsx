@@ -29,13 +29,11 @@ const Warehouses: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
 
-  // Create fetch function with company filter
   const fetchWarehouses = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
     return warehousesApi.getWarehouses(fetchParams);
   }, [effectiveCompanyId]);
 
-  // Use the entity list hook for data management
   const {
     filteredData: warehouses,
     loading,
@@ -48,7 +46,6 @@ const Warehouses: React.FC = () => {
     searchFields: ['name'],
   });
 
-  // Refetch when effectiveCompanyId changes
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,7 +171,6 @@ const Warehouses: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-secondary-900">{t('warehouses.title')}</h1>
@@ -189,7 +185,6 @@ const Warehouses: React.FC = () => {
           </Button>
         </div>
 
-        {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
@@ -202,7 +197,6 @@ const Warehouses: React.FC = () => {
           </div>
         </div>
 
-        {/* Warehouses Table */}
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -245,7 +239,6 @@ const Warehouses: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals */}
       <CreateWarehouseModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

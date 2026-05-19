@@ -338,7 +338,6 @@ const Sidebar: React.FC = () => {
     });
   };
 
-  // Recursive function to check if any child (at any depth) is active
   const isChildActive = (children?: NavItem[]): boolean => {
     if (!children) return false;
     return children.some((child) => {
@@ -348,7 +347,6 @@ const Sidebar: React.FC = () => {
     });
   };
 
-  // Recursive function to find all parent IDs of an active item
   const findParentIds = (items: NavItem[], targetPath: string, parentIds: string[] = []): string[] => {
     for (const item of items) {
       if (item.path === targetPath) {
@@ -364,7 +362,6 @@ const Sidebar: React.FC = () => {
     return [];
   };
 
-  // Auto-expand parents when a child is active
   useEffect(() => {
     const parentIds = findParentIds(navigationItems, location.pathname);
     if (parentIds.length > 0) {
@@ -389,21 +386,17 @@ const Sidebar: React.FC = () => {
     }
   };
 
-  // Recursive function to render navigation items at any depth
   const renderNavItem = (item: NavItem, depth: number): React.ReactNode => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.has(item.id);
     const isActive = item.path ? location.pathname === item.path : false;
     const hasActiveChild = isChildActive(item.children);
 
-    // Determine icon size and text size based on depth
     const iconSize = depth === 0 ? 'h-5 w-5' : 'h-4 w-4';
     const textSize = depth === 0 ? '' : 'text-sm';
 
-    // In collapsed mode, only show top-level items as icon-only buttons
     if (isCollapsed && depth === 0) {
       if (hasChildren) {
-        // For parent items with children, show as a button that expands on hover/click
         return (
           <div key={item.id} className="relative group">
             <button
@@ -478,7 +471,6 @@ const Sidebar: React.FC = () => {
         isCollapsed ? 'w-16' : 'w-64'
       }`}
     >
-      {/* Logo & Collapse Toggle */}
       <div className="flex items-center justify-between h-16 px-3 border-b border-secondary-200">
         {!isCollapsed && (
           <h1 className="text-xl font-bold text-primary-600">Mobius</h1>
@@ -496,7 +488,6 @@ const Sidebar: React.FC = () => {
         </button>
       </div>
 
-      {/* User Info */}
       <div className={`border-b border-secondary-200 ${isCollapsed ? 'p-2' : 'p-4'}`}>
         <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
           <div
@@ -521,26 +512,22 @@ const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {/* Company Switcher - Only for superAdmin, hidden when collapsed */}
       {user?.role === 'superAdmin' && !isCollapsed && (
         <div className="px-4 py-2 border-b border-secondary-200">
           <CompanySwitcher />
         </div>
       )}
 
-      {/* Navigation */}
       <nav className={`flex-1 py-4 space-y-1 overflow-y-auto ${isCollapsed ? 'px-2' : 'px-4'}`}>
         {filteredNavigation.map((item) => renderNavItem(item, 0))}
       </nav>
 
-      {/* Language Switcher - hidden when collapsed */}
       {!isCollapsed && (
         <div className="px-4 py-2 border-t border-secondary-200">
           <LanguageSwitcher />
         </div>
       )}
 
-      {/* Logout */}
       <div className={`border-t border-secondary-200 ${isCollapsed ? 'p-2' : 'p-4'}`}>
         <button
           onClick={handleLogout}

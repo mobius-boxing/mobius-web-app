@@ -25,7 +25,6 @@ const Companies: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
 
-  // Use the entity list hook for data management
   const {
     filteredData: companies,
     loading,
@@ -182,7 +181,6 @@ const Companies: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-secondary-900">{t('companies.title')}</h1>
@@ -197,7 +195,6 @@ const Companies: React.FC = () => {
           </Button>
         </div>
 
-        {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
@@ -210,7 +207,6 @@ const Companies: React.FC = () => {
           </div>
         </div>
 
-        {/* Companies Table */}
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -253,7 +249,6 @@ const Companies: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals */}
       <CreateCompanyModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

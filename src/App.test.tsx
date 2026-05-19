@@ -1,12 +1,6 @@
-/**
- * App Component Test
- * Tests that the App renders without crashing
- */
-
 import React from 'react';
 import { render } from '@testing-library/react';
 
-// Mock all dependencies that App uses
 jest.mock('react-router-dom', () => ({
   BrowserRouter: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   Routes: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -47,10 +41,8 @@ jest.mock('react-i18next', () => ({
   initReactI18next: { type: '3rdParty', init: jest.fn() },
 }));
 
-// Mock i18n config to prevent initialization
 jest.mock('./i18n/config', () => ({}));
 
-// Mock all page components to avoid their dependencies
 jest.mock('./pages/Login', () => () => <div data-testid="login-page">Login</div>);
 jest.mock('./pages/Dashboard', () => () => <div data-testid="dashboard-page">Dashboard</div>);
 jest.mock('./pages/Companies', () => () => <div data-testid="companies-page">Companies</div>);
@@ -60,7 +52,6 @@ jest.mock('./pages/ForgotPassword', () => () => <div data-testid="forgot-passwor
 jest.mock('./pages/AcceptInvitation', () => () => <div data-testid="accept-invitation-page">Accept Invitation</div>);
 jest.mock('./components/ProtectedRoute', () => ({ children }: { children: React.ReactNode }) => <>{children}</>);
 
-// Import App after mocks are set up
 import App from './App';
 
 describe('App', () => {

@@ -52,11 +52,9 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   const fetchDropdownData = async () => {
     try {
       const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      // Fetch categories
       const categoriesResponse = await customerCategoriesApi.getCategories({ limit: 100, ...companyFilter });
       setCategories(categoriesResponse.data || []);
 
-      // Fetch users (sales persons)
       const usersResponse = await usersApi.getUsers({ limit: 100, ...companyFilter });
       setSalesPersons(usersResponse.data || []);
     } catch (error) {
@@ -65,7 +63,6 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   };
 
   const onSubmit = handleSubmit((data) => {
-    // Convert empty strings to undefined for optional fields
     const customerData = {
       ...data,
       companyId: effectiveCompanyId,

@@ -1,4 +1,3 @@
-// User types
 export interface User {
   id: string;
   uuid: string;
@@ -14,7 +13,6 @@ export interface User {
   updatedAt: string;
 }
 
-// Company types
 export interface Company {
   id: string;
   uuid: string;
@@ -25,7 +23,6 @@ export interface Company {
   updatedAt: string;
 }
 
-// Invitation types
 export interface Invitation {
   id: string;
   email: string;
@@ -39,7 +36,6 @@ export interface Invitation {
   createdAt: string;
 }
 
-// Auth types
 export interface LoginCredentials {
   email: string;
   password: string;
@@ -61,7 +57,6 @@ export interface LoginResponse {
   user: AuthUser;
 }
 
-// API response types
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
@@ -83,7 +78,6 @@ export interface ApiError {
   details?: Array<{ field: string; message: string }>;
 }
 
-// Form types
 export interface CreateCompanyForm {
   name: string;
   description?: string;
@@ -126,7 +120,6 @@ export interface ChangePasswordForm {
   confirmPassword: string;
 }
 
-// Navigation types
 export interface NavItem {
   id: string;
   label: string;
@@ -136,7 +129,6 @@ export interface NavItem {
   children?: NavItem[];
 }
 
-// Statistics types
 export interface UserStats {
   totalUsers: number;
   activeUsers: number;
@@ -158,7 +150,6 @@ export interface InvitationStats {
   expiredInvitations: number;
 }
 
-// Customer Category types
 export interface CustomerCategory {
   id: string;
   uuid: string;
@@ -240,7 +231,6 @@ export interface CreateCustomerForm {
   companyId?: string;
 }
 
-// Paper Type types
 export interface PaperType {
   uuid: string;
   code: string;
@@ -254,7 +244,6 @@ export interface CreatePaperTypeForm {
   description?: string;
 }
 
-// Flute Type types
 export interface FluteType {
   uuid: string;
   code: string;
@@ -276,7 +265,6 @@ export interface CreateFluteTypeForm {
   height?: number;
 }
 
-// Flap Type types
 export interface FlapType {
   uuid: string;
   code: string;
@@ -292,7 +280,6 @@ export interface CreateFlapTypeForm {
   companyId?: string;
 }
 
-// Product Type types
 export interface ProductType {
   uuid: string;
   code: string;
@@ -308,7 +295,6 @@ export interface CreateProductTypeForm {
   companyId?: string;
 }
 
-// Box Type types
 export interface BoxType {
   uuid: string;
   code: string;
@@ -324,7 +310,6 @@ export interface CreateBoxTypeForm {
   companyId?: string;
 }
 
-// Paper Class types
 export interface PaperClass {
   uuid: string;
   code: string;
@@ -340,7 +325,6 @@ export interface CreatePaperClassForm {
   papers?: string[]; // Array of paper supply UUIDs
 }
 
-// Corrugation Class types
 // SECURITY: No numeric IDs - only UUIDs exposed to frontend
 export interface CorrugationClass {
   uuid: string;
@@ -355,7 +339,6 @@ export interface CreateCorrugationClassForm {
   description?: string;
 }
 
-// Corrugation types
 // SECURITY: No numeric IDs - only UUIDs exposed to frontend
 export interface Corrugation {
   uuid: string;
@@ -380,7 +363,6 @@ export interface CreateCorrugationForm {
   corrugationClassUuid?: string;
 }
 
-// Product types
 export interface Product {
   id: string;
   uuid: string;
@@ -389,7 +371,7 @@ export interface Product {
   description?: string;
   customerId: string;
   customerName?: string; // Deprecated: use customer.name instead
-  customer?: Customer; // Full customer object from API
+  customer?: Customer;
   revision?: number;
   vip?: boolean;
   productTypeId?: string;
@@ -411,7 +393,6 @@ export interface CreateProductForm {
   boxTypeId?: string;
 }
 
-// Manufacturer types
 export interface Manufacturer {
   id: string;
   uuid: string;
@@ -426,7 +407,6 @@ export interface CreateManufacturerForm {
   name: string;
 }
 
-// Supplier types
 export interface Supplier {
   id: string;
   uuid: string;
@@ -449,7 +429,6 @@ export interface CreateSupplierForm {
   suppliesTooling?: boolean;
 }
 
-// Warehouse types
 export interface Warehouse {
   id: string;
   uuid: string;
@@ -468,7 +447,6 @@ export interface CreateWarehouseForm {
   companyId?: string;
 }
 
-// Warehouse Location types
 export interface WarehouseLocation {
   uuid: string;
   warehouseUuid: string;
@@ -498,7 +476,6 @@ export interface BatchUpdateLocation {
   metadata?: any;
 }
 
-// Paper Supply types
 export interface PaperSupply {
   uuid: string;
   code: string;
@@ -506,12 +483,12 @@ export interface PaperSupply {
   name: string;
   manufacturerId?: string;
   manufacturerName?: string; // Deprecated: use manufacturer.name instead
-  manufacturer?: Manufacturer; // Full manufacturer object from API
+  manufacturer?: Manufacturer;
   supplierId?: string;
   supplierCode?: string; // Deprecated: use supplier.code instead
-  supplier?: Supplier; // Full supplier object from API
+  supplier?: Supplier;
   paperTypeId?: string;
-  paperType?: PaperType; // Full paper type object from API
+  paperType?: PaperType;
   grammage?: number;
   price?: number;
   minimumStock?: {
@@ -564,7 +541,6 @@ export interface CreatePaperSheetForm {
   width?: number;
 }
 
-// Paper Stock types
 export interface PaperStock {
   uuid: string;
   warehouseLocationId?: number;
@@ -595,7 +571,6 @@ export interface CreatePaperStockForm {
   width?: number;
 }
 
-// Sheet Stock types
 export interface SheetStock {
   uuid: string;
   comments?: string;
@@ -621,7 +596,6 @@ export interface CreateSheetStockForm {
   quantity: number;
 }
 
-// Warehouse Stock types
 export interface LocationStock {
   locationUuid: string;
   locationCode: string;
@@ -642,7 +616,6 @@ export interface WarehouseStockResponse {
   totalSheetStock: number;
 }
 
-// Tooling Type types
 export interface ToolingType {
   uuid: string;
   code: string;
@@ -660,7 +633,6 @@ export interface CreateToolingTypeForm {
   automaticConsumption?: boolean;
 }
 
-// Tooling types
 export interface Tooling {
   uuid: string;
   name: string;
@@ -682,7 +654,6 @@ export interface CreateToolingForm {
   toolingTypeUuid: string;
 }
 
-// Consumable Type types
 export interface ConsumableType {
   uuid: string;
   code: string;
@@ -698,7 +669,6 @@ export interface CreateConsumableTypeForm {
   autoConsumption?: boolean;
 }
 
-// Consumable Supply types
 export interface ConsumableSupply {
   uuid: string;
   code: string;
@@ -720,7 +690,6 @@ export interface CreateConsumableSupplyForm {
   consumableTypeUuid: string;
 }
 
-// Tooling Stock types
 export interface ToolingStock {
   uuid: string;
   comments?: string;
@@ -746,7 +715,6 @@ export interface CreateToolingStockForm {
   quantity: number;
 }
 
-// Glue Type types
 export interface GlueType {
   uuid: string;
   code: string;
@@ -761,7 +729,6 @@ export interface CreateGlueTypeForm {
   companyId?: string;
 }
 
-// Strapping Type types
 export interface StrappingType {
   uuid: string;
   code: string;
@@ -776,7 +743,6 @@ export interface CreateStrappingTypeForm {
   companyId?: string;
 }
 
-// Complement types
 export interface Complement {
   uuid: string;
   code: string;
@@ -791,7 +757,6 @@ export interface CreateComplementForm {
   companyId?: string;
 }
 
-// Trace Type types
 export interface TraceType {
   uuid: string;
   code: string;
@@ -806,7 +771,6 @@ export interface CreateTraceTypeForm {
   companyId?: string;
 }
 
-// Consumable Stock types
 export interface ConsumableStock {
   uuid: string;
   comments?: string;

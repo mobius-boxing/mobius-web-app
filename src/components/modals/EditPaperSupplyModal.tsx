@@ -91,7 +91,6 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
   const onSubmit = handleSubmit(async (data) => {
     if (!paperSupply) return;
 
-    // Transform flat form fields to API format
     const paperSupplyData = {
       code: data.code,
       name: data.name,

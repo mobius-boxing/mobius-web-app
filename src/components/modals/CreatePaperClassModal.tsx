@@ -45,12 +45,10 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
     onClose,
   });
 
-  // Fetch paper supplies when modal opens
   useEffect(() => {
     if (isOpen) {
       fetchPaperSupplies();
     } else {
-      // Reset state when modal closes
       setAvailableSupplies([]);
       setAssignedSupplies([]);
     }
@@ -71,7 +69,6 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
   };
 
   const onSubmit = handleSubmit((data) => {
-    // Extract UUIDs from assigned supplies
     const papers = assignedSupplies.map(supply => supply.uuid);
 
     const formData = {

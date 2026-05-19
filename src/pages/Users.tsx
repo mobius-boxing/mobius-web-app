@@ -28,7 +28,6 @@ const Users: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
 
-  // Use the entity list hook for data management
   const {
     filteredData: users,
     loading,
@@ -42,7 +41,6 @@ const Users: React.FC = () => {
     searchFields: ['email', 'firstName', 'lastName', 'companyName'],
   });
 
-  // Fetch companies for super admin dropdown
   useEffect(() => {
     if (currentUser?.role === 'superAdmin') {
       companiesApi.getCompanies().then((response) => {
@@ -53,7 +51,6 @@ const Users: React.FC = () => {
     }
   }, [currentUser?.role]);
 
-  // Update filters when company selection changes
   useEffect(() => {
     if (selectedCompany === 'all') {
       setFilters({});
@@ -97,7 +94,6 @@ const Users: React.FC = () => {
     refresh();
   };
 
-  // Apply role filter (client-side) - search is handled by useEntityList
   const filteredUsers = users.filter(user => {
     return selectedRole === 'all' || user.role === selectedRole;
   });
@@ -121,7 +117,6 @@ const Users: React.FC = () => {
       : 'bg-red-100 text-red-800';
   };
 
-  // Column definitions
   const columns = [
     {
       key: 'name',
@@ -205,7 +200,6 @@ const Users: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-2xl font-bold text-secondary-900">User Management</h1>
@@ -219,7 +213,6 @@ const Users: React.FC = () => {
           </Button>
         </div>
 
-        {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-secondary-200">
           <div className="flex-1 max-w-md">
             <SearchInput
@@ -262,7 +255,6 @@ const Users: React.FC = () => {
           </div>
         </div>
 
-        {/* Users Table */}
         <div className="bg-white rounded-lg border border-secondary-200">
           {loading ? (
             <div className="p-8 text-center">
@@ -282,7 +274,6 @@ const Users: React.FC = () => {
         </div>
       </div>
 
-      {/* Invite User Modal */}
       {showInviteModal && (
         <InviteUserModal
           isOpen={showInviteModal}
@@ -291,7 +282,6 @@ const Users: React.FC = () => {
         />
       )}
 
-      {/* Edit User Modal */}
       {showEditModal && selectedUser && (
         <EditUserModal
           isOpen={showEditModal}

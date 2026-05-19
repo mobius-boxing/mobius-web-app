@@ -45,13 +45,11 @@ function App() {
         <Router>
           <div className="App">
           <Routes>
-            {/* Public routes */}
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
 
-            {/* Protected routes */}
             <Route
               path="/dashboard"
               element={
@@ -313,10 +311,8 @@ function App() {
               }
             />
 
-            {/* Default redirect */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-            {/* Catch all route */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
           </div>

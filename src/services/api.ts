@@ -79,7 +79,6 @@ import {
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
-// Create axios instance
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -87,7 +86,6 @@ const api = axios.create({
   },
 });
 
-// Request interceptor to add auth token
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('auth_token');
   if (token) {
@@ -96,12 +94,10 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Response interceptor for error handling
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
       window.location.href = '/login';
@@ -110,7 +106,6 @@ api.interceptors.response.use(
   }
 );
 
-// Auth API
 export const authApi = {
   login: async (credentials: LoginCredentials): Promise<LoginResponse> => {
     const response: AxiosResponse<ApiResponse<LoginResponse>> = await api.post('/api/auth/login', credentials);
@@ -158,7 +153,6 @@ export const authApi = {
   },
 };
 
-// Users API
 export const usersApi = {
   getUsers: async (params: {
     page?: number;
@@ -219,7 +213,6 @@ export const usersApi = {
   },
 };
 
-// Companies API
 export const companiesApi = {
   getCompanies: async (params: {
     page?: number;
@@ -285,7 +278,6 @@ export const companiesApi = {
   },
 };
 
-// Invitations API
 export const invitationsApi = {
   getInvitations: async (params: {
     page?: number;
@@ -342,7 +334,6 @@ export const invitationsApi = {
   },
 };
 
-// Customer Categories API
 export const customerCategoriesApi = {
   getCategories: async (params: {
     page?: number;
@@ -381,7 +372,6 @@ export const customerCategoriesApi = {
   },
 };
 
-// Customers API
 export const customersApi = {
   getCustomers: async (params: {
     page?: number;
@@ -423,7 +413,6 @@ export const customersApi = {
   },
 };
 
-// Paper Types API
 export const paperTypesApi = {
   getPaperTypes: async (params: {
     page?: number;
@@ -462,7 +451,6 @@ export const paperTypesApi = {
   },
 };
 
-// Flute Types API
 export const fluteTypesApi = {
   getFluteTypes: async (params: {
     page?: number;
@@ -501,7 +489,6 @@ export const fluteTypesApi = {
   },
 };
 
-// Flap Types API
 export const flapTypesApi = {
   getFlapTypes: async (params: {
     page?: number;
@@ -540,7 +527,6 @@ export const flapTypesApi = {
   },
 };
 
-// Product Types API
 export const productTypesApi = {
   getProductTypes: async (params: {
     page?: number;
@@ -579,7 +565,6 @@ export const productTypesApi = {
   },
 };
 
-// Box Types API
 export const boxTypesApi = {
   getBoxTypes: async (params: {
     page?: number;
@@ -618,7 +603,6 @@ export const boxTypesApi = {
   },
 };
 
-// Paper Classes API
 export const paperClassesApi = {
   getPaperClasses: async (params: {
     page?: number;
@@ -657,7 +641,6 @@ export const paperClassesApi = {
   },
 };
 
-// Corrugation Classes API
 export const corrugationClassesApi = {
   getCorrugationClasses: async (params: {
     page?: number;
@@ -696,7 +679,6 @@ export const corrugationClassesApi = {
   },
 };
 
-// Corrugations API
 export const corrugationsApi = {
   getCorrugations: async (params: {
     page?: number;
@@ -735,7 +717,6 @@ export const corrugationsApi = {
   },
 };
 
-// Products API
 export const productsApi = {
   getProducts: async (params: {
     page?: number;
@@ -775,7 +756,6 @@ export const productsApi = {
   },
 };
 
-// Manufacturers API
 export const manufacturersApi = {
   getManufacturers: async (params: {
     page?: number;
@@ -814,7 +794,6 @@ export const manufacturersApi = {
   },
 };
 
-// Suppliers API
 export const suppliersApi = {
   getSuppliers: async (params: {
     page?: number;
@@ -853,7 +832,6 @@ export const suppliersApi = {
   },
 };
 
-// Warehouses API
 export const warehousesApi = {
   getWarehouses: async (params: {
     page?: number;
@@ -891,7 +869,6 @@ export const warehousesApi = {
     await api.delete(`/api/warehouse/${id}`);
   },
 
-  // Warehouse Locations API
   getWarehouseLocations: async (warehouseUuid: string): Promise<WarehouseLocation[]> => {
     const response: AxiosResponse<ApiResponse<WarehouseLocation[]>> = await api.get(`/api/warehouseLocation/warehouse/${warehouseUuid}`);
     return response.data.data!;
@@ -910,7 +887,6 @@ export const warehousesApi = {
   },
 };
 
-// Paper Supplies API
 export const paperSuppliesApi = {
   getPaperSupplies: async (params: {
     page?: number;
@@ -952,7 +928,6 @@ export const paperSuppliesApi = {
   },
 };
 
-// Paper Sheets API
 export const paperSheetsApi = {
   getPaperSheets: async (params: {
     page?: number;
@@ -994,7 +969,6 @@ export const paperSheetsApi = {
   },
 };
 
-// Paper Stock API
 export const paperStockApi = {
   getPaperStock: async (params: {
     page?: number;
@@ -1037,7 +1011,6 @@ export const paperStockApi = {
   },
 };
 
-// Sheet Stock API
 export const sheetStockApi = {
   getSheetStock: async (params: {
     page?: number;
@@ -1080,7 +1053,6 @@ export const sheetStockApi = {
   },
 };
 
-// Tooling Types API
 export const toolingTypesApi = {
   getToolingTypes: async (params: {
     page?: number;
@@ -1122,7 +1094,6 @@ export const toolingTypesApi = {
   },
 };
 
-// Toolings API
 export const toolingsApi = {
   getToolings: async (params: {
     page?: number;
@@ -1165,7 +1136,6 @@ export const toolingsApi = {
   },
 };
 
-// Consumable Types API
 export const consumableTypesApi = {
   getConsumableTypes: async (params: {
     page?: number;
@@ -1207,7 +1177,6 @@ export const consumableTypesApi = {
   },
 };
 
-// Consumable Supplies API
 export const consumableSuppliesApi = {
   getConsumableSupplies: async (params: {
     page?: number;
@@ -1251,7 +1220,6 @@ export const consumableSuppliesApi = {
   },
 };
 
-// Tooling Stock API
 export const toolingStockApi = {
   getToolingStock: async (params: {
     page?: number;
@@ -1294,7 +1262,6 @@ export const toolingStockApi = {
   },
 };
 
-// Consumable Stock API
 export const consumableStockApi = {
   getConsumableStock: async (params: {
     page?: number;
@@ -1337,7 +1304,6 @@ export const consumableStockApi = {
   },
 };
 
-// Glue Types API
 export const glueTypesApi = {
   getGlueTypes: async (params: {
     page?: number;
@@ -1376,7 +1342,6 @@ export const glueTypesApi = {
   },
 };
 
-// Strapping Types API
 export const strappingTypesApi = {
   getStrappingTypes: async (params: {
     page?: number;
@@ -1415,7 +1380,6 @@ export const strappingTypesApi = {
   },
 };
 
-// Complements API
 export const complementsApi = {
   getComplements: async (params: {
     page?: number;
@@ -1454,7 +1418,6 @@ export const complementsApi = {
   },
 };
 
-// Trace Types API
 export const traceTypesApi = {
   getTraceTypes: async (params: {
     page?: number;

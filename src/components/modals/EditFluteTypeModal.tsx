@@ -40,15 +40,12 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
 
   useEffect(() => {
     if (isOpen && fluteType) {
-      // Note: We don't use form.reset() here since we access form via destructuring
-      // The form will be reset on close via handleClose
     }
   }, [isOpen, fluteType]);
 
   const onSubmit = handleSubmit(async (data) => {
     if (!fluteType) return;
 
-    // Convert string values to numbers for numeric fields
     const formData = {
       ...data,
       fluteFactor: data.fluteFactor ? Number(data.fluteFactor) : undefined,

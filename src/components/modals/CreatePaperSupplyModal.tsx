@@ -65,7 +65,6 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
   };
 
   const onSubmit = handleSubmit((data) => {
-    // Transform flat form fields to API format
     const paperSupplyData = {
       code: data.code,
       name: data.name,

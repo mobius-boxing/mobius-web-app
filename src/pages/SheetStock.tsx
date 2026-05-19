@@ -25,13 +25,11 @@ const SheetStockPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
 
-  // Create fetch function with company filter
   const fetchSheetStock = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
     return sheetStockApi.getSheetStock(fetchParams);
   }, [effectiveCompanyId]);
 
-  // Use the entity list hook for data management
   const {
     filteredData: sheetStock,
     loading,
@@ -44,7 +42,6 @@ const SheetStockPage: React.FC = () => {
     searchFields: ['comments'],
   });
 
-  // Refetch when effectiveCompanyId changes
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps

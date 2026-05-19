@@ -9,7 +9,6 @@ const CompanySwitcher: React.FC = () => {
   const { user } = useAuth();
   const { companies, selectedCompany, selectCompany, isLoading } = useCompany();
 
-  // Safety check: only render for superAdmin
   if (user?.role !== 'superAdmin') {
     return null;
   }

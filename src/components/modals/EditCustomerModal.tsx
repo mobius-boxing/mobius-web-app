@@ -64,7 +64,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
         salesPersonId: customer.salesPerson?.uuid || '',
       });
 
-      // Initialize arrays
       setContacts(customer.contacts || []);
       setDeliveryLocations(customer.deliveryLocations || []);
       setDeliveryDays(customer.deliveryDays || []);
@@ -96,7 +95,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   if (!customer) return null;
 
   const onSubmit = handleSubmit(async (data) => {
-    // Convert empty strings to undefined for optional fields
     const customerData = {
       ...data,
       categoryId: data.categoryId || undefined,

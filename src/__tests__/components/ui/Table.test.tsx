@@ -1,7 +1,3 @@
-/**
- * Table Component Unit Tests
- */
-
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Table from '../../../components/ui/Table';
@@ -118,7 +114,6 @@ describe('Table', () => {
     it('should show loading skeleton when loading', () => {
       render(<Table columns={mockColumns} data={[]} loading={true} />);
 
-      // Should show animated pulse skeleton
       const skeleton = document.querySelector('.animate-pulse');
       expect(skeleton).toBeInTheDocument();
     });
@@ -195,15 +190,12 @@ describe('Table', () => {
     it('should have proper table structure for screen readers', () => {
       render(<Table columns={mockColumns} data={mockData} />);
 
-      // Check for proper table element
       const table = screen.getByRole('table');
       expect(table).toBeInTheDocument();
 
-      // Check for column headers
       const columnHeaders = screen.getAllByRole('columnheader');
       expect(columnHeaders.length).toBe(3);
 
-      // Check for table cells
       const cells = screen.getAllByRole('cell');
       expect(cells.length).toBe(9); // 3 rows x 3 columns
     });

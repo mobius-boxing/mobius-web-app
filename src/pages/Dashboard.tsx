@@ -67,9 +67,7 @@ const Dashboard: React.FC = () => {
       try {
         setLoading(true);
 
-        // Fetch stats based on user role
         if (user?.role === 'superAdmin') {
-          // SuperAdmin sees platform-wide stats
           const [userStatsData, companyStatsData, invitationStatsData] = await Promise.all([
             usersApi.getUserStats(),
             companiesApi.getCompanyStats(),
@@ -79,7 +77,6 @@ const Dashboard: React.FC = () => {
           setCompanyStats(companyStatsData);
           setInvitationStats(invitationStatsData);
         } else if (user?.role === 'admin') {
-          // Admin sees company-specific stats
           const [userStatsData, invitationStatsData] = await Promise.all([
             usersApi.getUserStats(user.companyId),
             invitationsApi.getInvitationStats(user.companyId),
@@ -87,7 +84,6 @@ const Dashboard: React.FC = () => {
           setUserStats(userStatsData);
           setInvitationStats(invitationStatsData);
         }
-        // Members see limited dashboard
       } catch (error) {
         logger.error('Error fetching dashboard stats:', error);
       } finally {
@@ -125,7 +121,6 @@ const Dashboard: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-secondary-900">
             {getGreeting()}, {user?.firstName}!
@@ -136,7 +131,6 @@ const Dashboard: React.FC = () => {
           </p>
         </div>
 
-        {/* Member Dashboard */}
         {user?.role === 'member' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Card title="Welcome to Mobius">
@@ -161,7 +155,6 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {/* Admin Dashboard */}
         {user?.role === 'admin' && userStats && invitationStats && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -191,7 +184,6 @@ const Dashboard: React.FC = () => {
               />
             </div>
 
-            {/* Users by Role */}
             <Card title="Users by Role" subtitle="Distribution of user roles in your company">
               <div className="space-y-3">
                 {userStats.usersByRole.map((roleData) => (
@@ -207,7 +199,6 @@ const Dashboard: React.FC = () => {
           </>
         )}
 
-        {/* SuperAdmin Dashboard */}
         {user?.role === 'superAdmin' && userStats && companyStats && invitationStats && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -238,7 +229,6 @@ const Dashboard: React.FC = () => {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Platform Users by Role */}
               <Card title="Platform Users by Role" subtitle="Distribution across all companies">
                 <div className="space-y-3">
                   {userStats.usersByRole.map((roleData) => (
@@ -252,7 +242,6 @@ const Dashboard: React.FC = () => {
                 </div>
               </Card>
 
-              {/* Company Stats */}
               <Card title="Company Overview" subtitle="Platform-wide company statistics">
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">

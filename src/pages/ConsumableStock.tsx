@@ -25,7 +25,6 @@ const ConsumableStockPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
 
-  // Create fetch function with company filter
   const fetchConsumableStock = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
     return consumableStockApi.getConsumableStock(fetchParams);
@@ -43,7 +42,6 @@ const ConsumableStockPage: React.FC = () => {
     searchFields: ['comments'],
   });
 
-  // Refetch when effectiveCompanyId changes
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps

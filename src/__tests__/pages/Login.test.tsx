@@ -1,13 +1,7 @@
-/**
- * Login Page Unit Tests
- */
-
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-// react-router-dom is mocked below
 import Login from '../../pages/Login';
 
-// Mock dependencies
 const mockLogin = jest.fn();
 const mockNavigate = jest.fn();
 let mockLocationState: any = null;
@@ -111,7 +105,6 @@ describe('Login Page', () => {
       const passwordInput = screen.getByPlaceholderText('Enter your password');
       expect(passwordInput).toHaveAttribute('type', 'password');
 
-      // Find and click the toggle button (the eye icon button)
       const toggleButtons = screen.getAllByRole('button');
       const toggleButton = toggleButtons.find(
         btn => !btn.textContent?.includes('Sign In') && btn.type === 'button'
@@ -261,7 +254,6 @@ describe('Login Page', () => {
 
   describe('Loading State', () => {
     it('should disable submit button while loading', async () => {
-      // Create a login that never resolves to keep loading state
       mockLogin.mockImplementation(() => new Promise(() => {}));
 
       renderLogin();

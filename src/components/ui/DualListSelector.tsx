@@ -36,7 +36,6 @@ function DualListSelector<T>({
   const [selectedAvailable, setSelectedAvailable] = useState<Set<string | number>>(new Set());
   const [selectedAssigned, setSelectedAssigned] = useState<Set<string | number>>(new Set());
 
-  // Filter items based on search
   const filteredAvailable = useMemo(() => {
     if (!availableSearch) return availableItems;
     const search = availableSearch.toLowerCase();
@@ -57,7 +56,6 @@ function DualListSelector<T>({
     });
   }, [assignedItems, assignedSearch, getItemLabel, getItemDescription]);
 
-  // Toggle item selection
   const toggleAvailable = (id: string | number) => {
     const newSelection = new Set(selectedAvailable);
     if (newSelection.has(id)) {
@@ -78,7 +76,6 @@ function DualListSelector<T>({
     setSelectedAssigned(newSelection);
   };
 
-  // Move operations
   const moveSelected = () => {
     const itemsToMove = availableItems.filter(item =>
       selectedAvailable.has(getItemId(item))
@@ -105,7 +102,6 @@ function DualListSelector<T>({
     setSelectedAssigned(new Set());
   };
 
-  // Render item list
   const renderList = (
     items: T[],
     selected: Set<string | number>,
@@ -174,7 +170,6 @@ function DualListSelector<T>({
 
   return (
     <div className="grid grid-cols-[1fr_auto_1fr] gap-4">
-      {/* Available Items */}
       <div className="flex flex-col space-y-3">
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-2">
@@ -205,7 +200,6 @@ function DualListSelector<T>({
         </p>
       </div>
 
-      {/* Transfer Buttons */}
       <div className="flex flex-col justify-center space-y-2 pt-8">
         <Button
           type="button"
@@ -249,7 +243,6 @@ function DualListSelector<T>({
         </Button>
       </div>
 
-      {/* Assigned Items */}
       <div className="flex flex-col space-y-3">
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-2">

@@ -136,7 +136,6 @@ const Login: React.FC = () => {
           </div>
         </form>
 
-        {/* Development credentials hint */}
         {process.env.NODE_ENV === 'development' && (
           <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <h4 className="text-sm font-medium text-blue-800 mb-2">

@@ -39,7 +39,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     handleClose,
   } = useModalForm<UpdateUserRequest>({
     onSuccess: () => {
-      // The actual onSuccess with updatedUser is called in onSubmit
     },
     onClose,
   });
@@ -48,25 +47,20 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      // Set form values with current user data
       setValue('firstName', user.firstName || '');
       setValue('lastName', user.lastName || '');
       setValue('email', user.email);
       setValue('role', user.role);
       setValue('isActive', user.isActive);
 
-      // Fetch companies if superAdmin
       if (currentUser?.role === 'superAdmin') {
         fetchCompanies();
       }
     }
   }, [isOpen, user, setValue, currentUser]);
 
-  // Set company value after companies are loaded
   useEffect(() => {
     if (isOpen && companies.length > 0 && user.companyId) {
-      // Find the company matching the user's companyId (numeric ID)
-      // Company.id is the numeric ID as string, user.companyId might be number or string
       const userCompany = companies.find(c => String(c.id) === String(user.companyId));
       if (userCompany) {
         setValue('companyId', userCompany.uuid);
@@ -84,13 +78,11 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   };
 
   const onSubmit = handleSubmit(async (data) => {
-    // For non-superAdmin users, preserve the company
     const updateData: UpdateUserRequest = {
       ...data,
       companyId: currentUser?.role === 'superAdmin' ? data.companyId : user.companyId,
     };
 
-    // Only include password if it's not empty
     if (!updateData.password) {
       delete updateData.password;
     }
@@ -99,7 +91,6 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     onSuccess(updatedUser);
   });
 
-  // Check if current user can edit this user
   const canEditRole = () => {
     if (currentUser?.role === 'superAdmin') return true;
     if (currentUser?.role === 'admin' && user.role !== 'superAdmin') return true;

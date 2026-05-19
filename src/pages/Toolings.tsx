@@ -24,13 +24,11 @@ const Toolings: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const { effectiveCompanyId } = useEffectiveCompany();
 
-  // Fetch function with company filter
   const fetchToolings = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
     return toolingsApi.getToolings(fetchParams);
   }, [effectiveCompanyId]);
 
-  // Use the entity list hook for data management
   const {
     filteredData: toolings,
     loading,
@@ -43,7 +41,6 @@ const Toolings: React.FC = () => {
     searchFields: ['name', 'description'],
   });
 
-  // Refresh when company changes
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -172,7 +169,6 @@ const Toolings: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-secondary-900">{t('toolings.title')}</h1>
@@ -187,7 +183,6 @@ const Toolings: React.FC = () => {
           </Button>
         </div>
 
-        {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
@@ -200,7 +195,6 @@ const Toolings: React.FC = () => {
           </div>
         </div>
 
-        {/* Toolings Table */}
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -243,7 +237,6 @@ const Toolings: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals */}
       <CreateToolingModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

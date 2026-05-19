@@ -1,24 +1,10 @@
 import React from 'react';
 
 interface ErrorMessageProps {
-  /** Error message to display */
   message: string | null | undefined;
-  /** Additional CSS classes */
   className?: string;
 }
 
-/**
- * Reusable error message component
- *
- * Displays a red error banner with the provided message.
- * Returns null if message is empty/null/undefined.
- *
- * @example
- * ```tsx
- * <ErrorMessage message={error} />
- * <ErrorMessage message="Something went wrong" className="mt-4" />
- * ```
- */
 export const ErrorMessage: React.FC<ErrorMessageProps> = ({
   message,
   className = '',

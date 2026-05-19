@@ -24,13 +24,11 @@ const ToolingTypes: React.FC = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const { effectiveCompanyId } = useEffectiveCompany();
 
-  // Fetch function with company filter
   const fetchToolingTypes = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
     return toolingTypesApi.getToolingTypes(fetchParams);
   }, [effectiveCompanyId]);
 
-  // Use the entity list hook for data management
   const {
     filteredData: toolingTypes,
     loading,
@@ -43,7 +41,6 @@ const ToolingTypes: React.FC = () => {
     searchFields: ['code', 'name', 'description'],
   });
 
-  // Refresh when company changes
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -164,7 +161,6 @@ const ToolingTypes: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-secondary-900">{t('toolingTypes.title')}</h1>
@@ -179,7 +175,6 @@ const ToolingTypes: React.FC = () => {
           </Button>
         </div>
 
-        {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
@@ -192,7 +187,6 @@ const ToolingTypes: React.FC = () => {
           </div>
         </div>
 
-        {/* Tooling Types Table */}
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -235,7 +229,6 @@ const ToolingTypes: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals */}
       <CreateToolingTypeModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

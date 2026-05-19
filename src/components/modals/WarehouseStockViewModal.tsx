@@ -75,7 +75,6 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
 
       setLocations(locationsData);
 
-      // Build stock map by location key (row-col)
       const stockMap = new Map<string, LocationStock>();
       stockData.locations.forEach(loc => {
         const key = `${loc.row}-${loc.col}`;
@@ -256,7 +255,6 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          {/* Grid */}
           <div className="bg-white p-4 rounded-lg border border-gray-200">
             <h3 className="text-sm font-medium text-gray-700 mb-3">
               {t('warehouses.stockView.gridTitle')}
@@ -272,7 +270,6 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
             )}
           </div>
 
-          {/* Stock Details */}
           <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-sm font-medium text-gray-700">
@@ -311,7 +308,6 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
           </div>
         </div>
 
-        {/* Legend */}
         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
             <div className="flex items-center gap-2">
@@ -335,7 +331,6 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex justify-end pt-4 border-t">
           <Button type="button" variant="outline" onClick={onClose}>
             {t('common.close')}

@@ -1,13 +1,8 @@
-/**
- * Dashboard Page Unit Tests
- */
-
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Dashboard from '../../pages/Dashboard';
 
-// Mock dependencies
 let mockUser: any = null;
 const mockGetUserStats = jest.fn();
 const mockGetCompanyStats = jest.fn();
@@ -33,13 +28,11 @@ jest.mock('../../services/api', () => ({
   },
 }));
 
-// Mock Layout component
 jest.mock('../../components/layout/Layout', () => ({
   __esModule: true,
   default: ({ children }: any) => <div data-testid="layout">{children}</div>,
 }));
 
-// Mock Card component
 jest.mock('../../components/ui/Card', () => ({
   __esModule: true,
   default: ({ children, title, subtitle, className }: any) => (
@@ -147,7 +140,6 @@ describe('Dashboard Page', () => {
       renderDashboard();
 
       await waitFor(() => {
-        // "Total Companies" and "10" appear multiple times on the page
         expect(screen.getAllByText('Total Companies').length).toBeGreaterThanOrEqual(1);
         expect(screen.getAllByText('10').length).toBeGreaterThanOrEqual(1);
       });
@@ -319,7 +311,6 @@ describe('Dashboard Page', () => {
       renderDashboard();
 
       await waitFor(() => {
-        // The greeting should contain one of these
         const greetingText = screen.getByText(/Test!/).textContent;
         expect(
           greetingText?.includes('Good morning') ||
@@ -363,7 +354,6 @@ describe('Dashboard Page', () => {
       renderDashboard();
 
       await waitFor(() => {
-        // Check for descriptions
         expect(screen.getByText('8 active')).toBeInTheDocument();
         expect(screen.getByText('20 active users')).toBeInTheDocument();
       });

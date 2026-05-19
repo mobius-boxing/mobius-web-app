@@ -59,7 +59,6 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
     }
   }, [isOpen, effectiveCompanyId]);
 
-  // Clear location when warehouse changes
   useEffect(() => {
     setSelectedLocation(null);
   }, [selectedWarehouseId]);
@@ -111,7 +110,6 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
     setSelectedLocation(null);
   };
 
-  // When location selector is open, replace the main modal with it
   if (locationSelectorOpen && selectedWarehouse) {
     return (
       <WarehouseLocationSelectorModal
@@ -151,7 +149,6 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
           )}
         </div>
 
-        {/* Warehouse Location Selector */}
         {selectedWarehouse && (
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">

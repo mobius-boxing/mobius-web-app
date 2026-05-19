@@ -25,13 +25,11 @@ const Suppliers: React.FC = () => {
   const { effectiveCompanyId } = useEffectiveCompany();
   const confirmModal = useConfirmModal();
 
-  // Fetch function with company filter
   const fetchSuppliers = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
     return suppliersApi.getSuppliers(fetchParams);
   }, [effectiveCompanyId]);
 
-  // Use the entity list hook for data management
   const {
     filteredData: suppliers,
     loading,
@@ -44,7 +42,6 @@ const Suppliers: React.FC = () => {
     searchFields: ['code'],
   });
 
-  // Refresh when company changes
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -176,7 +173,6 @@ const Suppliers: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-secondary-900">{t('suppliers.title')}</h1>
@@ -191,7 +187,6 @@ const Suppliers: React.FC = () => {
           </Button>
         </div>
 
-        {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
@@ -204,7 +199,6 @@ const Suppliers: React.FC = () => {
           </div>
         </div>
 
-        {/* Suppliers Table */}
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
@@ -247,7 +241,6 @@ const Suppliers: React.FC = () => {
         </div>
       </div>
 
-      {/* Modals */}
       <CreateSupplierModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}

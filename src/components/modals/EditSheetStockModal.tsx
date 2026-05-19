@@ -58,7 +58,6 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
   const selectedWarehouseId = useWatch({ control, name: 'warehouseId' });
   const selectedWarehouse = warehouses.find(w => w.uuid === selectedWarehouseId) || null;
 
-  // Track previous warehouse ID to clear location on change
   const previousWarehouseId = useRef(selectedWarehouseId);
 
   useEffect(() => {
@@ -79,12 +78,10 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
         price: sheetStock.price || undefined,
         quantity: sheetStock.quantity || 0,
       });
-      // Set warehouse location if available
       setSelectedLocation(sheetStock.warehouseLocation || null);
     }
   }, [sheetStock, isOpen, dropdownsLoaded, reset]);
 
-  // Clear location when warehouse changes (only if it's actually different)
   useEffect(() => {
     if (previousWarehouseId.current && selectedWarehouseId !== previousWarehouseId.current) {
       setSelectedLocation(null);
@@ -142,7 +139,6 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
     await sheetStockApi.updateSheetStock(sheetStock.uuid, stockData);
   });
 
-  // When location selector is open, replace the main modal with it
   if (locationSelectorOpen && selectedWarehouse) {
     return (
       <WarehouseLocationSelectorModal
@@ -182,7 +178,6 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
           )}
         </div>
 
-        {/* Warehouse Location Selector */}
         {selectedWarehouse && (
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">

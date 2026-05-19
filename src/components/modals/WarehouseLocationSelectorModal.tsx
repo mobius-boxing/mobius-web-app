@@ -63,7 +63,6 @@ const WarehouseLocationSelectorModal: React.FC<WarehouseLocationSelectorModalPro
       const data = await warehousesApi.getWarehouseLocations(warehouse.uuid);
       setLocations(data);
 
-      // Pre-select current location if provided
       if (currentLocationUuid) {
         const current = data.find(loc => loc.uuid === currentLocationUuid);
         if (current) {
@@ -172,7 +171,6 @@ const WarehouseLocationSelectorModal: React.FC<WarehouseLocationSelectorModalPro
           {t('warehouses.locationSelector.instructions')}
         </p>
 
-        {/* Grid */}
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           {loading ? (
             <div className="flex items-center justify-center h-32">
@@ -185,7 +183,6 @@ const WarehouseLocationSelectorModal: React.FC<WarehouseLocationSelectorModalPro
           )}
         </div>
 
-        {/* Selected Location Info */}
         {selectedLocation && (
           <div className="bg-primary-50 border border-primary-200 p-3 rounded-lg">
             <div className="flex items-center gap-2">
@@ -200,7 +197,6 @@ const WarehouseLocationSelectorModal: React.FC<WarehouseLocationSelectorModalPro
           </div>
         )}
 
-        {/* Legend */}
         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
           <h3 className="text-xs font-medium text-gray-700 mb-2">{t('warehouses.grid.legend')}</h3>
           <div className="grid grid-cols-3 md:grid-cols-6 gap-2 text-xs">
@@ -222,7 +218,6 @@ const WarehouseLocationSelectorModal: React.FC<WarehouseLocationSelectorModalPro
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex justify-end space-x-3 pt-4 border-t">
           <Button
             type="button"

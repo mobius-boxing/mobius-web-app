@@ -45,7 +45,6 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
     onClose,
   });
 
-  // Fetch paper supplies and initialize assigned/available lists
   useEffect(() => {
     if (isOpen && paperClass) {
       reset({
@@ -54,7 +53,6 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
       });
       fetchPaperSupplies();
     } else {
-      // Reset state when modal closes
       setAvailableSupplies([]);
       setAssignedSupplies([]);
     }
@@ -69,10 +67,8 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
       const response = await paperSuppliesApi.getPaperSupplies({ limit: 100 });
       const allSupplies = response.data;
 
-      // Parse existing papers (array of UUIDs)
       const existingPaperUuids = Array.isArray(paperClass.papers) ? paperClass.papers : [];
 
-      // Split supplies into assigned and available based on UUID
       const assigned = allSupplies.filter(supply =>
         existingPaperUuids.includes(supply.uuid)
       );
@@ -93,7 +89,6 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
   const onSubmit = handleSubmit(async (data) => {
     if (!paperClass) return;
 
-    // Extract UUIDs from assigned supplies
     const papers = assignedSupplies.map(supply => supply.uuid);
 
     const formData = {

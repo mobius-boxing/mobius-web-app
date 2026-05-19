@@ -57,17 +57,13 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   };
 
   const onSubmit = handleSubmit((data) => {
-    // Determine companyId based on role and user
     let companyId: string | undefined;
 
     if (data.role === 'superAdmin') {
-      // SuperAdmins don't need a company
       companyId = undefined;
     } else if (currentUser?.role === 'superAdmin') {
-      // SuperAdmin creating non-superAdmin user
       companyId = data.companyId;
     } else {
-      // Regular admin creating user in their company
       companyId = currentUser?.companyId;
     }
 
