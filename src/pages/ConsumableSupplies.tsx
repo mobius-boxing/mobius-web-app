@@ -7,11 +7,13 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateConsumableSupplyModal from '../components/modals/CreateConsumableSupplyModal';
 import EditConsumableSupplyModal from '../components/modals/EditConsumableSupplyModal';
+import { logger } from '../utils/logger';
 
 const ConsumableSupplies: React.FC = () => {
   const { t } = useTranslation();
@@ -34,6 +36,7 @@ const ConsumableSupplies: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<ConsumableSupply>({
     fetchFn: fetchConsumableSupplies,
     searchFields: ['code', 'name', 'description'],
@@ -65,7 +68,7 @@ const ConsumableSupplies: React.FC = () => {
       setSelectedConsumableSupply(null);
       await refresh();
     } catch (error) {
-      console.error('Error deleting consumable supply:', error);
+      logger.error('Error deleting consumable supply:', error);
     } finally {
       setActionLoading(false);
     }
@@ -223,11 +226,14 @@ const ConsumableSupplies: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={consumableSupplies}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={consumableSupplies}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

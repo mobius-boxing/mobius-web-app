@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperStockModal from '../components/modals/CreatePaperStockModal';
 import EditPaperStockModal from '../components/modals/EditPaperStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const PaperStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const PaperStockPage: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<PaperStock>({
     fetchFn: fetchPaperStock,
     searchFields: ['comments'],
@@ -63,7 +66,7 @@ const PaperStockPage: React.FC = () => {
           await paperStockApi.deletePaperStock(stockId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting paper stock:', error);
+          logger.error('Error deleting paper stock:', error);
         } finally {
           setActionLoading(null);
         }
@@ -225,11 +228,14 @@ const PaperStockPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={paperStock}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={paperStock}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

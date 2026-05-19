@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateCustomerCategoryModal from '../components/modals/CreateCustomerCategoryModal';
 import EditCustomerCategoryModal from '../components/modals/EditCustomerCategoryModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const CustomerCategories: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const CustomerCategories: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<CustomerCategory>({
     fetchFn: fetchCategories,
     searchFields: ['name'],
@@ -63,7 +66,7 @@ const CustomerCategories: React.FC = () => {
           await customerCategoriesApi.deleteCategory(category.uuid);
           await refresh();
         } catch (error) {
-          console.error('Error deleting customer category:', error);
+          logger.error('Error deleting customer category:', error);
         } finally {
           setActionLoading(null);
         }
@@ -196,11 +199,14 @@ const CustomerCategories: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={categories}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={categories}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

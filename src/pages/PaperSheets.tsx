@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperSheetModal from '../components/modals/CreatePaperSheetModal';
 import EditPaperSheetModal from '../components/modals/EditPaperSheetModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const PaperSheets: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const PaperSheets: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<PaperSheet>({
     fetchFn: fetchPaperSheets,
     searchFields: ['code', 'name', 'description'],
@@ -63,7 +66,7 @@ const PaperSheets: React.FC = () => {
           await paperSheetsApi.deletePaperSheet(paperSheetId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting paper sheet:', error);
+          logger.error('Error deleting paper sheet:', error);
         } finally {
           setActionLoading(null);
         }
@@ -236,11 +239,14 @@ const PaperSheets: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={paperSheets}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={paperSheets}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

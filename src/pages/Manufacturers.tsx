@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateManufacturerModal from '../components/modals/CreateManufacturerModal';
 import EditManufacturerModal from '../components/modals/EditManufacturerModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const Manufacturers: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const Manufacturers: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<Manufacturer>({
     fetchFn: fetchManufacturers,
     searchFields: ['code', 'name'],
@@ -63,7 +66,7 @@ const Manufacturers: React.FC = () => {
           await manufacturersApi.deleteManufacturer(manufacturerId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting manufacturer:', error);
+          logger.error('Error deleting manufacturer:', error);
         } finally {
           setActionLoading(null);
         }
@@ -198,11 +201,14 @@ const Manufacturers: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={manufacturers}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={manufacturers}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

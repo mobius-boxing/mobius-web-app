@@ -7,11 +7,13 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateCorrugationClassModal from '../components/modals/CreateCorrugationClassModal';
 import EditCorrugationClassModal from '../components/modals/EditCorrugationClassModal';
+import { logger } from '../utils/logger';
 
 const CorrugationClasses: React.FC = () => {
   const { t } = useTranslation();
@@ -35,6 +37,7 @@ const CorrugationClasses: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<CorrugationClass>({
     fetchFn: fetchCorrugationClasses,
     searchFields: ['code', 'description'],
@@ -66,7 +69,7 @@ const CorrugationClasses: React.FC = () => {
       setSelectedCorrugationClass(null);
       await refresh();
     } catch (error) {
-      console.error('Error deleting corrugation class:', error);
+      logger.error('Error deleting corrugation class:', error);
     } finally {
       setActionLoading(false);
     }
@@ -206,11 +209,14 @@ const CorrugationClasses: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={corrugationClasses}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={corrugationClasses}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

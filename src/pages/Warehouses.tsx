@@ -7,6 +7,7 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -15,6 +16,7 @@ import EditWarehouseModal from '../components/modals/EditWarehouseModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import WarehouseGridEditorModal from '../components/modals/WarehouseGridEditorModal';
 import WarehouseStockViewModal from '../components/modals/WarehouseStockViewModal';
+import { logger } from '../utils/logger';
 
 const Warehouses: React.FC = () => {
   const { t } = useTranslation();
@@ -40,6 +42,7 @@ const Warehouses: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<Warehouse>({
     fetchFn: fetchWarehouses,
     searchFields: ['name'],
@@ -67,7 +70,7 @@ const Warehouses: React.FC = () => {
           await warehousesApi.deleteWarehouse(warehouseId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting warehouse:', error);
+          logger.error('Error deleting warehouse:', error);
         } finally {
           setActionLoading(null);
         }
@@ -229,11 +232,14 @@ const Warehouses: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={warehouses}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={warehouses}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

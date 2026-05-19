@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateStrappingTypeModal from '../components/modals/CreateStrappingTypeModal';
 import EditStrappingTypeModal from '../components/modals/EditStrappingTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const StrappingTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const StrappingTypes: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<StrappingType>({
     fetchFn: fetchStrappingTypes,
     searchFields: ['code', 'description'],
@@ -63,7 +66,7 @@ const StrappingTypes: React.FC = () => {
           await strappingTypesApi.deleteStrappingType(strappingTypeId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting strapping type:', error);
+          logger.error('Error deleting strapping type:', error);
         } finally {
           setActionLoading(null);
         }
@@ -200,11 +203,14 @@ const StrappingTypes: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={strappingTypes}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={strappingTypes}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

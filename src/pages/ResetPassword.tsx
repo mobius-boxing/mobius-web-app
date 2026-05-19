@@ -6,6 +6,7 @@ import { Lock, Eye, EyeOff, CheckCircle } from 'lucide-react';
 import { authApi } from '../services/api';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { logger } from '../utils/logger';
 
 interface ResetPasswordForm {
   newPassword: string;
@@ -59,7 +60,7 @@ const ResetPassword: React.FC = () => {
         navigate('/login');
       }, 3000);
     } catch (err: any) {
-      console.error('Password reset error:', err);
+      logger.error('Password reset error:', err);
       setError(
         err.response?.data?.message ||
         t('resetPassword.resetFailed')

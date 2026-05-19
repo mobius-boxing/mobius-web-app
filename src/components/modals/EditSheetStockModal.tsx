@@ -11,6 +11,7 @@ import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { useModalForm } from '../../hooks/useModalForm';
 import { MapPin, X } from 'lucide-react';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { logger } from '../../utils/logger';
 
 interface EditSheetStockModalProps {
   isOpen: boolean;
@@ -105,7 +106,7 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
       setWarehouses(warehousesRes.data || []);
       setPaperSheets(paperSheetsRes.data || []);
     } catch (error) {
-      console.error('Error fetching dropdown data:', error);
+      logger.error('Error fetching dropdown data:', error);
     } finally {
       setDropdownsLoaded(true);
     }

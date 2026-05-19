@@ -25,6 +25,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { NavItem } from '../../types';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 import CompanySwitcher from '../ui/CompanySwitcher';
+import { logger } from '../../utils/logger';
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
 
@@ -384,7 +385,7 @@ const Sidebar: React.FC = () => {
     try {
       await logout();
     } catch (error) {
-      console.error('Logout error:', error);
+      logger.error('Logout error:', error);
     }
   };
 

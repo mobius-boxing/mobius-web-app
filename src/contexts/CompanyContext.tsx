@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useCa
 import { Company } from '../types';
 import { companiesApi } from '../services/api';
 import { useAuth } from './AuthContext';
+import { logger } from '../utils/logger';
 
 interface CompanyContextType {
   selectedCompany: Company | null;
@@ -69,7 +70,7 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
 
       setSelectedCompany(companyToSelect);
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      logger.error('Error fetching companies:', error);
       setCompanies([]);
     } finally {
       setIsLoading(false);

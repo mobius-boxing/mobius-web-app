@@ -11,6 +11,7 @@ import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { MapPin, X } from 'lucide-react';
+import { logger } from '../../utils/logger';
 
 interface CreateConsumableStockModalProps {
   isOpen: boolean;
@@ -76,7 +77,7 @@ const CreateConsumableStockModal: React.FC<CreateConsumableStockModalProps> = ({
       setWarehouses(warehousesRes.data || []);
       setConsumableSupplies(consumableSuppliesRes.data || []);
     } catch (error) {
-      console.error('Error fetching dropdown data:', error);
+      logger.error('Error fetching dropdown data:', error);
     }
   };
 

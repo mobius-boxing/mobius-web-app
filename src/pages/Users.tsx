@@ -7,12 +7,14 @@ import { usersApi, companiesApi } from '../services/api';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import InviteUserModal from '../components/modals/InviteUserModal';
 import EditUserModal from '../components/modals/EditUserModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const Users: React.FC = () => {
   const { t } = useTranslation();
@@ -34,6 +36,7 @@ const Users: React.FC = () => {
     setSearch,
     refresh,
     setFilters,
+    paginationProps,
   } = useEntityList<User>({
     fetchFn: usersApi.getUsers,
     searchFields: ['email', 'firstName', 'lastName', 'companyName'],
@@ -45,7 +48,7 @@ const Users: React.FC = () => {
       companiesApi.getCompanies().then((response) => {
         setCompanies(response.data);
       }).catch((error) => {
-        console.error('Error fetching companies:', error);
+        logger.error('Error fetching companies:', error);
       });
     }
   }, [currentUser?.role]);
@@ -70,7 +73,7 @@ const Users: React.FC = () => {
           await usersApi.deleteUser(user.uuid);
           await refresh();
         } catch (error) {
-          console.error('Error deleting user:', error);
+          logger.error('Error deleting user:', error);
         } finally {
           setActionLoading(null);
         }
@@ -267,11 +270,14 @@ const Users: React.FC = () => {
               <p className="text-secondary-600 mt-4">Loading users...</p>
             </div>
           ) : (
-            <Table
-              data={filteredUsers}
-              columns={columns}
-              emptyMessage="No users found"
-            />
+            <>
+              <Table
+                data={filteredUsers}
+                columns={columns}
+                emptyMessage="No users found"
+              />
+              <Pagination {...paginationProps} />
+            </>
           )}
         </div>
       </div>

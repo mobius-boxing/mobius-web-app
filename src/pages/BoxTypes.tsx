@@ -14,6 +14,7 @@ import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateBoxTypeModal from '../components/modals/CreateBoxTypeModal';
 import EditBoxTypeModal from '../components/modals/EditBoxTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const BoxTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -36,8 +37,7 @@ const BoxTypes: React.FC = () => {
     setSearch,
     refresh,
     pagination,
-    setPage,
-    setLimit,
+    paginationProps,
     sortBy,
     sortOrder,
     setSort,
@@ -67,7 +67,7 @@ const BoxTypes: React.FC = () => {
           await boxTypesApi.deleteBoxType(uuid);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting box type:', error);
+          logger.error('Error deleting box type:', error);
         } finally {
           setActionLoading(null);
         }
@@ -217,14 +217,7 @@ const BoxTypes: React.FC = () => {
                   sortOrder={sortOrder}
                   onSort={handleSort}
                 />
-                <Pagination
-                  page={pagination.page}
-                  totalPages={pagination.totalPages}
-                  total={pagination.total}
-                  limit={pagination.limit}
-                  onPageChange={setPage}
-                  onLimitChange={setLimit}
-                />
+                <Pagination {...paginationProps} />
               </>
             )}
           </div>

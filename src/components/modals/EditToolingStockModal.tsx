@@ -11,6 +11,7 @@ import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { MapPin, X } from 'lucide-react';
+import { logger } from '../../utils/logger';
 
 interface EditToolingStockModalProps {
   isOpen: boolean;
@@ -89,7 +90,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
       setWarehouses(warehousesRes.data || []);
       setToolings(toolingsRes.data || []);
     } catch (error) {
-      console.error('Error fetching dropdown data:', error);
+      logger.error('Error fetching dropdown data:', error);
     }
   };
 

@@ -8,6 +8,7 @@ import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { logger } from '../../utils/logger';
 
 interface CreateCorrugationModalProps {
   isOpen: boolean;
@@ -51,7 +52,7 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
       const response = await corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter });
       setCorrugationClasses(response.data || []);
     } catch (error) {
-      console.error('Error fetching corrugation classes:', error);
+      logger.error('Error fetching corrugation classes:', error);
     }
   };
 

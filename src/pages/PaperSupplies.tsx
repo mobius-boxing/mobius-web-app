@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperSupplyModal from '../components/modals/CreatePaperSupplyModal';
 import EditPaperSupplyModal from '../components/modals/EditPaperSupplyModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const PaperSupplies: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const PaperSupplies: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<PaperSupply>({
     fetchFn: fetchPaperSupplies,
     searchFields: ['code', 'name', 'description'],
@@ -63,7 +66,7 @@ const PaperSupplies: React.FC = () => {
           await paperSuppliesApi.deletePaperSupply(paperSupplyId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting paper supply:', error);
+          logger.error('Error deleting paper supply:', error);
         } finally {
           setActionLoading(null);
         }
@@ -245,11 +248,14 @@ const PaperSupplies: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={paperSupplies}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={paperSupplies}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

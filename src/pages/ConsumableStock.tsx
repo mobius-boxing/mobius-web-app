@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateConsumableStockModal from '../components/modals/CreateConsumableStockModal';
 import EditConsumableStockModal from '../components/modals/EditConsumableStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const ConsumableStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -35,6 +37,7 @@ const ConsumableStockPage: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<ConsumableStock>({
     fetchFn: fetchConsumableStock,
     searchFields: ['comments'],
@@ -62,7 +65,7 @@ const ConsumableStockPage: React.FC = () => {
           await consumableStockApi.deleteConsumableStock(stockId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting consumable stock:', error);
+          logger.error('Error deleting consumable stock:', error);
         } finally {
           setActionLoading(null);
         }
@@ -221,11 +224,14 @@ const ConsumableStockPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={consumableStock}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={consumableStock}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

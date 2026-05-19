@@ -7,6 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { LoginCredentials } from '../types';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { logger } from '../utils/logger';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
@@ -33,7 +34,7 @@ const Login: React.FC = () => {
       await login(data);
       navigate(from, { replace: true });
     } catch (err: any) {
-      console.error('Login error:', err);
+      logger.error('Login error:', err);
       setError(
         err.response?.data?.message ||
         t('login.loginFailed')

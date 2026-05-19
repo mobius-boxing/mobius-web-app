@@ -7,6 +7,7 @@ import Button from '../ui/Button';
 import ConfirmModal from '../ui/ConfirmModal';
 import { useConfirmModal } from '../../hooks/useConfirmModal';
 import { Package, Truck, AlertCircle, Archive, Box } from 'lucide-react';
+import { logger } from '../../utils/logger';
 
 interface WarehouseGridEditorModalProps {
   isOpen: boolean;
@@ -94,7 +95,7 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
       setLocations(data);
       setChanges(new Map());
     } catch (err: any) {
-      console.error('Error fetching warehouse locations:', err);
+      logger.error('Error fetching warehouse locations:', err);
       setError(err.response?.data?.message || 'Failed to load warehouse locations');
     } finally {
       setLoading(false);
@@ -233,7 +234,7 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
       setGridCols(newGridCols);
       await fetchLocations();
     } catch (err: any) {
-      console.error('Error resizing warehouse grid:', err);
+      logger.error('Error resizing warehouse grid:', err);
       setError(err.response?.data?.message || t('warehouses.grid.errors.resizeFailed'));
     } finally {
       setResizing(false);
@@ -254,7 +255,7 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
       onSuccess();
       onClose();
     } catch (err: any) {
-      console.error('Error saving warehouse locations:', err);
+      logger.error('Error saving warehouse locations:', err);
       setError(err.response?.data?.message || t('warehouses.grid.errors.saveFailed'));
     } finally {
       setSaving(false);

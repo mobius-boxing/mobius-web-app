@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { authApi } from '../services/api';
 import { AcceptInvitationForm, ApiError, Invitation } from '../types';
+import { logger } from '../utils/logger';
 
 const AcceptInvitation: React.FC = () => {
   const { t } = useTranslation();
@@ -37,7 +38,7 @@ const AcceptInvitation: React.FC = () => {
         // For now, we'll just store the token and validate when submitting
         setLoading(false);
       } catch (err) {
-        console.error('Failed to validate invitation:', err);
+        logger.error('Failed to validate invitation:', err);
         setError(t('invitation.invalidExpired'));
         setLoading(false);
       }
@@ -129,7 +130,7 @@ const AcceptInvitation: React.FC = () => {
       // Redirect to dashboard - the user state will be updated by AuthProvider
       window.location.href = '/dashboard';
     } catch (err) {
-      console.error('Failed to accept invitation:', err);
+      logger.error('Failed to accept invitation:', err);
       const apiError = err as { response?: { data?: ApiError } };
       setError(apiError.response?.data?.message || t('invitation.validation.acceptFailed'));
     } finally {

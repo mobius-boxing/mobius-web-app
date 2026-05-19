@@ -8,6 +8,7 @@ import { useModalForm } from '../../hooks/useModalForm';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { logger } from '../../utils/logger';
 
 interface CreatePaperSupplyModalProps {
   isOpen: boolean;
@@ -59,7 +60,7 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
       setSuppliers(suppliersRes.data || []);
       setPaperTypes(paperTypesRes.data || []);
     } catch (error) {
-      console.error('Error fetching dropdown data:', error);
+      logger.error('Error fetching dropdown data:', error);
     }
   };
 

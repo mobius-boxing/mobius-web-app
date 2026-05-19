@@ -163,6 +163,7 @@ export const usersApi = {
   getUsers: async (params: {
     page?: number;
     limit?: number;
+    search?: string;
     role?: string;
     isActive?: boolean;
     companyId?: string;
@@ -223,6 +224,7 @@ export const companiesApi = {
   getCompanies: async (params: {
     page?: number;
     limit?: number;
+    search?: string;
     isActive?: boolean;
   } = {}): Promise<PaginatedResponse<Company>> => {
     const response = await api.get('/api/companies', { params });
@@ -288,6 +290,7 @@ export const invitationsApi = {
   getInvitations: async (params: {
     page?: number;
     limit?: number;
+    search?: string;
     isUsed?: boolean;
     includeExpired?: boolean;
     companyId?: string;

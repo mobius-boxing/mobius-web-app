@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperTypeModal from '../components/modals/CreatePaperTypeModal';
 import EditPaperTypeModal from '../components/modals/EditPaperTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const PaperTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const PaperTypes: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<PaperType>({
     fetchFn: fetchPaperTypes,
     searchFields: ['code', 'description'],
@@ -63,7 +66,7 @@ const PaperTypes: React.FC = () => {
           await paperTypesApi.deletePaperType(paperTypeId);
           await refresh();
         } catch (error) {
-          console.error('Error deleting paper type:', error);
+          logger.error('Error deleting paper type:', error);
         } finally {
           setActionLoading(null);
         }
@@ -205,11 +208,14 @@ const PaperTypes: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={paperTypes}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={paperTypes}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

@@ -11,6 +11,7 @@ import { ModalFooter } from '../ui/ModalFooter';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { MapPin, X } from 'lucide-react';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { logger } from '../../utils/logger';
 
 interface CreateSheetStockModalProps {
   isOpen: boolean;
@@ -77,7 +78,7 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
       setWarehouses(warehousesRes.data || []);
       setPaperSheets(paperSheetsRes.data || []);
     } catch (error) {
-      console.error('Error fetching dropdown data:', error);
+      logger.error('Error fetching dropdown data:', error);
     }
   };
 

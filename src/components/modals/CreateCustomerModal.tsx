@@ -7,6 +7,7 @@ import { CreateCustomerForm, CustomerCategory, User, ContactInfo, DeliveryLocati
 import { customersApi, customerCategoriesApi, usersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
+import { logger } from '../../utils/logger';
 
 interface CreateCustomerModalProps {
   isOpen: boolean;
@@ -59,7 +60,7 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
       const usersResponse = await usersApi.getUsers({ limit: 100, ...companyFilter });
       setSalesPersons(usersResponse.data || []);
     } catch (error) {
-      console.error('Error fetching dropdown data:', error);
+      logger.error('Error fetching dropdown data:', error);
     }
   };
 

@@ -8,6 +8,7 @@ import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { logger } from '../../utils/logger';
 
 interface EditCorrugationModalProps {
   isOpen: boolean;
@@ -70,7 +71,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
       const response = await corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter });
       setCorrugationClasses(response.data || []);
     } catch (error) {
-      console.error('Error fetching corrugation classes:', error);
+      logger.error('Error fetching corrugation classes:', error);
     } finally {
       setDropdownsLoaded(true);
     }

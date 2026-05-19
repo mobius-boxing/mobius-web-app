@@ -7,11 +7,13 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateToolingModal from '../components/modals/CreateToolingModal';
 import EditToolingModal from '../components/modals/EditToolingModal';
+import { logger } from '../utils/logger';
 
 const Toolings: React.FC = () => {
   const { t } = useTranslation();
@@ -35,6 +37,7 @@ const Toolings: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<Tooling>({
     fetchFn: fetchToolings,
     searchFields: ['name', 'description'],
@@ -66,7 +69,7 @@ const Toolings: React.FC = () => {
       setSelectedTooling(null);
       await refresh();
     } catch (error) {
-      console.error('Error deleting tooling:', error);
+      logger.error('Error deleting tooling:', error);
     } finally {
       setActionLoading(false);
     }
@@ -227,11 +230,14 @@ const Toolings: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={toolings}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={toolings}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

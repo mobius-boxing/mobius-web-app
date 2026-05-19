@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateSupplierModal from '../components/modals/CreateSupplierModal';
 import EditSupplierModal from '../components/modals/EditSupplierModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const Suppliers: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const Suppliers: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<Supplier>({
     fetchFn: fetchSuppliers,
     searchFields: ['code'],
@@ -63,7 +66,7 @@ const Suppliers: React.FC = () => {
           await suppliersApi.deleteSupplier(supplierId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting supplier:', error);
+          logger.error('Error deleting supplier:', error);
         } finally {
           setActionLoading(null);
         }
@@ -231,11 +234,14 @@ const Suppliers: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={suppliers}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={suppliers}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

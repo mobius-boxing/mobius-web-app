@@ -5,6 +5,7 @@ import { UserStats, CompanyStats, InvitationStats } from '../types';
 import { usersApi, companiesApi, invitationsApi } from '../services/api';
 import Card from '../components/ui/Card';
 import Layout from '../components/layout/Layout';
+import { logger } from '../utils/logger';
 
 interface StatCardProps {
   title: string;
@@ -88,7 +89,7 @@ const Dashboard: React.FC = () => {
         }
         // Members see limited dashboard
       } catch (error) {
-        console.error('Error fetching dashboard stats:', error);
+        logger.error('Error fetching dashboard stats:', error);
       } finally {
         setLoading(false);
       }

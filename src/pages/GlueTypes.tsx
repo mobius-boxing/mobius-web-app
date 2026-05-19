@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateGlueTypeModal from '../components/modals/CreateGlueTypeModal';
 import EditGlueTypeModal from '../components/modals/EditGlueTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const GlueTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const GlueTypes: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<GlueType>({
     fetchFn: fetchGlueTypes,
     searchFields: ['code', 'description'],
@@ -63,7 +66,7 @@ const GlueTypes: React.FC = () => {
           await glueTypesApi.deleteGlueType(glueTypeId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting glue type:', error);
+          logger.error('Error deleting glue type:', error);
         } finally {
           setActionLoading(null);
         }
@@ -200,11 +203,14 @@ const GlueTypes: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={glueTypes}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={glueTypes}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

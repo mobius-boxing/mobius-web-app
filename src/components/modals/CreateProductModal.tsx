@@ -8,6 +8,7 @@ import { useModalForm } from '../../hooks/useModalForm';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { logger } from '../../utils/logger';
 
 interface CreateProductModalProps {
   isOpen: boolean;
@@ -59,7 +60,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
       setProductTypes(productTypesRes.data || []);
       setBoxTypes(boxTypesRes.data || []);
     } catch (error) {
-      console.error('Error fetching dropdown data:', error);
+      logger.error('Error fetching dropdown data:', error);
     }
   };
 

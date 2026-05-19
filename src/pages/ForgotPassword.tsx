@@ -6,6 +6,7 @@ import { Mail, ArrowLeft } from 'lucide-react';
 import { authApi } from '../services/api';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { logger } from '../utils/logger';
 
 interface ForgotPasswordForm {
   email: string;
@@ -33,7 +34,7 @@ const ForgotPassword: React.FC = () => {
       await authApi.requestPasswordReset(data.email);
       setSuccess(true);
     } catch (err: any) {
-      console.error('Password reset request error:', err);
+      logger.error('Password reset request error:', err);
       setError(
         err.response?.data?.message ||
         t('forgotPassword.requestFailed')

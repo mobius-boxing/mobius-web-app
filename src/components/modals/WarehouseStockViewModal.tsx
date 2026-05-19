@@ -6,6 +6,7 @@ import { warehousesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { Package, Truck, AlertCircle, Archive, Box, ExternalLink, FileText, Layers } from 'lucide-react';
+import { logger } from '../../utils/logger';
 
 interface WarehouseStockViewModalProps {
   isOpen: boolean;
@@ -84,7 +85,7 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
       setUnassignedPaperStock(stockData.unassignedPaperStock || []);
       setUnassignedSheetStock(stockData.unassignedSheetStock || []);
     } catch (err: any) {
-      console.error('Error fetching warehouse data:', err);
+      logger.error('Error fetching warehouse data:', err);
       setError(err.response?.data?.message || t('warehouses.stockView.fetchError'));
     } finally {
       setLoading(false);

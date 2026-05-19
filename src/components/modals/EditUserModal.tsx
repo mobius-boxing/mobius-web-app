@@ -7,6 +7,7 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { logger } from '../../utils/logger';
 
 interface EditUserModalProps {
   isOpen: boolean;
@@ -78,7 +79,7 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
       const companiesResponse = await companiesApi.getCompanies();
       setCompanies(companiesResponse.data);
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      logger.error('Error fetching companies:', error);
     }
   };
 

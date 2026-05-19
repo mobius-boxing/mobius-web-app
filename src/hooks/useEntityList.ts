@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PaginatedResponse } from '../types';
+import { logger } from '../utils/logger';
 
 /**
  * Parameters for fetching data
@@ -40,6 +41,18 @@ export interface PaginationState {
 }
 
 /**
+ * Props ready to spread into <Pagination />
+ */
+export interface PaginationProps {
+  page: number;
+  totalPages: number;
+  total: number;
+  limit: number;
+  onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
+}
+
+/**
  * Return type of the useEntityList hook
  */
 export interface UseEntityListReturn<T> {
@@ -53,6 +66,8 @@ export interface UseEntityListReturn<T> {
   error: string | null;
   /** Current pagination state */
   pagination: PaginationState;
+  /** Props ready to spread into <Pagination /> */
+  paginationProps: PaginationProps;
   /** Current search term */
   search: string;
   /** Current sort field */
@@ -87,10 +102,10 @@ export interface UseEntityListReturn<T> {
  * Extracts the repeated pattern from list pages:
  * - Data fetching with loading/error states
  * - Pagination state (page, limit, total, totalPages)
- * - Search state
+ * - Search state (debounced 300ms for server-side fetch)
  * - Sort state (sortBy, sortOrder)
  * - Filter state
- * - Client-side search filtering
+ * - Client-side search filtering (fallback while server response is in-flight)
  *
  * @example
  * ```tsx
@@ -103,7 +118,7 @@ export interface UseEntityListReturn<T> {
  *     search,
  *     setSearch,
  *     refresh,
- *     pagination,
+ *     paginationProps,
  *   } = useEntityList<Supplier>({
  *     fetchFn: suppliersApi.getSuppliers,
  *     searchFields: ['code'],
@@ -113,7 +128,7 @@ export interface UseEntityListReturn<T> {
  *     <Layout>
  *       <SearchInput value={search} onChange={setSearch} />
  *       <Table data={suppliers} loading={loading} />
- *       <Pagination {...pagination} onPageChange={setPage} />
+ *       <Pagination {...paginationProps} />
  *     </Layout>
  *   );
  * };
@@ -136,16 +151,68 @@ export function useEntityList<T extends object>(
   const [error, setError] = useState<string | null>(null);
 
   // Pagination state
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(initialLimit);
+  const [page, setPageState] = useState(1);
+  const [limit, setLimitState] = useState(initialLimit);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
 
   // Filter/sort state
-  const [search, setSearch] = useState('');
+  const [search, setSearchState] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [sortBy, setSortBy] = useState<string | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
-  const [filters, setFilters] = useState<Record<string, unknown>>(defaultFilters);
+  const [filters, setFiltersState] = useState<Record<string, unknown>>(defaultFilters);
+
+  // Debounce search for server-side fetching (300ms)
+  useEffect(() => {
+    const handle = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(handle);
+  }, [search]);
+
+  /**
+   * Set current page
+   */
+  const setPage = useCallback((next: number) => {
+    setPageState(next);
+  }, []);
+
+  /**
+   * Set items per page (resets to page 1)
+   */
+  const setLimit = useCallback((next: number) => {
+    setLimitState(next);
+    setPageState(1);
+  }, []);
+
+  /**
+   * Set search term (resets to page 1)
+   */
+  const setSearch = useCallback((next: string) => {
+    setSearchState(next);
+    setPageState(1);
+  }, []);
+
+  /**
+   * Set sort field and order (resets to page 1)
+   */
+  const setSort = useCallback(
+    (newSortBy: string | null, newSortOrder: 'asc' | 'desc' = 'asc') => {
+      setSortBy(newSortBy);
+      setSortOrder(newSortOrder);
+      setPageState(1);
+    },
+    []
+  );
+
+  /**
+   * Set additional filters (resets to page 1)
+   */
+  const setFilters = useCallback((next: Record<string, unknown>) => {
+    setFiltersState(next);
+    setPageState(1);
+  }, []);
 
   /**
    * Fetch data from API
@@ -166,7 +233,7 @@ export function useEntityList<T extends object>(
         };
 
         // Only add optional params if they have values
-        if (search) params.search = search;
+        if (debouncedSearch) params.search = debouncedSearch;
         if (sortBy) params.sortBy = sortBy;
         if (sortBy) params.sortOrder = sortOrder;
 
@@ -178,10 +245,10 @@ export function useEntityList<T extends object>(
 
         // Update page from response if different (e.g., server corrected invalid page)
         if (response.page && response.page !== page) {
-          setPage(response.page);
+          setPageState(response.page);
         }
       } catch (err: unknown) {
-        console.error('Fetch error:', err);
+        logger.error('Fetch error:', err);
 
         let errorMessage = 'Failed to fetch data';
         if (err && typeof err === 'object') {
@@ -201,7 +268,7 @@ export function useEntityList<T extends object>(
         setLoading(false);
       }
     },
-    [fetchFn, page, limit, search, sortBy, sortOrder, filters, defaultFilters]
+    [fetchFn, page, limit, debouncedSearch, sortBy, sortOrder, filters, defaultFilters]
   );
 
   /**
@@ -210,30 +277,22 @@ export function useEntityList<T extends object>(
   const refresh = useCallback(() => fetch(), [fetch]);
 
   /**
-   * Set sort field and order
-   */
-  const setSort = useCallback(
-    (newSortBy: string | null, newSortOrder: 'asc' | 'desc' = 'asc') => {
-      setSortBy(newSortBy);
-      setSortOrder(newSortOrder);
-    },
-    []
-  );
-
-  /**
    * Clear all filters and search
    */
   const clearFilters = useCallback(() => {
-    setSearch('');
+    setSearchState('');
     setSortBy(null);
     setSortOrder('asc');
-    setFilters(defaultFilters);
-    setPage(1);
+    setFiltersState(defaultFilters);
+    setPageState(1);
   }, [defaultFilters]);
 
   /**
    * Client-side filtered data
-   * Only applies if searchFields are provided
+   * Only applies if searchFields are provided.
+   * Kept as a fallback to avoid a flash of stale unfiltered rows while the
+   * server-side search request is in-flight. When the server returns
+   * already-narrowed data this is a no-op.
    */
   const filteredData = useMemo(() => {
     if (!search.trim() || searchFields.length === 0) {
@@ -256,7 +315,7 @@ export function useEntityList<T extends object>(
       fetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit, sortBy, sortOrder, JSON.stringify(filters)]);
+  }, [page, limit, sortBy, sortOrder, JSON.stringify(filters), debouncedSearch]);
 
   return {
     data,
@@ -264,6 +323,14 @@ export function useEntityList<T extends object>(
     loading,
     error,
     pagination: { page, limit, total, totalPages },
+    paginationProps: {
+      page,
+      totalPages,
+      total,
+      limit,
+      onPageChange: setPage,
+      onLimitChange: setLimit,
+    },
     search,
     sortBy,
     sortOrder,

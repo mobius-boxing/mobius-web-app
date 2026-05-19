@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateFluteTypeModal from '../components/modals/CreateFluteTypeModal';
 import EditFluteTypeModal from '../components/modals/EditFluteTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const FluteTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const FluteTypes: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<FluteType>({
     fetchFn: fetchFluteTypes,
     searchFields: ['code', 'description'],
@@ -63,7 +66,7 @@ const FluteTypes: React.FC = () => {
           await fluteTypesApi.deleteFluteType(fluteTypeId);
           await refresh();
         } catch (error) {
-          console.error('Error deleting flute type:', error);
+          logger.error('Error deleting flute type:', error);
         } finally {
           setActionLoading(null);
         }
@@ -214,11 +217,14 @@ const FluteTypes: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={fluteTypes}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={fluteTypes}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

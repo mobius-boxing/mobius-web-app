@@ -6,6 +6,7 @@ import { customersApi, customerCategoriesApi, usersApi } from '../../services/ap
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
 import { useModalForm } from '../../hooks/useModalForm';
+import { logger } from '../../utils/logger';
 
 interface EditCustomerModalProps {
   isOpen: boolean;
@@ -79,7 +80,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
       setCategories(categoriesResponse.data || []);
       setSalesPersons(usersResponse.data || []);
     } catch (error) {
-      console.error('Error fetching dropdown data:', error);
+      logger.error('Error fetching dropdown data:', error);
     } finally {
       setDropdownsLoaded(true);
     }

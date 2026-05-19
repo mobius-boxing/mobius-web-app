@@ -8,6 +8,7 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { logger } from '../../utils/logger';
 
 interface CreateToolingModalProps {
   isOpen: boolean;
@@ -58,7 +59,7 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
       setManufacturers(manufacturersRes.data || []);
       setSuppliers(suppliersRes.data || []);
     } catch (err) {
-      console.error('Error fetching dropdown data:', err);
+      logger.error('Error fetching dropdown data:', err);
     }
   };
 

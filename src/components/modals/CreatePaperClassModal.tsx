@@ -8,6 +8,7 @@ import DualListSelector from '../ui/DualListSelector';
 import { useModalForm } from '../../hooks/useModalForm';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { logger } from '../../utils/logger';
 
 interface CreatePaperClassModalProps {
   isOpen: boolean;
@@ -62,7 +63,7 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
       setAvailableSupplies(response.data);
       setAssignedSupplies([]);
     } catch (err: any) {
-      console.error('Error fetching paper supplies:', err);
+      logger.error('Error fetching paper supplies:', err);
       setError('Failed to load paper supplies');
     } finally {
       setLoadingSupplies(false);

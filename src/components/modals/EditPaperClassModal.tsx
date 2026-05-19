@@ -8,6 +8,7 @@ import Input from '../ui/Input';
 import DualListSelector from '../ui/DualListSelector';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { logger } from '../../utils/logger';
 
 interface EditPaperClassModalProps {
   isOpen: boolean;
@@ -82,7 +83,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
       setAssignedSupplies(assigned);
       setAvailableSupplies(available);
     } catch (err: unknown) {
-      console.error('Error fetching paper supplies:', err);
+      logger.error('Error fetching paper supplies:', err);
       setError('Failed to load paper supplies');
     } finally {
       setLoadingSupplies(false);

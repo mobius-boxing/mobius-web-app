@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperClassModal from '../components/modals/CreatePaperClassModal';
 import EditPaperClassModal from '../components/modals/EditPaperClassModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const PaperClasses: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const PaperClasses: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<PaperClass>({
     fetchFn: fetchPaperClasses,
     searchFields: ['code', 'name'],
@@ -63,7 +66,7 @@ const PaperClasses: React.FC = () => {
           await paperClassesApi.deletePaperClass(paperClassId);
           await refresh();
         } catch (error) {
-          console.error('Error deleting paper class:', error);
+          logger.error('Error deleting paper class:', error);
         } finally {
           setActionLoading(null);
         }
@@ -205,11 +208,14 @@ const PaperClasses: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={paperClasses}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={paperClasses}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

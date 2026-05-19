@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateComplementModal from '../components/modals/CreateComplementModal';
 import EditComplementModal from '../components/modals/EditComplementModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const Complements: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const Complements: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<Complement>({
     fetchFn: fetchComplements,
     searchFields: ['code', 'description'],
@@ -63,7 +66,7 @@ const Complements: React.FC = () => {
           await complementsApi.deleteComplement(complementId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting complement:', error);
+          logger.error('Error deleting complement:', error);
         } finally {
           setActionLoading(null);
         }
@@ -200,11 +203,14 @@ const Complements: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={complements}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={complements}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

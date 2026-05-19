@@ -7,12 +7,14 @@ import { companiesApi } from '../services/api';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateCompanyModal from '../components/modals/CreateCompanyModal';
 import EditCompanyModal from '../components/modals/EditCompanyModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const Companies: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -30,6 +32,7 @@ const Companies: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<Company>({
     fetchFn: companiesApi.getCompanies,
     searchFields: ['name', 'description'],
@@ -51,7 +54,7 @@ const Companies: React.FC = () => {
           await companiesApi.deleteCompany(company.uuid);
           await refresh();
         } catch (error) {
-          console.error('Error deleting company:', error);
+          logger.error('Error deleting company:', error);
         } finally {
           setActionLoading(null);
         }
@@ -65,7 +68,7 @@ const Companies: React.FC = () => {
       await companiesApi.updateCompanyStatus(company.uuid, !company.isActive);
       await refresh();
     } catch (error) {
-      console.error('Error updating company status:', error);
+      logger.error('Error updating company status:', error);
       alert(t('companies.statusUpdateFailed'));
     } finally {
       setActionLoading(null);
@@ -237,11 +240,14 @@ const Companies: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={companies}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={companies}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

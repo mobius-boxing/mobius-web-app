@@ -6,6 +6,7 @@ import {
   FieldValues,
   UseFormProps,
 } from 'react-hook-form';
+import { logger } from '../utils/logger';
 
 /**
  * Options for configuring the useModalForm hook
@@ -118,7 +119,7 @@ export function useModalForm<T extends FieldValues>(
           form.reset();
           onSuccess?.();
         } catch (err: unknown) {
-          console.error('Form submission error:', err);
+          logger.error('Form submission error:', err);
 
           // Extract error message from various error formats
           let errorMessage = 'An error occurred';

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { AuthUser, LoginCredentials, LoginResponse } from '../types';
 import { authApi } from '../services/api';
+import { logger } from '../utils/logger';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -72,7 +73,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       await authApi.logout();
     } catch (error) {
       // Even if logout fails on server, clear local state
-      console.error('Logout error:', error);
+      logger.error('Logout error:', error);
     } finally {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');

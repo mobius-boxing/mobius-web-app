@@ -5,6 +5,7 @@ import { warehousesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { Package, Truck, AlertCircle, Archive, MapPin } from 'lucide-react';
+import { logger } from '../../utils/logger';
 
 interface WarehouseLocationSelectorModalProps {
   isOpen: boolean;
@@ -70,7 +71,7 @@ const WarehouseLocationSelectorModal: React.FC<WarehouseLocationSelectorModalPro
         }
       }
     } catch (err: any) {
-      console.error('Error fetching warehouse locations:', err);
+      logger.error('Error fetching warehouse locations:', err);
       setError(err.response?.data?.message || t('warehouses.locationSelector.fetchError'));
     } finally {
       setLoading(false);

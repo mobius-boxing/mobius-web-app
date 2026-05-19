@@ -14,6 +14,7 @@ import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateProductModal from '../components/modals/CreateProductModal';
 import EditProductModal from '../components/modals/EditProductModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const Products: React.FC = () => {
   const { t } = useTranslation();
@@ -36,8 +37,7 @@ const Products: React.FC = () => {
     setSearch,
     refresh,
     pagination,
-    setPage,
-    setLimit,
+    paginationProps,
     sortBy,
     sortOrder,
     setSort,
@@ -67,7 +67,7 @@ const Products: React.FC = () => {
           await productsApi.deleteProduct(productId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting product:', error);
+          logger.error('Error deleting product:', error);
         } finally {
           setActionLoading(null);
         }
@@ -259,14 +259,7 @@ const Products: React.FC = () => {
                   sortOrder={sortOrder}
                   onSort={handleSort}
                 />
-                <Pagination
-                  page={pagination.page}
-                  totalPages={pagination.totalPages}
-                  total={pagination.total}
-                  limit={pagination.limit}
-                  onPageChange={setPage}
-                  onLimitChange={setLimit}
-                />
+                <Pagination {...paginationProps} />
               </>
             )}
           </div>

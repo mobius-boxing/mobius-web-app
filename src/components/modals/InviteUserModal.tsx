@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { logger } from '../../utils/logger';
 
 interface InviteUserModalProps {
   isOpen: boolean;
@@ -51,7 +52,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
       const companiesData = await companiesApi.getCompanies();
       setCompanies(companiesData.data);
     } catch (error) {
-      console.error('Error fetching companies:', error);
+      logger.error('Error fetching companies:', error);
     }
   };
 

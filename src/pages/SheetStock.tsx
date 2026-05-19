@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateSheetStockModal from '../components/modals/CreateSheetStockModal';
 import EditSheetStockModal from '../components/modals/EditSheetStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const SheetStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const SheetStockPage: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<SheetStock>({
     fetchFn: fetchSheetStock,
     searchFields: ['comments'],
@@ -63,7 +66,7 @@ const SheetStockPage: React.FC = () => {
           await sheetStockApi.deleteSheetStock(stockId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting sheet stock:', error);
+          logger.error('Error deleting sheet stock:', error);
         } finally {
           setActionLoading(null);
         }
@@ -222,11 +225,14 @@ const SheetStockPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={sheetStock}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={sheetStock}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

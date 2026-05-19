@@ -8,6 +8,7 @@ import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import { logger } from '../../utils/logger';
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -79,7 +80,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
       setProductTypes(productTypesRes.data || []);
       setBoxTypes(boxTypesRes.data || []);
     } catch (error) {
-      console.error('Error fetching dropdown data:', error);
+      logger.error('Error fetching dropdown data:', error);
     } finally {
       setDropdownsLoaded(true);
     }

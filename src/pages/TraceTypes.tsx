@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateTraceTypeModal from '../components/modals/CreateTraceTypeModal';
 import EditTraceTypeModal from '../components/modals/EditTraceTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const TraceTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -36,6 +38,7 @@ const TraceTypes: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<TraceType>({
     fetchFn: fetchTraceTypes,
     searchFields: ['code', 'description'],
@@ -63,7 +66,7 @@ const TraceTypes: React.FC = () => {
           await traceTypesApi.deleteTraceType(traceTypeId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting trace type:', error);
+          logger.error('Error deleting trace type:', error);
         } finally {
           setActionLoading(null);
         }
@@ -200,11 +203,14 @@ const TraceTypes: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={traceTypes}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={traceTypes}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

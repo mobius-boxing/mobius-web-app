@@ -7,11 +7,13 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateConsumableTypeModal from '../components/modals/CreateConsumableTypeModal';
 import EditConsumableTypeModal from '../components/modals/EditConsumableTypeModal';
+import { logger } from '../utils/logger';
 
 const ConsumableTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -34,6 +36,7 @@ const ConsumableTypes: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<ConsumableType>({
     fetchFn: fetchConsumableTypes,
     searchFields: ['code', 'name'],
@@ -65,7 +68,7 @@ const ConsumableTypes: React.FC = () => {
       setSelectedConsumableType(null);
       await refresh();
     } catch (error) {
-      console.error('Error deleting consumable type:', error);
+      logger.error('Error deleting consumable type:', error);
     } finally {
       setActionLoading(false);
     }
@@ -206,11 +209,14 @@ const ConsumableTypes: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={consumableTypes}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={consumableTypes}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>

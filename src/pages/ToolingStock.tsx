@@ -7,12 +7,14 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateToolingStockModal from '../components/modals/CreateToolingStockModal';
 import EditToolingStockModal from '../components/modals/EditToolingStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import { logger } from '../utils/logger';
 
 const ToolingStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -35,6 +37,7 @@ const ToolingStockPage: React.FC = () => {
     search,
     setSearch,
     refresh,
+    paginationProps,
   } = useEntityList<ToolingStock>({
     fetchFn: fetchToolingStock,
     searchFields: ['comments'],
@@ -62,7 +65,7 @@ const ToolingStockPage: React.FC = () => {
           await toolingStockApi.deleteToolingStock(stockId);
           await refresh();
         } catch (error: any) {
-          console.error('Error deleting tooling stock:', error);
+          logger.error('Error deleting tooling stock:', error);
         } finally {
           setActionLoading(null);
         }
@@ -221,11 +224,14 @@ const ToolingStockPage: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={toolingStock}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={toolingStock}
+                  loading={loading}
+                />
+                <Pagination {...paginationProps} />
+              </>
             )}
           </div>
         </div>
