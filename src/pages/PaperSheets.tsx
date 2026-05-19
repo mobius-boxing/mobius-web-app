@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperSheet } from '../types';
@@ -9,16 +9,25 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperSheetModal from '../components/modals/CreatePaperSheetModal';
 import EditPaperSheetModal from '../components/modals/EditPaperSheetModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const PaperSheets: React.FC = () => {
   const { t } = useTranslation();
-  const { effectiveCompanyId } = useEffectiveCompany();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPaperSheet, setSelectedPaperSheet] = useState<PaperSheet | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const { effectiveCompanyId } = useEffectiveCompany();
+  const confirmModal = useConfirmModal();
+
+  // Fetch function with company filter
+  const fetchPaperSheets = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return paperSheetsApi.getPaperSheets(fetchParams);
+  }, [effectiveCompanyId]);
 
   // Use the entity list hook for data management
   const {
@@ -28,32 +37,38 @@ const PaperSheets: React.FC = () => {
     setSearch,
     refresh,
   } = useEntityList<PaperSheet>({
-    fetchFn: paperSheetsApi.getPaperSheets,
+    fetchFn: fetchPaperSheets,
     searchFields: ['code', 'name', 'description'],
-    defaultFilters: effectiveCompanyId ? { companyId: effectiveCompanyId } : {},
   });
+
+  // Refresh when company changes
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (paperSheet: PaperSheet) => {
     setSelectedPaperSheet(paperSheet);
     setShowEditModal(true);
   };
 
-  const handleDelete = async (paperSheetId: string) => {
-    if (!window.confirm(t('paperSheets.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(paperSheetId);
-      await paperSheetsApi.deletePaperSheet(paperSheetId);
-      await refresh();
-    } catch (error: any) {
-      console.error('Error deleting paper sheet:', error);
-      const errorMessage = error.response?.data?.message || t('paperSheets.deleteFailed');
-      alert(errorMessage);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (paperSheetId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('paperSheets.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(paperSheetId);
+          await paperSheetsApi.deletePaperSheet(paperSheetId);
+          await refresh();
+        } catch (error: any) {
+          console.error('Error deleting paper sheet:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -246,6 +261,16 @@ const PaperSheets: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         paperSheet={selectedPaperSheet}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

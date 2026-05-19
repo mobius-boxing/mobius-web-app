@@ -4,6 +4,8 @@ import { Warehouse, WarehouseLocation, BatchUpdateLocation } from '../../types';
 import { warehousesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
+import ConfirmModal from '../ui/ConfirmModal';
+import { useConfirmModal } from '../../hooks/useConfirmModal';
 import { Package, Truck, AlertCircle, Archive, Box } from 'lucide-react';
 
 interface WarehouseGridEditorModalProps {
@@ -38,6 +40,7 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
   warehouse,
 }) => {
   const { t } = useTranslation();
+  const confirmModal = useConfirmModal();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [resizing, setResizing] = useState(false);
@@ -260,9 +263,17 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
 
   const handleClose = () => {
     if (changes.size > 0) {
-      if (!window.confirm(t('warehouses.grid.unsavedChanges'))) {
-        return;
-      }
+      confirmModal.showConfirm({
+        title: t('confirmModal.warningTitle'),
+        message: t('warehouses.grid.unsavedChanges'),
+        variant: 'warning',
+        onConfirm: async () => {
+          setChanges(new Map());
+          setError('');
+          onClose();
+        },
+      });
+      return;
     }
     setChanges(new Map());
     setError('');
@@ -497,6 +508,16 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
+      />
     </Modal>
   );
 };

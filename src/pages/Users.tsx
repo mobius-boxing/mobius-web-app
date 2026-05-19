@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Trash2, Edit } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Company } from '../types';
 import { usersApi, companiesApi } from '../services/api';
@@ -8,10 +9,13 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import InviteUserModal from '../components/modals/InviteUserModal';
 import EditUserModal from '../components/modals/EditUserModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const Users: React.FC = () => {
+  const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompany, setSelectedCompany] = useState<string>('all');
@@ -20,6 +24,7 @@ const Users: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const confirmModal = useConfirmModal();
 
   // Use the entity list hook for data management
   const {
@@ -54,20 +59,23 @@ const Users: React.FC = () => {
     }
   }, [selectedCompany, setFilters]);
 
-  const handleDeleteUser = async (user: User) => {
-    if (!window.confirm('Are you sure you want to delete this user?')) {
-      return;
-    }
-
-    try {
-      setActionLoading(user.uuid);
-      await usersApi.deleteUser(user.uuid);
-      await refresh();
-    } catch (error) {
-      console.error('Error deleting user:', error);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDeleteUser = (user: User) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('users.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(user.uuid);
+          await usersApi.deleteUser(user.uuid);
+          await refresh();
+        } catch (error) {
+          console.error('Error deleting user:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleEditUser = (user: User) => {
@@ -289,6 +297,16 @@ const Users: React.FC = () => {
           onSuccess={handleUserUpdated}
         />
       )}
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
+      />
     </Layout>
   );
 };

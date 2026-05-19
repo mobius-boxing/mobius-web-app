@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, Wrench } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Tooling } from '../types';
 import { toolingsApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
@@ -19,6 +20,13 @@ const Toolings: React.FC = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedTooling, setSelectedTooling] = useState<Tooling | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const { effectiveCompanyId } = useEffectiveCompany();
+
+  // Fetch function with company filter
+  const fetchToolings = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return toolingsApi.getToolings(fetchParams);
+  }, [effectiveCompanyId]);
 
   // Use the entity list hook for data management
   const {
@@ -28,9 +36,15 @@ const Toolings: React.FC = () => {
     setSearch,
     refresh,
   } = useEntityList<Tooling>({
-    fetchFn: toolingsApi.getToolings,
+    fetchFn: fetchToolings,
     searchFields: ['name', 'description'],
   });
+
+  // Refresh when company changes
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (tooling: Tooling) => {
     setSelectedTooling(tooling);

@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, Layers } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { FluteType } from '../types';
 import { fluteTypesApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateFluteTypeModal from '../components/modals/CreateFluteTypeModal';
 import EditFluteTypeModal from '../components/modals/EditFluteTypeModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const FluteTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -17,6 +20,14 @@ const FluteTypes: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedFluteType, setSelectedFluteType] = useState<FluteType | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const { effectiveCompanyId } = useEffectiveCompany();
+  const confirmModal = useConfirmModal();
+
+  // Fetch function with company filter
+  const fetchFluteTypes = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return fluteTypesApi.getFluteTypes(fetchParams);
+  }, [effectiveCompanyId]);
 
   // Use the entity list hook for data management
   const {
@@ -26,30 +37,38 @@ const FluteTypes: React.FC = () => {
     setSearch,
     refresh,
   } = useEntityList<FluteType>({
-    fetchFn: fluteTypesApi.getFluteTypes,
+    fetchFn: fetchFluteTypes,
     searchFields: ['code', 'description'],
   });
+
+  // Refresh when company changes
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (fluteType: FluteType) => {
     setSelectedFluteType(fluteType);
     setShowEditModal(true);
   };
 
-  const handleDelete = async (fluteTypeId: string) => {
-    if (!window.confirm(t('fluteTypes.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(fluteTypeId);
-      await fluteTypesApi.deleteFluteType(fluteTypeId);
-      await refresh();
-    } catch (error) {
-      console.error('Error deleting flute type:', error);
-      alert(t('fluteTypes.deleteFailed'));
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (fluteTypeId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('fluteTypes.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(fluteTypeId);
+          await fluteTypesApi.deleteFluteType(fluteTypeId);
+          await refresh();
+        } catch (error) {
+          console.error('Error deleting flute type:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -116,15 +135,15 @@ const FluteTypes: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => handleEdit(fluteType)}
-            disabled={actionLoading === fluteType?.id || !fluteType}
+            disabled={actionLoading === fluteType?.uuid || !fluteType}
           >
             <Edit className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => handleDelete(fluteType?.id)}
-            disabled={actionLoading === fluteType?.id || !fluteType}
+            onClick={() => handleDelete(fluteType?.uuid)}
+            disabled={actionLoading === fluteType?.uuid || !fluteType}
             className="text-red-600 hover:text-red-700"
           >
             <Trash2 className="h-4 w-4" />
@@ -220,6 +239,16 @@ const FluteTypes: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         fluteType={selectedFluteType}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

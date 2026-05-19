@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, Wrench } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Manufacturer } from '../types';
 import { manufacturersApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateManufacturerModal from '../components/modals/CreateManufacturerModal';
 import EditManufacturerModal from '../components/modals/EditManufacturerModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const Manufacturers: React.FC = () => {
   const { t } = useTranslation();
@@ -17,6 +20,14 @@ const Manufacturers: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedManufacturer, setSelectedManufacturer] = useState<Manufacturer | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const { effectiveCompanyId } = useEffectiveCompany();
+  const confirmModal = useConfirmModal();
+
+  // Fetch function with company filter
+  const fetchManufacturers = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return manufacturersApi.getManufacturers(fetchParams);
+  }, [effectiveCompanyId]);
 
   // Use the entity list hook for data management
   const {
@@ -26,31 +37,38 @@ const Manufacturers: React.FC = () => {
     setSearch,
     refresh,
   } = useEntityList<Manufacturer>({
-    fetchFn: manufacturersApi.getManufacturers,
+    fetchFn: fetchManufacturers,
     searchFields: ['code', 'name'],
   });
+
+  // Refresh when company changes
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (manufacturer: Manufacturer) => {
     setSelectedManufacturer(manufacturer);
     setShowEditModal(true);
   };
 
-  const handleDelete = async (manufacturerId: string) => {
-    if (!window.confirm(t('manufacturers.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(manufacturerId);
-      await manufacturersApi.deleteManufacturer(manufacturerId);
-      await refresh();
-    } catch (error: any) {
-      console.error('Error deleting manufacturer:', error);
-      const errorMessage = error.response?.data?.message || t('manufacturers.deleteFailed');
-      alert(errorMessage);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (manufacturerId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('manufacturers.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(manufacturerId);
+          await manufacturersApi.deleteManufacturer(manufacturerId);
+          await refresh();
+        } catch (error: any) {
+          console.error('Error deleting manufacturer:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -205,6 +223,16 @@ const Manufacturers: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         manufacturer={selectedManufacturer}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

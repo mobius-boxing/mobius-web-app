@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
 interface Column<T = any> {
@@ -15,6 +16,9 @@ interface TableProps<T = any> {
   loading?: boolean;
   emptyMessage?: string;
   className?: string;
+  sortBy?: string | null;
+  sortOrder?: 'asc' | 'desc';
+  onSort?: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
 }
 
 function Table<T = any>({
@@ -23,7 +27,17 @@ function Table<T = any>({
   loading = false,
   emptyMessage = 'No data available',
   className,
+  sortBy,
+  sortOrder,
+  onSort,
 }: TableProps<T>) {
+  const handleSort = (column: Column<T>) => {
+    if (!column.sortable || !onSort) return;
+    const newOrder =
+      sortBy === column.key && sortOrder === 'asc' ? 'desc' : 'asc';
+    onSort(column.key, newOrder);
+  };
+
   if (loading) {
     return (
       <div className={cn('card', className)}>
@@ -49,10 +63,27 @@ function Table<T = any>({
                 key={column.key}
                 className={cn(
                   'px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider',
+                  column.sortable && onSort && 'cursor-pointer select-none hover:bg-secondary-100',
                   column.className
                 )}
+                onClick={() => handleSort(column)}
               >
-                {column.header}
+                <div className="flex items-center space-x-1">
+                  <span>{column.header}</span>
+                  {column.sortable && onSort && (
+                    <span className="inline-flex">
+                      {sortBy === column.key ? (
+                        sortOrder === 'asc' ? (
+                          <ChevronUp className="h-3.5 w-3.5 text-primary-600" />
+                        ) : (
+                          <ChevronDown className="h-3.5 w-3.5 text-primary-600" />
+                        )
+                      ) : (
+                        <ChevronsUpDown className="h-3.5 w-3.5 text-secondary-300" />
+                      )}
+                    </span>
+                  )}
+                </div>
               </th>
             ))}
           </tr>

@@ -10,6 +10,7 @@ import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { MapPin, X } from 'lucide-react';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface CreatePaperStockModalProps {
   isOpen: boolean;
@@ -23,6 +24,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -54,7 +56,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
       fetchDropdownData();
       setSelectedLocation(null);
     }
-  }, [isOpen]);
+  }, [isOpen, effectiveCompanyId]);
 
   // Clear location when warehouse changes
   useEffect(() => {
@@ -63,11 +65,12 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
 
   const fetchDropdownData = async () => {
     try {
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       const [manufacturersRes, suppliersRes, warehousesRes, paperSuppliesRes] = await Promise.all([
-        manufacturersApi.getManufacturers(),
-        suppliersApi.getSuppliers(),
-        warehousesApi.getWarehouses(),
-        paperSuppliesApi.getPaperSupplies(),
+        manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }),
+        suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
+        warehousesApi.getWarehouses({ limit: 100, ...companyFilter }),
+        paperSuppliesApi.getPaperSupplies({ limit: 100, ...companyFilter }),
       ]);
       setManufacturers(manufacturersRes.data || []);
       setSuppliers(suppliersRes.data || []);

@@ -99,10 +99,10 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     await fetchCompanies();
   }, [fetchCompanies]);
 
-  // Calculate effective company ID
-  const effectiveCompanyId = isSuperAdmin
-    ? selectedCompany?.uuid
-    : user?.companyId;
+  // Calculate effective company ID for API filtering
+  // Only SuperAdmins need to send companyId - regular users' company is in JWT
+  // Backend extracts company from JWT for non-SuperAdmins (secure by design)
+  const effectiveCompanyId = isSuperAdmin ? selectedCompany?.uuid : undefined;
 
   const value: CompanyContextType = {
     selectedCompany,

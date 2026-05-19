@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CreateProductForm, Customer } from '../../types';
-import { productsApi, customersApi } from '../../services/api';
+import { CreateProductForm, Customer, ProductType, BoxType } from '../../types';
+import { productsApi, customersApi, productTypesApi, boxTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface CreateProductModalProps {
   isOpen: boolean;
@@ -20,7 +21,10 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+  const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
 
   const {
     form: {
@@ -39,16 +43,23 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      fetchCustomers();
+      fetchDropdownData();
     }
-  }, [isOpen]);
+  }, [isOpen, effectiveCompanyId]);
 
-  const fetchCustomers = async () => {
+  const fetchDropdownData = async () => {
     try {
-      const response = await customersApi.getCustomers();
-      setCustomers(response.data || []);
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const [customersRes, productTypesRes, boxTypesRes] = await Promise.all([
+        customersApi.getCustomers({ limit: 100, ...companyFilter }),
+        productTypesApi.getProductTypes({ limit: 100, ...companyFilter }),
+        boxTypesApi.getBoxTypes({ limit: 100, ...companyFilter }),
+      ]);
+      setCustomers(customersRes.data || []);
+      setProductTypes(productTypesRes.data || []);
+      setBoxTypes(boxTypesRes.data || []);
     } catch (error) {
-      console.error('Error fetching customers:', error);
+      console.error('Error fetching dropdown data:', error);
     }
   };
 
@@ -114,6 +125,65 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
             rows={3}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('products.revision')}
+            </label>
+            <Input
+              type="number"
+              {...register('revision', { valueAsNumber: true })}
+              placeholder={t('products.revisionPlaceholder')}
+              defaultValue={0}
+            />
+          </div>
+
+          <div className="flex items-center pt-6">
+            <input
+              type="checkbox"
+              {...register('vip')}
+              className="h-4 w-4 text-primary-600 border-secondary-300 rounded focus:ring-primary-500"
+            />
+            <label className="ml-2 text-sm font-medium text-secondary-700">
+              {t('products.vip')}
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('products.productType')}
+          </label>
+          <select
+            {...register('productTypeId')}
+            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">{t('products.selectProductType')}</option>
+            {productTypes.map((pt) => (
+              <option key={pt.uuid} value={pt.uuid}>
+                {pt.code} - {pt.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('products.boxType')}
+          </label>
+          <select
+            {...register('boxTypeId')}
+            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">{t('products.selectBoxType')}</option>
+            {boxTypes.map((bt) => (
+              <option key={bt.uuid} value={bt.uuid}>
+                {bt.code} - {bt.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <ModalFooter

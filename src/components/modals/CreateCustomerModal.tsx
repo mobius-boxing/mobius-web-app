@@ -46,16 +46,17 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
     if (isOpen) {
       fetchDropdownData();
     }
-  }, [isOpen]);
+  }, [isOpen, effectiveCompanyId]);
 
   const fetchDropdownData = async () => {
     try {
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       // Fetch categories
-      const categoriesResponse = await customerCategoriesApi.getCategories();
+      const categoriesResponse = await customerCategoriesApi.getCategories({ limit: 100, ...companyFilter });
       setCategories(categoriesResponse.data || []);
 
       // Fetch users (sales persons)
-      const usersResponse = await usersApi.getUsers();
+      const usersResponse = await usersApi.getUsers({ limit: 100, ...companyFilter });
       setSalesPersons(usersResponse.data || []);
     } catch (error) {
       console.error('Error fetching dropdown data:', error);

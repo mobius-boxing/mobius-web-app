@@ -14,8 +14,11 @@ import {
   BookOpen,
   ChevronDown,
   ChevronRight,
+  ChevronLeft,
   Truck,
   Database,
+  PanelLeftClose,
+  PanelLeft,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -23,11 +26,25 @@ import { NavItem } from '../../types';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 import CompanySwitcher from '../ui/CompanySwitcher';
 
+const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
+
 const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const { t } = useTranslation();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
+    const saved = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+    return saved === 'true';
+  });
+
+  const toggleCollapsed = () => {
+    setIsCollapsed((prev) => {
+      const newValue = !prev;
+      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(newValue));
+      return newValue;
+    });
+  };
 
   const navigationItems: NavItem[] = [
     {
@@ -156,6 +173,13 @@ const Sidebar: React.FC = () => {
               icon: 'Wrench',
               roles: ['admin', 'superAdmin'],
             },
+            {
+              id: 'consumable-supplies',
+              label: t('nav.consumableSupplies'),
+              path: '/consumable-supplies',
+              icon: 'Package',
+              roles: ['admin', 'superAdmin'],
+            },
           ],
         },
         {
@@ -164,6 +188,70 @@ const Sidebar: React.FC = () => {
           path: '/tooling-types',
           icon: 'Wrench',
           roles: ['admin', 'superAdmin'],
+        },
+        {
+          id: 'consumable-types',
+          label: t('nav.consumableTypes'),
+          path: '/consumable-types',
+          icon: 'Package',
+          roles: ['admin', 'superAdmin'],
+        },
+        {
+          id: 'product-specifications',
+          label: t('nav.productSpecifications'),
+          icon: 'Layers',
+          roles: ['admin', 'superAdmin'],
+          children: [
+            {
+              id: 'flap-types',
+              label: t('nav.flapTypes'),
+              path: '/flap-types',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'product-types',
+              label: t('nav.productTypes'),
+              path: '/product-types',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'box-types',
+              label: t('nav.boxTypes'),
+              path: '/box-types',
+              icon: 'Box',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'glue-types',
+              label: t('nav.glueTypes'),
+              path: '/glue-types',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'strapping-types',
+              label: t('nav.strappingTypes'),
+              path: '/strapping-types',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'complements',
+              label: t('nav.complements'),
+              path: '/complements',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'trace-types',
+              label: t('nav.traceTypes'),
+              path: '/trace-types',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+          ],
         },
       ],
     },
@@ -193,6 +281,20 @@ const Sidebar: React.FC = () => {
               icon: 'FileText',
               roles: ['admin', 'superAdmin'],
             },
+            {
+              id: 'tooling-stock',
+              label: t('nav.toolingStock'),
+              path: '/tooling-stock',
+              icon: 'Wrench',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'consumable-stock',
+              label: t('nav.consumableStock'),
+              path: '/consumable-stock',
+              icon: 'Package',
+              roles: ['admin', 'superAdmin'],
+            },
           ],
         },
       ],
@@ -213,8 +315,11 @@ const Sidebar: React.FC = () => {
       BookOpen,
       ChevronDown,
       ChevronRight,
+      ChevronLeft,
       Truck,
       Database,
+      PanelLeftClose,
+      PanelLeft,
     };
     const IconComponent = icons[iconName as keyof typeof icons];
     return IconComponent ? <IconComponent className={className} /> : null;
@@ -294,6 +399,38 @@ const Sidebar: React.FC = () => {
     const iconSize = depth === 0 ? 'h-5 w-5' : 'h-4 w-4';
     const textSize = depth === 0 ? '' : 'text-sm';
 
+    // In collapsed mode, only show top-level items as icon-only buttons
+    if (isCollapsed && depth === 0) {
+      if (hasChildren) {
+        // For parent items with children, show as a button that expands on hover/click
+        return (
+          <div key={item.id} className="relative group">
+            <button
+              onClick={() => toggleExpanded(item.id)}
+              title={item.label}
+              className={`sidebar-item ${
+                hasActiveChild ? 'sidebar-item-active' : 'sidebar-item-inactive'
+              } w-full justify-center`}
+            >
+              {getIcon(item.icon, iconSize)}
+            </button>
+          </div>
+        );
+      }
+      return (
+        <NavLink
+          key={item.id}
+          to={item.path!}
+          title={item.label}
+          className={`sidebar-item ${
+            isActive ? 'sidebar-item-active' : 'sidebar-item-inactive'
+          } justify-center`}
+        >
+          {getIcon(item.icon, iconSize)}
+        </NavLink>
+      );
+    }
+
     if (hasChildren) {
       return (
         <div key={item.id} className="space-y-1">
@@ -335,57 +472,82 @@ const Sidebar: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col w-64 bg-white border-r border-secondary-200 h-full">
-      {/* Logo */}
-      <div className="flex items-center justify-center h-16 px-4 border-b border-secondary-200">
-        <h1 className="text-xl font-bold text-primary-600">Mobius</h1>
+    <div
+      className={`flex flex-col bg-white border-r border-secondary-200 h-full transition-all duration-300 ${
+        isCollapsed ? 'w-16' : 'w-64'
+      }`}
+    >
+      {/* Logo & Collapse Toggle */}
+      <div className="flex items-center justify-between h-16 px-3 border-b border-secondary-200">
+        {!isCollapsed && (
+          <h1 className="text-xl font-bold text-primary-600">Mobius</h1>
+        )}
+        <button
+          onClick={toggleCollapsed}
+          className="p-2 rounded-lg hover:bg-secondary-100 text-secondary-600 transition-colors"
+          title={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
+        >
+          {isCollapsed ? (
+            <PanelLeft className="h-5 w-5" />
+          ) : (
+            <PanelLeftClose className="h-5 w-5" />
+          )}
+        </button>
       </div>
 
       {/* User Info */}
-      <div className="p-4 border-b border-secondary-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+      <div className={`border-b border-secondary-200 ${isCollapsed ? 'p-2' : 'p-4'}`}>
+        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
+          <div
+            className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0"
+            title={isCollapsed ? `${user?.firstName} ${user?.lastName}` : undefined}
+          >
             <span className="text-sm font-medium text-primary-600">
               {user?.firstName?.[0]}{user?.lastName?.[0]}
             </span>
           </div>
-          <div>
-            <p className="text-sm font-medium text-secondary-900">
-              {user?.firstName} {user?.lastName}
-            </p>
-            <p className="text-xs text-secondary-500 capitalize">
-              {user?.role}
-              {user?.companyName && ` • ${user.companyName}`}
-            </p>
-          </div>
+          {!isCollapsed && (
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-secondary-900 truncate">
+                {user?.firstName} {user?.lastName}
+              </p>
+              <p className="text-xs text-secondary-500 capitalize truncate">
+                {user?.role}
+                {user?.companyName && ` • ${user.companyName}`}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Company Switcher - Only for superAdmin */}
-      {user?.role === 'superAdmin' && (
+      {/* Company Switcher - Only for superAdmin, hidden when collapsed */}
+      {user?.role === 'superAdmin' && !isCollapsed && (
         <div className="px-4 py-2 border-b border-secondary-200">
           <CompanySwitcher />
         </div>
       )}
 
       {/* Navigation */}
-      <nav className="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+      <nav className={`flex-1 py-4 space-y-1 overflow-y-auto ${isCollapsed ? 'px-2' : 'px-4'}`}>
         {filteredNavigation.map((item) => renderNavItem(item, 0))}
       </nav>
 
-      {/* Language Switcher */}
-      <div className="px-4 py-2 border-t border-secondary-200">
-        <LanguageSwitcher />
-      </div>
+      {/* Language Switcher - hidden when collapsed */}
+      {!isCollapsed && (
+        <div className="px-4 py-2 border-t border-secondary-200">
+          <LanguageSwitcher />
+        </div>
+      )}
 
       {/* Logout */}
-      <div className="p-4 border-t border-secondary-200">
+      <div className={`border-t border-secondary-200 ${isCollapsed ? 'p-2' : 'p-4'}`}>
         <button
           onClick={handleLogout}
-          className="sidebar-item sidebar-item-inactive w-full text-left"
+          title={isCollapsed ? t('nav.signOut') : undefined}
+          className={`sidebar-item sidebar-item-inactive w-full ${isCollapsed ? 'justify-center' : 'text-left'}`}
         >
           <LogOut className="h-5 w-5" />
-          <span className="ml-3">{t('nav.signOut')}</span>
+          {!isCollapsed && <span className="ml-3">{t('nav.signOut')}</span>}
         </button>
       </div>
     </div>

@@ -33,8 +33,22 @@
     "sheetStock": "Sheet Stock",
     "toolingTypes": "Tooling Types",
     "toolings": "Toolings",
+    "consumableTypes": "Consumable Types",
+    "consumableSupplies": "Consumable Supplies",
+    "toolingStock": "Tooling Stock",
+    "consumableStock": "Consumable Stock",
+    "productSpecifications": "Product Specifications",
+    "flapTypes": "Flap Types",
+    "productTypes": "Product Types",
+    "boxTypes": "Box Types",
+    "glueTypes": "Glue Types",
+    "strappingTypes": "Strapping Types",
+    "complements": "Complements",
+    "traceTypes": "Trace Types",
     "settings": "Settings",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar"
   },
   "companies": {
     "title": "Companies",
@@ -68,6 +82,17 @@
       "noDescription": "No description",
       "noDate": "N/A"
     }
+  },
+  "pagination": {
+    "showing": "Showing {{start}} to {{end}} of {{total}}",
+    "previous": "Previous page",
+    "next": "Next page"
+  },
+  "confirmModal": {
+    "defaultTitle": "Confirm Action",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "deleteTitle": "Confirm Delete"
   },
   "common": {
     "loading": "Loading...",
@@ -390,6 +415,114 @@
     "deleteFailed": "Failed to delete flute type",
     "deleteConfirm": "Are you sure you want to delete this flute type?"
   },
+  "flapTypes": {
+    "title": "Flap Types",
+    "subtitle": "Manage flap type catalog",
+    "addFlapType": "Add Flap Type",
+    "allFlapTypes": "All Flap Types",
+    "searchPlaceholder": "Search flap types...",
+    "code": "Code",
+    "codePlaceholder": "Enter flap type code",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "createTitle": "Create Flap Type",
+    "editTitle": "Edit Flap Type",
+    "editFlapType": "Edit Flap Type",
+    "deleteFlapType": "Delete Flap Type",
+    "createButton": "Create Flap Type",
+    "updateButton": "Update Flap Type",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No flap types found",
+      "description": "Get started by creating a new flap type",
+      "noData": "No flap types available"
+    },
+    "validation": {
+      "codeRequired": "Code is required"
+    },
+    "createSuccess": "Flap type created successfully",
+    "updateSuccess": "Flap type updated successfully",
+    "deleteSuccess": "Flap type deleted successfully",
+    "deleteFailed": "Failed to delete flap type",
+    "deleteConfirm": "Are you sure you want to delete this flap type?"
+  },
+  "productTypes": {
+    "title": "Product Types",
+    "subtitle": "Manage product type catalog",
+    "addProductType": "Add Product Type",
+    "allProductTypes": "All Product Types",
+    "searchPlaceholder": "Search product types...",
+    "code": "Code",
+    "codePlaceholder": "Enter product type code",
+    "name": "Name",
+    "namePlaceholder": "Enter product type name",
+    "createTitle": "Create Product Type",
+    "editTitle": "Edit Product Type",
+    "editProductType": "Edit Product Type",
+    "deleteProductType": "Delete Product Type",
+    "createButton": "Create Product Type",
+    "updateButton": "Update Product Type",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No product types found",
+      "description": "Get started by creating a new product type",
+      "noData": "No product types available"
+    },
+    "validation": {
+      "codeRequired": "Code is required",
+      "nameRequired": "Name is required"
+    },
+    "createFailed": "Failed to create product type. Please try again.",
+    "updateFailed": "Failed to update product type. Please try again.",
+    "deleteFailed": "Failed to delete product type",
+    "deleteConfirm": "Are you sure you want to delete this product type?"
+  },
+  "boxTypes": {
+    "title": "Box Types",
+    "subtitle": "Manage box type catalog",
+    "addBoxType": "Add Box Type",
+    "allBoxTypes": "All Box Types",
+    "searchPlaceholder": "Search box types...",
+    "code": "Code",
+    "codePlaceholder": "Enter box type code",
+    "name": "Name",
+    "namePlaceholder": "Enter box type name",
+    "createTitle": "Create Box Type",
+    "editTitle": "Edit Box Type",
+    "editBoxType": "Edit Box Type",
+    "deleteBoxType": "Delete Box Type",
+    "createButton": "Create Box Type",
+    "updateButton": "Update Box Type",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No box types found",
+      "description": "Get started by creating a new box type",
+      "noData": "No box types available"
+    },
+    "validation": {
+      "codeRequired": "Code is required",
+      "nameRequired": "Name is required"
+    },
+    "createFailed": "Failed to create box type. Please try again.",
+    "updateFailed": "Failed to update box type. Please try again.",
+    "deleteFailed": "Failed to delete box type",
+    "deleteConfirm": "Are you sure you want to delete this box type?"
+  },
   "paperClasses": {
     "title": "Paper Classes",
     "subtitle": "Manage paper class catalog",
@@ -439,6 +572,13 @@
     "descriptionPlaceholder": "Enter description (optional)",
     "customer": "Customer",
     "selectCustomer": "Select a customer",
+    "revision": "Revision",
+    "revisionPlaceholder": "Enter revision number",
+    "vip": "VIP",
+    "productType": "Product Type",
+    "selectProductType": "Select a product type (optional)",
+    "boxType": "Box Type",
+    "selectBoxType": "Select a box type (optional)",
     "createTitle": "Create Product",
     "editTitle": "Edit Product",
     "createButton": "Create Product",
@@ -448,6 +588,10 @@
       "clientCode": "Client Code",
       "customer": "Customer",
       "description": "Description",
+      "revision": "Revision",
+      "vip": "VIP",
+      "productType": "Product Type",
+      "boxType": "Box Type",
       "actions": "Actions"
     },
     "empty": {
@@ -1023,5 +1167,333 @@
     "updateFailed": "Failed to update tooling. Please try again.",
     "deleteFailed": "Failed to delete tooling",
     "deleteConfirm": "Are you sure you want to delete this tooling?"
+  },
+  "consumableTypes": {
+    "title": "Consumable Types",
+    "subtitle": "Manage consumable type catalog",
+    "addType": "Add Consumable Type",
+    "allTypes": "All Consumable Types",
+    "searchPlaceholder": "Search consumable types...",
+    "code": "Code",
+    "codePlaceholder": "Enter consumable type code",
+    "name": "Name",
+    "namePlaceholder": "Enter consumable type name",
+    "autoConsumption": "Auto Consumption",
+    "createTitle": "Create Consumable Type",
+    "editTitle": "Edit Consumable Type",
+    "createButton": "Create Consumable Type",
+    "updateButton": "Update Consumable Type",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "autoConsumption": "Auto Consumption",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No consumable types found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by creating a new consumable type"
+    },
+    "validation": {
+      "codeRequired": "Code is required",
+      "codeMinLength": "Code must be at least 1 character",
+      "codeMaxLength": "Code must be less than 50 characters",
+      "nameRequired": "Name is required",
+      "nameMinLength": "Name must be at least 1 character",
+      "nameMaxLength": "Name must be less than 255 characters"
+    },
+    "createFailed": "Failed to create consumable type. Please try again.",
+    "updateFailed": "Failed to update consumable type. Please try again.",
+    "deleteFailed": "Failed to delete consumable type",
+    "deleteConfirm": "Are you sure you want to delete this consumable type?"
+  },
+  "consumableSupplies": {
+    "title": "Consumable Supplies",
+    "subtitle": "Manage consumable supply inventory",
+    "addSupply": "Add Consumable Supply",
+    "allSupplies": "All Consumable Supplies",
+    "searchPlaceholder": "Search consumable supplies...",
+    "code": "Code",
+    "codePlaceholder": "Enter consumable supply code",
+    "name": "Name",
+    "namePlaceholder": "Enter consumable supply name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "consumableType": "Consumable Type",
+    "selectConsumableType": "Select consumable type",
+    "manufacturer": "Manufacturer",
+    "selectManufacturer": "Select manufacturer (optional)",
+    "supplier": "Supplier",
+    "selectSupplier": "Select supplier (optional)",
+    "createTitle": "Create Consumable Supply",
+    "editTitle": "Edit Consumable Supply",
+    "createButton": "Create Consumable Supply",
+    "updateButton": "Update Consumable Supply",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "consumableType": "Consumable Type",
+      "manufacturer": "Manufacturer",
+      "supplier": "Supplier",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No consumable supplies found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by adding a new consumable supply"
+    },
+    "validation": {
+      "codeRequired": "Code is required",
+      "codeMinLength": "Code must be at least 1 character",
+      "codeMaxLength": "Code must be less than 50 characters",
+      "nameRequired": "Name is required",
+      "nameMinLength": "Name must be at least 1 character",
+      "nameMaxLength": "Name must be less than 255 characters",
+      "consumableTypeRequired": "Consumable type is required"
+    },
+    "createFailed": "Failed to create consumable supply. Please try again.",
+    "updateFailed": "Failed to update consumable supply. Please try again.",
+    "deleteFailed": "Failed to delete consumable supply",
+    "deleteConfirm": "Are you sure you want to delete this consumable supply?"
+  },
+  "toolingStock": {
+    "title": "Tooling Stock",
+    "subtitle": "Manage tooling inventory",
+    "addToolingStock": "Add Tooling Stock",
+    "allToolingStock": "All Tooling Stock",
+    "searchPlaceholder": "Search tooling stock...",
+    "warehouse": "Warehouse",
+    "selectWarehouse": "Select warehouse",
+    "warehouseLocation": "Warehouse Location",
+    "selectLocation": "Select Location",
+    "tooling": "Tooling",
+    "selectTooling": "Select tooling",
+    "supplier": "Supplier",
+    "selectSupplier": "Select supplier (optional)",
+    "manufacturer": "Manufacturer",
+    "selectManufacturer": "Select manufacturer (optional)",
+    "quantity": "Quantity",
+    "quantityPlaceholder": "Enter quantity",
+    "price": "Price",
+    "pricePlaceholder": "Enter price",
+    "comments": "Comments",
+    "commentsPlaceholder": "Enter comments (optional)",
+    "createTitle": "Create Tooling Stock",
+    "editTitle": "Edit Tooling Stock",
+    "createButton": "Create Tooling Stock",
+    "updateButton": "Update Tooling Stock",
+    "columns": {
+      "tooling": "Tooling",
+      "warehouse": "Warehouse",
+      "supplier": "Supplier",
+      "manufacturer": "Manufacturer",
+      "quantity": "Quantity",
+      "price": "Price",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No tooling stock found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by adding tooling stock"
+    },
+    "validation": {
+      "warehouseRequired": "Warehouse is required",
+      "toolingRequired": "Tooling is required",
+      "quantityRequired": "Quantity is required"
+    },
+    "createFailed": "Failed to create tooling stock. Please try again.",
+    "updateFailed": "Failed to update tooling stock. Please try again.",
+    "deleteFailed": "Failed to delete tooling stock",
+    "deleteConfirm": "Are you sure you want to delete this tooling stock?"
+  },
+  "consumableStock": {
+    "title": "Consumable Stock",
+    "subtitle": "Manage consumable inventory",
+    "addConsumableStock": "Add Consumable Stock",
+    "allConsumableStock": "All Consumable Stock",
+    "searchPlaceholder": "Search consumable stock...",
+    "warehouse": "Warehouse",
+    "selectWarehouse": "Select warehouse",
+    "warehouseLocation": "Warehouse Location",
+    "selectLocation": "Select Location",
+    "consumableSupply": "Consumable Supply",
+    "selectConsumableSupply": "Select consumable supply",
+    "supplier": "Supplier",
+    "selectSupplier": "Select supplier (optional)",
+    "manufacturer": "Manufacturer",
+    "selectManufacturer": "Select manufacturer (optional)",
+    "quantity": "Quantity",
+    "quantityPlaceholder": "Enter quantity",
+    "price": "Price",
+    "pricePlaceholder": "Enter price",
+    "comments": "Comments",
+    "commentsPlaceholder": "Enter comments (optional)",
+    "createTitle": "Create Consumable Stock",
+    "editTitle": "Edit Consumable Stock",
+    "createButton": "Create Consumable Stock",
+    "updateButton": "Update Consumable Stock",
+    "columns": {
+      "consumableSupply": "Consumable Supply",
+      "warehouse": "Warehouse",
+      "supplier": "Supplier",
+      "manufacturer": "Manufacturer",
+      "quantity": "Quantity",
+      "price": "Price",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No consumable stock found",
+      "description": "Try adjusting your search criteria",
+      "noData": "Get started by adding consumable stock"
+    },
+    "validation": {
+      "warehouseRequired": "Warehouse is required",
+      "consumableSupplyRequired": "Consumable supply is required",
+      "quantityRequired": "Quantity is required"
+    },
+    "createFailed": "Failed to create consumable stock. Please try again.",
+    "updateFailed": "Failed to update consumable stock. Please try again.",
+    "deleteFailed": "Failed to delete consumable stock",
+    "deleteConfirm": "Are you sure you want to delete this consumable stock?"
+  },
+  "glueTypes": {
+    "title": "Glue Types",
+    "subtitle": "Manage glue type catalog",
+    "addGlueType": "Add Glue Type",
+    "allGlueTypes": "All Glue Types",
+    "searchPlaceholder": "Search glue types...",
+    "code": "Code",
+    "codePlaceholder": "Enter glue type code",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "createTitle": "Create Glue Type",
+    "editTitle": "Edit Glue Type",
+    "editGlueType": "Edit Glue Type",
+    "deleteGlueType": "Delete Glue Type",
+    "createButton": "Create Glue Type",
+    "updateButton": "Update Glue Type",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No glue types found",
+      "description": "Get started by creating a new glue type",
+      "noData": "No glue types available"
+    },
+    "validation": {
+      "codeRequired": "Code is required"
+    },
+    "createFailed": "Failed to create glue type. Please try again.",
+    "updateFailed": "Failed to update glue type. Please try again.",
+    "deleteFailed": "Failed to delete glue type",
+    "deleteConfirm": "Are you sure you want to delete this glue type?"
+  },
+  "strappingTypes": {
+    "title": "Strapping Types",
+    "subtitle": "Manage strapping type catalog",
+    "addStrappingType": "Add Strapping Type",
+    "allStrappingTypes": "All Strapping Types",
+    "searchPlaceholder": "Search strapping types...",
+    "code": "Code",
+    "codePlaceholder": "Enter strapping type code",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "createTitle": "Create Strapping Type",
+    "editTitle": "Edit Strapping Type",
+    "editStrappingType": "Edit Strapping Type",
+    "deleteStrappingType": "Delete Strapping Type",
+    "createButton": "Create Strapping Type",
+    "updateButton": "Update Strapping Type",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No strapping types found",
+      "description": "Get started by creating a new strapping type",
+      "noData": "No strapping types available"
+    },
+    "validation": {
+      "codeRequired": "Code is required"
+    },
+    "createFailed": "Failed to create strapping type. Please try again.",
+    "updateFailed": "Failed to update strapping type. Please try again.",
+    "deleteFailed": "Failed to delete strapping type",
+    "deleteConfirm": "Are you sure you want to delete this strapping type?"
+  },
+  "complements": {
+    "title": "Complements",
+    "subtitle": "Manage complement catalog",
+    "addComplement": "Add Complement",
+    "allComplements": "All Complements",
+    "searchPlaceholder": "Search complements...",
+    "code": "Code",
+    "codePlaceholder": "Enter complement code",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "createTitle": "Create Complement",
+    "editTitle": "Edit Complement",
+    "editComplement": "Edit Complement",
+    "deleteComplement": "Delete Complement",
+    "createButton": "Create Complement",
+    "updateButton": "Update Complement",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No complements found",
+      "description": "Get started by creating a new complement",
+      "noData": "No complements available"
+    },
+    "validation": {
+      "codeRequired": "Code is required"
+    },
+    "createFailed": "Failed to create complement. Please try again.",
+    "updateFailed": "Failed to update complement. Please try again.",
+    "deleteFailed": "Failed to delete complement",
+    "deleteConfirm": "Are you sure you want to delete this complement?"
+  },
+  "traceTypes": {
+    "title": "Trace Types",
+    "subtitle": "Manage trace type catalog",
+    "addTraceType": "Add Trace Type",
+    "allTraceTypes": "All Trace Types",
+    "searchPlaceholder": "Search trace types...",
+    "code": "Code",
+    "codePlaceholder": "Enter trace type code",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "createTitle": "Create Trace Type",
+    "editTitle": "Edit Trace Type",
+    "editTraceType": "Edit Trace Type",
+    "deleteTraceType": "Delete Trace Type",
+    "createButton": "Create Trace Type",
+    "updateButton": "Update Trace Type",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No trace types found",
+      "description": "Get started by creating a new trace type",
+      "noData": "No trace types available"
+    },
+    "validation": {
+      "codeRequired": "Code is required"
+    },
+    "createFailed": "Failed to create trace type. Please try again.",
+    "updateFailed": "Failed to update trace type. Please try again.",
+    "deleteFailed": "Failed to delete trace type",
+    "deleteConfirm": "Are you sure you want to delete this trace type?"
   }
 }

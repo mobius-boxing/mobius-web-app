@@ -57,7 +57,7 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
       height: data.height ? Number(data.height) : undefined,
     };
 
-    await fluteTypesApi.updateFluteType(fluteType.id, formData);
+    await fluteTypesApi.updateFluteType(fluteType.uuid, formData);
   });
 
   if (!fluteType) return null;

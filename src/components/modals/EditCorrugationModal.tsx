@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface EditCorrugationModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [corrugationClasses, setCorrugationClasses] = useState<CorrugationClass[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
@@ -46,7 +48,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
       setDropdownsLoaded(false);
       fetchCorrugationClasses();
     }
-  }, [isOpen, corrugation]);
+  }, [isOpen, corrugation, effectiveCompanyId]);
 
   useEffect(() => {
     if (isOpen && corrugation && dropdownsLoaded) {
@@ -64,7 +66,8 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
 
   const fetchCorrugationClasses = async () => {
     try {
-      const response = await corrugationClassesApi.getCorrugationClasses({ limit: 100 });
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter });
       setCorrugationClasses(response.data || []);
     } catch (error) {
       console.error('Error fetching corrugation classes:', error);

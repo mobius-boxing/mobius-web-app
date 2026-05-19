@@ -242,7 +242,6 @@ export interface CreateCustomerForm {
 
 // Paper Type types
 export interface PaperType {
-  id: string;
   uuid: string;
   code: string;
   description?: string;
@@ -257,7 +256,6 @@ export interface CreatePaperTypeForm {
 
 // Flute Type types
 export interface FluteType {
-  id: string;
   uuid: string;
   code: string;
   description?: string;
@@ -278,13 +276,60 @@ export interface CreateFluteTypeForm {
   height?: number;
 }
 
-// Paper Class types
-export interface PaperClass {
-  id: string;
+// Flap Type types
+export interface FlapType {
+  uuid: string;
+  code: string;
+  description?: string;
+  companyId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFlapTypeForm {
+  code: string;
+  description?: string;
+  companyId?: string;
+}
+
+// Product Type types
+export interface ProductType {
   uuid: string;
   code: string;
   name: string;
-  papers?: number[]; // Array of paper supply IDs
+  companyId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateProductTypeForm {
+  code: string;
+  name: string;
+  companyId?: string;
+}
+
+// Box Type types
+export interface BoxType {
+  uuid: string;
+  code: string;
+  name: string;
+  companyId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateBoxTypeForm {
+  code: string;
+  name: string;
+  companyId?: string;
+}
+
+// Paper Class types
+export interface PaperClass {
+  uuid: string;
+  code: string;
+  name: string;
+  papers?: string[]; // Array of paper supply UUIDs
   createdAt: string;
   updatedAt: string;
 }
@@ -292,7 +337,7 @@ export interface PaperClass {
 export interface CreatePaperClassForm {
   code: string;
   name: string;
-  papers?: number[]; // Array of paper supply IDs
+  papers?: string[]; // Array of paper supply UUIDs
 }
 
 // Corrugation Class types
@@ -343,7 +388,14 @@ export interface Product {
   clientCode?: string;
   description?: string;
   customerId: string;
-  customerName?: string;
+  customerName?: string; // Deprecated: use customer.name instead
+  customer?: Customer; // Full customer object from API
+  revision?: number;
+  vip?: boolean;
+  productTypeId?: string;
+  boxTypeId?: string;
+  productType?: ProductType;
+  boxType?: BoxType;
   createdAt: string;
   updatedAt: string;
 }
@@ -353,6 +405,10 @@ export interface CreateProductForm {
   clientCode?: string;
   description?: string;
   customerId: string;
+  revision?: number;
+  vip?: boolean;
+  productTypeId?: string;
+  boxTypeId?: string;
 }
 
 // Manufacturer types
@@ -414,9 +470,8 @@ export interface CreateWarehouseForm {
 
 // Warehouse Location types
 export interface WarehouseLocation {
-  id: string;
   uuid: string;
-  warehouseId: number;
+  warehouseUuid: string;
   row: number;
   col: number;
   status: 'active' | 'inactive';
@@ -445,7 +500,6 @@ export interface BatchUpdateLocation {
 
 // Paper Supply types
 export interface PaperSupply {
-  id: string;
   uuid: string;
   code: string;
   description?: string;
@@ -544,7 +598,6 @@ export interface CreatePaperStockForm {
 // Sheet Stock types
 export interface SheetStock {
   uuid: string;
-  warehouseLocationId?: number;
   comments?: string;
   price?: number;
   quantity: number;
@@ -570,7 +623,6 @@ export interface CreateSheetStockForm {
 
 // Warehouse Stock types
 export interface LocationStock {
-  locationId: number;
   locationUuid: string;
   locationCode: string;
   row: number;
@@ -628,4 +680,154 @@ export interface CreateToolingForm {
   supplierUuid?: string;
   minimumStock?: number;
   toolingTypeUuid: string;
+}
+
+// Consumable Type types
+export interface ConsumableType {
+  uuid: string;
+  code: string;
+  name: string;
+  autoConsumption?: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateConsumableTypeForm {
+  code: string;
+  name: string;
+  autoConsumption?: boolean;
+}
+
+// Consumable Supply types
+export interface ConsumableSupply {
+  uuid: string;
+  code: string;
+  name: string;
+  description?: string;
+  supplier?: Supplier;
+  manufacturer?: Manufacturer;
+  consumableType?: ConsumableType;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateConsumableSupplyForm {
+  code: string;
+  name: string;
+  description?: string;
+  supplierUuid?: string;
+  manufacturerUuid?: string;
+  consumableTypeUuid: string;
+}
+
+// Tooling Stock types
+export interface ToolingStock {
+  uuid: string;
+  comments?: string;
+  price?: number;
+  quantity: number;
+  warehouse?: Warehouse;
+  warehouseLocation?: WarehouseLocation;
+  supplier?: Supplier;
+  manufacturer?: Manufacturer;
+  tooling?: Tooling;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateToolingStockForm {
+  warehouseUuid: string;
+  warehouseLocationUuid?: string;
+  supplierUuid?: string;
+  manufacturerUuid?: string;
+  toolingUuid: string;
+  comments?: string;
+  price?: number;
+  quantity: number;
+}
+
+// Glue Type types
+export interface GlueType {
+  uuid: string;
+  code: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateGlueTypeForm {
+  code: string;
+  description?: string;
+  companyId?: string;
+}
+
+// Strapping Type types
+export interface StrappingType {
+  uuid: string;
+  code: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateStrappingTypeForm {
+  code: string;
+  description?: string;
+  companyId?: string;
+}
+
+// Complement types
+export interface Complement {
+  uuid: string;
+  code: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateComplementForm {
+  code: string;
+  description?: string;
+  companyId?: string;
+}
+
+// Trace Type types
+export interface TraceType {
+  uuid: string;
+  code: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTraceTypeForm {
+  code: string;
+  description?: string;
+  companyId?: string;
+}
+
+// Consumable Stock types
+export interface ConsumableStock {
+  uuid: string;
+  comments?: string;
+  price?: number;
+  quantity: number;
+  warehouse?: Warehouse;
+  warehouseLocation?: WarehouseLocation;
+  supplier?: Supplier;
+  manufacturer?: Manufacturer;
+  consumableSupply?: ConsumableSupply;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateConsumableStockForm {
+  warehouseUuid: string;
+  warehouseLocationUuid?: string;
+  supplierUuid?: string;
+  manufacturerUuid?: string;
+  consumableSupplyUuid: string;
+  comments?: string;
+  price?: number;
+  quantity: number;
 }

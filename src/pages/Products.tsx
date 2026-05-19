@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Product } from '../types';
@@ -7,10 +7,13 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
+import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateProductModal from '../components/modals/CreateProductModal';
 import EditProductModal from '../components/modals/EditProductModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const Products: React.FC = () => {
   const { t } = useTranslation();
@@ -19,41 +22,57 @@ const Products: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const confirmModal = useConfirmModal();
 
-  // Use the entity list hook for data management
+  const fetchProducts = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return productsApi.getProducts(fetchParams);
+  }, [effectiveCompanyId]);
+
   const {
-    filteredData: products,
+    data: products,
     loading,
     search,
     setSearch,
     refresh,
+    pagination,
+    setPage,
+    setLimit,
+    sortBy,
+    sortOrder,
+    setSort,
   } = useEntityList<Product>({
-    fetchFn: productsApi.getProducts,
+    fetchFn: fetchProducts,
     searchFields: ['code', 'clientCode', 'description', 'customerName'],
-    defaultFilters: effectiveCompanyId ? { companyId: effectiveCompanyId } : {},
   });
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
     setShowEditModal(true);
   };
 
-  const handleDelete = async (productId: string) => {
-    if (!window.confirm(t('products.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(productId);
-      await productsApi.deleteProduct(productId);
-      await refresh();
-    } catch (error: any) {
-      console.error('Error deleting product:', error);
-      const errorMessage = error.response?.data?.message || t('products.deleteFailed');
-      alert(errorMessage);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (productId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('products.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(productId);
+          await productsApi.deleteProduct(productId);
+          await refresh();
+        } catch (error: any) {
+          console.error('Error deleting product:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -67,10 +86,15 @@ const Products: React.FC = () => {
     refresh();
   };
 
+  const handleSort = (field: string, order: 'asc' | 'desc') => {
+    setSort(field, order);
+  };
+
   const columns = [
     {
       key: 'code',
       header: t('products.columns.code'),
+      sortable: true,
       render: (value: any, product: Product) => (
         <span className="text-sm font-medium text-secondary-900">
           {product.code || 'N/A'}
@@ -80,6 +104,7 @@ const Products: React.FC = () => {
     {
       key: 'clientCode',
       header: t('products.columns.clientCode'),
+      sortable: true,
       render: (value: any, product: Product) => (
         <span className="text-sm text-secondary-900">
           {product.clientCode || 'N/A'}
@@ -91,7 +116,7 @@ const Products: React.FC = () => {
       header: t('products.columns.customer'),
       render: (value: any, product: Product) => (
         <span className="text-sm text-secondary-900">
-          {product.customerName || 'N/A'}
+          {product.customer?.name || product.customerName || 'N/A'}
         </span>
       ),
     },
@@ -101,6 +126,42 @@ const Products: React.FC = () => {
       render: (value: any, product: Product) => (
         <span className="text-sm text-secondary-500">
           {product.description || 'N/A'}
+        </span>
+      ),
+    },
+    {
+      key: 'revision',
+      header: t('products.columns.revision'),
+      render: (value: any, product: Product) => (
+        <span className="text-sm text-secondary-500">
+          {product.revision ?? 0}
+        </span>
+      ),
+    },
+    {
+      key: 'vip',
+      header: t('products.columns.vip'),
+      render: (value: any, product: Product) => (
+        <span className={`text-sm font-medium ${product.vip ? 'text-green-600' : 'text-secondary-400'}`}>
+          {product.vip ? t('common.yes') : t('common.no')}
+        </span>
+      ),
+    },
+    {
+      key: 'productType',
+      header: t('products.columns.productType'),
+      render: (value: any, product: Product) => (
+        <span className="text-sm text-secondary-500">
+          {product.productType?.code || '-'}
+        </span>
+      ),
+    },
+    {
+      key: 'boxType',
+      header: t('products.columns.boxType'),
+      render: (value: any, product: Product) => (
+        <span className="text-sm text-secondary-500">
+          {product.boxType?.code || '-'}
         </span>
       ),
     },
@@ -134,7 +195,6 @@ const Products: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-secondary-900">{t('products.title')}</h1>
@@ -149,7 +209,6 @@ const Products: React.FC = () => {
           </Button>
         </div>
 
-        {/* Filters */}
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex items-center space-x-4">
             <div className="flex-1 max-w-md">
@@ -162,12 +221,11 @@ const Products: React.FC = () => {
           </div>
         </div>
 
-        {/* Products Table */}
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
-                {t('products.allProducts')} ({products.length})
+                {t('products.allProducts')} ({pagination.total})
               </h2>
             </div>
 
@@ -192,17 +250,29 @@ const Products: React.FC = () => {
                 )}
               </div>
             ) : (
-              <Table
-                columns={columns}
-                data={products}
-                loading={loading}
-              />
+              <>
+                <Table
+                  columns={columns}
+                  data={products}
+                  loading={loading}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSort={handleSort}
+                />
+                <Pagination
+                  page={pagination.page}
+                  totalPages={pagination.totalPages}
+                  total={pagination.total}
+                  limit={pagination.limit}
+                  onPageChange={setPage}
+                  onLimitChange={setLimit}
+                />
+              </>
             )}
           </div>
         </div>
       </div>
 
-      {/* Modals */}
       <CreateProductModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
@@ -217,6 +287,16 @@ const Products: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         product={selectedProduct}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

@@ -34,7 +34,7 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "../debug/deploy-frontend.bat"
+    "deploy": "bash ../debug/deploy-frontend.sh"
   },
   "eslintConfig": {
     "extends": [

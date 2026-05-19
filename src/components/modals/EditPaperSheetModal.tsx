@@ -7,6 +7,7 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface EditPaperSheetModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
   paperSheet,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [corrugations, setCorrugations] = useState<Corrugation[]>([]);
@@ -49,7 +51,7 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
       setDropdownsLoaded(false);
       fetchDropdownData();
     }
-  }, [isOpen, paperSheet]);
+  }, [isOpen, paperSheet, effectiveCompanyId]);
 
   // Effect 2: Reset form AFTER dropdowns are loaded (prevents race condition)
   useEffect(() => {
@@ -70,10 +72,11 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
 
   const fetchDropdownData = async () => {
     try {
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       const [manufacturersRes, suppliersRes, corrugationsRes] = await Promise.all([
-        manufacturersApi.getManufacturers(),
-        suppliersApi.getSuppliers(),
-        corrugationsApi.getCorrugations(),
+        manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }),
+        suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
+        corrugationsApi.getCorrugations({ limit: 100, ...companyFilter }),
       ]);
       setManufacturers(manufacturersRes.data || []);
       setSuppliers(suppliersRes.data || []);

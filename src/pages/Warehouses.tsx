@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, Warehouse as WarehouseIcon, Grid, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Warehouse } from '../types';
@@ -9,8 +9,10 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateWarehouseModal from '../components/modals/CreateWarehouseModal';
 import EditWarehouseModal from '../components/modals/EditWarehouseModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 import WarehouseGridEditorModal from '../components/modals/WarehouseGridEditorModal';
 import WarehouseStockViewModal from '../components/modals/WarehouseStockViewModal';
 
@@ -23,6 +25,13 @@ const Warehouses: React.FC = () => {
   const [showStockViewModal, setShowStockViewModal] = useState(false);
   const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const confirmModal = useConfirmModal();
+
+  // Create fetch function with company filter
+  const fetchWarehouses = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return warehousesApi.getWarehouses(fetchParams);
+  }, [effectiveCompanyId]);
 
   // Use the entity list hook for data management
   const {
@@ -32,32 +41,38 @@ const Warehouses: React.FC = () => {
     setSearch,
     refresh,
   } = useEntityList<Warehouse>({
-    fetchFn: warehousesApi.getWarehouses,
+    fetchFn: fetchWarehouses,
     searchFields: ['name'],
-    defaultFilters: effectiveCompanyId ? { companyId: effectiveCompanyId } : {},
   });
+
+  // Refetch when effectiveCompanyId changes
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (warehouse: Warehouse) => {
     setSelectedWarehouse(warehouse);
     setShowEditModal(true);
   };
 
-  const handleDelete = async (warehouseId: string) => {
-    if (!window.confirm(t('warehouses.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(warehouseId);
-      await warehousesApi.deleteWarehouse(warehouseId);
-      await refresh();
-    } catch (error: any) {
-      console.error('Error deleting warehouse:', error);
-      const errorMessage = error.response?.data?.message || t('warehouses.deleteFailed');
-      alert(errorMessage);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (warehouseId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('warehouses.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(warehouseId);
+          await warehousesApi.deleteWarehouse(warehouseId);
+          await refresh();
+        } catch (error: any) {
+          console.error('Error deleting warehouse:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -258,6 +273,16 @@ const Warehouses: React.FC = () => {
           setSelectedWarehouse(null);
         }}
         warehouse={selectedWarehouse}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

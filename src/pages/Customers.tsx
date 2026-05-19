@@ -9,8 +9,10 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateCustomerModal from '../components/modals/CreateCustomerModal';
 import EditCustomerModal from '../components/modals/EditCustomerModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const Customers: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +21,7 @@ const Customers: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const confirmModal = useConfirmModal();
 
   // Create fetch function with company filter
   const fetchCustomers = useCallback((params: Record<string, unknown>) => {
@@ -49,22 +52,23 @@ const Customers: React.FC = () => {
     setShowEditModal(true);
   };
 
-  const handleDelete = async (customerId: string) => {
-    if (!window.confirm(t('customers.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(customerId);
-      await customersApi.deleteCustomer(customerId);
-      await refresh();
-    } catch (error: any) {
-      console.error('Error deleting customer:', error);
-      const errorMessage = error.response?.data?.message || t('customers.deleteFailed');
-      alert(errorMessage);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (customerId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('customers.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(customerId);
+          await customersApi.deleteCustomer(customerId);
+          await refresh();
+        } catch (error: any) {
+          console.error('Error deleting customer:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -253,6 +257,16 @@ const Customers: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         customer={selectedCustomer}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

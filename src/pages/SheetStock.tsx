@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SheetStock } from '../types';
@@ -9,8 +9,10 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateSheetStockModal from '../components/modals/CreateSheetStockModal';
 import EditSheetStockModal from '../components/modals/EditSheetStockModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const SheetStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +21,13 @@ const SheetStockPage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedSheetStock, setSelectedSheetStock] = useState<SheetStock | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const confirmModal = useConfirmModal();
+
+  // Create fetch function with company filter
+  const fetchSheetStock = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return sheetStockApi.getSheetStock(fetchParams);
+  }, [effectiveCompanyId]);
 
   // Use the entity list hook for data management
   const {
@@ -28,32 +37,38 @@ const SheetStockPage: React.FC = () => {
     setSearch,
     refresh,
   } = useEntityList<SheetStock>({
-    fetchFn: sheetStockApi.getSheetStock,
+    fetchFn: fetchSheetStock,
     searchFields: ['comments'],
-    defaultFilters: effectiveCompanyId ? { companyId: effectiveCompanyId } : {},
   });
+
+  // Refetch when effectiveCompanyId changes
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (stock: SheetStock) => {
     setSelectedSheetStock(stock);
     setShowEditModal(true);
   };
 
-  const handleDelete = async (stockId: string) => {
-    if (!window.confirm(t('sheetStock.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(stockId);
-      await sheetStockApi.deleteSheetStock(stockId);
-      await refresh();
-    } catch (error: any) {
-      console.error('Error deleting sheet stock:', error);
-      const errorMessage = error.response?.data?.message || t('sheetStock.deleteFailed');
-      alert(errorMessage);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (stockId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('sheetStock.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(stockId);
+          await sheetStockApi.deleteSheetStock(stockId);
+          await refresh();
+        } catch (error: any) {
+          console.error('Error deleting sheet stock:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -231,6 +246,16 @@ const SheetStockPage: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         sheetStock={selectedSheetStock}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

@@ -7,6 +7,7 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface CreateCorrugationModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [corrugationClasses, setCorrugationClasses] = useState<CorrugationClass[]>([]);
 
   const {
@@ -41,11 +43,12 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
     if (isOpen) {
       fetchCorrugationClasses();
     }
-  }, [isOpen]);
+  }, [isOpen, effectiveCompanyId]);
 
   const fetchCorrugationClasses = async () => {
     try {
-      const response = await corrugationClassesApi.getCorrugationClasses({ limit: 100 });
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const response = await corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter });
       setCorrugationClasses(response.data || []);
     } catch (error) {
       console.error('Error fetching corrugation classes:', error);

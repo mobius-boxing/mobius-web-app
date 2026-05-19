@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalForm } from '../../hooks/useModalForm';
-import { Product, CreateProductForm, Customer } from '../../types';
-import { productsApi, customersApi } from '../../services/api';
+import { Product, CreateProductForm, Customer, ProductType, BoxType } from '../../types';
+import { productsApi, customersApi, productTypesApi, boxTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface EditProductModalProps {
   isOpen: boolean;
@@ -22,7 +23,10 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   product,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
+  const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
@@ -44,9 +48,9 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   useEffect(() => {
     if (isOpen && product) {
       setDropdownsLoaded(false);
-      fetchCustomers();
+      fetchDropdownData();
     }
-  }, [isOpen, product]);
+  }, [isOpen, product, effectiveCompanyId]);
 
   useEffect(() => {
     if (isOpen && product && dropdownsLoaded) {
@@ -54,17 +58,28 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         code: product.code,
         clientCode: product.clientCode || '',
         description: product.description || '',
-        customerId: product.customerId,
+        customerId: product.customer?.uuid || '',
+        revision: product.revision ?? 0,
+        vip: product.vip ?? false,
+        productTypeId: product.productType?.uuid || '',
+        boxTypeId: product.boxType?.uuid || '',
       });
     }
   }, [isOpen, product, dropdownsLoaded, reset]);
 
-  const fetchCustomers = async () => {
+  const fetchDropdownData = async () => {
     try {
-      const response = await customersApi.getCustomers();
-      setCustomers(response.data || []);
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
+      const [customersRes, productTypesRes, boxTypesRes] = await Promise.all([
+        customersApi.getCustomers({ limit: 100, ...companyFilter }),
+        productTypesApi.getProductTypes({ limit: 100, ...companyFilter }),
+        boxTypesApi.getBoxTypes({ limit: 100, ...companyFilter }),
+      ]);
+      setCustomers(customersRes.data || []);
+      setProductTypes(productTypesRes.data || []);
+      setBoxTypes(boxTypesRes.data || []);
     } catch (error) {
-      console.error('Error fetching customers:', error);
+      console.error('Error fetching dropdown data:', error);
     } finally {
       setDropdownsLoaded(true);
     }
@@ -137,6 +152,64 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
             rows={3}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('products.revision')}
+            </label>
+            <Input
+              type="number"
+              {...register('revision', { valueAsNumber: true })}
+              placeholder={t('products.revisionPlaceholder')}
+            />
+          </div>
+
+          <div className="flex items-center pt-6">
+            <input
+              type="checkbox"
+              {...register('vip')}
+              className="h-4 w-4 text-primary-600 border-secondary-300 rounded focus:ring-primary-500"
+            />
+            <label className="ml-2 text-sm font-medium text-secondary-700">
+              {t('products.vip')}
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('products.productType')}
+          </label>
+          <select
+            {...register('productTypeId')}
+            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">{t('products.selectProductType')}</option>
+            {productTypes.map((pt) => (
+              <option key={pt.uuid} value={pt.uuid}>
+                {pt.code} - {pt.name}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('products.boxType')}
+          </label>
+          <select
+            {...register('boxTypeId')}
+            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+          >
+            <option value="">{t('products.selectBoxType')}</option>
+            {boxTypes.map((bt) => (
+              <option key={bt.uuid} value={bt.uuid}>
+                {bt.code} - {bt.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <ModalFooter loading={loading} onCancel={handleClose} submitText={t('products.updateButton')} />

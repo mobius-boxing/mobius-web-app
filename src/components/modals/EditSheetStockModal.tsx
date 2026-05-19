@@ -10,6 +10,7 @@ import ModalFooter from '../ui/ModalFooter';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { useModalForm } from '../../hooks/useModalForm';
 import { MapPin, X } from 'lucide-react';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface EditSheetStockModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
   sheetStock,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
@@ -63,7 +65,7 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
       setDropdownsLoaded(false);
       fetchDropdownData();
     }
-  }, [isOpen, sheetStock]);
+  }, [isOpen, sheetStock, effectiveCompanyId]);
 
   useEffect(() => {
     if (sheetStock && isOpen && dropdownsLoaded) {
@@ -91,11 +93,12 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
 
   const fetchDropdownData = async () => {
     try {
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       const [manufacturersRes, suppliersRes, warehousesRes, paperSheetsRes] = await Promise.all([
-        manufacturersApi.getManufacturers(),
-        suppliersApi.getSuppliers(),
-        warehousesApi.getWarehouses(),
-        paperSheetsApi.getPaperSheets(),
+        manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }),
+        suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
+        warehousesApi.getWarehouses({ limit: 100, ...companyFilter }),
+        paperSheetsApi.getPaperSheets({ limit: 100, ...companyFilter }),
       ]);
       setManufacturers(manufacturersRes.data || []);
       setSuppliers(suppliersRes.data || []);

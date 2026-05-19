@@ -50,7 +50,7 @@ const EditPaperTypeModal: React.FC<EditPaperTypeModalProps> = ({
 
   const onSubmit = handleSubmit(async (data) => {
     if (!paperType) return;
-    await paperTypesApi.updatePaperType(paperType.id, data);
+    await paperTypesApi.updatePaperType(paperType.uuid, data);
   });
 
   if (!paperType) return null;

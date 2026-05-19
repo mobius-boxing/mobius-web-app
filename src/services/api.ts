@@ -24,6 +24,12 @@ import {
   CreatePaperTypeForm,
   FluteType,
   CreateFluteTypeForm,
+  FlapType,
+  CreateFlapTypeForm,
+  ProductType,
+  CreateProductTypeForm,
+  BoxType,
+  CreateBoxTypeForm,
   PaperClass,
   CreatePaperClassForm,
   CorrugationClass,
@@ -52,7 +58,23 @@ import {
   ToolingType,
   CreateToolingTypeForm,
   Tooling,
-  CreateToolingForm
+  CreateToolingForm,
+  ConsumableType,
+  CreateConsumableTypeForm,
+  ConsumableSupply,
+  CreateConsumableSupplyForm,
+  ToolingStock,
+  CreateToolingStockForm,
+  ConsumableStock,
+  CreateConsumableStockForm,
+  GlueType,
+  CreateGlueTypeForm,
+  StrappingType,
+  CreateStrappingTypeForm,
+  Complement,
+  CreateComplementForm,
+  TraceType,
+  CreateTraceTypeForm,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -404,6 +426,7 @@ export const paperTypesApi = {
     page?: number;
     limit?: number;
     search?: string;
+    companyId?: number | string;
   } = {}): Promise<PaginatedResponse<PaperType>> => {
     const response = await api.get('/api/paper-type', { params });
     const backendData = response.data;
@@ -442,6 +465,7 @@ export const fluteTypesApi = {
     page?: number;
     limit?: number;
     search?: string;
+    companyId?: number | string;
   } = {}): Promise<PaginatedResponse<FluteType>> => {
     const response = await api.get('/api/flute-type', { params });
     const backendData = response.data;
@@ -474,12 +498,130 @@ export const fluteTypesApi = {
   },
 };
 
+// Flap Types API
+export const flapTypesApi = {
+  getFlapTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<FlapType>> => {
+    const response = await api.get('/api/flap-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getFlapTypeById: async (id: string): Promise<FlapType> => {
+    const response: AxiosResponse<ApiResponse<FlapType>> = await api.get(`/api/flap-type/${id}`);
+    return response.data.data!;
+  },
+
+  createFlapType: async (data: CreateFlapTypeForm): Promise<FlapType> => {
+    const response: AxiosResponse<ApiResponse<FlapType>> = await api.post('/api/flap-type', data);
+    return response.data.data!;
+  },
+
+  updateFlapType: async (id: string, data: Partial<CreateFlapTypeForm>): Promise<FlapType> => {
+    const response: AxiosResponse<ApiResponse<FlapType>> = await api.put(`/api/flap-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteFlapType: async (id: string): Promise<void> => {
+    await api.delete(`/api/flap-type/${id}`);
+  },
+};
+
+// Product Types API
+export const productTypesApi = {
+  getProductTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<ProductType>> => {
+    const response = await api.get('/api/product-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getProductTypeById: async (id: string): Promise<ProductType> => {
+    const response: AxiosResponse<ApiResponse<ProductType>> = await api.get(`/api/product-type/${id}`);
+    return response.data.data!;
+  },
+
+  createProductType: async (data: CreateProductTypeForm): Promise<ProductType> => {
+    const response: AxiosResponse<ApiResponse<ProductType>> = await api.post('/api/product-type', data);
+    return response.data.data!;
+  },
+
+  updateProductType: async (id: string, data: Partial<CreateProductTypeForm>): Promise<ProductType> => {
+    const response: AxiosResponse<ApiResponse<ProductType>> = await api.put(`/api/product-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteProductType: async (id: string): Promise<void> => {
+    await api.delete(`/api/product-type/${id}`);
+  },
+};
+
+// Box Types API
+export const boxTypesApi = {
+  getBoxTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<BoxType>> => {
+    const response = await api.get('/api/box-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getBoxTypeById: async (id: string): Promise<BoxType> => {
+    const response: AxiosResponse<ApiResponse<BoxType>> = await api.get(`/api/box-type/${id}`);
+    return response.data.data!;
+  },
+
+  createBoxType: async (data: CreateBoxTypeForm): Promise<BoxType> => {
+    const response: AxiosResponse<ApiResponse<BoxType>> = await api.post('/api/box-type', data);
+    return response.data.data!;
+  },
+
+  updateBoxType: async (id: string, data: Partial<CreateBoxTypeForm>): Promise<BoxType> => {
+    const response: AxiosResponse<ApiResponse<BoxType>> = await api.put(`/api/box-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteBoxType: async (id: string): Promise<void> => {
+    await api.delete(`/api/box-type/${id}`);
+  },
+};
+
 // Paper Classes API
 export const paperClassesApi = {
   getPaperClasses: async (params: {
     page?: number;
     limit?: number;
     search?: string;
+    companyId?: number | string;
   } = {}): Promise<PaginatedResponse<PaperClass>> => {
     const response = await api.get('/api/paper-class', { params });
     const backendData = response.data;
@@ -518,6 +660,7 @@ export const corrugationClassesApi = {
     page?: number;
     limit?: number;
     search?: string;
+    companyId?: number | string;
   } = {}): Promise<PaginatedResponse<CorrugationClass>> => {
     const response = await api.get('/api/corrugation-class', { params });
     const backendData = response.data;
@@ -556,6 +699,7 @@ export const corrugationsApi = {
     page?: number;
     limit?: number;
     search?: string;
+    companyId?: number | string;
   } = {}): Promise<PaginatedResponse<Corrugation>> => {
     const response = await api.get('/api/corrugation', { params });
     const backendData = response.data;
@@ -634,6 +778,7 @@ export const manufacturersApi = {
     page?: number;
     limit?: number;
     search?: string;
+    companyId?: number | string;
   } = {}): Promise<PaginatedResponse<Manufacturer>> => {
     const response = await api.get('/api/manufacturer', { params });
     const backendData = response.data;
@@ -672,6 +817,7 @@ export const suppliersApi = {
     page?: number;
     limit?: number;
     search?: string;
+    companyId?: number | string;
   } = {}): Promise<PaginatedResponse<Supplier>> => {
     const response = await api.get('/api/supplier', { params });
     const backendData = response.data;
@@ -940,6 +1086,7 @@ export const toolingTypesApi = {
     code?: string;
     name?: string;
     automaticConsumption?: boolean;
+    companyId?: number | string;
   } = {}): Promise<PaginatedResponse<ToolingType>> => {
     const response = await api.get('/api/tooling-type', { params });
     const backendData = response.data;
@@ -982,6 +1129,7 @@ export const toolingsApi = {
     toolingTypeId?: string;
     manufacturerId?: string;
     supplierId?: string;
+    companyId?: number | string;
   } = {}): Promise<PaginatedResponse<Tooling>> => {
     const response = await api.get('/api/tooling', { params });
     const backendData = response.data;
@@ -1011,6 +1159,334 @@ export const toolingsApi = {
 
   deleteTooling: async (id: string): Promise<void> => {
     await api.delete(`/api/tooling/${id}`);
+  },
+};
+
+// Consumable Types API
+export const consumableTypesApi = {
+  getConsumableTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    code?: string;
+    name?: string;
+    autoConsumption?: boolean;
+    companyId?: number | string;
+  } = {}): Promise<PaginatedResponse<ConsumableType>> => {
+    const response = await api.get('/api/consumable-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getConsumableTypeById: async (id: string): Promise<ConsumableType> => {
+    const response: AxiosResponse<ApiResponse<ConsumableType>> = await api.get(`/api/consumable-type/${id}`);
+    return response.data.data!;
+  },
+
+  createConsumableType: async (data: CreateConsumableTypeForm): Promise<ConsumableType> => {
+    const response: AxiosResponse<ApiResponse<ConsumableType>> = await api.post('/api/consumable-type', data);
+    return response.data.data!;
+  },
+
+  updateConsumableType: async (id: string, data: Partial<CreateConsumableTypeForm>): Promise<ConsumableType> => {
+    const response: AxiosResponse<ApiResponse<ConsumableType>> = await api.put(`/api/consumable-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteConsumableType: async (id: string): Promise<void> => {
+    await api.delete(`/api/consumable-type/${id}`);
+  },
+};
+
+// Consumable Supplies API
+export const consumableSuppliesApi = {
+  getConsumableSupplies: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    code?: string;
+    name?: string;
+    consumableTypeId?: string;
+    manufacturerId?: string;
+    supplierId?: string;
+    companyId?: number | string;
+  } = {}): Promise<PaginatedResponse<ConsumableSupply>> => {
+    const response = await api.get('/api/consumable-supply', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getConsumableSupplyById: async (id: string): Promise<ConsumableSupply> => {
+    const response: AxiosResponse<ApiResponse<ConsumableSupply>> = await api.get(`/api/consumable-supply/${id}`);
+    return response.data.data!;
+  },
+
+  createConsumableSupply: async (data: CreateConsumableSupplyForm): Promise<ConsumableSupply> => {
+    const response: AxiosResponse<ApiResponse<ConsumableSupply>> = await api.post('/api/consumable-supply', data);
+    return response.data.data!;
+  },
+
+  updateConsumableSupply: async (id: string, data: Partial<CreateConsumableSupplyForm>): Promise<ConsumableSupply> => {
+    const response: AxiosResponse<ApiResponse<ConsumableSupply>> = await api.put(`/api/consumable-supply/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteConsumableSupply: async (id: string): Promise<void> => {
+    await api.delete(`/api/consumable-supply/${id}`);
+  },
+};
+
+// Tooling Stock API
+export const toolingStockApi = {
+  getToolingStock: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    warehouseId?: string;
+    supplierId?: string;
+    manufacturerId?: string;
+    toolingId?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<ToolingStock>> => {
+    const response = await api.get('/api/tooling-stock', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getToolingStockById: async (id: string): Promise<ToolingStock> => {
+    const response: AxiosResponse<ApiResponse<ToolingStock>> = await api.get(`/api/tooling-stock/${id}`);
+    return response.data.data!;
+  },
+
+  createToolingStock: async (data: CreateToolingStockForm): Promise<ToolingStock> => {
+    const response: AxiosResponse<ApiResponse<ToolingStock>> = await api.post('/api/tooling-stock', data);
+    return response.data.data!;
+  },
+
+  updateToolingStock: async (id: string, data: Partial<CreateToolingStockForm>): Promise<ToolingStock> => {
+    const response: AxiosResponse<ApiResponse<ToolingStock>> = await api.put(`/api/tooling-stock/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteToolingStock: async (id: string): Promise<void> => {
+    await api.delete(`/api/tooling-stock/${id}`);
+  },
+};
+
+// Consumable Stock API
+export const consumableStockApi = {
+  getConsumableStock: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    warehouseId?: string;
+    supplierId?: string;
+    manufacturerId?: string;
+    consumableSupplyId?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<ConsumableStock>> => {
+    const response = await api.get('/api/consumable-stock', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getConsumableStockById: async (id: string): Promise<ConsumableStock> => {
+    const response: AxiosResponse<ApiResponse<ConsumableStock>> = await api.get(`/api/consumable-stock/${id}`);
+    return response.data.data!;
+  },
+
+  createConsumableStock: async (data: CreateConsumableStockForm): Promise<ConsumableStock> => {
+    const response: AxiosResponse<ApiResponse<ConsumableStock>> = await api.post('/api/consumable-stock', data);
+    return response.data.data!;
+  },
+
+  updateConsumableStock: async (id: string, data: Partial<CreateConsumableStockForm>): Promise<ConsumableStock> => {
+    const response: AxiosResponse<ApiResponse<ConsumableStock>> = await api.put(`/api/consumable-stock/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteConsumableStock: async (id: string): Promise<void> => {
+    await api.delete(`/api/consumable-stock/${id}`);
+  },
+};
+
+// Glue Types API
+export const glueTypesApi = {
+  getGlueTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<GlueType>> => {
+    const response = await api.get('/api/glue-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getGlueTypeById: async (id: string): Promise<GlueType> => {
+    const response: AxiosResponse<ApiResponse<GlueType>> = await api.get(`/api/glue-type/${id}`);
+    return response.data.data!;
+  },
+
+  createGlueType: async (data: CreateGlueTypeForm): Promise<GlueType> => {
+    const response: AxiosResponse<ApiResponse<GlueType>> = await api.post('/api/glue-type', data);
+    return response.data.data!;
+  },
+
+  updateGlueType: async (id: string, data: Partial<CreateGlueTypeForm>): Promise<GlueType> => {
+    const response: AxiosResponse<ApiResponse<GlueType>> = await api.put(`/api/glue-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteGlueType: async (id: string): Promise<void> => {
+    await api.delete(`/api/glue-type/${id}`);
+  },
+};
+
+// Strapping Types API
+export const strappingTypesApi = {
+  getStrappingTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<StrappingType>> => {
+    const response = await api.get('/api/strapping-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getStrappingTypeById: async (id: string): Promise<StrappingType> => {
+    const response: AxiosResponse<ApiResponse<StrappingType>> = await api.get(`/api/strapping-type/${id}`);
+    return response.data.data!;
+  },
+
+  createStrappingType: async (data: CreateStrappingTypeForm): Promise<StrappingType> => {
+    const response: AxiosResponse<ApiResponse<StrappingType>> = await api.post('/api/strapping-type', data);
+    return response.data.data!;
+  },
+
+  updateStrappingType: async (id: string, data: Partial<CreateStrappingTypeForm>): Promise<StrappingType> => {
+    const response: AxiosResponse<ApiResponse<StrappingType>> = await api.put(`/api/strapping-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteStrappingType: async (id: string): Promise<void> => {
+    await api.delete(`/api/strapping-type/${id}`);
+  },
+};
+
+// Complements API
+export const complementsApi = {
+  getComplements: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<Complement>> => {
+    const response = await api.get('/api/complement', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getComplementById: async (id: string): Promise<Complement> => {
+    const response: AxiosResponse<ApiResponse<Complement>> = await api.get(`/api/complement/${id}`);
+    return response.data.data!;
+  },
+
+  createComplement: async (data: CreateComplementForm): Promise<Complement> => {
+    const response: AxiosResponse<ApiResponse<Complement>> = await api.post('/api/complement', data);
+    return response.data.data!;
+  },
+
+  updateComplement: async (id: string, data: Partial<CreateComplementForm>): Promise<Complement> => {
+    const response: AxiosResponse<ApiResponse<Complement>> = await api.put(`/api/complement/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteComplement: async (id: string): Promise<void> => {
+    await api.delete(`/api/complement/${id}`);
+  },
+};
+
+// Trace Types API
+export const traceTypesApi = {
+  getTraceTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<TraceType>> => {
+    const response = await api.get('/api/trace-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getTraceTypeById: async (id: string): Promise<TraceType> => {
+    const response: AxiosResponse<ApiResponse<TraceType>> = await api.get(`/api/trace-type/${id}`);
+    return response.data.data!;
+  },
+
+  createTraceType: async (data: CreateTraceTypeForm): Promise<TraceType> => {
+    const response: AxiosResponse<ApiResponse<TraceType>> = await api.post('/api/trace-type', data);
+    return response.data.data!;
+  },
+
+  updateTraceType: async (id: string, data: Partial<CreateTraceTypeForm>): Promise<TraceType> => {
+    const response: AxiosResponse<ApiResponse<TraceType>> = await api.put(`/api/trace-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteTraceType: async (id: string): Promise<void> => {
+    await api.delete(`/api/trace-type/${id}`);
   },
 };
 

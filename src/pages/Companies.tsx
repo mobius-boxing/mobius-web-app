@@ -9,8 +9,10 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateCompanyModal from '../components/modals/CreateCompanyModal';
 import EditCompanyModal from '../components/modals/EditCompanyModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const Companies: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -19,6 +21,7 @@ const Companies: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState<Company | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const confirmModal = useConfirmModal();
 
   // Use the entity list hook for data management
   const {
@@ -37,21 +40,23 @@ const Companies: React.FC = () => {
     setShowEditModal(true);
   };
 
-  const handleDelete = async (company: Company) => {
-    if (!window.confirm(t('companies.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(company.uuid);
-      await companiesApi.deleteCompany(company.uuid);
-      await refresh();
-    } catch (error) {
-      console.error('Error deleting company:', error);
-      alert(t('companies.deleteFailed'));
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (company: Company) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('companies.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(company.uuid);
+          await companiesApi.deleteCompany(company.uuid);
+          await refresh();
+        } catch (error) {
+          console.error('Error deleting company:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleToggleStatus = async (company: Company) => {
@@ -257,6 +262,16 @@ const Companies: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         company={selectedCompany}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

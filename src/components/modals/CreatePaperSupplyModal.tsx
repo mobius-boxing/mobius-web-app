@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface CreatePaperSupplyModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [paperTypes, setPaperTypes] = useState<PaperType[]>([]);
@@ -43,14 +45,15 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
     if (isOpen) {
       fetchDropdownData();
     }
-  }, [isOpen]);
+  }, [isOpen, effectiveCompanyId]);
 
   const fetchDropdownData = async () => {
     try {
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       const [manufacturersRes, suppliersRes, paperTypesRes] = await Promise.all([
-        manufacturersApi.getManufacturers(),
-        suppliersApi.getSuppliers(),
-        paperTypesApi.getPaperTypes(),
+        manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }),
+        suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
+        paperTypesApi.getPaperTypes({ limit: 100, ...companyFilter }),
       ]);
       setManufacturers(manufacturersRes.data || []);
       setSuppliers(suppliersRes.data || []);

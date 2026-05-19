@@ -7,6 +7,7 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface EditPaperSupplyModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
   paperSupply,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [paperTypes, setPaperTypes] = useState<PaperType[]>([]);
@@ -48,7 +50,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
       setDropdownsLoaded(false);
       fetchDropdownData();
     }
-  }, [isOpen, paperSupply]);
+  }, [isOpen, paperSupply, effectiveCompanyId]);
 
   useEffect(() => {
     if (isOpen && paperSupply && dropdownsLoaded) {
@@ -69,10 +71,11 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
 
   const fetchDropdownData = async () => {
     try {
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       const [manufacturersRes, suppliersRes, paperTypesRes] = await Promise.all([
-        manufacturersApi.getManufacturers(),
-        suppliersApi.getSuppliers(),
-        paperTypesApi.getPaperTypes(),
+        manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }),
+        suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
+        paperTypesApi.getPaperTypes({ limit: 100, ...companyFilter }),
       ]);
       setManufacturers(manufacturersRes.data || []);
       setSuppliers(suppliersRes.data || []);

@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
+import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 
 interface CreatePaperSheetModalProps {
   isOpen: boolean;
@@ -20,6 +21,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [corrugations, setCorrugations] = useState<Corrugation[]>([]);
@@ -43,14 +45,15 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
     if (isOpen) {
       fetchDropdownData();
     }
-  }, [isOpen]);
+  }, [isOpen, effectiveCompanyId]);
 
   const fetchDropdownData = async () => {
     try {
+      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       const [manufacturersRes, suppliersRes, corrugationsRes] = await Promise.all([
-        manufacturersApi.getManufacturers(),
-        suppliersApi.getSuppliers(),
-        corrugationsApi.getCorrugations(),
+        manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }),
+        suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
+        corrugationsApi.getCorrugations({ limit: 100, ...companyFilter }),
       ]);
       setManufacturers(manufacturersRes.data || []);
       setSuppliers(suppliersRes.data || []);

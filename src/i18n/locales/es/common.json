@@ -33,8 +33,22 @@
     "sheetStock": "Stock de Planchas",
     "toolingTypes": "Tipos de Herramental",
     "toolings": "Herramentales",
+    "consumableTypes": "Tipos de Consumibles",
+    "consumableSupplies": "Consumibles",
+    "toolingStock": "Stock de Herramentales",
+    "consumableStock": "Stock de Consumibles",
+    "productSpecifications": "Especificaciones de Producto",
+    "flapTypes": "Tipos de Solapa",
+    "productTypes": "Tipos de Producto",
+    "boxTypes": "Tipos de Caja",
+    "glueTypes": "Tipos de Pegamento",
+    "strappingTypes": "Tipos de Zuncho",
+    "complements": "Complementos",
+    "traceTypes": "Tipos de Traza",
     "settings": "Configuración",
-    "signOut": "Cerrar Sesión"
+    "signOut": "Cerrar Sesión",
+    "collapseSidebar": "Contraer barra lateral",
+    "expandSidebar": "Expandir barra lateral"
   },
   "companies": {
     "title": "Empresas",
@@ -68,6 +82,17 @@
       "noDescription": "Sin descripción",
       "noDate": "N/A"
     }
+  },
+  "pagination": {
+    "showing": "Mostrando {{start}} a {{end}} de {{total}}",
+    "previous": "Página anterior",
+    "next": "Página siguiente"
+  },
+  "confirmModal": {
+    "defaultTitle": "Confirmar Acción",
+    "confirm": "Confirmar",
+    "cancel": "Cancelar",
+    "deleteTitle": "Confirmar Eliminación"
   },
   "common": {
     "loading": "Cargando...",
@@ -390,6 +415,114 @@
     "deleteFailed": "Error al eliminar el tipo de onda",
     "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de onda?"
   },
+  "flapTypes": {
+    "title": "Tipos de Solapa",
+    "subtitle": "Gestionar catálogo de tipos de solapa",
+    "addFlapType": "Agregar Tipo de Solapa",
+    "allFlapTypes": "Todos los Tipos de Solapa",
+    "searchPlaceholder": "Buscar tipos de solapa...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código de tipo de solapa",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "createTitle": "Crear Tipo de Solapa",
+    "editTitle": "Editar Tipo de Solapa",
+    "editFlapType": "Editar Tipo de Solapa",
+    "deleteFlapType": "Eliminar Tipo de Solapa",
+    "createButton": "Crear Tipo de Solapa",
+    "updateButton": "Actualizar Tipo de Solapa",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron tipos de solapa",
+      "description": "Comience creando un nuevo tipo de solapa",
+      "noData": "No hay tipos de solapa disponibles"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido"
+    },
+    "createSuccess": "Tipo de solapa creado exitosamente",
+    "updateSuccess": "Tipo de solapa actualizado exitosamente",
+    "deleteSuccess": "Tipo de solapa eliminado exitosamente",
+    "deleteFailed": "Error al eliminar el tipo de solapa",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de solapa?"
+  },
+  "productTypes": {
+    "title": "Tipos de Producto",
+    "subtitle": "Gestionar catálogo de tipos de producto",
+    "addProductType": "Agregar Tipo de Producto",
+    "allProductTypes": "Todos los Tipos de Producto",
+    "searchPlaceholder": "Buscar tipos de producto...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código de tipo de producto",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese nombre de tipo de producto",
+    "createTitle": "Crear Tipo de Producto",
+    "editTitle": "Editar Tipo de Producto",
+    "editProductType": "Editar Tipo de Producto",
+    "deleteProductType": "Eliminar Tipo de Producto",
+    "createButton": "Crear Tipo de Producto",
+    "updateButton": "Actualizar Tipo de Producto",
+    "columns": {
+      "code": "Código",
+      "name": "Nombre",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron tipos de producto",
+      "description": "Comience creando un nuevo tipo de producto",
+      "noData": "No hay tipos de producto disponibles"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido",
+      "nameRequired": "El nombre es requerido"
+    },
+    "createFailed": "Error al crear el tipo de producto. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el tipo de producto. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el tipo de producto",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de producto?"
+  },
+  "boxTypes": {
+    "title": "Tipos de Caja",
+    "subtitle": "Gestionar catálogo de tipos de caja",
+    "addBoxType": "Agregar Tipo de Caja",
+    "allBoxTypes": "Todos los Tipos de Caja",
+    "searchPlaceholder": "Buscar tipos de caja...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código de tipo de caja",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese nombre de tipo de caja",
+    "createTitle": "Crear Tipo de Caja",
+    "editTitle": "Editar Tipo de Caja",
+    "editBoxType": "Editar Tipo de Caja",
+    "deleteBoxType": "Eliminar Tipo de Caja",
+    "createButton": "Crear Tipo de Caja",
+    "updateButton": "Actualizar Tipo de Caja",
+    "columns": {
+      "code": "Código",
+      "name": "Nombre",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron tipos de caja",
+      "description": "Comience creando un nuevo tipo de caja",
+      "noData": "No hay tipos de caja disponibles"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido",
+      "nameRequired": "El nombre es requerido"
+    },
+    "createFailed": "Error al crear el tipo de caja. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el tipo de caja. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el tipo de caja",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de caja?"
+  },
   "paperClasses": {
     "title": "Clases de Papel",
     "subtitle": "Gestionar catálogo de clases de papel",
@@ -439,6 +572,13 @@
     "descriptionPlaceholder": "Ingrese descripción (opcional)",
     "customer": "Cliente",
     "selectCustomer": "Seleccione un cliente",
+    "revision": "Revisión",
+    "revisionPlaceholder": "Ingrese número de revisión",
+    "vip": "VIP",
+    "productType": "Tipo de Producto",
+    "selectProductType": "Seleccione un tipo de producto (opcional)",
+    "boxType": "Tipo de Caja",
+    "selectBoxType": "Seleccione un tipo de caja (opcional)",
     "createTitle": "Crear Producto",
     "editTitle": "Editar Producto",
     "createButton": "Crear Producto",
@@ -448,6 +588,10 @@
       "clientCode": "Código de Cliente",
       "customer": "Cliente",
       "description": "Descripción",
+      "revision": "Revisión",
+      "vip": "VIP",
+      "productType": "Tipo de Producto",
+      "boxType": "Tipo de Caja",
       "actions": "Acciones"
     },
     "empty": {
@@ -1023,5 +1167,333 @@
     "updateFailed": "Error al actualizar el herramental. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el herramental",
     "deleteConfirm": "¿Está seguro de que desea eliminar este herramental?"
+  },
+  "consumableTypes": {
+    "title": "Tipos de Consumibles",
+    "subtitle": "Gestionar catálogo de tipos de consumibles",
+    "addType": "Agregar Tipo de Consumible",
+    "allTypes": "Todos los Tipos de Consumibles",
+    "searchPlaceholder": "Buscar tipos de consumibles...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código del tipo de consumible",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese nombre del tipo de consumible",
+    "autoConsumption": "Consumo Automático",
+    "createTitle": "Crear Tipo de Consumible",
+    "editTitle": "Editar Tipo de Consumible",
+    "createButton": "Crear Tipo de Consumible",
+    "updateButton": "Actualizar Tipo de Consumible",
+    "columns": {
+      "code": "Código",
+      "name": "Nombre",
+      "autoConsumption": "Consumo Auto.",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron tipos de consumibles",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience creando un nuevo tipo de consumible"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido",
+      "codeMinLength": "El código debe tener al menos 1 carácter",
+      "codeMaxLength": "El código debe tener menos de 50 caracteres",
+      "nameRequired": "El nombre es requerido",
+      "nameMinLength": "El nombre debe tener al menos 1 carácter",
+      "nameMaxLength": "El nombre debe tener menos de 255 caracteres"
+    },
+    "createFailed": "Error al crear el tipo de consumible. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el tipo de consumible. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el tipo de consumible",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de consumible?"
+  },
+  "consumableSupplies": {
+    "title": "Consumibles",
+    "subtitle": "Gestionar inventario de consumibles",
+    "addSupply": "Agregar Consumible",
+    "allSupplies": "Todos los Consumibles",
+    "searchPlaceholder": "Buscar consumibles...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código del consumible",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese nombre del consumible",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "consumableType": "Tipo de Consumible",
+    "selectConsumableType": "Seleccione tipo de consumible",
+    "manufacturer": "Fabricante",
+    "selectManufacturer": "Seleccione fabricante (opcional)",
+    "supplier": "Proveedor",
+    "selectSupplier": "Seleccione proveedor (opcional)",
+    "createTitle": "Crear Consumible",
+    "editTitle": "Editar Consumible",
+    "createButton": "Crear Consumible",
+    "updateButton": "Actualizar Consumible",
+    "columns": {
+      "code": "Código",
+      "name": "Nombre",
+      "consumableType": "Tipo",
+      "manufacturer": "Fabricante",
+      "supplier": "Proveedor",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron consumibles",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience agregando un nuevo consumible"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido",
+      "codeMinLength": "El código debe tener al menos 1 carácter",
+      "codeMaxLength": "El código debe tener menos de 50 caracteres",
+      "nameRequired": "El nombre es requerido",
+      "nameMinLength": "El nombre debe tener al menos 1 carácter",
+      "nameMaxLength": "El nombre debe tener menos de 255 caracteres",
+      "consumableTypeRequired": "El tipo de consumible es requerido"
+    },
+    "createFailed": "Error al crear el consumible. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el consumible. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el consumible",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este consumible?"
+  },
+  "toolingStock": {
+    "title": "Stock de Herramentales",
+    "subtitle": "Gestionar inventario de herramentales",
+    "addToolingStock": "Agregar Stock de Herramental",
+    "allToolingStock": "Todo el Stock de Herramentales",
+    "searchPlaceholder": "Buscar stock de herramentales...",
+    "warehouse": "Depósito",
+    "selectWarehouse": "Seleccione depósito",
+    "warehouseLocation": "Ubicación en Depósito",
+    "selectLocation": "Seleccionar Ubicación",
+    "tooling": "Herramental",
+    "selectTooling": "Seleccione herramental",
+    "supplier": "Proveedor",
+    "selectSupplier": "Seleccione proveedor (opcional)",
+    "manufacturer": "Fabricante",
+    "selectManufacturer": "Seleccione fabricante (opcional)",
+    "quantity": "Cantidad",
+    "quantityPlaceholder": "Ingrese cantidad",
+    "price": "Precio",
+    "pricePlaceholder": "Ingrese precio",
+    "comments": "Comentarios",
+    "commentsPlaceholder": "Ingrese comentarios (opcional)",
+    "createTitle": "Crear Stock de Herramental",
+    "editTitle": "Editar Stock de Herramental",
+    "createButton": "Crear Stock",
+    "updateButton": "Actualizar Stock",
+    "columns": {
+      "tooling": "Herramental",
+      "warehouse": "Depósito",
+      "supplier": "Proveedor",
+      "manufacturer": "Fabricante",
+      "quantity": "Cantidad",
+      "price": "Precio",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontró stock de herramentales",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience agregando stock de herramentales"
+    },
+    "validation": {
+      "warehouseRequired": "El depósito es requerido",
+      "toolingRequired": "El herramental es requerido",
+      "quantityRequired": "La cantidad es requerida"
+    },
+    "createFailed": "Error al crear el stock. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el stock. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el stock",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este stock?"
+  },
+  "consumableStock": {
+    "title": "Stock de Consumibles",
+    "subtitle": "Gestionar inventario de consumibles",
+    "addConsumableStock": "Agregar Stock de Consumible",
+    "allConsumableStock": "Todo el Stock de Consumibles",
+    "searchPlaceholder": "Buscar stock de consumibles...",
+    "warehouse": "Depósito",
+    "selectWarehouse": "Seleccione depósito",
+    "warehouseLocation": "Ubicación en Depósito",
+    "selectLocation": "Seleccionar Ubicación",
+    "consumableSupply": "Consumible",
+    "selectConsumableSupply": "Seleccione consumible",
+    "supplier": "Proveedor",
+    "selectSupplier": "Seleccione proveedor (opcional)",
+    "manufacturer": "Fabricante",
+    "selectManufacturer": "Seleccione fabricante (opcional)",
+    "quantity": "Cantidad",
+    "quantityPlaceholder": "Ingrese cantidad",
+    "price": "Precio",
+    "pricePlaceholder": "Ingrese precio",
+    "comments": "Comentarios",
+    "commentsPlaceholder": "Ingrese comentarios (opcional)",
+    "createTitle": "Crear Stock de Consumible",
+    "editTitle": "Editar Stock de Consumible",
+    "createButton": "Crear Stock",
+    "updateButton": "Actualizar Stock",
+    "columns": {
+      "consumableSupply": "Consumible",
+      "warehouse": "Depósito",
+      "supplier": "Proveedor",
+      "manufacturer": "Fabricante",
+      "quantity": "Cantidad",
+      "price": "Precio",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontró stock de consumibles",
+      "description": "Intente ajustar sus criterios de búsqueda",
+      "noData": "Comience agregando stock de consumibles"
+    },
+    "validation": {
+      "warehouseRequired": "El depósito es requerido",
+      "consumableSupplyRequired": "El consumible es requerido",
+      "quantityRequired": "La cantidad es requerida"
+    },
+    "createFailed": "Error al crear el stock. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el stock. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el stock",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este stock?"
+  },
+  "glueTypes": {
+    "title": "Tipos de Pegamento",
+    "subtitle": "Gestionar catálogo de tipos de pegamento",
+    "addGlueType": "Agregar Tipo de Pegamento",
+    "allGlueTypes": "Todos los Tipos de Pegamento",
+    "searchPlaceholder": "Buscar tipos de pegamento...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código del tipo de pegamento",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "createTitle": "Crear Tipo de Pegamento",
+    "editTitle": "Editar Tipo de Pegamento",
+    "editGlueType": "Editar Tipo de Pegamento",
+    "deleteGlueType": "Eliminar Tipo de Pegamento",
+    "createButton": "Crear Tipo de Pegamento",
+    "updateButton": "Actualizar Tipo de Pegamento",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron tipos de pegamento",
+      "description": "Comience creando un nuevo tipo de pegamento",
+      "noData": "No hay tipos de pegamento disponibles"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido"
+    },
+    "createFailed": "Error al crear el tipo de pegamento. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el tipo de pegamento. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el tipo de pegamento",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de pegamento?"
+  },
+  "strappingTypes": {
+    "title": "Tipos de Zuncho",
+    "subtitle": "Gestionar catálogo de tipos de zuncho",
+    "addStrappingType": "Agregar Tipo de Zuncho",
+    "allStrappingTypes": "Todos los Tipos de Zuncho",
+    "searchPlaceholder": "Buscar tipos de zuncho...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código del tipo de zuncho",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "createTitle": "Crear Tipo de Zuncho",
+    "editTitle": "Editar Tipo de Zuncho",
+    "editStrappingType": "Editar Tipo de Zuncho",
+    "deleteStrappingType": "Eliminar Tipo de Zuncho",
+    "createButton": "Crear Tipo de Zuncho",
+    "updateButton": "Actualizar Tipo de Zuncho",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron tipos de zuncho",
+      "description": "Comience creando un nuevo tipo de zuncho",
+      "noData": "No hay tipos de zuncho disponibles"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido"
+    },
+    "createFailed": "Error al crear el tipo de zuncho. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el tipo de zuncho. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el tipo de zuncho",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de zuncho?"
+  },
+  "complements": {
+    "title": "Complementos",
+    "subtitle": "Gestionar catálogo de complementos",
+    "addComplement": "Agregar Complemento",
+    "allComplements": "Todos los Complementos",
+    "searchPlaceholder": "Buscar complementos...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código del complemento",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "createTitle": "Crear Complemento",
+    "editTitle": "Editar Complemento",
+    "editComplement": "Editar Complemento",
+    "deleteComplement": "Eliminar Complemento",
+    "createButton": "Crear Complemento",
+    "updateButton": "Actualizar Complemento",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron complementos",
+      "description": "Comience creando un nuevo complemento",
+      "noData": "No hay complementos disponibles"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido"
+    },
+    "createFailed": "Error al crear el complemento. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el complemento. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el complemento",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este complemento?"
+  },
+  "traceTypes": {
+    "title": "Tipos de Traza",
+    "subtitle": "Gestionar catálogo de tipos de traza",
+    "addTraceType": "Agregar Tipo de Traza",
+    "allTraceTypes": "Todos los Tipos de Traza",
+    "searchPlaceholder": "Buscar tipos de traza...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código del tipo de traza",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "createTitle": "Crear Tipo de Traza",
+    "editTitle": "Editar Tipo de Traza",
+    "editTraceType": "Editar Tipo de Traza",
+    "deleteTraceType": "Eliminar Tipo de Traza",
+    "createButton": "Crear Tipo de Traza",
+    "updateButton": "Actualizar Tipo de Traza",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron tipos de traza",
+      "description": "Comience creando un nuevo tipo de traza",
+      "noData": "No hay tipos de traza disponibles"
+    },
+    "validation": {
+      "codeRequired": "El código es requerido"
+    },
+    "createFailed": "Error al crear el tipo de traza. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el tipo de traza. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el tipo de traza",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de traza?"
   }
 }

@@ -9,8 +9,10 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateCustomerCategoryModal from '../components/modals/CreateCustomerCategoryModal';
 import EditCustomerCategoryModal from '../components/modals/EditCustomerCategoryModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const CustomerCategories: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +21,7 @@ const CustomerCategories: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<CustomerCategory | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const confirmModal = useConfirmModal();
 
   // Create fetch function with company filter
   const fetchCategories = useCallback((params: Record<string, unknown>) => {
@@ -49,21 +52,23 @@ const CustomerCategories: React.FC = () => {
     setShowEditModal(true);
   };
 
-  const handleDelete = async (category: CustomerCategory) => {
-    if (!window.confirm(t('customerCategories.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(category.uuid);
-      await customerCategoriesApi.deleteCategory(category.uuid);
-      await refresh();
-    } catch (error) {
-      console.error('Error deleting customer category:', error);
-      alert(t('customerCategories.deleteFailed'));
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (category: CustomerCategory) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('customerCategories.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(category.uuid);
+          await customerCategoriesApi.deleteCategory(category.uuid);
+          await refresh();
+        } catch (error) {
+          console.error('Error deleting customer category:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -216,6 +221,16 @@ const CustomerCategories: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         category={selectedCategory}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

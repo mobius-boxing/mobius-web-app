@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tooling, CreateToolingForm, ToolingType, Manufacturer, Supplier } from '../../types';
 import { toolingsApi, toolingTypesApi, manufacturersApi, suppliersApi } from '../../services/api';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
@@ -22,6 +23,7 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [toolingTypes, setToolingTypes] = useState<ToolingType[]>([]);
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -66,9 +68,9 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
   const fetchDropdownData = async () => {
     try {
       const [toolingTypesRes, manufacturersRes, suppliersRes] = await Promise.all([
-        toolingTypesApi.getToolingTypes({ limit: 1000 }),
-        manufacturersApi.getManufacturers({ limit: 1000 }),
-        suppliersApi.getSuppliers({ limit: 1000 }),
+        toolingTypesApi.getToolingTypes({ limit: 100, companyId: effectiveCompanyId || undefined }),
+        manufacturersApi.getManufacturers({ limit: 100, companyId: effectiveCompanyId || undefined }),
+        suppliersApi.getSuppliers({ limit: 100, companyId: effectiveCompanyId || undefined }),
       ]);
       setToolingTypes(toolingTypesRes.data || []);
       setManufacturers(manufacturersRes.data || []);

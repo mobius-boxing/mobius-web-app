@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperStock } from '../types';
@@ -9,8 +9,10 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperStockModal from '../components/modals/CreatePaperStockModal';
 import EditPaperStockModal from '../components/modals/EditPaperStockModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const PaperStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +21,13 @@ const PaperStockPage: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPaperStock, setSelectedPaperStock] = useState<PaperStock | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const confirmModal = useConfirmModal();
+
+  // Create fetch function with company filter
+  const fetchPaperStock = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return paperStockApi.getPaperStock(fetchParams);
+  }, [effectiveCompanyId]);
 
   // Use the entity list hook for data management
   const {
@@ -28,32 +37,38 @@ const PaperStockPage: React.FC = () => {
     setSearch,
     refresh,
   } = useEntityList<PaperStock>({
-    fetchFn: paperStockApi.getPaperStock,
+    fetchFn: fetchPaperStock,
     searchFields: ['comments'],
-    defaultFilters: effectiveCompanyId ? { companyId: effectiveCompanyId } : {},
   });
+
+  // Refetch when effectiveCompanyId changes
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (stock: PaperStock) => {
     setSelectedPaperStock(stock);
     setShowEditModal(true);
   };
 
-  const handleDelete = async (stockId: string) => {
-    if (!window.confirm(t('paperStock.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(stockId);
-      await paperStockApi.deletePaperStock(stockId);
-      await refresh();
-    } catch (error: any) {
-      console.error('Error deleting paper stock:', error);
-      const errorMessage = error.response?.data?.message || t('paperStock.deleteFailed');
-      alert(errorMessage);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (stockId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('paperStock.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(stockId);
+          await paperStockApi.deletePaperStock(stockId);
+          await refresh();
+        } catch (error: any) {
+          console.error('Error deleting paper stock:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -234,6 +249,16 @@ const PaperStockPage: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         paperStock={selectedPaperStock}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

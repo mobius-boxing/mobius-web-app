@@ -70,8 +70,8 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
   };
 
   const onSubmit = handleSubmit((data) => {
-    // Extract IDs from assigned supplies
-    const papers = assignedSupplies.map(supply => parseInt(supply.id));
+    // Extract UUIDs from assigned supplies
+    const papers = assignedSupplies.map(supply => supply.uuid);
 
     const formData = {
       code: data.code,
@@ -85,14 +85,14 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
   const handleAssign = (items: PaperSupply[]) => {
     setAssignedSupplies([...assignedSupplies, ...items]);
     setAvailableSupplies(
-      availableSupplies.filter(s => !items.some(item => item.id === s.id))
+      availableSupplies.filter(s => !items.some(item => item.uuid === s.uuid))
     );
   };
 
   const handleUnassign = (items: PaperSupply[]) => {
     setAvailableSupplies([...availableSupplies, ...items]);
     setAssignedSupplies(
-      assignedSupplies.filter(s => !items.some(item => item.id === s.id))
+      assignedSupplies.filter(s => !items.some(item => item.uuid === s.uuid))
     );
   };
 
@@ -146,7 +146,7 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
           assignedItems={assignedSupplies}
           onAssign={handleAssign}
           onUnassign={handleUnassign}
-          getItemId={(supply) => supply.id}
+          getItemId={(supply) => supply.uuid}
           getItemLabel={(supply) => supply.name}
           getItemDescription={(supply) => supply.code}
           availableLabel={t('paperClasses.availableSupplies')}

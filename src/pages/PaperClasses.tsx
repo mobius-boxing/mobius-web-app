@@ -1,15 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, BookOpen } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperClass } from '../types';
 import { paperClassesApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperClassModal from '../components/modals/CreatePaperClassModal';
 import EditPaperClassModal from '../components/modals/EditPaperClassModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const PaperClasses: React.FC = () => {
   const { t } = useTranslation();
@@ -17,6 +20,14 @@ const PaperClasses: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPaperClass, setSelectedPaperClass] = useState<PaperClass | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const { effectiveCompanyId } = useEffectiveCompany();
+  const confirmModal = useConfirmModal();
+
+  // Fetch function with company filter
+  const fetchPaperClasses = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return paperClassesApi.getPaperClasses(fetchParams);
+  }, [effectiveCompanyId]);
 
   // Use the entity list hook for data management
   const {
@@ -26,30 +37,38 @@ const PaperClasses: React.FC = () => {
     setSearch,
     refresh,
   } = useEntityList<PaperClass>({
-    fetchFn: paperClassesApi.getPaperClasses,
+    fetchFn: fetchPaperClasses,
     searchFields: ['code', 'name'],
   });
+
+  // Refresh when company changes
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (paperClass: PaperClass) => {
     setSelectedPaperClass(paperClass);
     setShowEditModal(true);
   };
 
-  const handleDelete = async (paperClassId: string) => {
-    if (!window.confirm(t('paperClasses.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(paperClassId);
-      await paperClassesApi.deletePaperClass(paperClassId);
-      await refresh();
-    } catch (error) {
-      console.error('Error deleting paper class:', error);
-      alert(t('paperClasses.deleteFailed'));
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (paperClassId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('paperClasses.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(paperClassId);
+          await paperClassesApi.deletePaperClass(paperClassId);
+          await refresh();
+        } catch (error) {
+          console.error('Error deleting paper class:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -107,15 +126,15 @@ const PaperClasses: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={() => handleEdit(paperClass)}
-            disabled={actionLoading === paperClass?.id || !paperClass}
+            disabled={actionLoading === paperClass?.uuid || !paperClass}
           >
             <Edit className="h-4 w-4" />
           </Button>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => handleDelete(paperClass?.id)}
-            disabled={actionLoading === paperClass?.id || !paperClass}
+            onClick={() => handleDelete(paperClass?.uuid)}
+            disabled={actionLoading === paperClass?.uuid || !paperClass}
             className="text-red-600 hover:text-red-700"
           >
             <Trash2 className="h-4 w-4" />
@@ -211,6 +230,16 @@ const PaperClasses: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         paperClass={selectedPaperClass}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );

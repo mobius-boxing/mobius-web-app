@@ -68,15 +68,15 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
       const response = await paperSuppliesApi.getPaperSupplies({ limit: 100 });
       const allSupplies = response.data;
 
-      // Parse existing papers (array of IDs)
-      const existingPaperIds = Array.isArray(paperClass.papers) ? paperClass.papers : [];
+      // Parse existing papers (array of UUIDs)
+      const existingPaperUuids = Array.isArray(paperClass.papers) ? paperClass.papers : [];
 
-      // Split supplies into assigned and available
+      // Split supplies into assigned and available based on UUID
       const assigned = allSupplies.filter(supply =>
-        existingPaperIds.includes(parseInt(supply.id))
+        existingPaperUuids.includes(supply.uuid)
       );
       const available = allSupplies.filter(supply =>
-        !existingPaperIds.includes(parseInt(supply.id))
+        !existingPaperUuids.includes(supply.uuid)
       );
 
       setAssignedSupplies(assigned);
@@ -92,8 +92,8 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
   const onSubmit = handleSubmit(async (data) => {
     if (!paperClass) return;
 
-    // Extract IDs from assigned supplies
-    const papers = assignedSupplies.map(supply => parseInt(supply.id));
+    // Extract UUIDs from assigned supplies
+    const papers = assignedSupplies.map(supply => supply.uuid);
 
     const formData = {
       code: data.code,
@@ -101,21 +101,21 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
       papers,
     };
 
-    await paperClassesApi.updatePaperClass(paperClass.id, formData);
+    await paperClassesApi.updatePaperClass(paperClass.uuid, formData);
     setAssignedSupplies([]);
   });
 
   const handleAssign = (items: PaperSupply[]) => {
     setAssignedSupplies([...assignedSupplies, ...items]);
     setAvailableSupplies(
-      availableSupplies.filter(s => !items.some(item => item.id === s.id))
+      availableSupplies.filter(s => !items.some(item => item.uuid === s.uuid))
     );
   };
 
   const handleUnassign = (items: PaperSupply[]) => {
     setAvailableSupplies([...availableSupplies, ...items]);
     setAssignedSupplies(
-      assignedSupplies.filter(s => !items.some(item => item.id === s.id))
+      assignedSupplies.filter(s => !items.some(item => item.uuid === s.uuid))
     );
   };
 
@@ -171,7 +171,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
           assignedItems={assignedSupplies}
           onAssign={handleAssign}
           onUnassign={handleUnassign}
-          getItemId={(supply) => supply.id}
+          getItemId={(supply) => supply.uuid}
           getItemLabel={(supply) => supply.name}
           getItemDescription={(supply) => supply.code}
           availableLabel={t('paperClasses.availableSupplies')}

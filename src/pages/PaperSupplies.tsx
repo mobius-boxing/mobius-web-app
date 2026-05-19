@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperSupply } from '../types';
@@ -9,8 +9,10 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperSupplyModal from '../components/modals/CreatePaperSupplyModal';
 import EditPaperSupplyModal from '../components/modals/EditPaperSupplyModal';
+import ConfirmModal from '../components/ui/ConfirmModal';
 
 const PaperSupplies: React.FC = () => {
   const { t } = useTranslation();
@@ -19,6 +21,13 @@ const PaperSupplies: React.FC = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPaperSupply, setSelectedPaperSupply] = useState<PaperSupply | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const confirmModal = useConfirmModal();
+
+  // Create fetch function with company filter
+  const fetchPaperSupplies = useCallback((params: Record<string, unknown>) => {
+    const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
+    return paperSuppliesApi.getPaperSupplies(fetchParams);
+  }, [effectiveCompanyId]);
 
   // Use the entity list hook for data management
   const {
@@ -28,32 +37,38 @@ const PaperSupplies: React.FC = () => {
     setSearch,
     refresh,
   } = useEntityList<PaperSupply>({
-    fetchFn: paperSuppliesApi.getPaperSupplies,
+    fetchFn: fetchPaperSupplies,
     searchFields: ['code', 'name', 'description'],
-    defaultFilters: effectiveCompanyId ? { companyId: effectiveCompanyId } : {},
   });
+
+  // Refetch when effectiveCompanyId changes
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (paperSupply: PaperSupply) => {
     setSelectedPaperSupply(paperSupply);
     setShowEditModal(true);
   };
 
-  const handleDelete = async (paperSupplyId: string) => {
-    if (!window.confirm(t('paperSupplies.deleteConfirm'))) {
-      return;
-    }
-
-    try {
-      setActionLoading(paperSupplyId);
-      await paperSuppliesApi.deletePaperSupply(paperSupplyId);
-      await refresh();
-    } catch (error: any) {
-      console.error('Error deleting paper supply:', error);
-      const errorMessage = error.response?.data?.message || t('paperSupplies.deleteFailed');
-      alert(errorMessage);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleDelete = (paperSupplyId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('paperSupplies.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(paperSupplyId);
+          await paperSuppliesApi.deletePaperSupply(paperSupplyId);
+          await refresh();
+        } catch (error: any) {
+          console.error('Error deleting paper supply:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
   };
 
   const handleCreateSuccess = () => {
@@ -255,6 +270,16 @@ const PaperSupplies: React.FC = () => {
         }}
         onSuccess={handleEditSuccess}
         paperSupply={selectedPaperSupply}
+      />
+
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        onClose={confirmModal.handleClose}
+        onConfirm={confirmModal.handleConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        variant={confirmModal.variant}
+        loading={confirmModal.loading}
       />
     </Layout>
   );
