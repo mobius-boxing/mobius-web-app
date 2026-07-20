@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { authApi } from '../services/api';
 import { AcceptInvitationForm, ApiError, Invitation } from '../types';
 import { logger } from '../utils/logger';
+import { setToken } from '../utils/session';
 
 const AcceptInvitation: React.FC = () => {
   const { t } = useTranslation();
@@ -117,8 +118,7 @@ const AcceptInvitation: React.FC = () => {
     try {
       const response = await authApi.acceptInvitation(token, formData);
 
-      localStorage.setItem('auth_token', response.token);
-      localStorage.setItem('auth_user', JSON.stringify(response.user));
+      setToken(response.token);
 
       window.location.href = '/dashboard';
     } catch (err) {
@@ -132,11 +132,11 @@ const AcceptInvitation: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
+      <div className="min-h-screen flex items-center justify-center bg-canvas py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-indigo-600 mx-auto"></div>
-            <h2 className="mt-6 text-xl font-medium text-gray-900">
+            <div className="animate-spin rounded-full h-10 w-10 border-2 border-secondary-200 border-t-primary-600 mx-auto"></div>
+            <h2 className="mt-6 text-lg font-medium text-secondary-900">
               {t('invitation.validating')}
             </h2>
           </div>
@@ -147,11 +147,11 @@ const AcceptInvitation: React.FC = () => {
 
   if (error && !token) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-red-600">{t('invitation.invalidTitle')}</h2>
-            <p className="mt-2 text-gray-600">{error}</p>
+      <div className="min-h-screen flex items-center justify-center bg-canvas py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          <div className="text-center bg-white border border-secondary-200 rounded-2xl shadow-lg p-8">
+            <h2 className="text-xl font-bold tracking-tight text-red-600">{t('invitation.invalidTitle')}</h2>
+            <p className="mt-2 text-sm text-secondary-600">{error}</p>
           </div>
         </div>
       </div>
@@ -159,27 +159,30 @@ const AcceptInvitation: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-canvas py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <div className="flex flex-col items-center text-center mb-8">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white text-lg font-bold shadow-sm">
+            M
+          </div>
+          <h2 className="mt-6 text-2xl font-bold tracking-tight text-secondary-900">
             {t('invitation.title')}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-1.5 text-sm text-secondary-500">
             {t('invitation.subtitle')}
           </p>
         </div>
 
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6 bg-white border border-secondary-200 rounded-2xl shadow-lg p-8" onSubmit={handleSubmit}>
           {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="text-sm text-red-700">{error}</div>
+            <div className="rounded-lg bg-red-50 border border-red-200 px-4 py-3">
+              <div className="text-sm text-red-800">{error}</div>
             </div>
           )}
 
           <div className="space-y-4">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="firstName" className="block text-sm font-medium text-secondary-700">
                 {t('invitation.firstName')}
               </label>
               <input
@@ -187,7 +190,7 @@ const AcceptInvitation: React.FC = () => {
                 name="firstName"
                 type="text"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="input-field mt-1"
                 placeholder={t('invitation.firstNamePlaceholder')}
                 value={formData.firstName}
                 onChange={handleInputChange}
@@ -196,7 +199,7 @@ const AcceptInvitation: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="lastName" className="block text-sm font-medium text-secondary-700">
                 {t('invitation.lastName')}
               </label>
               <input
@@ -204,7 +207,7 @@ const AcceptInvitation: React.FC = () => {
                 name="lastName"
                 type="text"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="input-field mt-1"
                 placeholder={t('invitation.lastNamePlaceholder')}
                 value={formData.lastName}
                 onChange={handleInputChange}
@@ -213,7 +216,7 @@ const AcceptInvitation: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="block text-sm font-medium text-secondary-700">
                 {t('invitation.password')}
               </label>
               <input
@@ -221,13 +224,13 @@ const AcceptInvitation: React.FC = () => {
                 name="password"
                 type="password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="input-field mt-1"
                 placeholder={t('invitation.passwordPlaceholder')}
                 value={formData.password}
                 onChange={handleInputChange}
                 disabled={submitting}
               />
-              <div className="mt-1 text-xs text-gray-600">
+              <div className="mt-1.5 text-xs text-secondary-500">
                 {t('invitation.passwordRequirements')}
                 <ul className="list-disc list-inside ml-2 mt-1">
                   <li>{t('invitation.requirement1')}</li>
@@ -240,7 +243,7 @@ const AcceptInvitation: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <label htmlFor="confirmPassword" className="block text-sm font-medium text-secondary-700">
                 {t('invitation.confirmPassword')}
               </label>
               <input
@@ -248,7 +251,7 @@ const AcceptInvitation: React.FC = () => {
                 name="confirmPassword"
                 type="password"
                 required
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                className="input-field mt-1"
                 placeholder={t('invitation.confirmPasswordPlaceholder')}
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
@@ -261,7 +264,7 @@ const AcceptInvitation: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="group relative w-full flex justify-center py-2.5 px-4 text-sm font-semibold rounded-lg text-white bg-primary-600 hover:bg-primary-700 active:bg-primary-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               {submitting ? (
                 <div className="flex items-center">

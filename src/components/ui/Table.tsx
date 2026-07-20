@@ -56,19 +56,21 @@ function Table<T = any>({
   return (
     <div className={cn('overflow-x-auto', className)}>
       <table className="min-w-full divide-y divide-secondary-200">
-        <thead className="bg-secondary-50">
-          <tr>
+        <thead>
+          <tr className="border-b border-secondary-200">
             {columns.map((column) => (
               <th
                 key={column.key}
+                scope="col"
                 className={cn(
-                  'px-6 py-3 text-left text-xs font-medium text-secondary-500 uppercase tracking-wider',
-                  column.sortable && onSort && 'cursor-pointer select-none hover:bg-secondary-100',
+                  'px-6 py-3 text-left text-xs font-semibold text-secondary-500 uppercase tracking-wider whitespace-nowrap',
+                  column.sortable && onSort &&
+                    'cursor-pointer select-none transition-colors hover:text-secondary-700',
                   column.className
                 )}
                 onClick={() => handleSort(column)}
               >
-                <div className="flex items-center space-x-1">
+                <div className="flex items-center gap-1.5">
                   <span>{column.header}</span>
                   {column.sortable && onSort && (
                     <span className="inline-flex">
@@ -88,12 +90,12 @@ function Table<T = any>({
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-secondary-200">
+        <tbody className="divide-y divide-secondary-100">
           {data.length === 0 ? (
             <tr>
               <td
                 colSpan={columns.length}
-                className="px-6 py-12 text-center text-secondary-500"
+                className="px-6 py-14 text-center text-sm text-secondary-500"
               >
                 {emptyMessage}
               </td>
@@ -110,7 +112,7 @@ function Table<T = any>({
                     <td
                       key={column.key}
                       className={cn(
-                        'px-6 py-4 whitespace-nowrap text-sm text-secondary-900',
+                        'px-6 py-4 whitespace-nowrap text-sm text-secondary-700',
                         column.className
                       )}
                     >

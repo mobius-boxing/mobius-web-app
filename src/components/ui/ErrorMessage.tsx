@@ -1,4 +1,5 @@
 import React from 'react';
+import { AlertCircle } from 'lucide-react';
 
 interface ErrorMessageProps {
   message: string | null | undefined;
@@ -13,9 +14,10 @@ export const ErrorMessage: React.FC<ErrorMessageProps> = ({
 
   return (
     <div
-      className={`bg-red-50 border border-red-200 rounded-lg p-4 ${className}`}
+      className={`flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-lg px-4 py-3 ${className}`}
       role="alert"
     >
+      <AlertCircle className="h-4 w-4 flex-shrink-0 mt-0.5 text-red-600" aria-hidden="true" />
       <p className="text-sm text-red-800">{message}</p>
     </div>
   );

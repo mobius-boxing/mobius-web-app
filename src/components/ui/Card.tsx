@@ -19,21 +19,21 @@ const Card: React.FC<CardProps> = ({
   return (
     <div className={cn('card', className)}>
       {(title || subtitle || actions) && (
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between gap-4 mb-5">
           <div>
             {title && (
-              <h3 className="text-lg font-semibold text-secondary-900">
+              <h3 className="text-base font-semibold tracking-tight text-secondary-900">
                 {title}
               </h3>
             )}
             {subtitle && (
-              <p className="text-sm text-secondary-600 mt-1">
+              <p className="text-sm text-secondary-500 mt-1">
                 {subtitle}
               </p>
             )}
           </div>
           {actions && (
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               {actions}
             </div>
           )}

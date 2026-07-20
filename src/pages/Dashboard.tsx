@@ -26,29 +26,31 @@ const StatCard: React.FC<StatCardProps> = ({
   trend,
 }) => {
   return (
-    <Card className="p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-secondary-600">{title}</p>
-          <p className="text-2xl font-bold text-secondary-900 mt-1">{value}</p>
-          {description && (
-            <p className="text-sm text-secondary-500 mt-1">{description}</p>
-          )}
-        </div>
-        <div className="p-3 bg-primary-100 rounded-full">
+    <Card className="p-5">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-secondary-500">
+          {title}
+        </p>
+        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-lg bg-primary-50 ring-1 ring-primary-100">
           {icon}
         </div>
       </div>
+      <p className="mt-3 text-3xl font-bold tracking-tight text-secondary-900 tabular-nums">
+        {value}
+      </p>
+      {description && (
+        <p className="mt-1 text-sm text-secondary-500">{description}</p>
+      )}
       {trend && (
-        <div className="mt-4 flex items-center">
+        <div className="mt-4 flex items-center gap-2">
           <span
-            className={`text-sm font-medium ${
+            className={`text-sm font-semibold ${
               trend.isPositive ? 'text-green-600' : 'text-red-600'
             }`}
           >
             {trend.isPositive ? '+' : ''}{trend.value}%
           </span>
-          <span className="text-sm text-secondary-500 ml-2">vs last month</span>
+          <span className="text-sm text-secondary-500">vs last month</span>
         </div>
       )}
     </Card>
@@ -122,10 +124,10 @@ const Dashboard: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-secondary-900">
+          <h1 className="text-2xl font-bold tracking-tight text-secondary-900">
             {getGreeting()}, {user?.firstName}!
           </h1>
-          <p className="text-secondary-600 mt-1">
+          <p className="text-sm text-secondary-500 mt-1">
             Welcome to your {user?.role} dashboard
             {user?.companyName && ` for ${user.companyName}`}
           </p>

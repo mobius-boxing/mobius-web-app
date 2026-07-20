@@ -38,7 +38,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
     <div className={`relative ${className}`}>
       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
         <Search
-          className="h-5 w-5 text-gray-400"
+          className="h-5 w-5 text-secondary-400"
           aria-hidden="true"
         />
       </div>
@@ -51,10 +51,11 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         disabled={disabled}
         className={`
           block w-full pl-10 pr-10 py-2
-          border border-gray-300 rounded-lg
-          text-sm text-gray-900 placeholder-gray-500
-          focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
-          disabled:bg-gray-100 disabled:cursor-not-allowed
+          bg-white border border-secondary-300 rounded-lg
+          text-sm text-secondary-900 placeholder-secondary-400
+          transition-colors duration-150
+          focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500
+          disabled:bg-secondary-100 disabled:cursor-not-allowed
         `}
         aria-label={placeholder || t('common.search')}
       />
@@ -67,7 +68,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
           aria-label={t('common.clear')}
         >
           <X
-            className="h-5 w-5 text-gray-400 hover:text-gray-600"
+            className="h-5 w-5 text-secondary-400 hover:text-secondary-600 transition-colors"
             aria-hidden="true"
           />
         </button>

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { AuthUser, LoginCredentials, LoginResponse } from '../types';
 import { authApi } from '../services/api';
 import { logger } from '../utils/logger';
+import { getToken, setToken, clearToken } from '../utils/session';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -33,16 +34,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
-        const savedUser = localStorage.getItem('auth_user');
-
-        if (token && savedUser) {
+        if (getToken()) {
           const currentUser = await authApi.getCurrentUser();
           setUser(currentUser);
         }
       } catch (error) {
-        localStorage.removeItem('auth_token');
-        localStorage.removeItem('auth_user');
+        clearToken();
       } finally {
         setIsLoading(false);
       }
@@ -51,17 +48,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkAuth();
   }, []);
 
+  // The session lives in a cookie shared across subdomains, so login/logout can happen in
+  // another tab or app (e.g. the backoffice). Re-sync local React state when this tab regains
+  // focus: adopt a session started elsewhere, or drop ours if it was ended elsewhere.
+  useEffect(() => {
+    const sync = () => {
+      const hasToken = !!getToken();
+      if (hasToken && !user) {
+        authApi.getCurrentUser().then(setUser).catch(() => {});
+      } else if (!hasToken && user) {
+        setUser(null);
+      }
+    };
+    window.addEventListener('focus', sync);
+    document.addEventListener('visibilitychange', sync);
+    return () => {
+      window.removeEventListener('focus', sync);
+      document.removeEventListener('visibilitychange', sync);
+    };
+  }, [user]);
+
   const login = async (credentials: LoginCredentials): Promise<void> => {
-    try {
-      const response: LoginResponse = await authApi.login(credentials);
-
-      localStorage.setItem('auth_token', response.token);
-      localStorage.setItem('auth_user', JSON.stringify(response.user));
-
-      setUser(response.user);
-    } catch (error) {
-      throw error;
-    }
+    const response: LoginResponse = await authApi.login(credentials);
+    setToken(response.token);
+    setUser(response.user);
   };
 
   const logout = async (): Promise<void> => {
@@ -70,8 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       logger.error('Logout error:', error);
     } finally {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
+      clearToken();
       localStorage.removeItem('selected_company_uuid');
       setUser(null);
     }
@@ -79,7 +88,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const updateUser = (updatedUser: AuthUser): void => {
     setUser(updatedUser);
-    localStorage.setItem('auth_user', JSON.stringify(updatedUser));
   };
 
   const value: AuthContextType = {

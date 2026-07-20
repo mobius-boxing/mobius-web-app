@@ -70,16 +70,16 @@ const ResetPassword: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-secondary-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-primary-100">
+    <div className="min-h-screen flex items-center justify-center bg-canvas py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <div className="flex flex-col items-center text-center mb-8">
+          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-100">
             <Lock className="h-6 w-6 text-primary-600" />
           </div>
-          <h2 className="mt-6 text-3xl font-bold text-secondary-900">
+          <h2 className="mt-6 text-2xl font-bold tracking-tight text-secondary-900">
             {t('resetPassword.title')}
           </h2>
-          <p className="mt-2 text-sm text-secondary-600">
+          <p className="mt-1.5 text-sm text-secondary-500">
             {t('resetPassword.subtitle')}
           </p>
         </div>
@@ -99,9 +99,9 @@ const ResetPassword: React.FC = () => {
             </div>
           </div>
         ) : (
-          <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <form className="space-y-6 bg-white border border-secondary-200 rounded-2xl shadow-lg p-8" onSubmit={handleSubmit(onSubmit)}>
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
                 <p className="text-sm text-red-800">{error}</p>
               </div>
             )}
