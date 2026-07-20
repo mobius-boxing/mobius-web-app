@@ -1,7 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CreateCorrugationForm, CorrugationClass } from '../../types';
-import { corrugationsApi, corrugationClassesApi } from '../../services/api';
+import {
+  CreateCorrugationForm,
+  CorrugationClass,
+  CorrugationLayerInput,
+  PaperClass,
+  FluteType,
+} from '../../types';
+import {
+  corrugationsApi,
+  corrugationClassesApi,
+  paperClassesApi,
+  fluteTypesApi,
+} from '../../services/api';
+import CorrugationLayersEditor from '../forms/CorrugationLayersEditor';
 import { useModalForm } from '../../hooks/useModalForm';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
@@ -24,6 +36,9 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
   const [corrugationClasses, setCorrugationClasses] = useState<CorrugationClass[]>([]);
+  const [paperClasses, setPaperClasses] = useState<PaperClass[]>([]);
+  const [fluteTypes, setFluteTypes] = useState<FluteType[]>([]);
+  const [layers, setLayers] = useState<CorrugationLayerInput[]>([]);
 
   const {
     form: {
@@ -42,6 +57,10 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      // Reset the layer stack on every open — a successful create closes the
+      // modal via onSuccess without unmounting it, so stale layers would
+      // otherwise leak into the next corrugation.
+      setLayers([]);
       fetchCorrugationClasses();
     }
   }, [isOpen, effectiveCompanyId]);
@@ -49,8 +68,14 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
   const fetchCorrugationClasses = async () => {
     try {
       const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      const response = await corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter });
-      setCorrugationClasses(response.data || []);
+      const [classesRes, paperClassesRes, fluteTypesRes] = await Promise.all([
+        corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter }),
+        paperClassesApi.getPaperClasses({ limit: 200, ...companyFilter }),
+        fluteTypesApi.getFluteTypes({ limit: 100, ...companyFilter }),
+      ]);
+      setCorrugationClasses(classesRes.data || []);
+      setPaperClasses(paperClassesRes.data || []);
+      setFluteTypes(fluteTypesRes.data || []);
     } catch (error) {
       logger.error('Error fetching corrugation classes:', error);
     }
@@ -64,12 +89,18 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
       caliper: data.caliper ? Number(data.caliper) : undefined,
       // SECURITY: Send UUID, not numeric ID
       corrugationClassUuid: data.corrugationClassUuid || undefined,
+      layers,
     };
     return corrugationsApi.createCorrugation(submitData);
   });
 
+  const handleModalClose = () => {
+    setLayers([]);
+    modalHandleClose();
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={modalHandleClose} title={t('corrugations.createTitle')}>
+    <Modal isOpen={isOpen} onClose={handleModalClose} title={t('corrugations.createTitle')} size="xl">
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
 
@@ -145,9 +176,16 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
           />
         </div>
 
+        <CorrugationLayersEditor
+          layers={layers}
+          onChange={setLayers}
+          paperClasses={paperClasses}
+          fluteTypes={fluteTypes}
+        />
+
         <ModalFooter
           loading={loading}
-          onCancel={modalHandleClose}
+          onCancel={handleModalClose}
           submitText={t('corrugations.createButton')}
         />
       </form>

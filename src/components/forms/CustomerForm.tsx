@@ -6,12 +6,11 @@ import {
   CustomerCategory,
   User,
   ContactInfo,
-  DeliveryLocation,
-  DeliveryDay,
   CreateCustomerForm,
 } from '../../types';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
+import DeliveryLocationsSection from './DeliveryLocationsSection';
 
 export interface CustomerFormProps {
   mode: 'create' | 'edit';
@@ -21,10 +20,8 @@ export interface CustomerFormProps {
   form: UseFormReturn<CreateCustomerForm>;
   contacts: ContactInfo[];
   setContacts: React.Dispatch<React.SetStateAction<ContactInfo[]>>;
-  deliveryLocations: DeliveryLocation[];
-  setDeliveryLocations: React.Dispatch<React.SetStateAction<DeliveryLocation[]>>;
-  deliveryDays: DeliveryDay[];
-  setDeliveryDays: React.Dispatch<React.SetStateAction<DeliveryDay[]>>;
+  /** Present in edit mode — enables the delivery-locations manager. */
+  customerUuid?: string;
   loading: boolean;
   error?: string;
   onClose: () => void;
@@ -39,10 +36,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   form,
   contacts,
   setContacts,
-  deliveryLocations,
-  setDeliveryLocations,
-  deliveryDays,
-  setDeliveryDays,
+  customerUuid,
   loading,
   error,
   onClose,
@@ -108,6 +102,13 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             placeholder={t('common:customerModal.enterSupplierCode')}
             error={errors.supplierCode?.message as string}
           />
+
+          <Input
+            {...register('code')}
+            label={t('common:customerModal.code')}
+            placeholder={t('common:customerModal.enterCode')}
+            error={errors.code?.message as string}
+          />
         </div>
 
         <div>
@@ -125,16 +126,66 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
           )}
         </div>
 
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            {...register('active')}
-            id="active"
-            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
-          />
-          <label htmlFor="active" className="ml-2 block text-sm text-secondary-900">
-            {t('common:customerModal.active')}
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('common:customerModal.notes')}
           </label>
+          <textarea
+            {...register('notes')}
+            rows={3}
+            placeholder={t('common:customerModal.enterNotes')}
+            className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+          />
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              {...register('active')}
+              id="active"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+            />
+            <label htmlFor="active" className="ml-2 block text-sm text-secondary-900">
+              {t('common:customerModal.active')}
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              {...register('dispatchable')}
+              id="dispatchable"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+            />
+            <label htmlFor="dispatchable" className="ml-2 block text-sm text-secondary-900">
+              {t('common:customerModal.dispatchable')}
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              {...register('excludeLogoOnLabels')}
+              id="excludeLogoOnLabels"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+            />
+            <label htmlFor="excludeLogoOnLabels" className="ml-2 block text-sm text-secondary-900">
+              {t('common:customerModal.excludeLogoOnLabels')}
+            </label>
+          </div>
+
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              {...register('requiresQualityCertificate')}
+              id="requiresQualityCertificate"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-secondary-300 rounded"
+            />
+            <label htmlFor="requiresQualityCertificate" className="ml-2 block text-sm text-secondary-900">
+              {t('common:customerModal.requiresQualityCertificate')}
+            </label>
+          </div>
         </div>
       </div>
 
@@ -298,181 +349,18 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         ))}
       </div>
 
-      <div className="space-y-4 bg-secondary-50/30 rounded-lg p-4">
-        <div className="flex justify-between items-center border-b pb-2">
-          <h3 className="text-sm font-semibold text-secondary-900">
+      {mode === 'edit' && customerUuid ? (
+        <DeliveryLocationsSection customerUuid={customerUuid} />
+      ) : (
+        <div className="bg-secondary-50/30 rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-secondary-900 border-b pb-2 mb-2">
             {t('common:customerModal.deliveryLocations')}
           </h3>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => setDeliveryLocations([...deliveryLocations, { code: '', address: '' }])}
-          >
-            {t('common:customerModal.addLocation')}
-          </Button>
+          <p className="text-sm text-secondary-500">
+            {t('common:customerModal.locationsAfterSaveHint')}
+          </p>
         </div>
-
-        {deliveryLocations.map((location, index) => (
-          <div key={index} className="bg-white border border-secondary-200 rounded-lg p-4 space-y-3">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-secondary-700">
-                {t('common:customerModal.location')} {index + 1}
-              </span>
-              <button
-                type="button"
-                onClick={() => setDeliveryLocations(deliveryLocations.filter((_, i) => i !== index))}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                {t('common:customerModal.remove')}
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <input
-                type="text"
-                placeholder={`${t('common:customerModal.code')} *`}
-                value={location.code}
-                onChange={(e) => {
-                  const updated = [...deliveryLocations];
-                  updated[index].code = e.target.value;
-                  setDeliveryLocations(updated);
-                }}
-                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-              <input
-                type="text"
-                placeholder={`${t('common:customerModal.address')} *`}
-                value={location.address}
-                onChange={(e) => {
-                  const updated = [...deliveryLocations];
-                  updated[index].address = e.target.value;
-                  setDeliveryLocations(updated);
-                }}
-                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-              <input
-                type="text"
-                placeholder={t('common:customerModal.availableTimes')}
-                value={location.availableTimes || ''}
-                onChange={(e) => {
-                  const updated = [...deliveryLocations];
-                  updated[index].availableTimes = e.target.value;
-                  setDeliveryLocations(updated);
-                }}
-                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-              <input
-                type="text"
-                placeholder={t('common:customerModal.deliveryZone')}
-                value={location.deliveryZone || ''}
-                onChange={(e) => {
-                  const updated = [...deliveryLocations];
-                  updated[index].deliveryZone = e.target.value;
-                  setDeliveryLocations(updated);
-                }}
-                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-              <input
-                type="text"
-                placeholder={t('common:customerModal.latitude')}
-                value={location.lat || ''}
-                onChange={(e) => {
-                  const updated = [...deliveryLocations];
-                  updated[index].lat = e.target.value;
-                  setDeliveryLocations(updated);
-                }}
-                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-              <input
-                type="text"
-                placeholder={t('common:customerModal.longitude')}
-                value={location.lon || ''}
-                onChange={(e) => {
-                  const updated = [...deliveryLocations];
-                  updated[index].lon = e.target.value;
-                  setDeliveryLocations(updated);
-                }}
-                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="space-y-4 bg-secondary-50/30 rounded-lg p-4">
-        <div className="flex justify-between items-center border-b pb-2">
-          <h3 className="text-sm font-semibold text-secondary-900">
-            {t('common:customerModal.deliveryDays')}
-          </h3>
-          <Button
-            type="button"
-            size="sm"
-            variant="outline"
-            onClick={() => setDeliveryDays([...deliveryDays, { day: '', from: '', to: '' }])}
-          >
-            {t('common:customerModal.addDay')}
-          </Button>
-        </div>
-
-        {deliveryDays.map((day, index) => (
-          <div key={index} className="bg-white border border-secondary-200 rounded-lg p-4 space-y-3">
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-secondary-700">
-                {t('common:customerModal.day')} {index + 1}
-              </span>
-              <button
-                type="button"
-                onClick={() => setDeliveryDays(deliveryDays.filter((_, i) => i !== index))}
-                className="text-red-600 hover:text-red-800 text-sm"
-              >
-                {t('common:customerModal.remove')}
-              </button>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <select
-                value={day.day}
-                onChange={(e) => {
-                  const updated = [...deliveryDays];
-                  updated[index].day = e.target.value;
-                  setDeliveryDays(updated);
-                }}
-                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              >
-                <option value="">{t('common:customerModal.selectDay')} *</option>
-                <option value="Monday">{t('common:customerModal.days.monday')}</option>
-                <option value="Tuesday">{t('common:customerModal.days.tuesday')}</option>
-                <option value="Wednesday">{t('common:customerModal.days.wednesday')}</option>
-                <option value="Thursday">{t('common:customerModal.days.thursday')}</option>
-                <option value="Friday">{t('common:customerModal.days.friday')}</option>
-                <option value="Saturday">{t('common:customerModal.days.saturday')}</option>
-                <option value="Sunday">{t('common:customerModal.days.sunday')}</option>
-              </select>
-              <input
-                type="time"
-                placeholder={`${t('common:customerModal.from')} *`}
-                value={day.from}
-                onChange={(e) => {
-                  const updated = [...deliveryDays];
-                  updated[index].from = e.target.value;
-                  setDeliveryDays(updated);
-                }}
-                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-              <input
-                type="time"
-                placeholder={`${t('common:customerModal.to')} *`}
-                value={day.to}
-                onChange={(e) => {
-                  const updated = [...deliveryDays];
-                  updated[index].to = e.target.value;
-                  setDeliveryDays(updated);
-                }}
-                className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-              />
-            </div>
-          </div>
-        ))}
-      </div>
+      )}
 
       <div className="flex justify-end space-x-3 pt-4 border-t">
         <Button

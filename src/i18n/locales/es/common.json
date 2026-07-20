@@ -48,7 +48,86 @@
     "settings": "Configuración",
     "signOut": "Cerrar Sesión",
     "collapseSidebar": "Contraer barra lateral",
-    "expandSidebar": "Expandir barra lateral"
+    "expandSidebar": "Expandir barra lateral",
+    "administration": "Administración",
+    "roles": "Perfiles y Permisos",
+    "colors": "Colores",
+    "colorTypes": "Tipos de Color",
+    "fscTypes": "Tipos de FSC",
+    "deliveryZones": "Zonas de Entrega",
+    "finishedGoods": "Productos Elaborados"
+  },
+  "roles": {
+    "title": "Perfiles y Permisos",
+    "subtitle": "Gestionar perfiles de usuario y su grilla de permisos",
+    "addRole": "Agregar Perfil",
+    "allRoles": "Todos los Perfiles",
+    "searchPlaceholder": "Buscar perfiles...",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese el nombre del perfil",
+    "profileType": "Tipo de Perfil",
+    "hasAccessToAllMachines": "Tiene acceso a todas las máquinas",
+    "protected": "Protegido",
+    "createTitle": "Crear Perfil",
+    "editTitle": "Editar Perfil",
+    "editRole": "Editar Perfil",
+    "editPermissions": "Editar Permisos",
+    "deleteRole": "Eliminar Perfil",
+    "createButton": "Crear Perfil",
+    "updateButton": "Actualizar Perfil",
+    "deleteConfirm": "¿Está seguro de que desea eliminar el perfil \"{{name}}\"?",
+    "columns": {
+      "name": "Nombre",
+      "profileType": "Tipo de Perfil",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron perfiles",
+      "description": "Intente ajustar su búsqueda",
+      "noData": "No hay perfiles disponibles"
+    },
+    "validation": {
+      "nameRequired": "El nombre es obligatorio"
+    },
+    "profileTypes": {
+      "general": "General",
+      "director": "Director",
+      "productionManager": "Responsable de Producción",
+      "qualityManager": "Responsable de Calidad",
+      "salesperson": "Vendedor"
+    },
+    "states": {
+      "none": "Sin acceso",
+      "readOnly": "Sólo lectura",
+      "full": "Completo"
+    },
+    "areas": {
+      "masters": "Maestros",
+      "operations": "Operaciones",
+      "queries": "Consultas y Reportes",
+      "actions": "Acciones",
+      "sales-plus": "Ventas / PLUS",
+      "maintenance": "Mantenimiento"
+    },
+    "permissionsModal": {
+      "title": "Permisos — {{name}}",
+      "protectedNote": "Este es el perfil Admin protegido: siempre posee todos los permisos y no puede editarse.",
+      "deprecated": "obsoleto",
+      "save": "Guardar Permisos",
+      "saving": "Guardando...",
+      "loadFailed": "No se pudo cargar el catálogo de permisos.",
+      "saveFailed": "No se pudieron guardar los permisos. Intente nuevamente."
+    }
+  },
+  "fileUploader": {
+    "choose": "Elegir archivo...",
+    "uploading": "Subiendo...",
+    "download": "Descargar",
+    "remove": "Quitar",
+    "tooLarge": "El archivo es demasiado grande (máx. 25 MB).",
+    "uploadFailed": "Error al subir el archivo. Intente nuevamente.",
+    "downloadFailed": "Error al descargar el archivo. Intente nuevamente."
   },
   "companies": {
     "title": "Empresas",
@@ -278,7 +357,22 @@
     "errors": {
       "createFailed": "Error al crear el cliente. Por favor, intente nuevamente.",
       "updateFailed": "Error al actualizar el cliente. Por favor, intente nuevamente."
-    }
+    },
+    "enterCode": "Ingrese el código del cliente",
+    "enterNotes": "Ingrese observaciones (opcional)",
+    "dispatchable": "Despachable",
+    "excludeLogoOnLabels": "Excluir logo en carteles",
+    "requiresQualityCertificate": "Requiere certificado de calidad",
+    "selectDeliveryZone": "Seleccione zona de entrega",
+    "deliveryZoneRequired": "La zona de entrega es obligatoria",
+    "externalSystemCode": "Código sistema administrativo",
+    "noLocations": "Sin lugares de entrega",
+    "noAddress": "(sin domicilio)",
+    "editLocation": "Editar lugar",
+    "saveLocation": "Guardar lugar",
+    "updateLocation": "Actualizar lugar",
+    "locationSaveFailed": "No se pudo guardar el lugar de entrega. Intente nuevamente.",
+    "locationsAfterSaveHint": "Los lugares de entrega se agregan después de guardar el cliente."
   },
   "customers": {
     "title": "Clientes",
@@ -840,7 +934,15 @@
     "createFailed": "Error al crear el papel. Por favor, intente nuevamente.",
     "updateFailed": "Error al actualizar el papel. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el papel",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este papel?"
+    "deleteConfirm": "¿Está seguro de que desea eliminar este papel?",
+    "color": "Color",
+    "colorPlaceholder": "Ingrese color (texto libre)",
+    "fscType": "Tipo de FSC",
+    "selectFscType": "Seleccione tipo de FSC (opcional)",
+    "minimumStockWeightKg": "Stock Mínimo - Peso (kg)",
+    "minimumStockWeightKgPlaceholder": "Peso de bobina en kg",
+    "minimumStockDiameterMm": "Stock Mínimo - Diámetro (mm)",
+    "minimumStockDiameterMmPlaceholder": "Diámetro de bobina en mm"
   },
   "corrugationClasses": {
     "title": "Clases de Corrugado",
@@ -922,7 +1024,19 @@
     "createFailed": "Error al crear el corrugado. Por favor, intente nuevamente.",
     "updateFailed": "Error al actualizar el corrugado. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el corrugado",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este corrugado?"
+    "deleteConfirm": "¿Está seguro de que desea eliminar este corrugado?",
+    "layers": {
+      "title": "Capas",
+      "addLayer": "Agregar capa",
+      "empty": "Sin capas — agregue la estructura de la placa (liners y ondas).",
+      "liner": "Liner",
+      "selectPaperClass": "Clase de papel...",
+      "selectFluteType": "Onda...",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "removeLayer": "Quitar capa",
+      "count": "Capas"
+    }
   },
   "paperSheets": {
     "title": "Planchas de Papel",
@@ -1166,7 +1280,9 @@
     "createFailed": "Error al crear el herramental. Por favor, intente nuevamente.",
     "updateFailed": "Error al actualizar el herramental. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el herramental",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este herramental?"
+    "deleteConfirm": "¿Está seguro de que desea eliminar este herramental?",
+    "code": "Código",
+    "codePlaceholder": "Código del herramental"
   },
   "consumableTypes": {
     "title": "Tipos de Consumibles",
@@ -1254,7 +1370,15 @@
     "createFailed": "Error al crear el consumible. Por favor, intente nuevamente.",
     "updateFailed": "Error al actualizar el consumible. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el consumible",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este consumible?"
+    "deleteConfirm": "¿Está seguro de que desea eliminar este consumible?",
+    "location": "Ubicación",
+    "locationPlaceholder": "Ubicación en depósito (texto libre)",
+    "expiry": "Vencimiento",
+    "expiryPlaceholder": "ej. 15-07-22 (texto libre)",
+    "minimumStock": "Stock Mínimo",
+    "minimumStockPlaceholder": "Unidades",
+    "color": "Color",
+    "selectColor": "Seleccione color (opcional)"
   },
   "toolingStock": {
     "title": "Stock de Herramentales",
@@ -1495,5 +1619,182 @@
     "updateFailed": "Error al actualizar el tipo de traza. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el tipo de traza",
     "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de traza?"
+  },
+  "fscTypes": {
+    "title": "Tipos de FSC",
+    "subtitle": "Gestionar catálogo de tipos de FSC",
+    "addFscType": "Agregar Tipo de FSC",
+    "allFscTypes": "Todos los Tipos de FSC",
+    "searchPlaceholder": "Buscar tipos de FSC...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código del tipo de FSC",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "createTitle": "Crear Tipo de FSC",
+    "editTitle": "Editar Tipo de FSC",
+    "editFscType": "Editar Tipo de FSC",
+    "deleteFscType": "Eliminar Tipo de FSC",
+    "createButton": "Crear Tipo de FSC",
+    "updateButton": "Actualizar Tipo de FSC",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de FSC?",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "Sin tipos de FSC",
+      "description": "Ningún tipo de FSC coincide con su búsqueda.",
+      "noData": "Comience creando un nuevo tipo de FSC."
+    },
+    "validation": {
+      "codeRequired": "El código es obligatorio"
+    }
+  },
+  "colorTypes": {
+    "title": "Tipos de Color",
+    "subtitle": "Gestionar catálogo de tipos de color",
+    "addColorType": "Agregar Tipo de Color",
+    "allColorTypes": "Todos los Tipos de Color",
+    "searchPlaceholder": "Buscar tipos de color...",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese nombre del tipo de color",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "createTitle": "Crear Tipo de Color",
+    "editTitle": "Editar Tipo de Color",
+    "editColorType": "Editar Tipo de Color",
+    "deleteColorType": "Eliminar Tipo de Color",
+    "createButton": "Crear Tipo de Color",
+    "updateButton": "Actualizar Tipo de Color",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de color?",
+    "columns": {
+      "name": "Nombre",
+      "description": "Descripción",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "Sin tipos de color",
+      "description": "Ningún tipo de color coincide con su búsqueda.",
+      "noData": "Comience creando un nuevo tipo de color."
+    },
+    "validation": {
+      "nameRequired": "El nombre es obligatorio"
+    }
+  },
+  "colors": {
+    "title": "Colores",
+    "subtitle": "Gestionar catálogo de colores de impresión",
+    "addColor": "Agregar Color",
+    "allColors": "Todos los Colores",
+    "searchPlaceholder": "Buscar colores...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese código del color",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese nombre del color",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese descripción (opcional)",
+    "observations": "Observaciones",
+    "observationsPlaceholder": "Ingrese observaciones (opcional)",
+    "tonality": "Tonalidad",
+    "tonalityPlaceholder": "Ingrese tonalidad (índice de tono de impresión)",
+    "colorType": "Tipo de Color",
+    "selectColorType": "Seleccione tipo de color (opcional)",
+    "createTitle": "Crear Color",
+    "editTitle": "Editar Color",
+    "editColor": "Editar Color",
+    "deleteColor": "Eliminar Color",
+    "createButton": "Crear Color",
+    "updateButton": "Actualizar Color",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este color?",
+    "columns": {
+      "code": "Código",
+      "name": "Nombre",
+      "tonality": "Tonalidad",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "Sin colores",
+      "description": "Ningún color coincide con su búsqueda.",
+      "noData": "Comience creando un nuevo color."
+    },
+    "validation": {
+      "codeRequired": "El código es obligatorio"
+    }
+  },
+  "deliveryZones": {
+    "title": "Zonas de Entrega",
+    "subtitle": "Gestión del maestro de zonas de entrega",
+    "addZone": "Agregar Zona",
+    "allZones": "Todas las Zonas",
+    "searchPlaceholder": "Buscar zonas de entrega...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese el código",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese la descripción (opcional)",
+    "createTitle": "Crear Zona de Entrega",
+    "editTitle": "Editar Zona de Entrega",
+    "editZone": "Editar Zona",
+    "deleteZone": "Eliminar Zona",
+    "createButton": "Crear Zona",
+    "updateButton": "Actualizar Zona",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "created": "Creada",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron zonas",
+      "description": "Pruebe otra búsqueda",
+      "noData": "No hay zonas de entrega"
+    },
+    "validation": {
+      "codeRequired": "El código es obligatorio"
+    },
+    "deleteConfirm": "¿Está seguro de eliminar esta zona de entrega?"
+  },
+  "finishedGoods": {
+    "title": "Productos Elaborados",
+    "subtitle": "Gestión del catálogo de productos elaborados",
+    "addFinishedGood": "Agregar Producto Elaborado",
+    "allFinishedGoods": "Todos los Productos Elaborados",
+    "searchPlaceholder": "Buscar productos elaborados...",
+    "code": "Código",
+    "codePlaceholder": "Ingrese el código (opcional)",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese el nombre",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese la descripción (opcional)",
+    "supplier": "Proveedor",
+    "selectSupplier": "Seleccione proveedor",
+    "manufacturer": "Fabricante",
+    "selectManufacturer": "Seleccione fabricante",
+    "minimumStock": "Stock mínimo",
+    "createTitle": "Crear Producto Elaborado",
+    "editTitle": "Editar Producto Elaborado",
+    "editFinishedGood": "Editar Producto Elaborado",
+    "deleteFinishedGood": "Eliminar Producto Elaborado",
+    "createButton": "Crear",
+    "updateButton": "Actualizar",
+    "columns": {
+      "code": "Código",
+      "name": "Nombre",
+      "supplier": "Proveedor",
+      "minimumStock": "Stock mín.",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "No se encontraron productos elaborados",
+      "description": "Pruebe otra búsqueda",
+      "noData": "No hay productos elaborados"
+    },
+    "validation": {
+      "nameRequired": "El nombre es obligatorio"
+    },
+    "deleteConfirm": "¿Está seguro de eliminar este producto elaborado?"
   }
 }

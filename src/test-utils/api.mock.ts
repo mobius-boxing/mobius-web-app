@@ -170,8 +170,6 @@ export const createMockCustomer = (overrides: Partial<any> = {}) => ({
   address: '123 Test St',
   tradeName: 'Test Trade',
   contacts: [],
-  deliveryLocations: [],
-  deliveryDays: [],
   createdAt: '2024-01-01T00:00:00.000Z',
   updatedAt: '2024-01-01T00:00:00.000Z',
   ...overrides,

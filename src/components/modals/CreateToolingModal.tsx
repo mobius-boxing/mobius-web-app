@@ -101,6 +101,13 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('toolings.code')}
+          </label>
+          <Input {...register('code')} placeholder={t('toolings.codePlaceholder')} />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
             {t('toolings.toolingType')} *
           </label>
           <select

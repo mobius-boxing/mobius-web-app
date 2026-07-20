@@ -151,8 +151,8 @@ const PaperSupplies: React.FC = () => {
       header: t('paperSupplies.columns.minimumStock'),
       render: (value: any, paperSupply: PaperSupply) => (
         <span className="text-sm text-secondary-500">
-          {paperSupply.minimumStock
-            ? `${paperSupply.minimumStock.pallets || 0} ${t('paperSupplies.pallets')} / ${paperSupply.minimumStock.boxes || 0} ${t('paperSupplies.boxes')}`
+          {paperSupply.minimumStock && (paperSupply.minimumStock.weightKg || paperSupply.minimumStock.diameterMm)
+            ? `${paperSupply.minimumStock.weightKg ?? 0} kg / ${paperSupply.minimumStock.diameterMm ?? 0} mm`
             : 'N/A'}
         </span>
       ),

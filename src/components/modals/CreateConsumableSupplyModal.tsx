@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CreateConsumableSupplyForm, ConsumableType, Manufacturer, Supplier } from '../../types';
-import { consumableSuppliesApi, consumableTypesApi, manufacturersApi, suppliersApi } from '../../services/api';
+import { CreateConsumableSupplyForm, ConsumableType, Manufacturer, Supplier, Color } from '../../types';
+import { consumableSuppliesApi, consumableTypesApi, manufacturersApi, suppliersApi, colorsApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import Modal from '../ui/Modal';
@@ -21,6 +21,7 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const [colorOptions, setColorOptions] = React.useState<Color[]>([]);
   const { effectiveCompanyId } = useEffectiveCompany();
   const [consumableTypes, setConsumableTypes] = useState<ConsumableType[]>([]);
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
@@ -47,6 +48,10 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
       consumableTypesApi.getConsumableTypes({ limit: 100, ...companyFilter }).then((res) => setConsumableTypes(res.data));
       manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }).then((res) => setManufacturers(res.data));
       suppliersApi.getSuppliers({ limit: 100, ...companyFilter }).then((res) => setSuppliers(res.data));
+      colorsApi
+        .getColors({ limit: 200, ...companyFilter })
+        .then((res) => setColorOptions(res.data))
+        .catch(() => setColorOptions([]));
     }
   }, [isOpen, effectiveCompanyId]);
 
@@ -143,6 +148,53 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
           </select>
         </div>
 
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('consumableSupplies.location')}
+            </label>
+            <Input {...register('location')} placeholder={t('consumableSupplies.locationPlaceholder')} />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('consumableSupplies.expiry')}
+            </label>
+            <Input {...register('expiry')} placeholder={t('consumableSupplies.expiryPlaceholder')} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('consumableSupplies.minimumStock')}
+            </label>
+            <Input
+              type="number"
+              step="any"
+              {...register('minimumStock', { valueAsNumber: true })}
+              placeholder={t('consumableSupplies.minimumStockPlaceholder')}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('consumableSupplies.color')}
+            </label>
+            <select
+              {...register('colorUuid')}
+              className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">{t('consumableSupplies.selectColor')}</option>
+              {colorOptions.map((c) => (
+                <option key={c.uuid} value={c.uuid}>
+                  {c.code}{c.name ? ` - ${c.name}` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <ModalFooter
           loading={loading}
           onCancel={handleClose}

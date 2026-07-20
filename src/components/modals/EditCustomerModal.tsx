@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
-import { Customer, CreateCustomerForm, CustomerCategory, User, ContactInfo, DeliveryLocation, DeliveryDay } from '../../types';
+import { Customer, CreateCustomerForm, CustomerCategory, User, ContactInfo } from '../../types';
 import { customersApi, customerCategoriesApi, usersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
@@ -26,8 +26,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   const [categories, setCategories] = useState<CustomerCategory[]>([]);
   const [salesPersons, setSalesPersons] = useState<User[]>([]);
   const [contacts, setContacts] = useState<ContactInfo[]>([]);
-  const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocation[]>([]);
-  const [deliveryDays, setDeliveryDays] = useState<DeliveryDay[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
@@ -58,15 +56,18 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
         legalCode: customer.legalCode || '',
         tradeName: customer.tradeName || '',
         supplierCode: customer.supplierCode || '',
+        code: customer.code || '',
         address: customer.address || '',
+        notes: customer.notes || '',
         active: customer.active,
+        dispatchable: customer.dispatchable ?? true,
+        excludeLogoOnLabels: customer.excludeLogoOnLabels ?? false,
+        requiresQualityCertificate: customer.requiresQualityCertificate ?? false,
         categoryId: customer.category?.uuid || '',
         salesPersonId: customer.salesPerson?.uuid || '',
       });
 
       setContacts(customer.contacts || []);
-      setDeliveryLocations(customer.deliveryLocations || []);
-      setDeliveryDays(customer.deliveryDays || []);
     }
   }, [isOpen, customer, dropdownsLoaded, reset]);
 
@@ -87,8 +88,6 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
 
   const handleClose = () => {
     setContacts([]);
-    setDeliveryLocations([]);
-    setDeliveryDays([]);
     baseHandleClose();
   };
 
@@ -103,10 +102,10 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
       legalName: data.legalName || undefined,
       legalCode: data.legalCode || undefined,
       tradeName: data.tradeName || undefined,
+      code: data.code || undefined,
+      notes: data.notes || undefined,
       address: data.address || undefined,
       contacts: contacts.length > 0 ? contacts : undefined,
-      deliveryLocations: deliveryLocations.length > 0 ? deliveryLocations : undefined,
-      deliveryDays: deliveryDays.length > 0 ? deliveryDays : undefined,
     };
 
     await customersApi.updateCustomer(customer.uuid, customerData);
@@ -122,10 +121,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
         form={form}
         contacts={contacts}
         setContacts={setContacts}
-        deliveryLocations={deliveryLocations}
-        setDeliveryLocations={setDeliveryLocations}
-        deliveryDays={deliveryDays}
-        setDeliveryDays={setDeliveryDays}
+        customerUuid={customer.uuid}
         loading={loading}
         error={error}
         onClose={handleClose}

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
-import { CreateCustomerForm, CustomerCategory, User, ContactInfo, DeliveryLocation, DeliveryDay } from '../../types';
+import { CreateCustomerForm, CustomerCategory, User, ContactInfo } from '../../types';
 import { customersApi, customerCategoriesApi, usersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
@@ -26,8 +26,6 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   const [categories, setCategories] = useState<CustomerCategory[]>([]);
   const [salesPersons, setSalesPersons] = useState<User[]>([]);
   const [contacts, setContacts] = useState<ContactInfo[]>([]);
-  const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocation[]>([]);
-  const [deliveryDays, setDeliveryDays] = useState<DeliveryDay[]>([]);
 
   const {
     form,
@@ -38,6 +36,7 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   } = useModalForm<CreateCustomerForm>({
     defaultValues: {
       active: true,
+      dispatchable: true,
     },
     onSuccess,
     onClose,
@@ -73,17 +72,15 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
       legalCode: data.legalCode || undefined,
       tradeName: data.tradeName || undefined,
       address: data.address || undefined,
+      code: data.code || undefined,
+      notes: data.notes || undefined,
       contacts: contacts.length > 0 ? contacts : undefined,
-      deliveryLocations: deliveryLocations.length > 0 ? deliveryLocations : undefined,
-      deliveryDays: deliveryDays.length > 0 ? deliveryDays : undefined,
     };
     return customersApi.createCustomer(customerData);
   });
 
   const handleClose = () => {
     setContacts([]);
-    setDeliveryLocations([]);
-    setDeliveryDays([]);
     modalHandleClose();
   };
 
@@ -97,10 +94,6 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
         form={form}
         contacts={contacts}
         setContacts={setContacts}
-        deliveryLocations={deliveryLocations}
-        setDeliveryLocations={setDeliveryLocations}
-        deliveryDays={deliveryDays}
-        setDeliveryDays={setDeliveryDays}
         loading={loading}
         error={error}
         onClose={handleClose}

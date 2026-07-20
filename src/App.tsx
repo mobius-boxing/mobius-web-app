@@ -30,6 +30,12 @@ import ConsumableSupplies from './pages/ConsumableSupplies';
 import ToolingStock from './pages/ToolingStock';
 import ConsumableStock from './pages/ConsumableStock';
 import GlueTypes from './pages/GlueTypes';
+import Colors from './pages/Colors';
+import ColorTypes from './pages/ColorTypes';
+import FscTypes from './pages/FscTypes';
+import DeliveryZones from './pages/DeliveryZones';
+import FinishedGoods from './pages/FinishedGoods';
+import Roles from './pages/Roles';
 import StrappingTypes from './pages/StrappingTypes';
 import Complements from './pages/Complements';
 import TraceTypes from './pages/TraceTypes';
@@ -280,6 +286,60 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
                   <GlueTypes />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/colors"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <Colors />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/color-types"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <ColorTypes />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/fsc-types"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <FscTypes />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/delivery-zones"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <DeliveryZones />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/finished-goods"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <FinishedGoods />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/roles"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <Roles />
                 </ProtectedRoute>
               }
             />

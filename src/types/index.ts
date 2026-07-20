@@ -50,6 +50,8 @@ export interface AuthUser {
   role: 'member' | 'admin' | 'superAdmin';
   companyId?: string;
   companyName?: string;
+  /** RBAC permission codes granted via the user's role (empty when no role assigned). */
+  permissions?: string[];
 }
 
 export interface LoginResponse {
@@ -169,6 +171,7 @@ export interface ContactInfo {
   notes?: string;
 }
 
+/** @deprecated legacy jsonb shape — delivery locations are a real resource now (DeliveryLocationRecord). */
 export interface DeliveryLocation {
   code: string;
   address: string;
@@ -176,6 +179,43 @@ export interface DeliveryLocation {
   lat?: string;
   lon?: string;
   deliveryZone?: string;
+}
+
+export interface DeliveryZone {
+  uuid: string;
+  code?: string;
+  description?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateDeliveryZoneForm {
+  code?: string;
+  description?: string;
+}
+
+/** A delivery location row from /api/delivery-locations (module 16). */
+export interface DeliveryLocationRecord {
+  uuid: string;
+  address?: string;
+  schedule?: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  externalSystemCode?: string;
+  deliveryZone?: { uuid: string; code?: string; description?: string } | null;
+  customer?: { uuid: string; name?: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateDeliveryLocationForm {
+  customerUuid: string;
+  address?: string;
+  schedule?: string;
+  latitude?: number;
+  longitude?: number;
+  externalSystemCode?: string;
+  deliveryZoneUuid: string;
 }
 
 export interface DeliveryDay {
@@ -199,9 +239,12 @@ export interface Customer {
   legalCode?: string;
   address?: string;
   tradeName?: string;
+  code?: string;
+  dispatchable?: boolean;
+  notes?: string;
+  excludeLogoOnLabels?: boolean;
+  requiresQualityCertificate?: boolean;
   contacts: ContactInfo[];
-  deliveryLocations: DeliveryLocation[];
-  deliveryDays: DeliveryDay[];
   createdAt: string;
   updatedAt: string;
   // Related objects with UUIDs (from getCustomerWithDetails)
@@ -225,9 +268,12 @@ export interface CreateCustomerForm {
   legalCode?: string;
   address?: string;
   tradeName?: string;
+  code?: string;
+  dispatchable?: boolean;
+  notes?: string;
+  excludeLogoOnLabels?: boolean;
+  requiresQualityCertificate?: boolean;
   contacts?: ContactInfo[];
-  deliveryLocations?: DeliveryLocation[];
-  deliveryDays?: DeliveryDay[];
   companyId?: string;
 }
 
@@ -340,6 +386,23 @@ export interface CreateCorrugationClassForm {
 }
 
 // SECURITY: No numeric IDs - only UUIDs exposed to frontend
+/** One Capa row of a Corrugation (as returned by GET /corrugation/:uuid). */
+export interface CorrugationLayer {
+  uuid?: string;
+  position: number;
+  isLiner: boolean;
+  paperClass?: { uuid: string; code?: string; name?: string; description?: string } | null;
+  fluteType?: { uuid: string; code?: string; description?: string } | null;
+}
+
+/** One Capa row as sent on create/update. */
+export interface CorrugationLayerInput {
+  position: number;
+  isLiner: boolean;
+  paperClassUuid?: string;
+  fluteTypeUuid?: string;
+}
+
 export interface Corrugation {
   uuid: string;
   code: string;
@@ -349,6 +412,7 @@ export interface Corrugation {
   caliper?: number;
   // Related object with UUID (not numeric foreign key)
   corrugationClass?: CorrugationClass;
+  layers?: CorrugationLayer[];
   createdAt: string;
   updatedAt: string;
 }
@@ -361,6 +425,28 @@ export interface CreateCorrugationForm {
   caliper?: number;
   // Use UUID to reference corrugation class, not numeric ID
   corrugationClassUuid?: string;
+  layers?: CorrugationLayerInput[];
+}
+
+export interface FinishedGood {
+  uuid: string;
+  code?: string;
+  name: string;
+  description?: string;
+  minimumStock?: number | null;
+  supplier?: { uuid: string; name?: string; code?: string } | null;
+  manufacturer?: { uuid: string; name?: string; code?: string } | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateFinishedGoodForm {
+  code?: string;
+  name: string;
+  description?: string;
+  supplierUuid?: string;
+  manufacturerUuid?: string;
+  minimumStock?: number;
 }
 
 export interface Product {
@@ -491,12 +577,15 @@ export interface PaperSupply {
   paperType?: PaperType;
   grammage?: number;
   price?: number;
+  color?: string;
+  fscTypeId?: number | null;
+  /** Nested FSC type (uuid-keyed) — the edit form preselects from this. */
+  fscType?: { uuid: string; code?: string | null; description?: string | null } | null;
+  /** Corrected shape: Procusto paper min-stock is one roll spec (kg + mm). */
   minimumStock?: {
-    pallets: number;
-    boxes: number;
+    weightKg?: number | null;
+    diameterMm?: number | null;
   };
-  minimumStockPallets?: number; // Deprecated: use minimumStock.pallets instead
-  minimumStockBoxes?: number; // Deprecated: use minimumStock.boxes instead
   createdAt: string;
   updatedAt: string;
 }
@@ -510,8 +599,11 @@ export interface CreatePaperSupplyForm {
   paperTypeId?: string;
   grammage?: number;
   price?: number;
-  minimumStockPallets?: number;
-  minimumStockBoxes?: number;
+  color?: string;
+  /** FSC type uuid — resolved to a numeric id by the API (manufacturerId convention). */
+  fscTypeId?: string;
+  minimumStockWeightKg?: number;
+  minimumStockDiameterMm?: number;
 }
 
 export interface PaperSheet {
@@ -635,6 +727,7 @@ export interface CreateToolingTypeForm {
 
 export interface Tooling {
   uuid: string;
+  code?: string;
   name: string;
   description?: string;
   minimumStock?: number;
@@ -646,6 +739,7 @@ export interface Tooling {
 }
 
 export interface CreateToolingForm {
+  code?: string;
   name: string;
   description?: string;
   manufacturerUuid?: string;
@@ -677,6 +771,13 @@ export interface ConsumableSupply {
   supplier?: Supplier;
   manufacturer?: Manufacturer;
   consumableType?: ConsumableType;
+  location?: string;
+  /** Free text by design (Procusto stores strings like "15-07-22"). */
+  expiry?: string;
+  minimumStock?: number | null;
+  colorId?: number | null;
+  /** Nested color (uuid-keyed) — the edit form preselects from this. */
+  color?: { uuid: string; code?: string | null; name?: string | null } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -688,6 +789,10 @@ export interface CreateConsumableSupplyForm {
   supplierUuid?: string;
   manufacturerUuid?: string;
   consumableTypeUuid: string;
+  location?: string;
+  expiry?: string;
+  minimumStock?: number;
+  colorUuid?: string;
 }
 
 export interface ToolingStock {
@@ -724,6 +829,56 @@ export interface GlueType {
 }
 
 export interface CreateGlueTypeForm {
+  code: string;
+  description?: string;
+  companyId?: string;
+}
+
+export interface ColorType {
+  uuid: string;
+  name: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateColorTypeForm {
+  name: string;
+  description?: string;
+  companyId?: string;
+}
+
+export interface Color {
+  uuid: string;
+  code: string;
+  name?: string;
+  description?: string;
+  observations?: string;
+  tonality?: number | null;
+  colorTypeId?: number | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateColorForm {
+  code: string;
+  name?: string;
+  description?: string;
+  observations?: string;
+  tonality?: number;
+  colorTypeUuid?: string;
+  companyId?: string;
+}
+
+export interface FscType {
+  uuid: string;
+  code: string;
+  description?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateFscTypeForm {
   code: string;
   description?: string;
   companyId?: string;
@@ -794,4 +949,53 @@ export interface CreateConsumableStockForm {
   comments?: string;
   price?: number;
   quantity: number;
+}
+// ── RBAC (module 02) ──────────────────────────────────────────────────────────
+
+export type RoleProfileType =
+  | 'director'
+  | 'general'
+  | 'productionManager'
+  | 'qualityManager'
+  | 'salesperson';
+
+export interface Role {
+  id?: number;
+  uuid: string;
+  name: string;
+  profileType: RoleProfileType;
+  hasAccessToAllMachines: boolean;
+  isProtected: boolean;
+  /** Granted permission codes — populated by GET /roles/:uuid. */
+  permissionCodes?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateRoleForm {
+  name: string;
+  profileType?: RoleProfileType;
+  hasAccessToAllMachines?: boolean;
+}
+
+export interface Permission {
+  uuid: string;
+  code: string;
+  /** Legacy Spanish gate-key name (display). */
+  name: string;
+  description?: string;
+  readOnly: boolean;
+  area?: string;
+  deprecated?: boolean;
+}
+
+// ── Files (module 01) ─────────────────────────────────────────────────────────
+
+export interface FileRecord {
+  uuid: string;
+  originalName: string;
+  description?: string | null;
+  contentType?: string | null;
+  sizeBytes?: number | null;
+  createdAt?: string;
 }

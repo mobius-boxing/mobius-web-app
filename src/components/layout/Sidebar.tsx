@@ -19,9 +19,12 @@ import {
   Database,
   PanelLeftClose,
   PanelLeft,
+  ShieldCheck,
+  MapPin,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { usePermissions } from '../../hooks/usePermissions';
 import { NavItem } from '../../types';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 import CompanySwitcher from '../ui/CompanySwitcher';
@@ -31,6 +34,7 @@ const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
 
 const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
+  const { has } = usePermissions();
   const location = useLocation();
   const { t } = useTranslation();
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
@@ -66,6 +70,13 @@ const Sidebar: React.FC = () => {
           label: t('nav.customerCategories'),
           path: '/customer-categories',
           icon: 'Tag',
+          roles: ['admin', 'superAdmin'],
+        },
+        {
+          id: 'delivery-zones',
+          label: t('nav.deliveryZones'),
+          path: '/delivery-zones',
+          icon: 'MapPin',
           roles: ['admin', 'superAdmin'],
         },
         {
@@ -181,6 +192,13 @@ const Sidebar: React.FC = () => {
               icon: 'Package',
               roles: ['admin', 'superAdmin'],
             },
+            {
+              id: 'finished-goods',
+              label: t('nav.finishedGoods'),
+              path: '/finished-goods',
+              icon: 'Package',
+              roles: ['admin', 'superAdmin'],
+            },
           ],
         },
         {
@@ -228,6 +246,27 @@ const Sidebar: React.FC = () => {
               id: 'glue-types',
               label: t('nav.glueTypes'),
               path: '/glue-types',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'colors',
+              label: t('nav.colors'),
+              path: '/colors',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'color-types',
+              label: t('nav.colorTypes'),
+              path: '/color-types',
+              icon: 'Layers',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'fsc-types',
+              label: t('nav.fscTypes'),
+              path: '/fsc-types',
               icon: 'Layers',
               roles: ['admin', 'superAdmin'],
             },
@@ -300,6 +339,30 @@ const Sidebar: React.FC = () => {
         },
       ],
     },
+    // RBAC administration — visible with the roles.edit permission (or its
+    // read-only variant); legacy admins pass via the transition fallback.
+    ...(has('roles.edit', { allowReadOnly: true })
+      ? [
+          {
+            id: 'administration',
+            label: t('nav.administration'),
+            icon: 'ShieldCheck',
+            // The has('roles.edit') check above is the real gate — include
+            // 'member' so an RBAC-granted non-admin isn't filtered out by the
+            // legacy role filter below.
+            roles: ['member', 'admin', 'superAdmin'],
+            children: [
+              {
+                id: 'roles',
+                label: t('nav.roles'),
+                path: '/roles',
+                icon: 'ShieldCheck',
+                roles: ['member', 'admin', 'superAdmin'],
+              },
+            ],
+          } as NavItem,
+        ]
+      : []),
   ];
 
   const getIcon = (iconName: string, className: string = "h-5 w-5") => {
@@ -321,6 +384,8 @@ const Sidebar: React.FC = () => {
       Database,
       PanelLeftClose,
       PanelLeft,
+      ShieldCheck,
+      MapPin,
     };
     const IconComponent = icons[iconName as keyof typeof icons];
     return IconComponent ? <IconComponent className={className} /> : null;
@@ -441,7 +506,7 @@ const Sidebar: React.FC = () => {
             {getIcon(isExpanded ? 'ChevronDown' : 'ChevronRight', 'h-4 w-4')}
           </button>
           {isExpanded && item.children && (
-            <div className="ml-4 space-y-1 border-l-2 border-secondary-200 pl-4">
+            <div className="ml-[1.375rem] space-y-1 border-l border-secondary-200 pl-3">
               {item.children
                 .filter((child) => user ? child.roles.includes(user.role) : false)
                 .map((child) => renderNavItem(child, depth + 1))}
@@ -473,11 +538,18 @@ const Sidebar: React.FC = () => {
     >
       <div className="flex items-center justify-between h-16 px-3 border-b border-secondary-200">
         {!isCollapsed && (
-          <h1 className="text-xl font-bold text-primary-600">Mobius</h1>
+          <div className="flex items-center gap-2.5 pl-1">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white text-sm font-bold shadow-sm">
+              M
+            </div>
+            <span className="text-lg font-bold tracking-tight text-secondary-900">
+              Mobius
+            </span>
+          </div>
         )}
         <button
           onClick={toggleCollapsed}
-          className="p-2 rounded-lg hover:bg-secondary-100 text-secondary-600 transition-colors"
+          className="p-2 rounded-lg text-secondary-500 hover:bg-secondary-100 hover:text-secondary-800 transition-colors"
           title={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
         >
           {isCollapsed ? (

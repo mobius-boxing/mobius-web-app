@@ -48,7 +48,86 @@
     "settings": "Settings",
     "signOut": "Sign Out",
     "collapseSidebar": "Collapse sidebar",
-    "expandSidebar": "Expand sidebar"
+    "expandSidebar": "Expand sidebar",
+    "administration": "Administration",
+    "roles": "Roles & Permissions",
+    "colors": "Colors",
+    "colorTypes": "Color Types",
+    "fscTypes": "FSC Types",
+    "deliveryZones": "Delivery Zones",
+    "finishedGoods": "Finished Goods"
+  },
+  "roles": {
+    "title": "Roles & Permissions",
+    "subtitle": "Manage user roles and their permission grid",
+    "addRole": "Add Role",
+    "allRoles": "All Roles",
+    "searchPlaceholder": "Search roles...",
+    "name": "Name",
+    "namePlaceholder": "Enter role name",
+    "profileType": "Profile Type",
+    "hasAccessToAllMachines": "Has access to all machines",
+    "protected": "Protected",
+    "createTitle": "Create Role",
+    "editTitle": "Edit Role",
+    "editRole": "Edit Role",
+    "editPermissions": "Edit Permissions",
+    "deleteRole": "Delete Role",
+    "createButton": "Create Role",
+    "updateButton": "Update Role",
+    "deleteConfirm": "Are you sure you want to delete the role \"{{name}}\"?",
+    "columns": {
+      "name": "Name",
+      "profileType": "Profile Type",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No roles found",
+      "description": "Try adjusting your search criteria",
+      "noData": "No roles available"
+    },
+    "validation": {
+      "nameRequired": "Name is required"
+    },
+    "profileTypes": {
+      "general": "General",
+      "director": "Director",
+      "productionManager": "Production Manager",
+      "qualityManager": "Quality Manager",
+      "salesperson": "Salesperson"
+    },
+    "states": {
+      "none": "None",
+      "readOnly": "Read-only",
+      "full": "Full"
+    },
+    "areas": {
+      "masters": "Master Data",
+      "operations": "Operations",
+      "queries": "Queries & Reports",
+      "actions": "Actions",
+      "sales-plus": "Sales / PLUS",
+      "maintenance": "Maintenance"
+    },
+    "permissionsModal": {
+      "title": "Permissions — {{name}}",
+      "protectedNote": "This is the protected Admin role: it always holds every permission and cannot be edited.",
+      "deprecated": "deprecated",
+      "save": "Save Permissions",
+      "saving": "Saving...",
+      "loadFailed": "Failed to load the permission catalogue.",
+      "saveFailed": "Failed to save permissions. Please try again."
+    }
+  },
+  "fileUploader": {
+    "choose": "Choose file...",
+    "uploading": "Uploading...",
+    "download": "Download",
+    "remove": "Remove",
+    "tooLarge": "File is too large (max 25 MB).",
+    "uploadFailed": "Upload failed. Please try again.",
+    "downloadFailed": "Download failed. Please try again."
   },
   "companies": {
     "title": "Companies",
@@ -278,7 +357,22 @@
     "errors": {
       "createFailed": "Failed to create customer. Please try again.",
       "updateFailed": "Failed to update customer. Please try again."
-    }
+    },
+    "enterCode": "Enter customer code",
+    "enterNotes": "Enter notes (optional)",
+    "dispatchable": "Dispatchable",
+    "excludeLogoOnLabels": "Exclude logo on labels",
+    "requiresQualityCertificate": "Requires quality certificate",
+    "selectDeliveryZone": "Select delivery zone",
+    "deliveryZoneRequired": "A delivery zone is required",
+    "externalSystemCode": "External system code",
+    "noLocations": "No delivery locations yet",
+    "noAddress": "(no address)",
+    "editLocation": "Edit location",
+    "saveLocation": "Save location",
+    "updateLocation": "Update location",
+    "locationSaveFailed": "Failed to save delivery location. Please try again.",
+    "locationsAfterSaveHint": "Delivery locations can be added after saving the customer."
   },
   "customers": {
     "title": "Customers",
@@ -840,7 +934,15 @@
     "createFailed": "Failed to create supply. Please try again.",
     "updateFailed": "Failed to update supply. Please try again.",
     "deleteFailed": "Failed to delete supply",
-    "deleteConfirm": "Are you sure you want to delete this supply?"
+    "deleteConfirm": "Are you sure you want to delete this supply?",
+    "color": "Color",
+    "colorPlaceholder": "Enter color (free text)",
+    "fscType": "FSC Type",
+    "selectFscType": "Select FSC type (optional)",
+    "minimumStockWeightKg": "Min. Stock Weight (kg)",
+    "minimumStockWeightKgPlaceholder": "Roll weight in kg",
+    "minimumStockDiameterMm": "Min. Stock Diameter (mm)",
+    "minimumStockDiameterMmPlaceholder": "Roll diameter in mm"
   },
   "corrugationClasses": {
     "title": "Corrugation Classes",
@@ -922,7 +1024,19 @@
     "createFailed": "Failed to create corrugation. Please try again.",
     "updateFailed": "Failed to update corrugation. Please try again.",
     "deleteFailed": "Failed to delete corrugation",
-    "deleteConfirm": "Are you sure you want to delete this corrugation?"
+    "deleteConfirm": "Are you sure you want to delete this corrugation?",
+    "layers": {
+      "title": "Layers (Capas)",
+      "addLayer": "Add layer",
+      "empty": "No layers — add the board stack (liners and flutes).",
+      "liner": "Liner",
+      "selectPaperClass": "Paper class...",
+      "selectFluteType": "Flute...",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "removeLayer": "Remove layer",
+      "count": "Layers"
+    }
   },
   "paperSheets": {
     "title": "Paper Sheets",
@@ -1166,7 +1280,9 @@
     "createFailed": "Failed to create tooling. Please try again.",
     "updateFailed": "Failed to update tooling. Please try again.",
     "deleteFailed": "Failed to delete tooling",
-    "deleteConfirm": "Are you sure you want to delete this tooling?"
+    "deleteConfirm": "Are you sure you want to delete this tooling?",
+    "code": "Code",
+    "codePlaceholder": "Tooling code"
   },
   "consumableTypes": {
     "title": "Consumable Types",
@@ -1254,7 +1370,15 @@
     "createFailed": "Failed to create consumable supply. Please try again.",
     "updateFailed": "Failed to update consumable supply. Please try again.",
     "deleteFailed": "Failed to delete consumable supply",
-    "deleteConfirm": "Are you sure you want to delete this consumable supply?"
+    "deleteConfirm": "Are you sure you want to delete this consumable supply?",
+    "location": "Location",
+    "locationPlaceholder": "Warehouse location (free text)",
+    "expiry": "Expiry",
+    "expiryPlaceholder": "e.g. 15-07-22 (free text)",
+    "minimumStock": "Minimum Stock",
+    "minimumStockPlaceholder": "Units",
+    "color": "Color",
+    "selectColor": "Select color (optional)"
   },
   "toolingStock": {
     "title": "Tooling Stock",
@@ -1495,5 +1619,182 @@
     "updateFailed": "Failed to update trace type. Please try again.",
     "deleteFailed": "Failed to delete trace type",
     "deleteConfirm": "Are you sure you want to delete this trace type?"
+  },
+  "fscTypes": {
+    "title": "FSC Types",
+    "subtitle": "Manage FSC certification type catalog",
+    "addFscType": "Add FSC Type",
+    "allFscTypes": "All FSC Types",
+    "searchPlaceholder": "Search FSC types...",
+    "code": "Code",
+    "codePlaceholder": "Enter FSC type code",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "createTitle": "Create FSC Type",
+    "editTitle": "Edit FSC Type",
+    "editFscType": "Edit FSC Type",
+    "deleteFscType": "Delete FSC Type",
+    "createButton": "Create FSC Type",
+    "updateButton": "Update FSC Type",
+    "deleteConfirm": "Are you sure you want to delete this FSC type?",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No FSC types",
+      "description": "No FSC types match your search.",
+      "noData": "Get started by creating a new FSC type."
+    },
+    "validation": {
+      "codeRequired": "Code is required"
+    }
+  },
+  "colorTypes": {
+    "title": "Color Types",
+    "subtitle": "Manage color type catalog",
+    "addColorType": "Add Color Type",
+    "allColorTypes": "All Color Types",
+    "searchPlaceholder": "Search color types...",
+    "name": "Name",
+    "namePlaceholder": "Enter color type name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "createTitle": "Create Color Type",
+    "editTitle": "Edit Color Type",
+    "editColorType": "Edit Color Type",
+    "deleteColorType": "Delete Color Type",
+    "createButton": "Create Color Type",
+    "updateButton": "Update Color Type",
+    "deleteConfirm": "Are you sure you want to delete this color type?",
+    "columns": {
+      "name": "Name",
+      "description": "Description",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No color types",
+      "description": "No color types match your search.",
+      "noData": "Get started by creating a new color type."
+    },
+    "validation": {
+      "nameRequired": "Name is required"
+    }
+  },
+  "colors": {
+    "title": "Colors",
+    "subtitle": "Manage print color catalog",
+    "addColor": "Add Color",
+    "allColors": "All Colors",
+    "searchPlaceholder": "Search colors...",
+    "code": "Code",
+    "codePlaceholder": "Enter color code",
+    "name": "Name",
+    "namePlaceholder": "Enter color name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "observations": "Observations",
+    "observationsPlaceholder": "Enter observations (optional)",
+    "tonality": "Tonality",
+    "tonalityPlaceholder": "Enter tonality (print shade index)",
+    "colorType": "Color Type",
+    "selectColorType": "Select color type (optional)",
+    "createTitle": "Create Color",
+    "editTitle": "Edit Color",
+    "editColor": "Edit Color",
+    "deleteColor": "Delete Color",
+    "createButton": "Create Color",
+    "updateButton": "Update Color",
+    "deleteConfirm": "Are you sure you want to delete this color?",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "tonality": "Tonality",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No colors",
+      "description": "No colors match your search.",
+      "noData": "Get started by creating a new color."
+    },
+    "validation": {
+      "codeRequired": "Code is required"
+    }
+  },
+  "deliveryZones": {
+    "title": "Delivery Zones",
+    "subtitle": "Manage delivery zone catalog",
+    "addZone": "Add Delivery Zone",
+    "allZones": "All Delivery Zones",
+    "searchPlaceholder": "Search delivery zones...",
+    "code": "Code",
+    "codePlaceholder": "Enter zone code",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "createTitle": "Create Delivery Zone",
+    "editTitle": "Edit Delivery Zone",
+    "editZone": "Edit Delivery Zone",
+    "deleteZone": "Delete Delivery Zone",
+    "createButton": "Create Delivery Zone",
+    "updateButton": "Update Delivery Zone",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No delivery zones found",
+      "description": "Try another search",
+      "noData": "No delivery zones available"
+    },
+    "validation": {
+      "codeRequired": "Code is required"
+    },
+    "deleteConfirm": "Are you sure you want to delete this delivery zone?"
+  },
+  "finishedGoods": {
+    "title": "Finished Goods",
+    "subtitle": "Manage finished-goods catalog",
+    "addFinishedGood": "Add Finished Good",
+    "allFinishedGoods": "All Finished Goods",
+    "searchPlaceholder": "Search finished goods...",
+    "code": "Code",
+    "codePlaceholder": "Enter code (optional)",
+    "name": "Name",
+    "namePlaceholder": "Enter name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter description (optional)",
+    "supplier": "Supplier",
+    "selectSupplier": "Select supplier",
+    "manufacturer": "Manufacturer",
+    "selectManufacturer": "Select manufacturer",
+    "minimumStock": "Minimum stock",
+    "createTitle": "Create Finished Good",
+    "editTitle": "Edit Finished Good",
+    "editFinishedGood": "Edit Finished Good",
+    "deleteFinishedGood": "Delete Finished Good",
+    "createButton": "Create Finished Good",
+    "updateButton": "Update Finished Good",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "supplier": "Supplier",
+      "minimumStock": "Min. stock",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No finished goods found",
+      "description": "Try another search",
+      "noData": "No finished goods available"
+    },
+    "validation": {
+      "nameRequired": "Name is required"
+    },
+    "deleteConfirm": "Are you sure you want to delete this finished good?"
   }
 }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CreatePaperSupplyForm, Manufacturer, Supplier, PaperType } from '../../types';
-import { paperSuppliesApi, manufacturersApi, suppliersApi, paperTypesApi } from '../../services/api';
+import { CreatePaperSupplyForm, Manufacturer, Supplier, PaperType, FscType } from '../../types';
+import { paperSuppliesApi, manufacturersApi, suppliersApi, paperTypesApi, fscTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
@@ -22,6 +22,7 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const [fscTypes, setFscTypes] = React.useState<FscType[]>([]);
   const { effectiveCompanyId } = useEffectiveCompany();
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
@@ -51,14 +52,16 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
   const fetchDropdownData = async () => {
     try {
       const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      const [manufacturersRes, suppliersRes, paperTypesRes] = await Promise.all([
+      const [manufacturersRes, suppliersRes, paperTypesRes, fscTypesRes] = await Promise.all([
         manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }),
         suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
         paperTypesApi.getPaperTypes({ limit: 100, ...companyFilter }),
+        fscTypesApi.getFscTypes({ limit: 100, ...companyFilter }),
       ]);
       setManufacturers(manufacturersRes.data || []);
       setSuppliers(suppliersRes.data || []);
       setPaperTypes(paperTypesRes.data || []);
+      setFscTypes(fscTypesRes.data || []);
     } catch (error) {
       logger.error('Error fetching dropdown data:', error);
     }
@@ -74,9 +77,11 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
       paperTypeId: data.paperTypeId || undefined,
       grammage: data.grammage || undefined,
       price: data.price || undefined,
+      color: data.color || undefined,
+      fscTypeId: data.fscTypeId || undefined,
       minimumStock: {
-        pallets: data.minimumStockPallets || 0,
-        boxes: data.minimumStockBoxes || 0,
+        weightKg: data.minimumStockWeightKg ?? null,
+        diameterMm: data.minimumStockDiameterMm ?? null,
       },
     };
 
@@ -208,27 +213,55 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">
-              {t('paperSupplies.minimumStockPallets')}
+              {t('paperSupplies.color')}
+            </label>
+            <Input {...register('color')} placeholder={t('paperSupplies.colorPlaceholder')} />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('paperSupplies.fscType')}
+            </label>
+            <select
+              {...register('fscTypeId')}
+              className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">{t('paperSupplies.selectFscType')}</option>
+              {fscTypes.map((ft) => (
+                <option key={ft.uuid} value={ft.uuid}>
+                  {ft.code}{ft.description ? ` - ${ft.description}` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('paperSupplies.minimumStockWeightKg')}
             </label>
             <Input
               type="number"
-              {...register('minimumStockPallets', {
+              step="any"
+              {...register('minimumStockWeightKg', {
                 valueAsNumber: true,
               })}
-              placeholder={t('paperSupplies.minimumStockPalletsPlaceholder')}
+              placeholder={t('paperSupplies.minimumStockWeightKgPlaceholder')}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-secondary-700 mb-1">
-              {t('paperSupplies.minimumStockBoxes')}
+              {t('paperSupplies.minimumStockDiameterMm')}
             </label>
             <Input
               type="number"
-              {...register('minimumStockBoxes', {
+              step="any"
+              {...register('minimumStockDiameterMm', {
                 valueAsNumber: true,
               })}
-              placeholder={t('paperSupplies.minimumStockBoxesPlaceholder')}
+              placeholder={t('paperSupplies.minimumStockDiameterMmPlaceholder')}
             />
           </div>
         </div>

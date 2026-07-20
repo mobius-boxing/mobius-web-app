@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ConsumableSupply, CreateConsumableSupplyForm, ConsumableType, Manufacturer, Supplier } from '../../types';
-import { consumableSuppliesApi, consumableTypesApi, manufacturersApi, suppliersApi } from '../../services/api';
+import { ConsumableSupply, CreateConsumableSupplyForm, ConsumableType, Manufacturer, Supplier, Color } from '../../types';
+import { consumableSuppliesApi, consumableTypesApi, manufacturersApi, suppliersApi, colorsApi } from '../../services/api';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
@@ -23,6 +23,7 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
   onSuccess,
 }) => {
   const { t } = useTranslation();
+  const [colorOptions, setColorOptions] = React.useState<Color[]>([]);
   const { effectiveCompanyId } = useEffectiveCompany();
   const [consumableTypes, setConsumableTypes] = useState<ConsumableType[]>([]);
   const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
@@ -50,6 +51,10 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
       consumableTypesApi.getConsumableTypes({ limit: 100, ...companyFilter }).then((res) => setConsumableTypes(res.data));
       manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }).then((res) => setManufacturers(res.data));
       suppliersApi.getSuppliers({ limit: 100, ...companyFilter }).then((res) => setSuppliers(res.data));
+      colorsApi
+        .getColors({ limit: 200, ...companyFilter })
+        .then((res) => setColorOptions(res.data))
+        .catch(() => setColorOptions([]));
     }
   }, [isOpen, effectiveCompanyId]);
 
@@ -62,15 +67,25 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
         consumableTypeUuid: consumableSupply.consumableType?.uuid || '',
         manufacturerUuid: consumableSupply.manufacturer?.uuid || '',
         supplierUuid: consumableSupply.supplier?.uuid || '',
+        location: consumableSupply.location,
+        expiry: consumableSupply.expiry,
+        minimumStock: consumableSupply.minimumStock ?? undefined,
+        colorUuid: consumableSupply.color?.uuid || '',
       });
     }
   }, [isOpen, consumableSupply, reset]);
 
   if (!consumableSupply) return null;
 
-  const onSubmit = handleSubmit((data) =>
-    consumableSuppliesApi.updateConsumableSupply(consumableSupply.uuid, data)
-  );
+  const onSubmit = handleSubmit((data) => {
+    // Omit colorUuid when empty — an untouched blank select must not clear it.
+    const { colorUuid, ...rest } = data;
+    return consumableSuppliesApi.updateConsumableSupply(consumableSupply.uuid, {
+      ...rest,
+      ...(colorUuid ? { colorUuid } : {}),
+    });
+  });
+
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('consumableSupplies.editTitle')}>
@@ -163,6 +178,53 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
           </select>
         </div>
 
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('consumableSupplies.location')}
+            </label>
+            <Input {...register('location')} placeholder={t('consumableSupplies.locationPlaceholder')} />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('consumableSupplies.expiry')}
+            </label>
+            <Input {...register('expiry')} placeholder={t('consumableSupplies.expiryPlaceholder')} />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('consumableSupplies.minimumStock')}
+            </label>
+            <Input
+              type="number"
+              step="any"
+              {...register('minimumStock', { valueAsNumber: true })}
+              placeholder={t('consumableSupplies.minimumStockPlaceholder')}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-secondary-700 mb-1">
+              {t('consumableSupplies.color')}
+            </label>
+            <select
+              {...register('colorUuid')}
+              className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              <option value="">{t('consumableSupplies.selectColor')}</option>
+              {colorOptions.map((c) => (
+                <option key={c.uuid} value={c.uuid}>
+                  {c.code}{c.name ? ` - ${c.name}` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
         <ModalFooter
           loading={loading}
           onCancel={handleClose}

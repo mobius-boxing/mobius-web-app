@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import { getToken, clearToken } from '../utils/session';
 import {
   ApiResponse,
   PaginatedResponse,
@@ -36,6 +37,12 @@ import {
   CreateCorrugationClassForm,
   Corrugation,
   CreateCorrugationForm,
+  DeliveryZone,
+  CreateDeliveryZoneForm,
+  DeliveryLocationRecord,
+  CreateDeliveryLocationForm,
+  FinishedGood,
+  CreateFinishedGoodForm,
   Product,
   CreateProductForm,
   Manufacturer,
@@ -68,6 +75,12 @@ import {
   ConsumableStock,
   CreateConsumableStockForm,
   GlueType,
+  ColorType,
+  CreateColorTypeForm,
+  Color,
+  CreateColorForm,
+  FscType,
+  CreateFscTypeForm,
   CreateGlueTypeForm,
   StrappingType,
   CreateStrappingTypeForm,
@@ -75,6 +88,10 @@ import {
   CreateComplementForm,
   TraceType,
   CreateTraceTypeForm,
+  Role,
+  CreateRoleForm,
+  Permission,
+  FileRecord,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -87,19 +104,31 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('auth_token');
+  const token = getToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
+// A 401 from these endpoints is an expected response the calling component renders inline
+// (bad credentials, wrong current password, invalid/expired reset token), NOT a stale
+// session. Only a 401 from another (token-authenticated) request means the session expired,
+// which is what should clear local auth and bounce to the login page.
+const SELF_HANDLED_401_PATHS = [
+  '/api/auth/login',
+  '/api/auth/password',
+  '/api/auth/request-password-reset',
+  '/api/auth/reset-password',
+];
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('auth_token');
-      localStorage.removeItem('auth_user');
+    const url: string = error.config?.url || '';
+    const isSelfHandled = SELF_HANDLED_401_PATHS.some((path) => url.includes(path));
+    if (error.response?.status === 401 && !isSelfHandled) {
+      clearToken();
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -114,8 +143,7 @@ export const authApi = {
 
   logout: async (): Promise<void> => {
     await api.post('/api/auth/logout');
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('auth_user');
+    clearToken();
   },
 
   getCurrentUser: async (): Promise<User> => {
@@ -832,6 +860,108 @@ export const suppliersApi = {
   },
 };
 
+export const deliveryZonesApi = {
+  getDeliveryZones: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: number | string;
+  } = {}): Promise<PaginatedResponse<DeliveryZone>> => {
+    const response = await api.get('/api/delivery-zones', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  createDeliveryZone: async (data: CreateDeliveryZoneForm): Promise<DeliveryZone> => {
+    const response: AxiosResponse<ApiResponse<DeliveryZone>> = await api.post('/api/delivery-zones', data);
+    return response.data.data!;
+  },
+
+  updateDeliveryZone: async (uuid: string, data: Partial<CreateDeliveryZoneForm>): Promise<DeliveryZone> => {
+    const response: AxiosResponse<ApiResponse<DeliveryZone>> = await api.put(`/api/delivery-zones/${uuid}`, data);
+    return response.data.data!;
+  },
+
+  deleteDeliveryZone: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/delivery-zones/${uuid}`);
+  },
+};
+
+export const deliveryLocationsApi = {
+  getDeliveryLocations: async (params: {
+    page?: number;
+    limit?: number;
+    customerUuid?: string;
+    companyId?: number | string;
+  } = {}): Promise<PaginatedResponse<DeliveryLocationRecord>> => {
+    const response = await api.get('/api/delivery-locations', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  createDeliveryLocation: async (data: CreateDeliveryLocationForm): Promise<DeliveryLocationRecord> => {
+    const response: AxiosResponse<ApiResponse<DeliveryLocationRecord>> = await api.post('/api/delivery-locations', data);
+    return response.data.data!;
+  },
+
+  updateDeliveryLocation: async (
+    uuid: string,
+    data: Partial<Omit<CreateDeliveryLocationForm, 'customerUuid'>>,
+  ): Promise<DeliveryLocationRecord> => {
+    const response: AxiosResponse<ApiResponse<DeliveryLocationRecord>> = await api.put(`/api/delivery-locations/${uuid}`, data);
+    return response.data.data!;
+  },
+
+  deleteDeliveryLocation: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/delivery-locations/${uuid}`);
+  },
+};
+
+export const finishedGoodsApi = {
+  getFinishedGoods: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: number | string;
+  } = {}): Promise<PaginatedResponse<FinishedGood>> => {
+    const response = await api.get('/api/finished-goods', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  createFinishedGood: async (data: CreateFinishedGoodForm): Promise<FinishedGood> => {
+    const response: AxiosResponse<ApiResponse<FinishedGood>> = await api.post('/api/finished-goods', data);
+    return response.data.data!;
+  },
+
+  updateFinishedGood: async (uuid: string, data: Partial<CreateFinishedGoodForm>): Promise<FinishedGood> => {
+    const response: AxiosResponse<ApiResponse<FinishedGood>> = await api.put(`/api/finished-goods/${uuid}`, data);
+    return response.data.data!;
+  },
+
+  deleteFinishedGood: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/finished-goods/${uuid}`);
+  },
+};
+
 export const warehousesApi = {
   getWarehouses: async (params: {
     page?: number;
@@ -1456,4 +1586,214 @@ export const traceTypesApi = {
   },
 };
 
+// ── RBAC (module 02) ──────────────────────────────────────────────────────────
+
+export const rolesApi = {
+  getRoles: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<Role>> => {
+    const response = await api.get('/api/roles', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getRole: async (uuid: string): Promise<Role> => {
+    const response: AxiosResponse<ApiResponse<Role>> = await api.get(`/api/roles/${uuid}`);
+    return response.data.data!;
+  },
+
+  createRole: async (data: CreateRoleForm): Promise<Role> => {
+    const response: AxiosResponse<ApiResponse<Role>> = await api.post('/api/roles', data);
+    return response.data.data!;
+  },
+
+  updateRole: async (uuid: string, data: Partial<CreateRoleForm>): Promise<Role> => {
+    const response: AxiosResponse<ApiResponse<Role>> = await api.put(`/api/roles/${uuid}`, data);
+    return response.data.data!;
+  },
+
+  deleteRole: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/roles/${uuid}`);
+  },
+
+  setRolePermissions: async (uuid: string, codes: string[]): Promise<string[]> => {
+    const response: AxiosResponse<ApiResponse<{ codes: string[] }>> = await api.put(
+      `/api/roles/${uuid}/permissions`,
+      { codes }
+    );
+    return response.data.data!.codes;
+  },
+
+  assignRole: async (userUuid: string, roleUuid: string | null): Promise<void> => {
+    await api.put('/api/roles/assign', { userUuid, roleUuid });
+  },
+};
+
+export const permissionsApi = {
+  getPermissions: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<Permission>> => {
+    // The catalogue is ~277 rows; default to one big page so the matrix has it all.
+    const response = await api.get('/api/permissions', {
+      params: { limit: 500, ...params },
+    });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+};
+
+// ── Files (module 01) ─────────────────────────────────────────────────────────
+
+export const filesApi = {
+  uploadFile: async (file: File, description?: string): Promise<FileRecord> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (description) formData.append('description', description);
+    const response: AxiosResponse<ApiResponse<FileRecord>> = await api.post(
+      '/api/files',
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return response.data.data!;
+  },
+
+  /**
+   * Download through axios (auth travels in the Authorization header, so a plain
+   * <a href> would 401) and trigger a browser save.
+   */
+  downloadFile: async (fileRecord: FileRecord): Promise<void> => {
+    const response = await api.get(`/api/files/${fileRecord.uuid}/download`, {
+      responseType: 'blob',
+    });
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', fileRecord.originalName || 'download');
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
+  deleteFile: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/files/${uuid}`);
+  },
+};
+
 export default api;
+export const colorTypesApi = {
+  getColorTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<ColorType>> => {
+    const response = await api.get('/api/color-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  createColorType: async (data: CreateColorTypeForm): Promise<ColorType> => {
+    const response: AxiosResponse<ApiResponse<ColorType>> = await api.post('/api/color-type', data);
+    return response.data.data!;
+  },
+
+  updateColorType: async (id: string, data: Partial<CreateColorTypeForm>): Promise<ColorType> => {
+    const response: AxiosResponse<ApiResponse<ColorType>> = await api.put(`/api/color-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteColorType: async (id: string): Promise<void> => {
+    await api.delete(`/api/color-type/${id}`);
+  },
+};
+
+export const colorsApi = {
+  getColors: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<Color>> => {
+    const response = await api.get('/api/color', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  createColor: async (data: CreateColorForm): Promise<Color> => {
+    const response: AxiosResponse<ApiResponse<Color>> = await api.post('/api/color', data);
+    return response.data.data!;
+  },
+
+  updateColor: async (id: string, data: Partial<CreateColorForm>): Promise<Color> => {
+    const response: AxiosResponse<ApiResponse<Color>> = await api.put(`/api/color/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteColor: async (id: string): Promise<void> => {
+    await api.delete(`/api/color/${id}`);
+  },
+};
+
+export const fscTypesApi = {
+  getFscTypes: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<FscType>> => {
+    const response = await api.get('/api/fsc-type', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  createFscType: async (data: CreateFscTypeForm): Promise<FscType> => {
+    const response: AxiosResponse<ApiResponse<FscType>> = await api.post('/api/fsc-type', data);
+    return response.data.data!;
+  },
+
+  updateFscType: async (id: string, data: Partial<CreateFscTypeForm>): Promise<FscType> => {
+    const response: AxiosResponse<ApiResponse<FscType>> = await api.put(`/api/fsc-type/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteFscType: async (id: string): Promise<void> => {
+    await api.delete(`/api/fsc-type/${id}`);
+  },
+};

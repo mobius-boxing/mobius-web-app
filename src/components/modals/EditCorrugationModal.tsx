@@ -1,7 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Corrugation, CreateCorrugationForm, CorrugationClass } from '../../types';
-import { corrugationsApi, corrugationClassesApi } from '../../services/api';
+import {
+  Corrugation,
+  CreateCorrugationForm,
+  CorrugationClass,
+  CorrugationLayerInput,
+  PaperClass,
+  FluteType,
+} from '../../types';
+import {
+  corrugationsApi,
+  corrugationClassesApi,
+  paperClassesApi,
+  fluteTypesApi,
+} from '../../services/api';
+import CorrugationLayersEditor from '../forms/CorrugationLayersEditor';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
@@ -26,6 +39,9 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
   const [corrugationClasses, setCorrugationClasses] = useState<CorrugationClass[]>([]);
+  const [paperClasses, setPaperClasses] = useState<PaperClass[]>([]);
+  const [fluteTypes, setFluteTypes] = useState<FluteType[]>([]);
+  const [layers, setLayers] = useState<CorrugationLayerInput[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
@@ -68,8 +84,24 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
   const fetchCorrugationClasses = async () => {
     try {
       const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      const response = await corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter });
-      setCorrugationClasses(response.data || []);
+      const [classesRes, paperClassesRes, fluteTypesRes, fullCorrugation] = await Promise.all([
+        corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter }),
+        paperClassesApi.getPaperClasses({ limit: 200, ...companyFilter }),
+        fluteTypesApi.getFluteTypes({ limit: 100, ...companyFilter }),
+        // List rows don't carry layers — fetch the full record for the Capas stack.
+        corrugation ? corrugationsApi.getCorrugationById(corrugation.uuid) : Promise.resolve(null),
+      ]);
+      setCorrugationClasses(classesRes.data || []);
+      setPaperClasses(paperClassesRes.data || []);
+      setFluteTypes(fluteTypesRes.data || []);
+      setLayers(
+        (fullCorrugation?.layers || []).map((layer) => ({
+          position: layer.position,
+          isLiner: layer.isLiner,
+          paperClassUuid: layer.paperClass?.uuid,
+          fluteTypeUuid: layer.fluteType?.uuid,
+        })),
+      );
     } catch (error) {
       logger.error('Error fetching corrugation classes:', error);
     } finally {
@@ -87,13 +119,15 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
       caliper: data.caliper ? Number(data.caliper) : undefined,
       // SECURITY: Send UUID, not numeric ID
       corrugationClassUuid: data.corrugationClassUuid || undefined,
+      // Capas: replaced wholesale on save.
+      layers,
     };
     // SECURITY: Use corrugation UUID, not numeric ID
     await corrugationsApi.updateCorrugation(corrugation.uuid, submitData);
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={t('corrugations.editTitle')}>
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('corrugations.editTitle')} size="xl">
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
 
@@ -168,6 +202,13 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
             placeholder={t('corrugations.caliperPlaceholder')}
           />
         </div>
+
+        <CorrugationLayersEditor
+          layers={layers}
+          onChange={setLayers}
+          paperClasses={paperClasses}
+          fluteTypes={fluteTypes}
+        />
 
         <ModalFooter
           loading={loading}

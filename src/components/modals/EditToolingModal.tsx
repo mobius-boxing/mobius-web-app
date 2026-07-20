@@ -62,6 +62,7 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
         manufacturerUuid: tooling.manufacturer?.uuid || '',
         supplierUuid: tooling.supplier?.uuid || '',
         minimumStock: tooling.minimumStock || 0,
+        code: tooling.code,
       });
     }
   }, [isOpen, tooling, dropdownsLoaded, reset]);
@@ -121,6 +122,13 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
             placeholder={t('toolings.descriptionPlaceholder')}
             rows={3}
           />
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-secondary-700 mb-1">
+            {t('toolings.code')}
+          </label>
+          <Input {...register('code')} placeholder={t('toolings.codePlaceholder')} />
         </div>
 
         <div>
