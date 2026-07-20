@@ -1645,17 +1645,26 @@ export const permissionsApi = {
     search?: string;
     companyId?: string;
   } = {}): Promise<PaginatedResponse<Permission>> => {
-    // The catalogue is ~277 rows; default to one big page so the matrix has it all.
-    const response = await api.get('/api/permissions', {
-      params: { limit: 500, ...params },
+    // The catalogue is ~277 rows but the API caps limit at 100 —
+    // page through until totalPages so the matrix gets the full set.
+    const pageSize = 100;
+    const first = await api.get('/api/permissions', {
+      params: { ...params, limit: pageSize, page: 1 },
     });
-    const backendData = response.data;
+    const all: Permission[] = [...first.data.data];
+    const totalPages: number = first.data.totalPages ?? 1;
+    for (let p = 2; p <= totalPages; p++) {
+      const next = await api.get('/api/permissions', {
+        params: { ...params, limit: pageSize, page: p },
+      });
+      all.push(...next.data.data);
+    }
     return {
-      data: backendData.data,
-      total: backendData.totalCount,
-      page: backendData.page,
-      limit: backendData.limit,
-      totalPages: backendData.totalPages,
+      data: all,
+      total: first.data.totalCount,
+      page: 1,
+      limit: all.length,
+      totalPages: 1,
     };
   },
 };

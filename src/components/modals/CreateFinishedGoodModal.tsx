@@ -53,8 +53,8 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
     try {
       const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       const [suppliersRes, manufacturersRes] = await Promise.all([
-        suppliersApi.getSuppliers({ limit: 200, ...companyFilter }),
-        manufacturersApi.getManufacturers({ limit: 200, ...companyFilter }),
+        suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
+        manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }),
       ]);
       setSuppliers(suppliersRes.data || []);
       setManufacturers(manufacturersRes.data || []);

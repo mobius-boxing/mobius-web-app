@@ -86,7 +86,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
       const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       const [classesRes, paperClassesRes, fluteTypesRes, fullCorrugation] = await Promise.all([
         corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter }),
-        paperClassesApi.getPaperClasses({ limit: 200, ...companyFilter }),
+        paperClassesApi.getPaperClasses({ limit: 100, ...companyFilter }),
         fluteTypesApi.getFluteTypes({ limit: 100, ...companyFilter }),
         // List rows don't carry layers — fetch the full record for the Capas stack.
         corrugation ? corrugationsApi.getCorrugationById(corrugation.uuid) : Promise.resolve(null),

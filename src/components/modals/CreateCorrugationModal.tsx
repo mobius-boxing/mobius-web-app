@@ -70,7 +70,7 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
       const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
       const [classesRes, paperClassesRes, fluteTypesRes] = await Promise.all([
         corrugationClassesApi.getCorrugationClasses({ limit: 100, ...companyFilter }),
-        paperClassesApi.getPaperClasses({ limit: 200, ...companyFilter }),
+        paperClassesApi.getPaperClasses({ limit: 100, ...companyFilter }),
         fluteTypesApi.getFluteTypes({ limit: 100, ...companyFilter }),
       ]);
       setCorrugationClasses(classesRes.data || []);

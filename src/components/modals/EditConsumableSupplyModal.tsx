@@ -52,7 +52,7 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
       manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }).then((res) => setManufacturers(res.data));
       suppliersApi.getSuppliers({ limit: 100, ...companyFilter }).then((res) => setSuppliers(res.data));
       colorsApi
-        .getColors({ limit: 200, ...companyFilter })
+        .getColors({ limit: 100, ...companyFilter })
         .then((res) => setColorOptions(res.data))
         .catch(() => setColorOptions([]));
     }

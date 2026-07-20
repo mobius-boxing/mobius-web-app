@@ -49,7 +49,7 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
     try {
       const [locationsRes, zonesRes] = await Promise.all([
         deliveryLocationsApi.getDeliveryLocations({ customerUuid, limit: 100 }),
-        deliveryZonesApi.getDeliveryZones({ limit: 200 }),
+        deliveryZonesApi.getDeliveryZones({ limit: 100 }),
       ]);
       setLocations(locationsRes.data || []);
       setZones(zonesRes.data || []);
