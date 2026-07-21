@@ -57,7 +57,10 @@
     "deliveryZones": "Zonas de Entrega",
     "finishedGoods": "Productos Elaborados",
     "palletizations": "Palletizados",
-    "palletTypes": "Tipos de Pallet"
+    "palletTypes": "Tipos de Pallet",
+    "productionRoutes": "Rutas de Producción",
+    "machines": "Máquinas",
+    "machineTypes": "Tipos de Máquina"
   },
   "roles": {
     "title": "Perfiles y Permisos",
@@ -1889,6 +1892,129 @@
     },
     "validation": {
       "nameRequired": "El nombre es obligatorio"
+    }
+  },
+  "machineTypes": {
+    "title": "Tipos de Máquina",
+    "subtitle": "Gestionar catálogo de tipos de máquina",
+    "add": "Agregar Tipo de Máquina",
+    "createTitle": "Crear Tipo de Máquina",
+    "editTitle": "Editar Tipo de Máquina",
+    "deleteTitle": "Eliminar tipo de máquina",
+    "createButton": "Crear Tipo de Máquina",
+    "editButton": "Guardar Cambios",
+    "name": "Nombre",
+    "namePlaceholder": "Ingrese el nombre del tipo de máquina",
+    "attribute": "Atributo",
+    "attributePlaceholder": "Ingrese el atributo (opcional)",
+    "corrugated": "Corrugadora",
+    "generatesSheets": "Genera planchas",
+    "requiresDie": "Requiere troquel",
+    "requiresPlate": "Requiere clisé",
+    "searchPlaceholder": "Buscar tipos de máquina...",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de máquina?",
+    "columns": {
+      "name": "Nombre",
+      "flags": "Atributos",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "Sin tipos de máquina",
+      "description": "Comience creando un tipo de máquina"
+    },
+    "validation": {
+      "nameRequired": "El nombre es obligatorio"
+    }
+  },
+  "machines": {
+    "title": "Máquinas",
+    "subtitle": "Gestionar catálogo de máquinas de planta",
+    "add": "Agregar Máquina",
+    "createTitle": "Crear Máquina",
+    "editTitle": "Editar Máquina",
+    "deleteTitle": "Eliminar máquina",
+    "createButton": "Crear Máquina",
+    "editButton": "Guardar Cambios",
+    "code": "Código",
+    "description": "Descripción",
+    "machineType": "Tipo de máquina",
+    "selectType": "Seleccione un tipo de máquina",
+    "setupTime": "Tiempo de setup (min)",
+    "sheetWidthMin": "Ancho mín. de plancha",
+    "sheetWidthMax": "Ancho máx. de plancha",
+    "sourceWarehouse": "Depósito de origen",
+    "destinationWarehouse": "Depósito de destino",
+    "selectWarehouse": "Seleccione un depósito",
+    "searchPlaceholder": "Buscar máquinas...",
+    "deleteConfirm": "¿Está seguro de que desea eliminar esta máquina?",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "machineType": "Tipo",
+      "setupTime": "Setup (min)",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "Sin máquinas",
+      "description": "Comience creando una máquina"
+    },
+    "validation": {
+      "typeRequired": "El tipo de máquina es obligatorio"
+    }
+  },
+  "productionRoutes": {
+    "title": "Rutas de Producción",
+    "subtitle": "Gestionar rutas de fabricación y sus etapas",
+    "add": "Agregar Ruta",
+    "createTitle": "Crear Ruta de Producción",
+    "editTitle": "Editar Ruta de Producción",
+    "cloneTitle": "Clonar ruta",
+    "deleteTitle": "Eliminar ruta",
+    "createButton": "Crear Ruta",
+    "editButton": "Guardar Cambios",
+    "name": "Nombre",
+    "global": "Global",
+    "active": "Activa",
+    "inactive": "Inactiva",
+    "default": "Por defecto",
+    "stages": "Etapas",
+    "addStage": "Agregar etapa",
+    "noStages": "Sin etapas — agregue la secuencia de máquinas.",
+    "stageDescription": "Descripción de la etapa",
+    "selectMachineType": "Tipo de máquina...",
+    "corrugationStage": "Corrugado",
+    "setupTime": "Setup (min)",
+    "machines": "Máquinas",
+    "selectMachine": "Seleccionar máquina...",
+    "primary": "Titular",
+    "supplies": "Insumos",
+    "selectSupply": "Seleccionar insumo...",
+    "quantity": "Cant.",
+    "input": "Entrada",
+    "output": "Salida",
+    "allowsSimilar": "Permite similares",
+    "supplyTypes": {
+      "paper": "Papel",
+      "sheet": "Plancha",
+      "consumable": "Consumible",
+      "tooling": "Herramental",
+      "finishedGood": "Producto elaborado"
+    },
+    "searchPlaceholder": "Buscar rutas...",
+    "deleteConfirm": "¿Está seguro de que desea eliminar esta ruta?",
+    "columns": {
+      "name": "Nombre",
+      "status": "Estado",
+      "stages": "Etapas",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "Sin rutas de producción",
+      "description": "Comience creando una ruta"
+    },
+    "errors": {
+      "loadFailed": "No se pudo cargar la ruta",
+      "saveFailed": "No se pudo guardar la ruta"
     }
   }
 }

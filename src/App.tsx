@@ -35,6 +35,9 @@ import ColorTypes from './pages/ColorTypes';
 import FscTypes from './pages/FscTypes';
 import DeliveryZones from './pages/DeliveryZones';
 import FinishedGoods from './pages/FinishedGoods';
+import ProductionRoutes from './pages/ProductionRoutes';
+import Machines from './pages/Machines';
+import MachineTypes from './pages/MachineTypes';
 import PalletTypes from './pages/PalletTypes';
 import Palletizations from './pages/Palletizations';
 import Roles from './pages/Roles';
@@ -328,6 +331,30 @@ function App() {
               }
             />
 
+                        <Route
+              path="/production-routes"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <ProductionRoutes />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/machines"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <Machines />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/machine-types"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <MachineTypes />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/finished-goods"
               element={

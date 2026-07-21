@@ -22,6 +22,9 @@ import {
   ShieldCheck,
   MapPin,
   Boxes,
+  Factory,
+  Route,
+  Cog,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -155,6 +158,35 @@ const Sidebar: React.FC = () => {
               label: t('nav.suppliers'),
               path: '/suppliers',
               icon: 'Truck',
+              roles: ['admin', 'superAdmin'],
+            },
+          ],
+        },
+        {
+          id: 'production',
+          label: t('nav.production'),
+          icon: 'Factory',
+          roles: ['admin', 'superAdmin'],
+          children: [
+            {
+              id: 'production-routes',
+              label: t('nav.productionRoutes'),
+              path: '/production-routes',
+              icon: 'Route',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'machines',
+              label: t('nav.machines'),
+              path: '/machines',
+              icon: 'Factory',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'machine-types',
+              label: t('nav.machineTypes'),
+              path: '/machine-types',
+              icon: 'Cog',
               roles: ['admin', 'superAdmin'],
             },
           ],
@@ -402,6 +434,9 @@ const Sidebar: React.FC = () => {
       ShieldCheck,
       MapPin,
       Boxes,
+      Factory,
+      Route,
+      Cog,
     };
     const IconComponent = icons[iconName as keyof typeof icons];
     return IconComponent ? <IconComponent className={className} /> : null;

@@ -57,7 +57,10 @@
     "deliveryZones": "Delivery Zones",
     "finishedGoods": "Finished Goods",
     "palletizations": "Palletizations",
-    "palletTypes": "Pallet Types"
+    "palletTypes": "Pallet Types",
+    "productionRoutes": "Production Routes",
+    "machines": "Machines",
+    "machineTypes": "Machine Types"
   },
   "roles": {
     "title": "Roles & Permissions",
@@ -1889,6 +1892,129 @@
     },
     "validation": {
       "nameRequired": "Name is required"
+    }
+  },
+  "machineTypes": {
+    "title": "Machine Types",
+    "subtitle": "Manage machine type catalog",
+    "add": "Add Machine Type",
+    "createTitle": "Create Machine Type",
+    "editTitle": "Edit Machine Type",
+    "deleteTitle": "Delete machine type",
+    "createButton": "Create Machine Type",
+    "editButton": "Save Changes",
+    "name": "Name",
+    "namePlaceholder": "Enter machine type name",
+    "attribute": "Attribute",
+    "attributePlaceholder": "Enter attribute (optional)",
+    "corrugated": "Corrugator",
+    "generatesSheets": "Generates sheets",
+    "requiresDie": "Requires die",
+    "requiresPlate": "Requires printing plate",
+    "searchPlaceholder": "Search machine types...",
+    "deleteConfirm": "Are you sure you want to delete this machine type?",
+    "columns": {
+      "name": "Name",
+      "flags": "Attributes",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No machine types",
+      "description": "Start by creating a machine type"
+    },
+    "validation": {
+      "nameRequired": "Name is required"
+    }
+  },
+  "machines": {
+    "title": "Machines",
+    "subtitle": "Manage plant machine catalog",
+    "add": "Add Machine",
+    "createTitle": "Create Machine",
+    "editTitle": "Edit Machine",
+    "deleteTitle": "Delete machine",
+    "createButton": "Create Machine",
+    "editButton": "Save Changes",
+    "code": "Code",
+    "description": "Description",
+    "machineType": "Machine type",
+    "selectType": "Select a machine type",
+    "setupTime": "Setup time (min)",
+    "sheetWidthMin": "Min sheet width",
+    "sheetWidthMax": "Max sheet width",
+    "sourceWarehouse": "Source warehouse",
+    "destinationWarehouse": "Destination warehouse",
+    "selectWarehouse": "Select a warehouse",
+    "searchPlaceholder": "Search machines...",
+    "deleteConfirm": "Are you sure you want to delete this machine?",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "machineType": "Type",
+      "setupTime": "Setup (min)",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No machines",
+      "description": "Start by creating a machine"
+    },
+    "validation": {
+      "typeRequired": "Machine type is required"
+    }
+  },
+  "productionRoutes": {
+    "title": "Production Routes",
+    "subtitle": "Manage manufacturing routes and their stages",
+    "add": "Add Route",
+    "createTitle": "Create Production Route",
+    "editTitle": "Edit Production Route",
+    "cloneTitle": "Clone route",
+    "deleteTitle": "Delete route",
+    "createButton": "Create Route",
+    "editButton": "Save Changes",
+    "name": "Name",
+    "global": "Global",
+    "active": "Active",
+    "inactive": "Inactive",
+    "default": "Default",
+    "stages": "Stages",
+    "addStage": "Add stage",
+    "noStages": "No stages — add the machine sequence.",
+    "stageDescription": "Stage description",
+    "selectMachineType": "Machine type...",
+    "corrugationStage": "Corrugator",
+    "setupTime": "Setup (min)",
+    "machines": "Machines",
+    "selectMachine": "Select machine...",
+    "primary": "Primary",
+    "supplies": "Supplies",
+    "selectSupply": "Select supply...",
+    "quantity": "Qty",
+    "input": "Input",
+    "output": "Output",
+    "allowsSimilar": "Similar OK",
+    "supplyTypes": {
+      "paper": "Paper",
+      "sheet": "Sheet",
+      "consumable": "Consumable",
+      "tooling": "Tooling",
+      "finishedGood": "Finished good"
+    },
+    "searchPlaceholder": "Search routes...",
+    "deleteConfirm": "Are you sure you want to delete this route?",
+    "columns": {
+      "name": "Name",
+      "status": "Status",
+      "stages": "Stages",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No production routes",
+      "description": "Start by creating a route"
+    },
+    "errors": {
+      "loadFailed": "Failed to load the route",
+      "saveFailed": "Failed to save the route"
     }
   }
 }

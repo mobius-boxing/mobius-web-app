@@ -95,6 +95,12 @@ import {
   PalletType,
   CreatePalletTypeForm,
   Palletization,
+  MachineType,
+  CreateMachineTypeForm,
+  Machine,
+  CreateMachineForm,
+  ProductionRoute,
+  RouteStage,
   CreatePalletizationForm,
 } from '../types';
 
@@ -1877,5 +1883,78 @@ export const palletizationsApi = {
   },
   deletePalletization: async (uuid: string): Promise<void> => {
     await api.delete(`/api/palletizations/${uuid}`);
+  },
+};
+
+// ── Machines (module 14 lite) ────────────────────────────────────────────────
+
+export const machineTypesApi = {
+  getMachineTypes: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<MachineType>> => {
+    const response = await api.get('/api/machine-type', { params });
+    const d = response.data;
+    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
+  },
+  createMachineType: async (data: CreateMachineTypeForm): Promise<MachineType> => {
+    const response: AxiosResponse<ApiResponse<MachineType>> = await api.post('/api/machine-type', data);
+    return response.data.data!;
+  },
+  updateMachineType: async (uuid: string, data: Partial<CreateMachineTypeForm>): Promise<MachineType> => {
+    const response: AxiosResponse<ApiResponse<MachineType>> = await api.put(`/api/machine-type/${uuid}`, data);
+    return response.data.data!;
+  },
+  deleteMachineType: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/machine-type/${uuid}`);
+  },
+};
+
+export const machinesApi = {
+  getMachines: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<Machine>> => {
+    const response = await api.get('/api/machine', { params });
+    const d = response.data;
+    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
+  },
+  createMachine: async (data: CreateMachineForm): Promise<Machine> => {
+    const response: AxiosResponse<ApiResponse<Machine>> = await api.post('/api/machine', data);
+    return response.data.data!;
+  },
+  updateMachine: async (uuid: string, data: Partial<CreateMachineForm>): Promise<Machine> => {
+    const response: AxiosResponse<ApiResponse<Machine>> = await api.put(`/api/machine/${uuid}`, data);
+    return response.data.data!;
+  },
+  deleteMachine: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/machine/${uuid}`);
+  },
+};
+
+// ── Production routes (module 12) ────────────────────────────────────────────
+
+export const productionRoutesApi = {
+  getRoutes: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<ProductionRoute>> => {
+    const response = await api.get('/api/production-routes', { params });
+    const d = response.data;
+    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
+  },
+  getRoute: async (uuid: string): Promise<ProductionRoute> => {
+    const response: AxiosResponse<ApiResponse<ProductionRoute>> = await api.get(`/api/production-routes/${uuid}`);
+    return response.data.data!;
+  },
+  createRoute: async (data: Partial<ProductionRoute> & { stages?: RouteStage[] }): Promise<ProductionRoute> => {
+    const response: AxiosResponse<ApiResponse<ProductionRoute>> = await api.post('/api/production-routes', data);
+    return response.data.data!;
+  },
+  updateRoute: async (uuid: string, data: Partial<ProductionRoute> & { stages?: RouteStage[] }): Promise<ProductionRoute> => {
+    const response: AxiosResponse<ApiResponse<ProductionRoute>> = await api.put(`/api/production-routes/${uuid}`, data);
+    return response.data.data!;
+  },
+  cloneRoute: async (uuid: string, name?: string): Promise<ProductionRoute> => {
+    const response: AxiosResponse<ApiResponse<ProductionRoute>> = await api.post(`/api/production-routes/${uuid}/clone`, { name });
+    return response.data.data!;
+  },
+  copyStages: async (uuid: string, sourceRouteUuid: string): Promise<ProductionRoute> => {
+    const response: AxiosResponse<ApiResponse<ProductionRoute>> = await api.post(`/api/production-routes/${uuid}/copy-stages`, { sourceRouteUuid });
+    return response.data.data!;
+  },
+  deleteRoute: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/production-routes/${uuid}`);
   },
 };

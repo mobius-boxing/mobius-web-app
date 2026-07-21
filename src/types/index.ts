@@ -1070,3 +1070,113 @@ export interface CreatePalletizationForm {
   imageFileUuid?: string | null;
   palletTypeUuid?: string;
 }
+
+// ── Machines (module 14 lite) ────────────────────────────────────────────────
+
+export interface MachineType {
+  uuid: string;
+  name: string;
+  location?: number | null;
+  requiresDie: boolean;
+  requiresPlate: boolean;
+  attribute?: string | null;
+  corrugated: boolean;
+  generatesSheets?: boolean | null;
+  createdAt?: string;
+}
+
+export interface CreateMachineTypeForm {
+  name: string;
+  location?: number;
+  requiresDie?: boolean;
+  requiresPlate?: boolean;
+  attribute?: string;
+  corrugated?: boolean;
+  generatesSheets?: boolean;
+  companyId?: string;
+}
+
+export interface Machine {
+  uuid: string;
+  code?: string | null;
+  description?: string | null;
+  setupTime?: number;
+  sheetWidthMin?: number | null;
+  sheetWidthMax?: number | null;
+  sheetLengthMin?: number | null;
+  sheetLengthMax?: number | null;
+  width?: number | null;
+  maxScoreLines?: number | null;
+  linearMeters?: number | null;
+  machineType?: { uuid: string; name?: string; corrugated?: boolean } | null;
+  sourceWarehouse?: { uuid: string; name?: string } | null;
+  destinationWarehouse?: { uuid: string; name?: string } | null;
+  createdAt?: string;
+}
+
+export interface CreateMachineForm {
+  code?: string;
+  description?: string;
+  machineTypeUuid: string;
+  setupTime?: number;
+  sheetWidthMin?: number;
+  sheetWidthMax?: number;
+  sheetLengthMin?: number;
+  sheetLengthMax?: number;
+  sourceWarehouseUuid?: string;
+  destinationWarehouseUuid?: string;
+  companyId?: string;
+}
+
+// ── Production routes (module 12) ────────────────────────────────────────────
+
+export type StageSupplyDirection = 'input' | 'output';
+export type StageSupplyType = 'paper' | 'sheet' | 'consumable' | 'tooling' | 'finishedGood';
+
+export interface RouteStageSupply {
+  uuid?: string;
+  direction: StageSupplyDirection;
+  supplyType: StageSupplyType;
+  supplyUuid?: string;
+  quantity?: number | null;
+  repetitionsWidth?: number;
+  repetitionsLength?: number;
+  allowsSimilar?: boolean;
+  notes?: string | null;
+  supply?: { uuid: string; code?: string | null; name?: string | null } | null;
+}
+
+export interface RouteStageMachine {
+  machineUuid?: string;
+  isPrimary: boolean;
+  machine?: { uuid: string; code?: string | null; description?: string | null } | null;
+}
+
+export interface RouteStage {
+  uuid?: string;
+  number: number;
+  description?: string | null;
+  isCorrugation?: boolean | null;
+  setupTimeMinutes?: number;
+  machineTypeUuid?: string;
+  machineType?: { uuid: string; name?: string; corrugated?: boolean } | null;
+  machines: RouteStageMachine[];
+  supplies: RouteStageSupply[];
+}
+
+export interface ProductionRoute {
+  uuid: string;
+  name: string;
+  isGlobal: boolean;
+  active: boolean;
+  isDefault: boolean;
+  stageCount?: number;
+  stages?: RouteStage[];
+  createdAt?: string;
+}
+
+export interface RouteProblem {
+  code: string;
+  message: string;
+  stageNumber?: number;
+}
