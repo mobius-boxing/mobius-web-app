@@ -91,6 +91,9 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
       comments: data.comments || undefined,
       price: data.price || undefined,
       quantity: data.quantity || 0,
+      // superAdmin operating-as: the backend resolves this body companyId;
+      // regular users' company always comes from their JWT instead.
+      ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
     };
     return sheetStockApi.createSheetStock(stockData);
   });

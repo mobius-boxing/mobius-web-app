@@ -55,7 +55,14 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
     }
   }, [isOpen, effectiveCompanyId]);
 
-  const onSubmit = handleSubmit((data) => consumableSuppliesApi.createConsumableSupply(data));
+  const onSubmit = handleSubmit((data) =>
+    consumableSuppliesApi.createConsumableSupply({
+      ...data,
+      // superAdmin operating-as: the backend resolves this body companyId;
+      // regular users' company always comes from their JWT instead.
+      ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
+    }),
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('consumableSupplies.createTitle')}>

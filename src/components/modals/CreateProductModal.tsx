@@ -82,7 +82,13 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   };
 
   const onSubmit = handleSubmit((data) => {
-    const payload: CreateProductForm = { ...data, ...fileUuids };
+    const payload: CreateProductForm = {
+      ...data,
+      ...fileUuids,
+      // superAdmin operating-as: the backend resolves this body companyId;
+      // regular users' company always comes from their JWT instead.
+      ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
+    };
     if (mode === 'composite') delete payload.initialPart;
     return productsApi.createProduct(payload);
   });

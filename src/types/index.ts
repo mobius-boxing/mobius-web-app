@@ -506,6 +506,8 @@ export interface CreateProductForm {
   sketchFileUuid?: string | null;
   imageFileUuid?: string | null;
   initialPart?: CreateProductInitialPart;
+  // superAdmin operating-as: resolved by the backend; ignored for regular users.
+  companyId?: string;
 }
 
 export interface Manufacturer {

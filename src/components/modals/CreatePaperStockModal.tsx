@@ -93,6 +93,9 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
       weight: data.weight || undefined,
       diameter: data.diameter || undefined,
       width: data.width || undefined,
+      // superAdmin operating-as: the backend resolves this body companyId;
+      // regular users' company always comes from their JWT instead.
+      ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
     };
     return paperStockApi.createPaperStock(stockData);
   });

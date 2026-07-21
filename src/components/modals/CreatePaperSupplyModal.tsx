@@ -83,6 +83,9 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
         weightKg: data.minimumStockWeightKg ?? null,
         diameterMm: data.minimumStockDiameterMm ?? null,
       },
+      // superAdmin operating-as: the backend resolves this body companyId;
+      // regular users' company always comes from their JWT instead.
+      ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
     };
 
     return paperSuppliesApi.createPaperSupply(paperSupplyData);

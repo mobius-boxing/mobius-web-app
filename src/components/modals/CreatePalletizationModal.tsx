@@ -58,6 +58,9 @@ const CreatePalletizationModal: React.FC<CreatePalletizationModalProps> = ({ isO
       palletTypeUuid: data.palletTypeUuid || undefined,
       technicalFileUuid,
       imageFileUuid,
+      // superAdmin operating-as: the backend resolves this body companyId;
+      // regular users' company always comes from their JWT instead.
+      ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
     })
   );
 
