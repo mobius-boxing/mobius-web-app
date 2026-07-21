@@ -55,7 +55,9 @@
     "colorTypes": "Color Types",
     "fscTypes": "FSC Types",
     "deliveryZones": "Delivery Zones",
-    "finishedGoods": "Finished Goods"
+    "finishedGoods": "Finished Goods",
+    "palletizations": "Palletizations",
+    "palletTypes": "Pallet Types"
   },
   "roles": {
     "title": "Roles & Permissions",
@@ -700,7 +702,21 @@
     "createFailed": "Failed to create product. Please try again.",
     "updateFailed": "Failed to update product. Please try again.",
     "deleteFailed": "Failed to delete product",
-    "deleteConfirm": "Are you sure you want to delete this product?"
+    "deleteConfirm": "Are you sure you want to delete this product?",
+    "files": {
+      "technicalSheet": "Technical sheet",
+      "blueprint": "Blueprint",
+      "sketch": "Sketch",
+      "image": "Image"
+    },
+    "approval": {
+      "label": "Technical approval",
+      "pending": "Pending review",
+      "approved": "Approved by {{user}} on {{date}}",
+      "cancelled": "Cancelled by {{user}} on {{date}}",
+      "approveButton": "Approve",
+      "cancelButton": "Cancel approval"
+    }
   },
   "manufacturers": {
     "title": "Manufacturers",
@@ -1796,5 +1812,83 @@
       "nameRequired": "Name is required"
     },
     "deleteConfirm": "Are you sure you want to delete this finished good?"
+  },
+  "palletTypes": {
+    "title": "Pallet Types",
+    "subtitle": "Manage pallet type catalog",
+    "code": "Code",
+    "description": "Description",
+    "length": "Length",
+    "width": "Width",
+    "height": "Height",
+    "weight": "Weight",
+    "createTitle": "Create Pallet Type",
+    "editTitle": "Edit Pallet Type",
+    "addPalletType": "Add Pallet Type",
+    "createButton": "Create Pallet Type",
+    "editPalletType": "Edit pallet type",
+    "deletePalletType": "Delete pallet type",
+    "deleteConfirm": "Are you sure you want to delete this pallet type?",
+    "searchPlaceholder": "Search pallet types...",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "dimensions": "Dimensions (mm)",
+      "weight": "Weight",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No pallet types",
+      "description": "No pallet types match your search",
+      "noData": "Start by creating a pallet type"
+    },
+    "validation": {
+      "codeRequired": "Code is required"
+    }
+  },
+  "palletizations": {
+    "title": "Palletizations",
+    "subtitle": "How finished boxes are stacked on pallets",
+    "code": "Code",
+    "name": "Name",
+    "description": "Description",
+    "boxesPerPackage": "Boxes/package",
+    "packagesPerLevel": "Packages/level",
+    "levelsPerPallet": "Levels/pallet",
+    "additionalPackages": "Additional packages",
+    "sheetsPerPallet": "Sheets/pallet",
+    "boxesPerPallet": "Boxes per pallet",
+    "maxPalletHeight": "Max pallet height",
+    "surface": "Surface",
+    "stackingType": "Stacking type",
+    "observations": "Observations",
+    "palletType": "Pallet type",
+    "selectPalletType": "Select a pallet type",
+    "technicalFile": "Technical file",
+    "imageFile": "Image",
+    "createTitle": "Create Palletization",
+    "editTitle": "Edit Palletization",
+    "addPalletization": "Add Palletization",
+    "createButton": "Create Palletization",
+    "editPalletization": "Edit palletization",
+    "deletePalletization": "Delete palletization",
+    "deleteConfirm": "Are you sure you want to delete this palletization?",
+    "searchPlaceholder": "Search palletizations...",
+    "columns": {
+      "code": "Code",
+      "name": "Name",
+      "boxesPerPallet": "Boxes/pallet",
+      "stackingType": "Stacking",
+      "palletType": "Pallet type",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No palletizations",
+      "description": "No palletizations match your search",
+      "noData": "Start by creating a palletization"
+    },
+    "validation": {
+      "nameRequired": "Name is required"
+    }
   }
 }

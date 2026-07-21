@@ -55,7 +55,9 @@
     "colorTypes": "Tipos de Color",
     "fscTypes": "Tipos de FSC",
     "deliveryZones": "Zonas de Entrega",
-    "finishedGoods": "Productos Elaborados"
+    "finishedGoods": "Productos Elaborados",
+    "palletizations": "Palletizados",
+    "palletTypes": "Tipos de Pallet"
   },
   "roles": {
     "title": "Perfiles y Permisos",
@@ -700,7 +702,21 @@
     "createFailed": "Error al crear el producto. Por favor, intente nuevamente.",
     "updateFailed": "Error al actualizar el producto. Por favor, intente nuevamente.",
     "deleteFailed": "Error al eliminar el producto",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este producto?"
+    "deleteConfirm": "¿Está seguro de que desea eliminar este producto?",
+    "files": {
+      "technicalSheet": "Ficha técnica",
+      "blueprint": "Plano",
+      "sketch": "Boceto",
+      "image": "Imagen"
+    },
+    "approval": {
+      "label": "Aprobación técnica",
+      "pending": "Pendiente de revisión",
+      "approved": "Aprobado por {{user}} el {{date}}",
+      "cancelled": "Cancelado por {{user}} el {{date}}",
+      "approveButton": "Aprobar",
+      "cancelButton": "Cancelar aprobación"
+    }
   },
   "manufacturers": {
     "title": "Fabricantes",
@@ -1796,5 +1812,83 @@
       "nameRequired": "El nombre es obligatorio"
     },
     "deleteConfirm": "¿Está seguro de eliminar este producto elaborado?"
+  },
+  "palletTypes": {
+    "title": "Tipos de Pallet",
+    "subtitle": "Gestionar catálogo de tipos de pallet",
+    "code": "Código",
+    "description": "Descripción",
+    "length": "Largo",
+    "width": "Ancho",
+    "height": "Alto",
+    "weight": "Peso",
+    "createTitle": "Crear Tipo de Pallet",
+    "editTitle": "Editar Tipo de Pallet",
+    "addPalletType": "Agregar Tipo de Pallet",
+    "createButton": "Crear Tipo de Pallet",
+    "editPalletType": "Editar tipo de pallet",
+    "deletePalletType": "Eliminar tipo de pallet",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de pallet?",
+    "searchPlaceholder": "Buscar tipos de pallet...",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "dimensions": "Dimensiones (mm)",
+      "weight": "Peso",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "Sin tipos de pallet",
+      "description": "Ningún tipo de pallet coincide con la búsqueda",
+      "noData": "Comience creando un tipo de pallet"
+    },
+    "validation": {
+      "codeRequired": "El código es obligatorio"
+    }
+  },
+  "palletizations": {
+    "title": "Palletizados",
+    "subtitle": "Cómo se apilan las cajas terminadas en pallets",
+    "code": "Código",
+    "name": "Nombre",
+    "description": "Descripción",
+    "boxesPerPackage": "Cajas/paquete",
+    "packagesPerLevel": "Paquetes/nivel",
+    "levelsPerPallet": "Niveles/pallet",
+    "additionalPackages": "Paquetes adicionales",
+    "sheetsPerPallet": "Planchas/pallet",
+    "boxesPerPallet": "Cajas por pallet",
+    "maxPalletHeight": "Altura máx. de pallet",
+    "surface": "Superficie",
+    "stackingType": "Tipo de estiba",
+    "observations": "Observaciones",
+    "palletType": "Tipo de pallet",
+    "selectPalletType": "Seleccione un tipo de pallet",
+    "technicalFile": "Archivo técnico",
+    "imageFile": "Imagen",
+    "createTitle": "Crear Palletizado",
+    "editTitle": "Editar Palletizado",
+    "addPalletization": "Agregar Palletizado",
+    "createButton": "Crear Palletizado",
+    "editPalletization": "Editar palletizado",
+    "deletePalletization": "Eliminar palletizado",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este palletizado?",
+    "searchPlaceholder": "Buscar palletizados...",
+    "columns": {
+      "code": "Código",
+      "name": "Nombre",
+      "boxesPerPallet": "Cajas/pallet",
+      "stackingType": "Estiba",
+      "palletType": "Tipo de pallet",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "Sin palletizados",
+      "description": "Ningún palletizado coincide con la búsqueda",
+      "noData": "Comience creando un palletizado"
+    },
+    "validation": {
+      "nameRequired": "El nombre es obligatorio"
+    }
   }
 }

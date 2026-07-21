@@ -464,6 +464,14 @@ export interface Product {
   boxTypeId?: string;
   productType?: ProductType;
   boxType?: BoxType;
+  technicalSheetFileUuid?: string | null;
+  blueprintFileUuid?: string | null;
+  sketchFileUuid?: string | null;
+  imageFileUuid?: string | null;
+  productApprovalAt?: string | null;
+  productApprovalBy?: string | null;
+  productCancellationAt?: string | null;
+  productCancellationBy?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -477,6 +485,10 @@ export interface CreateProductForm {
   vip?: boolean;
   productTypeId?: string;
   boxTypeId?: string;
+  technicalSheetFileUuid?: string | null;
+  blueprintFileUuid?: string | null;
+  sketchFileUuid?: string | null;
+  imageFileUuid?: string | null;
 }
 
 export interface Manufacturer {
@@ -998,4 +1010,63 @@ export interface FileRecord {
   contentType?: string | null;
   sizeBytes?: number | null;
   createdAt?: string;
+}
+
+export interface PalletType {
+  uuid: string;
+  code?: string | null;
+  description?: string | null;
+  length?: number | null;
+  width?: number | null;
+  weight?: number | null;
+  height?: number | null;
+  createdAt?: string;
+}
+
+export interface CreatePalletTypeForm {
+  code?: string;
+  description?: string;
+  length?: number;
+  width?: number;
+  weight?: number;
+  height?: number;
+}
+
+export interface Palletization {
+  uuid: string;
+  code?: string | null;
+  name: string;
+  description?: string | null;
+  boxesPerPackage: number;
+  packagesPerLevel: number;
+  levelsPerPallet: number;
+  additionalPackages: number;
+  sheetsPerPallet: number;
+  maxPalletHeight?: number | null;
+  surface?: number | null;
+  stackingType?: string | null;
+  observations?: string | null;
+  technicalFileUuid?: string | null;
+  imageFileUuid?: string | null;
+  boxesPerPallet?: number;
+  palletType?: PalletType | null;
+  createdAt?: string;
+}
+
+export interface CreatePalletizationForm {
+  code?: string;
+  name: string;
+  description?: string;
+  boxesPerPackage?: number;
+  packagesPerLevel?: number;
+  levelsPerPallet?: number;
+  additionalPackages?: number;
+  sheetsPerPallet?: number;
+  maxPalletHeight?: number;
+  surface?: number;
+  stackingType?: string;
+  observations?: string;
+  technicalFileUuid?: string | null;
+  imageFileUuid?: string | null;
+  palletTypeUuid?: string;
 }

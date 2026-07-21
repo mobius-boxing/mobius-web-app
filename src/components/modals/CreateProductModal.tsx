@@ -8,6 +8,7 @@ import { useModalForm } from '../../hooks/useModalForm';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import FileRefUploader from '../ui/FileRefUploader';
 import { logger } from '../../utils/logger';
 
 interface CreateProductModalProps {
@@ -26,6 +27,12 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
+  const [fileUuids, setFileUuids] = useState<{
+    technicalSheetFileUuid: string | null;
+    blueprintFileUuid: string | null;
+    sketchFileUuid: string | null;
+    imageFileUuid: string | null;
+  }>({ technicalSheetFileUuid: null, blueprintFileUuid: null, sketchFileUuid: null, imageFileUuid: null });
 
   const {
     form: {
@@ -64,7 +71,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
     }
   };
 
-  const onSubmit = handleSubmit((data) => productsApi.createProduct(data));
+  const onSubmit = handleSubmit((data) => productsApi.createProduct({ ...data, ...fileUuids }));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('products.createTitle')}>
@@ -185,6 +192,30 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FileRefUploader
+            value={fileUuids.technicalSheetFileUuid}
+            onChange={(uuid) => setFileUuids((s) => ({ ...s, technicalSheetFileUuid: uuid }))}
+            label={t('products.files.technicalSheet')}
+          />
+          <FileRefUploader
+            value={fileUuids.blueprintFileUuid}
+            onChange={(uuid) => setFileUuids((s) => ({ ...s, blueprintFileUuid: uuid }))}
+            label={t('products.files.blueprint')}
+          />
+          <FileRefUploader
+            value={fileUuids.sketchFileUuid}
+            onChange={(uuid) => setFileUuids((s) => ({ ...s, sketchFileUuid: uuid }))}
+            label={t('products.files.sketch')}
+          />
+          <FileRefUploader
+            value={fileUuids.imageFileUuid}
+            onChange={(uuid) => setFileUuids((s) => ({ ...s, imageFileUuid: uuid }))}
+            label={t('products.files.image')}
+            accept="image/*"
+          />
         </div>
 
         <ModalFooter

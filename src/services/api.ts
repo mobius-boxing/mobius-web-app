@@ -92,6 +92,10 @@ import {
   CreateRoleForm,
   Permission,
   FileRecord,
+  PalletType,
+  CreatePalletTypeForm,
+  Palletization,
+  CreatePalletizationForm,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -746,6 +750,11 @@ export const corrugationsApi = {
 };
 
 export const productsApi = {
+  setApproval: async (uuid: string, action: 'approve' | 'cancel'): Promise<Product> => {
+    const response: AxiosResponse<ApiResponse<Product>> = await api.patch(`/api/product/${uuid}/approval`, { action });
+    return response.data.data!;
+  },
+
   getProducts: async (params: {
     page?: number;
     limit?: number;
@@ -1672,6 +1681,15 @@ export const permissionsApi = {
 // ── Files (module 01) ─────────────────────────────────────────────────────────
 
 export const filesApi = {
+  getFile: async (uuid: string): Promise<FileRecord | null> => {
+    try {
+      const response: AxiosResponse<ApiResponse<FileRecord>> = await api.get(`/api/files/${uuid}`);
+      return response.data.data ?? null;
+    } catch {
+      return null;
+    }
+  },
+
   uploadFile: async (file: File, description?: string): Promise<FileRecord> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -1804,5 +1822,60 @@ export const fscTypesApi = {
 
   deleteFscType: async (id: string): Promise<void> => {
     await api.delete(`/api/fsc-type/${id}`);
+  },
+};
+
+
+export const palletTypesApi = {
+  getPalletTypes: async (params: { page?: number; limit?: number; search?: string; companyId?: string } = {}): Promise<PaginatedResponse<PalletType>> => {
+    const response = await api.get('/api/pallet-types', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+  createPalletType: async (data: CreatePalletTypeForm): Promise<PalletType> => {
+    const response: AxiosResponse<ApiResponse<PalletType>> = await api.post('/api/pallet-types', data);
+    return response.data.data!;
+  },
+  updatePalletType: async (uuid: string, data: Partial<CreatePalletTypeForm>): Promise<PalletType> => {
+    const response: AxiosResponse<ApiResponse<PalletType>> = await api.put(`/api/pallet-types/${uuid}`, data);
+    return response.data.data!;
+  },
+  deletePalletType: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/pallet-types/${uuid}`);
+  },
+};
+
+export const palletizationsApi = {
+  getPalletizations: async (params: { page?: number; limit?: number; search?: string; companyId?: string } = {}): Promise<PaginatedResponse<Palletization>> => {
+    const response = await api.get('/api/palletizations', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+  getPalletization: async (uuid: string): Promise<Palletization> => {
+    const response: AxiosResponse<ApiResponse<Palletization>> = await api.get(`/api/palletizations/${uuid}`);
+    return response.data.data!;
+  },
+  createPalletization: async (data: CreatePalletizationForm): Promise<Palletization> => {
+    const response: AxiosResponse<ApiResponse<Palletization>> = await api.post('/api/palletizations', data);
+    return response.data.data!;
+  },
+  updatePalletization: async (uuid: string, data: Partial<CreatePalletizationForm>): Promise<Palletization> => {
+    const response: AxiosResponse<ApiResponse<Palletization>> = await api.put(`/api/palletizations/${uuid}`, data);
+    return response.data.data!;
+  },
+  deletePalletization: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/palletizations/${uuid}`);
   },
 };

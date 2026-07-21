@@ -8,6 +8,8 @@ import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
+import FileRefUploader from '../ui/FileRefUploader';
+import ProductApprovalWidget from '../forms/ProductApprovalWidget';
 import { logger } from '../../utils/logger';
 
 interface EditProductModalProps {
@@ -29,6 +31,13 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
+  const [approvalState, setApprovalState] = useState<Product | null>(null);
+  const [fileUuids, setFileUuids] = useState<{
+    technicalSheetFileUuid: string | null;
+    blueprintFileUuid: string | null;
+    sketchFileUuid: string | null;
+    imageFileUuid: string | null;
+  }>({ technicalSheetFileUuid: null, blueprintFileUuid: null, sketchFileUuid: null, imageFileUuid: null });
 
   const {
     form: {
@@ -65,6 +74,13 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         productTypeId: product.productType?.uuid || '',
         boxTypeId: product.boxType?.uuid || '',
       });
+      setApprovalState(product);
+      setFileUuids({
+        technicalSheetFileUuid: product.technicalSheetFileUuid ?? null,
+        blueprintFileUuid: product.blueprintFileUuid ?? null,
+        sketchFileUuid: product.sketchFileUuid ?? null,
+        imageFileUuid: product.imageFileUuid ?? null,
+      });
     }
   }, [isOpen, product, dropdownsLoaded, reset]);
 
@@ -88,7 +104,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 
   const onSubmit = handleSubmit(async (data) => {
     if (!product) return;
-    await productsApi.updateProduct(product.uuid, data);
+    await productsApi.updateProduct(product.uuid, { ...data, ...fileUuids });
   });
 
   if (!product) return null;
@@ -211,6 +227,34 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
               </option>
             ))}
           </select>
+        </div>
+
+        {approvalState && (
+          <ProductApprovalWidget product={approvalState} onChanged={setApprovalState} />
+        )}
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <FileRefUploader
+            value={fileUuids.technicalSheetFileUuid}
+            onChange={(uuid) => setFileUuids((s) => ({ ...s, technicalSheetFileUuid: uuid }))}
+            label={t('products.files.technicalSheet')}
+          />
+          <FileRefUploader
+            value={fileUuids.blueprintFileUuid}
+            onChange={(uuid) => setFileUuids((s) => ({ ...s, blueprintFileUuid: uuid }))}
+            label={t('products.files.blueprint')}
+          />
+          <FileRefUploader
+            value={fileUuids.sketchFileUuid}
+            onChange={(uuid) => setFileUuids((s) => ({ ...s, sketchFileUuid: uuid }))}
+            label={t('products.files.sketch')}
+          />
+          <FileRefUploader
+            value={fileUuids.imageFileUuid}
+            onChange={(uuid) => setFileUuids((s) => ({ ...s, imageFileUuid: uuid }))}
+            label={t('products.files.image')}
+            accept="image/*"
+          />
         </div>
 
         <ModalFooter loading={loading} onCancel={handleClose} submitText={t('products.updateButton')} />

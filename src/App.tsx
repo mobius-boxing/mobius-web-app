@@ -35,6 +35,8 @@ import ColorTypes from './pages/ColorTypes';
 import FscTypes from './pages/FscTypes';
 import DeliveryZones from './pages/DeliveryZones';
 import FinishedGoods from './pages/FinishedGoods';
+import PalletTypes from './pages/PalletTypes';
+import Palletizations from './pages/Palletizations';
 import Roles from './pages/Roles';
 import StrappingTypes from './pages/StrappingTypes';
 import Complements from './pages/Complements';
@@ -331,6 +333,24 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
                   <FinishedGoods />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/pallet-types"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <PalletTypes />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/palletizations"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <Palletizations />
                 </ProtectedRoute>
               }
             />

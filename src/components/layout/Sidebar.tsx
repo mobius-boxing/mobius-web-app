@@ -21,6 +21,7 @@ import {
   PanelLeft,
   ShieldCheck,
   MapPin,
+  Boxes,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -200,6 +201,20 @@ const Sidebar: React.FC = () => {
               roles: ['admin', 'superAdmin'],
             },
           ],
+        },
+        {
+          id: 'palletizations',
+          label: t('nav.palletizations'),
+          path: '/palletizations',
+          icon: 'Boxes',
+          roles: ['admin', 'superAdmin'],
+        },
+        {
+          id: 'pallet-types',
+          label: t('nav.palletTypes'),
+          path: '/pallet-types',
+          icon: 'Layers',
+          roles: ['admin', 'superAdmin'],
         },
         {
           id: 'tooling-types',
@@ -386,6 +401,7 @@ const Sidebar: React.FC = () => {
       PanelLeft,
       ShieldCheck,
       MapPin,
+      Boxes,
     };
     const IconComponent = icons[iconName as keyof typeof icons];
     return IconComponent ? <IconComponent className={className} /> : null;
