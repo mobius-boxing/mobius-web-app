@@ -720,6 +720,33 @@
       "cancelled": "Cancelled by {{user}} on {{date}}",
       "approveButton": "Approve",
       "cancelButton": "Cancel approval"
+    },
+    "mode": {
+      "simple": "Simple",
+      "composite": "Composite",
+      "simpleHint": "A simple product is created together with its single part (the usual case).",
+      "compositeHint": "A composite product (kit) is created empty; add its parts from the edit screen.",
+      "noParts": "No parts",
+      "simpleBadge": "Simple (1 part)",
+      "compositeBadge": "Composite ({{count}} parts)",
+      "noPartsHint": "This product has no parts yet — add the first one with the \"Add Part\" button below."
+    },
+    "initialPart": {
+      "title": "Initial part",
+      "corrugation": "Corrugated board",
+      "selectCorrugation": "Select a corrugated board",
+      "sheetLength": "Sheet length (mm)",
+      "sheetWidth": "Sheet width (mm)",
+      "boxLength": "Box length (mm)",
+      "boxWidth": "Box width (mm)",
+      "boxHeight": "Box height (mm)",
+      "route": "Production route",
+      "rutaPropia": "Own route (created automatically)",
+      "rutaPropiaHint": "Leave empty to auto-create a private route (RUTA PROPIA); picking a global route copies its stages.",
+      "validation": {
+        "corrugationRequired": "The corrugated board is required",
+        "sheetDimsRequired": "Sheet dimensions must be positive"
+      }
     }
   },
   "manufacturers": {

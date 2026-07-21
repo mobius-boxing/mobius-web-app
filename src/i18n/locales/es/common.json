@@ -720,6 +720,33 @@
       "cancelled": "Cancelado por {{user}} el {{date}}",
       "approveButton": "Aprobar",
       "cancelButton": "Cancelar aprobación"
+    },
+    "mode": {
+      "simple": "Simple",
+      "composite": "Compuesto",
+      "simpleHint": "Un producto simple se crea junto con su única parte (el caso habitual).",
+      "compositeHint": "Un producto compuesto (kit) se crea vacío; agregue sus partes desde la pantalla de edición.",
+      "noParts": "Sin partes",
+      "simpleBadge": "Simple (1 parte)",
+      "compositeBadge": "Compuesto ({{count}} partes)",
+      "noPartsHint": "Este producto aún no tiene partes — agregue la primera con el botón \"Agregar Parte\" debajo."
+    },
+    "initialPart": {
+      "title": "Parte inicial",
+      "corrugation": "Corrugado",
+      "selectCorrugation": "Seleccione un corrugado",
+      "sheetLength": "Largo de plancha (mm)",
+      "sheetWidth": "Ancho de plancha (mm)",
+      "boxLength": "Largo de caja (mm)",
+      "boxWidth": "Ancho de caja (mm)",
+      "boxHeight": "Altura de caja (mm)",
+      "route": "Ruta de producción",
+      "rutaPropia": "Ruta propia (creada automáticamente)",
+      "rutaPropiaHint": "Deje vacío para crear una ruta privada (RUTA PROPIA); elegir una ruta global copia sus etapas.",
+      "validation": {
+        "corrugationRequired": "El corrugado es obligatorio",
+        "sheetDimsRequired": "Las dimensiones de plancha deben ser positivas"
+      }
     }
   },
   "manufacturers": {

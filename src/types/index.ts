@@ -476,6 +476,22 @@ export interface Product {
   updatedAt: string;
 }
 
+/**
+ * Simple-product atomic create (module 06 ProductoSimpleForm): the first part
+ * created together with the product. Code is server-derived ({producto}/1);
+ * description defaults to the product's when omitted.
+ */
+export interface CreateProductInitialPart {
+  description?: string;
+  corrugationUuid: string;
+  productionRouteUuid?: string;
+  sheetLength?: number;
+  sheetWidth?: number;
+  boxLength?: number;
+  boxWidth?: number;
+  boxHeight?: number;
+}
+
 export interface CreateProductForm {
   code: string;
   clientCode?: string;
@@ -489,6 +505,7 @@ export interface CreateProductForm {
   blueprintFileUuid?: string | null;
   sketchFileUuid?: string | null;
   imageFileUuid?: string | null;
+  initialPart?: CreateProductInitialPart;
 }
 
 export interface Manufacturer {

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CreateProductForm, Customer, ProductType, BoxType } from '../../types';
-import { productsApi, customersApi, productTypesApi, boxTypesApi } from '../../services/api';
+import { CreateProductForm, Customer, ProductType, BoxType, Corrugation, ProductionRoute } from '../../types';
+import { productsApi, customersApi, productTypesApi, boxTypesApi, corrugationsApi, productionRoutesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
@@ -27,6 +27,11 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
   const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
+  // Simple = product + its first part inline (ProductoSimpleForm; the live
+  // customer's universal case). Compuesto = product only, parts added on edit.
+  const [mode, setMode] = useState<'simple' | 'composite'>('simple');
+  const [corrugations, setCorrugations] = useState<Corrugation[]>([]);
+  const [globalRoutes, setGlobalRoutes] = useState<ProductionRoute[]>([]);
   const [fileUuids, setFileUuids] = useState<{
     technicalSheetFileUuid: string | null;
     blueprintFileUuid: string | null;
@@ -51,6 +56,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      setMode('simple');
       fetchDropdownData();
     }
   }, [isOpen, effectiveCompanyId]);
@@ -58,25 +64,54 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const fetchDropdownData = async () => {
     try {
       const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      const [customersRes, productTypesRes, boxTypesRes] = await Promise.all([
+      const [customersRes, productTypesRes, boxTypesRes, corrugationsRes, routesRes] = await Promise.all([
         customersApi.getCustomers({ limit: 100, ...companyFilter }),
         productTypesApi.getProductTypes({ limit: 100, ...companyFilter }),
         boxTypesApi.getBoxTypes({ limit: 100, ...companyFilter }),
+        corrugationsApi.getCorrugations({ limit: 100, ...companyFilter }),
+        productionRoutesApi.getRoutes({ limit: 100, isGlobal: true, ...companyFilter }),
       ]);
       setCustomers(customersRes.data || []);
       setProductTypes(productTypesRes.data || []);
       setBoxTypes(boxTypesRes.data || []);
+      setCorrugations(corrugationsRes.data || []);
+      setGlobalRoutes(routesRes.data || []);
     } catch (error) {
       logger.error('Error fetching dropdown data:', error);
     }
   };
 
-  const onSubmit = handleSubmit((data) => productsApi.createProduct({ ...data, ...fileUuids }));
+  const onSubmit = handleSubmit((data) => {
+    const payload: CreateProductForm = { ...data, ...fileUuids };
+    if (mode === 'composite') delete payload.initialPart;
+    return productsApi.createProduct(payload);
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('products.createTitle')}>
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
+
+        {/* Simple vs Compuesto (module 06: a product is 1..N parts) */}
+        <div className="flex rounded-md border border-secondary-300 overflow-hidden">
+          {(['simple', 'composite'] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => setMode(m)}
+              className={`flex-1 px-3 py-2 text-sm font-medium ${
+                mode === m
+                  ? 'bg-primary-600 text-white'
+                  : 'bg-white text-secondary-700 hover:bg-secondary-50'
+              }`}
+            >
+              {t(`products.mode.${m}`)}
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-secondary-500 -mt-2">
+          {t(`products.mode.${mode}Hint`)}
+        </p>
 
         <div>
           <label className="block text-sm font-medium text-secondary-700 mb-1">
@@ -193,6 +228,100 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
             ))}
           </select>
         </div>
+
+        {mode === 'simple' && (
+          <div className="rounded-md border border-secondary-200 bg-secondary-50 p-4 space-y-4">
+            <h3 className="text-sm font-semibold text-secondary-900">
+              {t('products.initialPart.title')}
+            </h3>
+
+            <div>
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
+                {t('products.initialPart.corrugation')} *
+              </label>
+              <select
+                {...register('initialPart.corrugationUuid', {
+                  required: mode === 'simple' ? t('products.initialPart.validation.corrugationRequired') : false,
+                })}
+                className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">{t('products.initialPart.selectCorrugation')}</option>
+                {corrugations.map((co) => (
+                  <option key={co.uuid} value={co.uuid}>
+                    {co.code}{co.description ? ` - ${co.description}` : ''}
+                  </option>
+                ))}
+              </select>
+              {(errors as any).initialPart?.corrugationUuid && (
+                <p className="mt-1 text-sm text-red-600">
+                  {(errors as any).initialPart.corrugationUuid.message}
+                </p>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
+                  {t('products.initialPart.sheetLength')} *
+                </label>
+                <Input
+                  type="number"
+                  step="any"
+                  {...register('initialPart.sheetLength', {
+                    valueAsNumber: true,
+                    required: mode === 'simple' ? t('products.initialPart.validation.sheetDimsRequired') : false,
+                    min: { value: 0.001, message: t('products.initialPart.validation.sheetDimsRequired') },
+                  })}
+                  error={(errors as any).initialPart?.sheetLength?.message}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-secondary-700 mb-1">
+                  {t('products.initialPart.sheetWidth')} *
+                </label>
+                <Input
+                  type="number"
+                  step="any"
+                  {...register('initialPart.sheetWidth', {
+                    valueAsNumber: true,
+                    required: mode === 'simple' ? t('products.initialPart.validation.sheetDimsRequired') : false,
+                    min: { value: 0.001, message: t('products.initialPart.validation.sheetDimsRequired') },
+                  })}
+                  error={(errors as any).initialPart?.sheetWidth?.message}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              {(['boxLength', 'boxWidth', 'boxHeight'] as const).map((f) => (
+                <div key={f}>
+                  <label className="block text-sm font-medium text-secondary-700 mb-1">
+                    {t(`products.initialPart.${f}`)}
+                  </label>
+                  <Input type="number" step="any" {...register(`initialPart.${f}` as any, { valueAsNumber: true })} />
+                </div>
+              ))}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-secondary-700 mb-1">
+                {t('products.initialPart.route')}
+              </label>
+              <select
+                {...register('initialPart.productionRouteUuid')}
+                className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">{t('products.initialPart.rutaPropia')}</option>
+                {globalRoutes.map((r) => (
+                  <option key={r.uuid} value={r.uuid}>
+                    {r.name}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-secondary-500">{t('products.initialPart.rutaPropiaHint')}</p>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FileRefUploader

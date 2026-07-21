@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalForm } from '../../hooks/useModalForm';
 import { Product, CreateProductForm, Customer, ProductType, BoxType } from '../../types';
-import { productsApi, customersApi, productTypesApi, boxTypesApi } from '../../services/api';
+import { productsApi, customersApi, productTypesApi, boxTypesApi, partsApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -27,6 +27,22 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   product,
 }) => {
   const { t } = useTranslation();
+  // Simple (1 parte) / Compuesto (N) badge + empty-state prompt.
+  const [partsCount, setPartsCount] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    if (isOpen && product?.uuid) {
+      partsApi
+        .getPartsForProduct(product.uuid, { limit: 1 })
+        .then((r) => { if (!cancelled) setPartsCount(r.total ?? 0); })
+        .catch(() => { if (!cancelled) setPartsCount(null); });
+    } else {
+      setPartsCount(null);
+    }
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, product?.uuid]);
   const { effectiveCompanyId } = useEffectiveCompany();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [productTypes, setProductTypes] = useState<ProductType[]>([]);
@@ -236,7 +252,31 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 
         {product?.uuid && (
           <div className="mt-4 border-t border-secondary-200 pt-4">
-            <h3 className="mb-2 text-sm font-semibold text-secondary-900">{t('parts.embedded.title')}</h3>
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="text-sm font-semibold text-secondary-900">{t('parts.embedded.title')}</h3>
+              {partsCount !== null && (
+                <span
+                  className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                    partsCount === 0
+                      ? 'bg-amber-100 text-amber-800'
+                      : partsCount === 1
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-blue-100 text-blue-800'
+                  }`}
+                >
+                  {partsCount === 0
+                    ? t('products.mode.noParts')
+                    : partsCount === 1
+                      ? t('products.mode.simpleBadge')
+                      : t('products.mode.compositeBadge', { count: partsCount })}
+                </span>
+              )}
+            </div>
+            {partsCount === 0 && (
+              <p className="mb-2 rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                {t('products.mode.noPartsHint')}
+              </p>
+            )}
             <PartsGrid productUuid={product.uuid} compact />
           </div>
         )}
