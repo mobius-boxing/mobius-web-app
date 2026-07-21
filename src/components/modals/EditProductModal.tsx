@@ -10,6 +10,7 @@ import { ModalFooter } from '../ui/ModalFooter';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import FileRefUploader from '../ui/FileRefUploader';
 import ProductApprovalWidget from '../forms/ProductApprovalWidget';
+import PartsGrid from '../parts/PartsGrid';
 import { logger } from '../../utils/logger';
 
 interface EditProductModalProps {
@@ -231,6 +232,13 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 
         {approvalState && (
           <ProductApprovalWidget product={approvalState} onChanged={setApprovalState} />
+        )}
+
+        {product?.uuid && (
+          <div className="mt-4 border-t border-secondary-200 pt-4">
+            <h3 className="mb-2 text-sm font-semibold text-secondary-900">{t('parts.embedded.title')}</h3>
+            <PartsGrid productUuid={product.uuid} compact />
+          </div>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

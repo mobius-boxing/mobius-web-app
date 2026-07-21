@@ -138,6 +138,13 @@ const Sidebar: React.FC = () => {
               icon: 'Layers',
               roles: ['admin', 'superAdmin'],
             },
+            {
+              id: 'parts',
+              label: t('nav.parts'),
+              path: '/parts',
+              icon: 'Package',
+              roles: ['admin', 'superAdmin'],
+            },
           ],
         },
         {

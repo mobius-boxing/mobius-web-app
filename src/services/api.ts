@@ -100,6 +100,9 @@ import {
   Machine,
   CreateMachineForm,
   ProductionRoute,
+  Part,
+  PartFormPayload,
+  PartApprovalMachine,
   RouteStage,
   CreatePalletizationForm,
 } from '../types';
@@ -1956,5 +1959,50 @@ export const productionRoutesApi = {
   },
   deleteRoute: async (uuid: string): Promise<void> => {
     await api.delete(`/api/production-routes/${uuid}`);
+  },
+};
+
+// ── Parts (module 07) ────────────────────────────────────────────────────────
+export const partsApi = {
+  getParts: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<Part>> => {
+    const response = await api.get('/api/parts', { params });
+    const d = response.data;
+    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
+  },
+  getPartsForProduct: async (productUuid: string, params: Record<string, unknown> = {}): Promise<PaginatedResponse<Part>> => {
+    const response = await api.get(`/api/product/${productUuid}/parts`, { params });
+    const d = response.data;
+    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
+  },
+  getPart: async (uuid: string): Promise<Part> => {
+    const response = await api.get(`/api/parts/${uuid}`);
+    return response.data.data;
+  },
+  createPart: async (data: PartFormPayload): Promise<Part> => {
+    const response = await api.post('/api/parts', data);
+    return response.data.data;
+  },
+  updatePart: async (uuid: string, data: PartFormPayload): Promise<Part> => {
+    const response = await api.put(`/api/parts/${uuid}`, data);
+    return response.data.data;
+  },
+  deletePart: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/parts/${uuid}`);
+  },
+  cascade: async (uuid: string, field: string, value: number | null): Promise<Part> => {
+    const response = await api.patch(`/api/parts/${uuid}/cascade`, { field, value });
+    return response.data.data;
+  },
+  setApproval: async (uuid: string, machine: PartApprovalMachine, action: 'approve' | 'cancel'): Promise<Part> => {
+    const response = await api.patch(`/api/parts/${uuid}/approval/${machine}`, { action });
+    return response.data.data;
+  },
+  bulkApprove: async (uuids: string[]): Promise<number> => {
+    const response = await api.post('/api/parts/bulk-approve', { uuids });
+    return response.data.data.updated;
+  },
+  bulkUnapprove: async (uuids: string[]): Promise<number> => {
+    const response = await api.post('/api/parts/bulk-unapprove', { uuids });
+    return response.data.data.updated;
   },
 };

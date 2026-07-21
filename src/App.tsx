@@ -21,6 +21,7 @@ import PaperSupplies from './pages/PaperSupplies';
 import PaperSheets from './pages/PaperSheets';
 import CorrugationClasses from './pages/CorrugationClasses';
 import Corrugations from './pages/Corrugations';
+import Parts from './pages/Parts';
 import PaperStock from './pages/PaperStock';
 import SheetStock from './pages/SheetStock';
 import ToolingTypes from './pages/ToolingTypes';
@@ -210,6 +211,14 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
                   <Corrugations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/parts"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <Parts />
                 </ProtectedRoute>
               }
             />
