@@ -179,10 +179,12 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
       {t(`parts.fields.${key}`)}
     </label>
   );
-  const select = (key: string, optKey: string) => (
+  // nestedKey: the loaded part's nested-object field, when it differs from
+  // the options-list key (e.g. options 'route' but part field 'productionRoute').
+  const select = (key: string, optKey: string, nestedKey: string = optKey) => (
     <select
       className="input-field w-full"
-      value={form[key] ?? form[optKey]?.uuid ?? ''}
+      value={form[key] ?? form[nestedKey]?.uuid ?? ''}
       onChange={(e) => set(key, e.target.value || undefined)}
     >
       <option value="">{t('parts.form.none')}</option>
@@ -286,7 +288,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
               {t('parts.form.rutaPropiaNotice', { name: current.productionRoute.name })}
             </p>
           )}
-          {field('productionRoute', select('productionRouteUuid', 'route'))}
+          {field('productionRoute', select('productionRouteUuid', 'route', 'productionRoute'))}
           {!isEdit && <p className="text-sm text-secondary-500">{t('parts.form.rutaPropiaHint')}</p>}
         </div>
       )}
