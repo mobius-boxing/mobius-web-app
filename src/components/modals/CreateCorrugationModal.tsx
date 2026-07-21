@@ -90,6 +90,9 @@ const CreateCorrugationModal: React.FC<CreateCorrugationModalProps> = ({
       // SECURITY: Send UUID, not numeric ID
       corrugationClassUuid: data.corrugationClassUuid || undefined,
       layers,
+      // superAdmin operating-as: the backend resolves this body companyId;
+      // regular users' company always comes from their JWT instead.
+      ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
     };
     return corrugationsApi.createCorrugation(submitData);
   });
