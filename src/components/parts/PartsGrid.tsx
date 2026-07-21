@@ -20,6 +20,8 @@ interface Props {
   productUuid?: string;
   /** Compact mode hides filters/search (embedded usage). */
   compact?: boolean;
+  /** Fired after any mutation that changes the part set (create/delete/bulk). */
+  onPartsChanged?: () => void;
 }
 
 const machineChip = (approvedAt?: string | null, cancelledAt?: string | null) =>
@@ -36,7 +38,7 @@ const machineChip = (approvedAt?: string | null, cancelledAt?: string | null) =>
  * product edit flow. Status chips for the 3 UI machines; bulk toolbar gated by
  * parts.approve.bulk.
  */
-const PartsGrid: React.FC<Props> = ({ productUuid, compact = false }) => {
+const PartsGrid: React.FC<Props> = ({ productUuid, compact = false, onPartsChanged }) => {
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
   const { has } = usePermissions();
@@ -66,6 +68,13 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveCompanyId, productUuid, approvalFilter]);
 
+  // Bulk selection must not silently span pages/filters: approving invisible
+  // rows is a governance hazard. Reset whenever the visible query changes.
+  useEffect(() => {
+    setSelected(new Set());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paginationProps.page, approvalFilter, effectiveCompanyId, productUuid, search]);
+
   const toggle = (uuid: string) =>
     setSelected((s) => {
       const next = new Set(s);
@@ -81,6 +90,7 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false }) => {
       else await partsApi.bulkUnapprove(Array.from(selected));
       setSelected(new Set());
       await refresh();
+      onPartsChanged?.();
     } catch (err) {
       logger.error('Bulk approval failed:', err);
     } finally {
@@ -97,6 +107,7 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false }) => {
         try {
           await partsApi.deletePart(uuid);
           await refresh();
+          onPartsChanged?.();
         } catch (err) {
           logger.error('Error deleting part:', err);
         }
@@ -183,6 +194,19 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false }) => {
           </div>
         )}
         <div className="flex items-center gap-2">
+          {selected.size > 0 && (
+            <span className="flex items-center gap-1 rounded-full bg-primary-50 px-2 py-0.5 text-xs font-medium text-primary-700">
+              {t('parts.selectedCount', { count: selected.size })}
+              <button
+                type="button"
+                className="ml-1 text-primary-500 hover:text-primary-700"
+                aria-label={t('parts.clearSelection')}
+                onClick={() => setSelected(new Set())}
+              >
+                ×
+              </button>
+            </span>
+          )}
           {has('parts.approve.bulk') && selected.size > 0 && (
             <>
               <Button size="sm" variant="secondary" disabled={busy} onClick={() => bulk('approve')}>
@@ -217,7 +241,7 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false }) => {
         <PartFormModal
           isOpen={showForm}
           onClose={() => { setShowForm(false); setEditing(null); }}
-          onSuccess={() => { setShowForm(false); setEditing(null); refresh(); }}
+          onSuccess={() => { setShowForm(false); setEditing(null); refresh(); onPartsChanged?.(); }}
           productUuid={productUuid ?? editing?.product?.uuid ?? ''}
           part={editing}
         />

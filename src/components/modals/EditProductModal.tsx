@@ -30,17 +30,17 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
   // Simple (1 parte) / Compuesto (N) badge + empty-state prompt.
   const [partsCount, setPartsCount] = useState<number | null>(null);
 
+  const refreshPartsCount = React.useCallback(() => {
+    if (!product?.uuid) return;
+    partsApi
+      .getPartsForProduct(product.uuid, { limit: 1 })
+      .then((r) => setPartsCount(r.total ?? 0))
+      .catch(() => setPartsCount(null));
+  }, [product?.uuid]);
+
   useEffect(() => {
-    let cancelled = false;
-    if (isOpen && product?.uuid) {
-      partsApi
-        .getPartsForProduct(product.uuid, { limit: 1 })
-        .then((r) => { if (!cancelled) setPartsCount(r.total ?? 0); })
-        .catch(() => { if (!cancelled) setPartsCount(null); });
-    } else {
-      setPartsCount(null);
-    }
-    return () => { cancelled = true; };
+    if (isOpen && product?.uuid) refreshPartsCount();
+    else setPartsCount(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, product?.uuid]);
   const { effectiveCompanyId } = useEffectiveCompany();
@@ -277,7 +277,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                 {t('products.mode.noPartsHint')}
               </p>
             )}
-            <PartsGrid productUuid={product.uuid} compact />
+            <PartsGrid productUuid={product.uuid} compact onPartsChanged={refreshPartsCount} />
           </div>
         )}
 

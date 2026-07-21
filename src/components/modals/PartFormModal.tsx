@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
@@ -34,6 +34,61 @@ type Options = { uuid: string; label: string }[];
 const num = (v: any): number | undefined => (v === '' || v == null ? undefined : Number(v));
 
 /**
+ * Flatten a loaded Part into form state: every FK becomes its scalar uuid and
+ * nested objects NEVER enter the form — one source of truth per field (the
+ * nested/scalar duality caused two real binding bugs).
+ */
+const partToForm = (p: Part): Record<string, any> => {
+  const {
+    corrugation,
+    productionRoute,
+    palletization,
+    flapType,
+    glueType,
+    strappingType,
+    traceType,
+    complement,
+    product,
+    ...scalars
+  } = p as any;
+  return {
+    ...scalars,
+    corrugationUuid: corrugation?.uuid,
+    productionRouteUuid: productionRoute?.uuid,
+    palletizationUuid: palletization?.uuid,
+    flapTypeUuid: flapType?.uuid,
+    glueTypeUuid: glueType?.uuid,
+    strappingTypeUuid: strappingType?.uuid,
+    traceTypeUuid: traceType?.uuid,
+    complementUuid: complement?.uuid,
+  };
+};
+
+/**
+ * Per-edited-field cascade outputs (mirror of the backend PartCalculator's
+ * applyEdit). Only these keys are merged from a cascade response — merging the
+ * whole part would clobber sibling fields the user is still editing.
+ */
+const CASCADE_DERIVED: Record<string, string[]> = {
+  boxLength: ['boxLength', 'externalLength'],
+  boxWidth: ['boxWidth', 'externalWidth'],
+  boxHeight: ['boxHeight', 'externalHeight'],
+  externalLength: ['externalLength', 'boxLength'],
+  externalWidth: ['externalWidth', 'boxWidth'],
+  externalHeight: ['externalHeight', 'boxHeight'],
+  boxSurface: ['boxSurface', 'boxWeight'],
+  grammage: ['grammage', 'boxWeight'],
+};
+
+/** Attributes server validation messages to a tab index (cheap keyword map). */
+const FIELD_TAB_HINTS: Array<{ pattern: RegExp; tab: number }> = [
+  { pattern: /corrugation|box(length|width|height)|sheet|grammage|score|surface/i, tab: 1 },
+  { pattern: /route|ruta/i, tab: 2 },
+  { pattern: /tolerance|overrun|underrun|flap|glue|strapping|trace|complement/i, tab: 3 },
+  { pattern: /palletiz/i, tab: 4 },
+];
+
+/**
  * 7-tab Part form (14-ui-form.md). Statistics tab is a placeholder.
  * Create: no live cascade (server computes on save + subsequent edits).
  * Edit: dimension fields cascade on blur via PATCH /parts/:uuid/cascade.
@@ -46,15 +101,23 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
   const [form, setForm] = useState<Record<string, any>>({});
   const [current, setCurrent] = useState<Part | null>(part);
   const [error, setError] = useState<string | null>(null);
+  const [errorTab, setErrorTab] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [opts, setOpts] = useState<Record<string, Options>>({});
+  // Dirty guard + cascade coordination (no state — render-independent).
+  const initialFormRef = useRef<string>('');
+  const cascadeSeqRef = useRef(0);
+  const pendingCascadeRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     if (!isOpen) return;
     setTab(0);
     setError(null);
+    setErrorTab(null);
     setCurrent(part);
-    setForm(part ? { ...part } : { symmetricScoreLines: false });
+    const initial = part ? partToForm(part) : { symmetricScoreLines: false };
+    setForm(initial);
+    initialFormRef.current = JSON.stringify(initial);
     const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
     (async () => {
       try {
@@ -86,34 +149,58 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
 
   const set = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
 
-  const cascadeBlur = async (field: string) => {
+  const isDirty = () => JSON.stringify(form) !== initialFormRef.current;
+
+  const requestClose = () => {
+    if (isDirty() && !window.confirm(t('common.discardChanges'))) return;
+    onClose();
+  };
+
+  const cascadeBlur = (field: string) => {
     if (!isEdit || !current) return;
-    try {
-      const updated = await partsApi.cascade(current.uuid, field, num(form[field]) ?? null);
-      if (updated) {
+    const seq = ++cascadeSeqRef.current;
+    const run = (async () => {
+      try {
+        const updated = await partsApi.cascade(current.uuid, field, num(form[field]) ?? null);
+        // A newer blur or an in-flight save supersedes this response.
+        if (!updated || seq !== cascadeSeqRef.current) return;
         setCurrent(updated);
-        setForm((f) => ({ ...f, ...updated }));
+        // Merge ONLY the fields this cascade owns — never the whole part,
+        // which would clobber sibling fields still being edited.
+        const derived = CASCADE_DERIVED[field] ?? [field];
+        setForm((f) => {
+          const next = { ...f };
+          for (const key of derived) next[key] = (updated as any)[key];
+          return next;
+        });
+      } catch (err) {
+        logger.error('Cascade failed:', err);
       }
-    } catch (err) {
-      logger.error('Cascade failed:', err);
-    }
+    })();
+    pendingCascadeRef.current = run;
   };
 
   const submit = async () => {
     try {
       setSaving(true);
       setError(null);
+      setErrorTab(null);
+      // Let any in-flight cascade settle, then invalidate stragglers so their
+      // responses can't rewrite form state after we've read it.
+      if (pendingCascadeRef.current) await pendingCascadeRef.current.catch(() => {});
+      cascadeSeqRef.current++;
       const payload: PartFormPayload = {
         description: form.description,
         clientCode: form.clientCode,
-        corrugationUuid: form.corrugation?.uuid ?? form.corrugationUuid,
+        // Flat form state: the scalar uuids are the only source of truth.
+        corrugationUuid: form.corrugationUuid,
         productionRouteUuid: form.productionRouteUuid ?? undefined,
-        palletizationUuid: form.palletization?.uuid ?? form.palletizationUuid,
-        flapTypeUuid: form.flapType?.uuid ?? form.flapTypeUuid,
-        glueTypeUuid: form.glueType?.uuid ?? form.glueTypeUuid,
-        strappingTypeUuid: form.strappingType?.uuid ?? form.strappingTypeUuid,
-        traceTypeUuid: form.traceType?.uuid ?? form.traceTypeUuid,
-        complementUuid: form.complement?.uuid ?? form.complementUuid,
+        palletizationUuid: form.palletizationUuid,
+        flapTypeUuid: form.flapTypeUuid,
+        glueTypeUuid: form.glueTypeUuid,
+        strappingTypeUuid: form.strappingTypeUuid,
+        traceTypeUuid: form.traceTypeUuid,
+        complementUuid: form.complementUuid,
       };
       for (const key of [
         'boxLength','boxWidth','boxHeight','externalLength','externalWidth','externalHeight',
@@ -144,7 +231,11 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
       }
       onSuccess();
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? t('parts.form.saveError'));
+      const message = err?.response?.data?.message ?? t('parts.form.saveError');
+      setError(message);
+      // Cheap field→tab attribution so the user isn't hunting across 7 tabs.
+      const hint = FIELD_TAB_HINTS.find((h) => h.pattern.test(String(message)));
+      setErrorTab(hint ? hint.tab : null);
     } finally {
       setSaving(false);
     }
@@ -179,12 +270,11 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
       {t(`parts.fields.${key}`)}
     </label>
   );
-  // nestedKey: the loaded part's nested-object field, when it differs from
-  // the options-list key (e.g. options 'route' but part field 'productionRoute').
-  const select = (key: string, optKey: string, nestedKey: string = optKey) => (
+  // Flat form state: the scalar uuid under `key` is the single source of truth.
+  const select = (key: string, optKey: string) => (
     <select
       className="input-field w-full"
-      value={form[key] ?? form[nestedKey]?.uuid ?? ''}
+      value={form[key] ?? ''}
       onChange={(e) => set(key, e.target.value || undefined)}
     >
       <option value="">{t('parts.form.none')}</option>
@@ -203,16 +293,22 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={isEdit ? t('parts.editPart') : t('parts.addPart')} size="xl">
+    <Modal isOpen={isOpen} onClose={requestClose} title={isEdit ? t('parts.editPart') : t('parts.addPart')} size="xl">
       <div className="mb-4 flex flex-wrap gap-1 border-b border-secondary-200">
         {tabs.map((tKey, i) => (
           <button
             key={tKey}
-            className={`px-3 py-2 text-sm ${tab === i ? 'border-b-2 border-primary-600 font-medium text-primary-700' : 'text-secondary-500'}`}
+            className={`relative px-3 py-2 text-sm ${tab === i ? 'border-b-2 border-primary-600 font-medium text-primary-700' : 'text-secondary-500'}`}
             onClick={() => setTab(i)}
             type="button"
           >
             {t(`parts.tabs.${tKey}`)}
+            {errorTab === i && (
+              <span
+                className="absolute right-0 top-1 h-2 w-2 rounded-full bg-red-500"
+                aria-label={t('parts.form.tabHasError')}
+              />
+            )}
           </button>
         ))}
       </div>
@@ -228,9 +324,9 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
           {field('description', textInput('description'))}
           {isEdit && current ? (
             <div className="space-y-2">
-              <PartApprovalControl part={current} machine="dimensions" onChanged={(p) => { setCurrent(p); setForm((f) => ({ ...f, ...p })); }} />
-              <PartApprovalControl part={current} machine="technical" onChanged={(p) => { setCurrent(p); setForm((f) => ({ ...f, ...p })); }} />
-              <PartApprovalControl part={current} machine="part" onChanged={(p) => { setCurrent(p); setForm((f) => ({ ...f, ...p })); }} />
+              <PartApprovalControl part={current} machine="dimensions" onChanged={setCurrent} />
+              <PartApprovalControl part={current} machine="technical" onChanged={setCurrent} />
+              <PartApprovalControl part={current} machine="part" onChanged={setCurrent} />
             </div>
           ) : (
             <p className="text-sm text-secondary-500">{t('parts.form.approvalsAfterSave')}</p>
@@ -288,7 +384,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
               {t('parts.form.rutaPropiaNotice', { name: current.productionRoute.name })}
             </p>
           )}
-          {field('productionRoute', select('productionRouteUuid', 'route', 'productionRoute'))}
+          {field('productionRoute', select('productionRouteUuid', 'route'))}
           {!isEdit && <p className="text-sm text-secondary-500">{t('parts.form.rutaPropiaHint')}</p>}
         </div>
       )}
@@ -357,7 +453,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
       )}
 
       <div className="mt-6 flex justify-end gap-2 border-t border-secondary-200 pt-4">
-        <Button variant="secondary" onClick={onClose} disabled={saving}>
+        <Button variant="secondary" onClick={requestClose} disabled={saving}>
           {t('common.cancel')}
         </Button>
         <Button onClick={submit} disabled={saving}>

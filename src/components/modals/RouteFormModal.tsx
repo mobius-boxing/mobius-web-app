@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import {
@@ -42,6 +42,7 @@ interface SupplyOption {
 const SUPPLY_TYPES: StageSupplyType[] = ['paper', 'sheet', 'consumable', 'tooling', 'finishedGood'];
 
 const emptyStage = (number: number): RouteStage => ({
+  clientId: crypto.randomUUID(),
   number,
   description: '',
   isCorrugation: false,
@@ -74,6 +75,20 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [warnings, setWarnings] = useState<string[]>([]);
+  // Dirty guard: snapshot of the loaded form; compared on close.
+  const snapshotRef = useRef<string>('');
+  const snap = (n: string, g: boolean, a: boolean, d: boolean, st: RouteStage[]) =>
+    JSON.stringify({ n, g, a, d, st });
+
+  const requestClose = () => {
+    if (
+      snapshotRef.current &&
+      snap(name, isGlobal, active, isDefault, stages) !== snapshotRef.current &&
+      !window.confirm(t('common.discardChanges'))
+    )
+      return;
+    onClose();
+  };
 
   useEffect(() => {
     if (!isOpen) return;
@@ -116,21 +131,24 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
           setIsGlobal(full.isGlobal);
           setActive(full.active);
           setIsDefault(full.isDefault);
-          setStages(
-            (full.stages ?? []).map((stage) => ({
+          const mappedStages: RouteStage[] = (full.stages ?? []).map((stage) => ({
               ...stage,
+              clientId: stage.uuid ?? crypto.randomUUID(),
               machineTypeUuid: stage.machineType?.uuid ?? '',
               machines: stage.machines.map((m) => ({
+                clientId: crypto.randomUUID(),
                 machineUuid: m.machine?.uuid,
                 isPrimary: m.isPrimary,
                 machine: m.machine,
               })),
               supplies: stage.supplies.map((s) => ({
                 ...s,
+                clientId: crypto.randomUUID(),
                 supplyUuid: s.supply?.uuid,
               })),
-            })),
-          );
+            }));
+          setStages(mappedStages);
+          snapshotRef.current = snap(full.name, full.isGlobal, full.active, full.isDefault, mappedStages);
         })
         .catch((err) => {
           logger.error('Error fetching route:', err);
@@ -142,6 +160,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
       setActive(true);
       setIsDefault(false);
       setStages([]);
+      snapshotRef.current = snap('', true, true, false, []);
     }
   }, [isOpen, route, effectiveCompanyId, t]);
 
@@ -228,7 +247,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={requestClose}
       title={route ? t('productionRoutes.editTitle') : t('productionRoutes.createTitle')}
       size="xl"
     >
@@ -286,7 +305,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
           )}
 
           {stages.map((stage, index) => (
-            <div key={index} className="px-4 py-3 border-b border-secondary-100 last:border-b-0 space-y-3">
+            <div key={stage.clientId ?? index} className="px-4 py-3 border-b border-secondary-100 last:border-b-0 space-y-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold text-secondary-700 w-8">#{index + 1}</span>
                 <Input
@@ -326,10 +345,10 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                   value={stage.setupTimeMinutes ?? 0}
                   onChange={(e) => patchStage(index, { setupTimeMinutes: parseFloat(e.target.value) || 0 })}
                 />
-                <Button type="button" variant="ghost" size="sm" onClick={() => moveStage(index, -1)}>
+                <Button type="button" variant="ghost" size="sm" aria-label={t('productionRoutes.aria.moveStageUp')} onClick={() => moveStage(index, -1)}>
                   <ArrowUp className="h-4 w-4" />
                 </Button>
-                <Button type="button" variant="ghost" size="sm" onClick={() => moveStage(index, 1)}>
+                <Button type="button" variant="ghost" size="sm" aria-label={t('productionRoutes.aria.moveStageDown')} onClick={() => moveStage(index, 1)}>
                   <ArrowDown className="h-4 w-4" />
                 </Button>
                 <Button
@@ -337,6 +356,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                   variant="ghost"
                   size="sm"
                   className="text-red-600"
+                  aria-label={t('productionRoutes.aria.removeStage')}
                   onClick={() => removeStage(index)}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -353,11 +373,15 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                     type="button"
                     variant="ghost"
                     size="sm"
+                    aria-label={t('productionRoutes.aria.addMachine')}
                     disabled={!stage.machineTypeUuid}
                     onClick={() => {
                       loadMachinesFor(stage.machineTypeUuid!);
                       patchStage(index, {
-                        machines: [...stage.machines, { machineUuid: '', isPrimary: stage.machines.length === 0 }],
+                        machines: [
+                          ...stage.machines,
+                          { clientId: crypto.randomUUID(), machineUuid: '', isPrimary: stage.machines.length === 0 },
+                        ],
                       });
                     }}
                   >
@@ -365,7 +389,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                   </Button>
                 </div>
                 {stage.machines.map((m, mi) => (
-                  <div key={mi} className="flex items-center gap-2">
+                  <div key={m.clientId ?? mi} className="flex items-center gap-2">
                     <select
                       className="input-field w-64"
                       value={m.machineUuid ?? ''}
@@ -390,7 +414,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                     <label className="flex items-center gap-1 text-xs text-secondary-700">
                       <input
                         type="radio"
-                        name={`primary-${index}`}
+                        name={`primary-${stage.clientId ?? index}`}
                         checked={m.isPrimary}
                         onChange={() =>
                           patchStage(index, {
@@ -405,6 +429,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                       variant="ghost"
                       size="sm"
                       className="text-red-600"
+                      aria-label={t('productionRoutes.aria.removeMachine')}
                       onClick={() =>
                         patchStage(index, { machines: stage.machines.filter((_, i) => i !== mi) })
                       }
@@ -425,11 +450,13 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                     type="button"
                     variant="ghost"
                     size="sm"
+                    aria-label={t('productionRoutes.aria.addSupply')}
                     onClick={() =>
                       patchStage(index, {
                         supplies: [
                           ...stage.supplies,
                           {
+                            clientId: crypto.randomUUID(),
                             direction: 'input',
                             supplyType: 'sheet',
                             supplyUuid: '',
@@ -446,7 +473,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                   </Button>
                 </div>
                 {stage.supplies.map((s, si) => (
-                  <div key={si} className="flex items-center gap-2">
+                  <div key={s.clientId ?? si} className="flex items-center gap-2">
                     <select
                       className="input-field w-28"
                       value={s.direction}
@@ -536,6 +563,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                       variant="ghost"
                       size="sm"
                       className="text-red-600"
+                      aria-label={t('productionRoutes.aria.removeSupply')}
                       onClick={() =>
                         patchStage(index, { supplies: stage.supplies.filter((_, i) => i !== si) })
                       }
@@ -550,7 +578,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
         </div>
 
         <ModalFooter
-          onCancel={onClose}
+          onCancel={requestClose}
           loading={loading}
           submitText={route ? t('productionRoutes.editButton') : t('productionRoutes.createButton')}
         />

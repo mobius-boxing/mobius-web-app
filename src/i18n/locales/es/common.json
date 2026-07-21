@@ -193,7 +193,8 @@
     "confirm": "Confirmar",
     "yes": "Sí",
     "no": "No",
-    "change": "Cambiar"
+    "change": "Cambiar",
+    "discardChanges": "Tiene cambios sin guardar. ¿Descartarlos?"
   },
   "auth": {
     "accessDenied": "Acceso Denegado",
@@ -2043,6 +2044,15 @@
     "errors": {
       "loadFailed": "No se pudo cargar la ruta",
       "saveFailed": "No se pudo guardar la ruta"
+    },
+    "aria": {
+      "moveStageUp": "Subir etapa",
+      "moveStageDown": "Bajar etapa",
+      "removeStage": "Eliminar etapa",
+      "addMachine": "Agregar máquina",
+      "removeMachine": "Eliminar máquina",
+      "addSupply": "Agregar insumo",
+      "removeSupply": "Eliminar insumo"
     }
   },
   "parts": {
@@ -2097,7 +2107,8 @@
       "approvalsAfterSave": "Las aprobaciones estarán disponibles después de guardar.",
       "weightComputed": "El peso se calcula (superficie × gramaje / 1000)",
       "rutaPropiaNotice": "Esta parte usa su ruta propia: {{name}}",
-      "rutaPropiaHint": "Dejar vacío para crear automáticamente una ruta propia (RUTA PROPIA)."
+      "rutaPropiaHint": "Dejar vacío para crear automáticamente una ruta propia (RUTA PROPIA).",
+      "tabHasError": "Esta pestaña tiene un error"
     },
     "fields": {
       "code": "Código",
@@ -2168,6 +2179,8 @@
       "blueprintFile": "Plano",
       "imageFile": "Imagen",
       "associatedQuantity": "Cantidad asociada"
-    }
+    },
+    "selectedCount": "{{count}} seleccionadas",
+    "clearSelection": "Limpiar selección"
   }
 }

@@ -1151,6 +1151,8 @@ export type StageSupplyDirection = 'input' | 'output';
 export type StageSupplyType = 'paper' | 'sheet' | 'consumable' | 'tooling' | 'finishedGood';
 
 export interface RouteStageSupply {
+  /** Stable client-side identity for React keys (never sent to the API). */
+  clientId?: string;
   uuid?: string;
   direction: StageSupplyDirection;
   supplyType: StageSupplyType;
@@ -1164,6 +1166,8 @@ export interface RouteStageSupply {
 }
 
 export interface RouteStageMachine {
+  /** Stable client-side identity for React keys (never sent to the API). */
+  clientId?: string;
   machineUuid?: string;
   isPrimary: boolean;
   machine?: { uuid: string; code?: string | null; description?: string | null } | null;
@@ -1171,6 +1175,8 @@ export interface RouteStageMachine {
 
 export interface RouteStage {
   uuid?: string;
+  /** Stable client-side identity for React keys/radio groups (never sent to the API). */
+  clientId?: string;
   number: number;
   description?: string | null;
   isCorrugation?: boolean | null;

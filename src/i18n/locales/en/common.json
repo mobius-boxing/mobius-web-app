@@ -193,7 +193,8 @@
     "confirm": "Confirm",
     "yes": "Yes",
     "no": "No",
-    "change": "Change"
+    "change": "Change",
+    "discardChanges": "You have unsaved changes. Discard them?"
   },
   "auth": {
     "accessDenied": "Access Denied",
@@ -2043,6 +2044,15 @@
     "errors": {
       "loadFailed": "Failed to load the route",
       "saveFailed": "Failed to save the route"
+    },
+    "aria": {
+      "moveStageUp": "Move stage up",
+      "moveStageDown": "Move stage down",
+      "removeStage": "Remove stage",
+      "addMachine": "Add machine",
+      "removeMachine": "Remove machine",
+      "addSupply": "Add supply",
+      "removeSupply": "Remove supply"
     }
   },
   "parts": {
@@ -2097,7 +2107,8 @@
       "approvalsAfterSave": "Approvals become available after saving.",
       "weightComputed": "Weight is computed (surface × grammage / 1000)",
       "rutaPropiaNotice": "This part uses its private route: {{name}}",
-      "rutaPropiaHint": "Leave empty to auto-create a private route (RUTA PROPIA)."
+      "rutaPropiaHint": "Leave empty to auto-create a private route (RUTA PROPIA).",
+      "tabHasError": "This tab has an error"
     },
     "fields": {
       "code": "Code",
@@ -2168,6 +2179,8 @@
       "blueprintFile": "Blueprint",
       "imageFile": "Image",
       "associatedQuantity": "Associated quantity"
-    }
+    },
+    "selectedCount": "{{count}} selected",
+    "clearSelection": "Clear selection"
   }
 }
