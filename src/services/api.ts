@@ -759,8 +759,8 @@ export const corrugationsApi = {
 };
 
 export const productsApi = {
-  setApproval: async (uuid: string, action: 'approve' | 'cancel'): Promise<Product> => {
-    const response: AxiosResponse<ApiResponse<Product>> = await api.patch(`/api/product/${uuid}/approval`, { action });
+  setApproval: async (uuid: string, action: 'approve' | 'cancel', cascade = false): Promise<Product> => {
+    const response: AxiosResponse<ApiResponse<Product>> = await api.patch(`/api/product/${uuid}/approval`, { action, cascade });
     return response.data.data!;
   },
 

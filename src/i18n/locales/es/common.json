@@ -720,7 +720,9 @@
       "approved": "Aprobado por {{user}} el {{date}}",
       "cancelled": "Cancelado por {{user}} el {{date}}",
       "approveButton": "Aprobar",
-      "cancelButton": "Cancelar aprobación"
+      "cancelButton": "Cancelar aprobación",
+      "cascadeConfirmApprove": "¿Aplicar también la aprobación a todas las partes del producto? Aceptar aplica a las partes; Cancelar aprueba solo el producto.",
+      "cascadeConfirmCancel": "¿Cancelar también la aprobación de las partes aprobadas del producto? Aceptar aplica a las partes; Cancelar actúa solo sobre el producto."
     },
     "mode": {
       "simple": "Simple",
