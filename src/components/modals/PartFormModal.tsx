@@ -227,6 +227,9 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
         await partsApi.updatePart(current.uuid, payload);
       } else {
         payload.productUuid = productUuid;
+        // superAdmin operating-as: the backend resolves this body companyId;
+        // regular users' company always comes from their JWT instead.
+        if (effectiveCompanyId) (payload as any).companyId = effectiveCompanyId;
         await partsApi.createPart(payload);
       }
       onSuccess();
