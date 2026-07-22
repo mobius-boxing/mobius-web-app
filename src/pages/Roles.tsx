@@ -1,8 +1,9 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { Plus, Trash2, Edit, ShieldCheck, KeyRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Role } from '../types';
 import { rolesApi } from '../services/api';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
@@ -28,9 +29,16 @@ const Roles: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
 
+  const { effectiveCompanyId } = useEffectiveCompany();
+
+  // Roles are cloned per company (RBAC Model B) — without this scope a
+  // superAdmin sees every company's identical starter set stacked N times.
   const fetchRoles = useCallback(
-    (params: Record<string, unknown>) => rolesApi.getRoles(params),
-    []
+    (params: Record<string, unknown>) =>
+      rolesApi.getRoles(
+        effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params
+      ),
+    [effectiveCompanyId]
   );
 
   const {
@@ -44,6 +52,11 @@ const Roles: React.FC = () => {
     fetchFn: fetchRoles,
     searchFields: ['name'],
   });
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   const handleEdit = (role: Role) => {
     setSelectedRole(role);

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { Permission, Role } from '../../types';
 import { permissionsApi, rolesApi } from '../../services/api';
@@ -46,6 +47,7 @@ const RolePermissionsModal: React.FC<RolePermissionsModalProps> = ({
   role,
 }) => {
   const { t } = useTranslation();
+  const { effectiveCompanyId } = useEffectiveCompany();
   const [catalogue, setCatalogue] = useState<Permission[]>([]);
   const [grants, setGrants] = useState<Record<string, GrantState>>({});
   const [loading, setLoading] = useState(false);
@@ -60,7 +62,9 @@ const RolePermissionsModal: React.FC<RolePermissionsModalProps> = ({
       setError(null);
       try {
         const [permsResponse, fullRole] = await Promise.all([
-          permissionsApi.getPermissions(),
+          permissionsApi.getPermissions(
+            effectiveCompanyId ? { companyId: effectiveCompanyId } : {}
+          ),
           rolesApi.getRole(role.uuid),
         ]);
         if (cancelled) return;
