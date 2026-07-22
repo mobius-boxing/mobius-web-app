@@ -1,4 +1,5 @@
 import React from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { CreateCorrugationClassForm } from '../../types';
 import { corrugationClassesApi } from '../../services/api';
@@ -19,6 +20,7 @@ const CreateCorrugationClassModal: React.FC<CreateCorrugationClassModalProps> = 
   onClose,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
 
   const {
@@ -36,7 +38,7 @@ const CreateCorrugationClassModal: React.FC<CreateCorrugationClassModalProps> = 
     onClose,
   });
 
-  const onSubmit = handleSubmit((data) => corrugationClassesApi.createCorrugationClass(data));
+  const onSubmit = handleSubmit((data) => corrugationClassesApi.createCorrugationClass({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('corrugationClasses.createTitle')}>

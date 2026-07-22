@@ -1,4 +1,5 @@
 import React from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { CreatePaperTypeForm } from '../../types';
 import { paperTypesApi } from '../../services/api';
@@ -19,6 +20,7 @@ const CreatePaperTypeModal: React.FC<CreatePaperTypeModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
 
   const {
@@ -36,7 +38,7 @@ const CreatePaperTypeModal: React.FC<CreatePaperTypeModalProps> = ({
     onClose,
   });
 
-  const onSubmit = handleSubmit((data) => paperTypesApi.createPaperType(data));
+  const onSubmit = handleSubmit((data) => paperTypesApi.createPaperType({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperTypes.createTitle')}>

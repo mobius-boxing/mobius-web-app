@@ -1,4 +1,5 @@
 import React from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { CreateToolingTypeForm } from '../../types';
 import { toolingTypesApi } from '../../services/api';
@@ -19,6 +20,7 @@ const CreateToolingTypeModal: React.FC<CreateToolingTypeModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
 
   const {
@@ -36,7 +38,7 @@ const CreateToolingTypeModal: React.FC<CreateToolingTypeModalProps> = ({
     onClose,
   });
 
-  const onSubmit = handleSubmit((data) => toolingTypesApi.createToolingType(data));
+  const onSubmit = handleSubmit((data) => toolingTypesApi.createToolingType({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('toolingTypes.createTitle')}>

@@ -1,4 +1,5 @@
 import React from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { CreateRoleForm, RoleProfileType } from '../../types';
 import { rolesApi } from '../../services/api';
@@ -27,6 +28,7 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
 
   const {
@@ -45,7 +47,7 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
     onClose,
   });
 
-  const onSubmit = handleSubmit((data) => rolesApi.createRole(data));
+  const onSubmit = handleSubmit((data) => rolesApi.createRole({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('roles.createTitle')}>

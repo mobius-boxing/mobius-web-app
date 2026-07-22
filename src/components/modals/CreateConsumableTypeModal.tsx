@@ -1,4 +1,5 @@
 import React from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { CreateConsumableTypeForm } from '../../types';
 import { consumableTypesApi } from '../../services/api';
@@ -19,6 +20,7 @@ const CreateConsumableTypeModal: React.FC<CreateConsumableTypeModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
 
   const {
@@ -36,7 +38,7 @@ const CreateConsumableTypeModal: React.FC<CreateConsumableTypeModalProps> = ({
     onClose,
   });
 
-  const onSubmit = handleSubmit((data) => consumableTypesApi.createConsumableType(data));
+  const onSubmit = handleSubmit((data) => consumableTypesApi.createConsumableType({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('consumableTypes.createTitle')}>

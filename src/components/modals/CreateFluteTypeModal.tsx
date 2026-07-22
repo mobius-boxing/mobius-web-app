@@ -1,4 +1,5 @@
 import React from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { CreateFluteTypeForm } from '../../types';
 import { fluteTypesApi } from '../../services/api';
@@ -19,6 +20,7 @@ const CreateFluteTypeModal: React.FC<CreateFluteTypeModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
 
   const {
@@ -44,7 +46,7 @@ const CreateFluteTypeModal: React.FC<CreateFluteTypeModalProps> = ({
       width: data.width ? Number(data.width) : undefined,
       height: data.height ? Number(data.height) : undefined,
     };
-    return fluteTypesApi.createFluteType(formData);
+    return fluteTypesApi.createFluteType({ ...formData, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) });
   });
 
   return (

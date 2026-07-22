@@ -79,7 +79,7 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
       papers,
     };
 
-    return paperClassesApi.createPaperClass(formData);
+    return paperClassesApi.createPaperClass({ ...formData, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) });
   });
 
   const handleAssign = (items: PaperSupply[]) => {

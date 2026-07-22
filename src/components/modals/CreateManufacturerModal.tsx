@@ -1,4 +1,5 @@
 import React from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { CreateManufacturerForm } from '../../types';
 import { manufacturersApi } from '../../services/api';
@@ -19,6 +20,7 @@ const CreateManufacturerModal: React.FC<CreateManufacturerModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
 
   const {
@@ -36,7 +38,7 @@ const CreateManufacturerModal: React.FC<CreateManufacturerModalProps> = ({
     onClose,
   });
 
-  const onSubmit = handleSubmit((data) => manufacturersApi.createManufacturer(data));
+  const onSubmit = handleSubmit((data) => manufacturersApi.createManufacturer({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('manufacturers.createTitle')}>

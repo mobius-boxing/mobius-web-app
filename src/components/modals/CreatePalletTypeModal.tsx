@@ -1,4 +1,5 @@
 import React from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { CreatePalletTypeForm } from '../../types';
 import { palletTypesApi } from '../../services/api';
@@ -15,6 +16,7 @@ interface CreatePalletTypeModalProps {
 }
 
 const CreatePalletTypeModal: React.FC<CreatePalletTypeModalProps> = ({ isOpen, onClose, onSuccess }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
   const {
     form: { register, handleSubmit: formSubmit, formState: { errors } },
@@ -27,6 +29,8 @@ const CreatePalletTypeModal: React.FC<CreatePalletTypeModalProps> = ({ isOpen, o
   const num = (v: any) => (v === '' || v === undefined ? undefined : Number(v));
   const onSubmit = handleSubmit((data) =>
     palletTypesApi.createPalletType({
+        // superAdmin operating-as: backend resolves this body companyId.
+        ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
       ...data,
       length: num(data.length),
       width: num(data.width),
