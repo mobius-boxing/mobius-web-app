@@ -6,6 +6,7 @@ import { customersApi, customerCategoriesApi, usersApi } from '../../services/ap
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
 import { useModalForm } from '../../hooks/useModalForm';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { logger } from '../../utils/logger';
 
 interface EditCustomerModalProps {
@@ -21,6 +22,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   customer,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const [categories, setCategories] = useState<CustomerCategory[]>([]);
@@ -74,8 +76,8 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   const fetchDropdownData = async () => {
     try {
       const [categoriesResponse, usersResponse] = await Promise.all([
-        customerCategoriesApi.getCategories(),
-        usersApi.getUsers(),
+        customerCategoriesApi.getCategories({ ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }),
+        usersApi.getUsers({ ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }),
       ]);
       setCategories(categoriesResponse.data || []);
       setSalesPersons(usersResponse.data || []);

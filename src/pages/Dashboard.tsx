@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import { Users, Building, Mail, Activity } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { UserStats, CompanyStats, InvitationStats } from '../types';
@@ -58,6 +59,7 @@ const StatCard: React.FC<StatCardProps> = ({
 };
 
 const Dashboard: React.FC = () => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { user } = useAuth();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [companyStats, setCompanyStats] = useState<CompanyStats | null>(null);
@@ -70,10 +72,12 @@ const Dashboard: React.FC = () => {
         setLoading(true);
 
         if (user?.role === 'superAdmin') {
+          // Honor the operating-as switcher: scoped stats when a company is
+          // selected, platform-wide when none (companyStats is always global).
           const [userStatsData, companyStatsData, invitationStatsData] = await Promise.all([
-            usersApi.getUserStats(),
+            usersApi.getUserStats(effectiveCompanyId || undefined),
             companiesApi.getCompanyStats(),
-            invitationsApi.getInvitationStats(),
+            invitationsApi.getInvitationStats(effectiveCompanyId || undefined),
           ]);
           setUserStats(userStatsData);
           setCompanyStats(companyStatsData);
@@ -96,7 +100,7 @@ const Dashboard: React.FC = () => {
     if (user) {
       fetchStats();
     }
-  }, [user]);
+  }, [user, effectiveCompanyId]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();

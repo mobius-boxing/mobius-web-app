@@ -6,6 +6,7 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import DualListSelector from '../ui/DualListSelector';
 import { useModalForm } from '../../hooks/useModalForm';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { logger } from '../../utils/logger';
@@ -21,6 +22,7 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
   const [loadingSupplies, setLoadingSupplies] = useState(false);
   const [availableSupplies, setAvailableSupplies] = useState<PaperSupply[]>([]);
@@ -57,7 +59,7 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
   const fetchPaperSupplies = async () => {
     setLoadingSupplies(true);
     try {
-      const response = await paperSuppliesApi.getPaperSupplies({ limit: 100 });
+      const response = await paperSuppliesApi.getPaperSupplies({ limit: 100, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) });
       setAvailableSupplies(response.data);
       setAssignedSupplies([]);
     } catch (err: any) {

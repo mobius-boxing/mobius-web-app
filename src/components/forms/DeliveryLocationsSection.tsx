@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { Edit, MapPin, Plus, Trash2 } from 'lucide-react';
 import {
@@ -38,6 +39,7 @@ const emptyDraft: LocationDraft = {
  * zone is REQUIRED (§L.6).
  */
 const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ customerUuid }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
   const [locations, setLocations] = useState<DeliveryLocationRecord[]>([]);
   const [zones, setZones] = useState<DeliveryZone[]>([]);
@@ -49,7 +51,7 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
     try {
       const [locationsRes, zonesRes] = await Promise.all([
         deliveryLocationsApi.getDeliveryLocations({ customerUuid, limit: 100 }),
-        deliveryZonesApi.getDeliveryZones({ limit: 100 }),
+        deliveryZonesApi.getDeliveryZones({ limit: 100, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }),
       ]);
       setLocations(locationsRes.data || []);
       setZones(zonesRes.data || []);

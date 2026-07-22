@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalForm } from '../../hooks/useModalForm';
+import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { PaperClass, CreatePaperClassForm, PaperSupply } from '../../types';
 import { paperClassesApi, paperSuppliesApi } from '../../services/api';
 import Modal from '../ui/Modal';
@@ -23,6 +24,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
   paperClass,
   onSuccess,
 }) => {
+  const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
   const [loadingSupplies, setLoadingSupplies] = useState(false);
   const [availableSupplies, setAvailableSupplies] = useState<PaperSupply[]>([]);
@@ -64,7 +66,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
 
     setLoadingSupplies(true);
     try {
-      const response = await paperSuppliesApi.getPaperSupplies({ limit: 100 });
+      const response = await paperSuppliesApi.getPaperSupplies({ limit: 100, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) });
       const allSupplies = response.data;
 
       const existingPaperUuids = Array.isArray(paperClass.papers) ? paperClass.papers : [];
