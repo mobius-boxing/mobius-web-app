@@ -38,7 +38,7 @@
     "toolingStock": "Stock de Herramentales",
     "consumableStock": "Stock de Consumibles",
     "productSpecifications": "Especificaciones de Producto",
-    "flapTypes": "Tipos de Solapa",
+    "flapTypes": "Tipos de Aleta",
     "productTypes": "Tipos de Producto",
     "boxTypes": "Tipos de Caja",
     "glueTypes": "Tipos de Pegamento",
@@ -517,21 +517,21 @@
     "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de onda?"
   },
   "flapTypes": {
-    "title": "Tipos de Solapa",
-    "subtitle": "Gestionar catálogo de tipos de solapa",
-    "addFlapType": "Agregar Tipo de Solapa",
-    "allFlapTypes": "Todos los Tipos de Solapa",
-    "searchPlaceholder": "Buscar tipos de solapa...",
+    "title": "Tipos de Aleta",
+    "subtitle": "Gestionar catálogo de tipos de aleta",
+    "addFlapType": "Agregar Tipo de Aleta",
+    "allFlapTypes": "Todos los Tipos de Aleta",
+    "searchPlaceholder": "Buscar tipos de aleta...",
     "code": "Código",
-    "codePlaceholder": "Ingrese código de tipo de solapa",
+    "codePlaceholder": "Ingrese código de tipo de aleta",
     "description": "Descripción",
     "descriptionPlaceholder": "Ingrese descripción (opcional)",
-    "createTitle": "Crear Tipo de Solapa",
-    "editTitle": "Editar Tipo de Solapa",
-    "editFlapType": "Editar Tipo de Solapa",
-    "deleteFlapType": "Eliminar Tipo de Solapa",
-    "createButton": "Crear Tipo de Solapa",
-    "updateButton": "Actualizar Tipo de Solapa",
+    "createTitle": "Crear Tipo de Aleta",
+    "editTitle": "Editar Tipo de Aleta",
+    "editFlapType": "Editar Tipo de Aleta",
+    "deleteFlapType": "Eliminar Tipo de Aleta",
+    "createButton": "Crear Tipo de Aleta",
+    "updateButton": "Actualizar Tipo de Aleta",
     "columns": {
       "code": "Código",
       "description": "Descripción",
@@ -539,18 +539,18 @@
       "actions": "Acciones"
     },
     "empty": {
-      "title": "No se encontraron tipos de solapa",
-      "description": "Comience creando un nuevo tipo de solapa",
-      "noData": "No hay tipos de solapa disponibles"
+      "title": "No se encontraron tipos de aleta",
+      "description": "Comience creando un nuevo tipo de aleta",
+      "noData": "No hay tipos de aleta disponibles"
     },
     "validation": {
       "codeRequired": "El código es requerido"
     },
-    "createSuccess": "Tipo de solapa creado exitosamente",
-    "updateSuccess": "Tipo de solapa actualizado exitosamente",
-    "deleteSuccess": "Tipo de solapa eliminado exitosamente",
-    "deleteFailed": "Error al eliminar el tipo de solapa",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de solapa?"
+    "createSuccess": "Tipo de aleta creado exitosamente",
+    "updateSuccess": "Tipo de aleta actualizado exitosamente",
+    "deleteSuccess": "Tipo de aleta eliminado exitosamente",
+    "deleteFailed": "Error al eliminar el tipo de aleta",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de aleta?"
   },
   "productTypes": {
     "title": "Tipos de Producto",
