@@ -300,8 +300,10 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
             <div className="grid grid-cols-3 gap-4">
               {(['boxLength', 'boxWidth', 'boxHeight'] as const).map((f) => (
-                <div key={f}>
-                  <label className="block text-sm font-medium text-secondary-700 mb-1">
+                // flex-col + flex-1 label: inputs stay bottom-aligned even when
+                // one label wraps to more lines than its siblings.
+                <div key={f} className="flex flex-col">
+                  <label className="block flex-1 text-sm font-medium text-secondary-700 mb-1">
                     {t(`products.initialPart.${f}`)}
                   </label>
                   <Input type="number" step="any" {...register(`initialPart.${f}` as any, { valueAsNumber: true })} />

@@ -60,15 +60,15 @@ const ProductApprovalWidget: React.FC<ProductApprovalWidgetProps> = ({ product, 
       })}
     </span>
   ) : (
-    <span className="inline-flex items-center rounded-full bg-yellow-100 text-yellow-800 px-2.5 py-0.5 text-xs font-medium">
+    <span className="inline-flex items-center whitespace-nowrap rounded-full bg-yellow-100 text-yellow-800 px-2.5 py-0.5 text-xs font-medium">
       {t('products.approval.pending')}
     </span>
   );
 
   return (
-    <div className="flex items-center justify-between rounded-lg border border-secondary-200 bg-secondary-50 px-3 py-2">
-      <div className="flex items-center gap-2">
-        <span className="text-sm font-medium text-secondary-700">{t('products.approval.label')}</span>
+    <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg border border-secondary-200 bg-secondary-50 px-3 py-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="whitespace-nowrap text-sm font-medium text-secondary-700">{t('products.approval.label')}</span>
         {chip}
       </div>
       {canApprove && (
