@@ -102,9 +102,23 @@ import {
   ProductionRoute,
   Part,
   PartFormPayload,
+  SalesOrder,
+  SalesOrderApprovalMachine,
+  SalesOrderFormPayload,
+  SalesOrderListFilters,
+  SalesOrderProductionOrder,
   PartApprovalMachine,
   RouteStage,
   CreatePalletizationForm,
+  Model,
+  CreateModelForm,
+  FormulaReference,
+  FormulaTestResult,
+  ProductionOrder,
+  ProductionOrderFormPayload,
+  ProductionOrderLifecycleMachine,
+  PromisedQuantityRow,
+  GenerationEligibility,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -768,7 +782,9 @@ export const productsApi = {
     page?: number;
     limit?: number;
     search?: string;
-    customerId?: string;
+    // The customer filter is `customerUuid`. The old numeric `customerId`
+    // filter was deleted API-side (it parseInt'ed a UUID into NaN).
+    customerUuid?: string;
     companyId?: string;
   } = {}): Promise<PaginatedResponse<Product>> => {
     const response = await api.get('/api/product', { params });
@@ -1889,6 +1905,50 @@ export const palletizationsApi = {
   },
 };
 
+// ── Models (module 08 — box models + formula engine) ─────────────────────────
+
+export const modelsApi = {
+  getModels: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<Model>> => {
+    const response = await api.get('/api/models', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+  getModel: async (uuid: string): Promise<Model> => {
+    const response: AxiosResponse<ApiResponse<Model>> = await api.get(`/api/models/${uuid}`);
+    return response.data.data!;
+  },
+  createModel: async (data: CreateModelForm): Promise<Model> => {
+    const response: AxiosResponse<ApiResponse<Model>> = await api.post('/api/models', data);
+    return response.data.data!;
+  },
+  updateModel: async (uuid: string, data: Partial<CreateModelForm>): Promise<Model> => {
+    const response: AxiosResponse<ApiResponse<Model>> = await api.put(`/api/models/${uuid}`, data);
+    return response.data.data!;
+  },
+  deleteModel: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/models/${uuid}`);
+  },
+  testFormula: async (formula: string): Promise<FormulaTestResult> => {
+    const response: AxiosResponse<ApiResponse<FormulaTestResult>> = await api.post(
+      '/api/models/test-formula',
+      { formula },
+    );
+    return response.data.data!;
+  },
+  getFormulaReference: async (): Promise<FormulaReference> => {
+    const response: AxiosResponse<ApiResponse<FormulaReference>> = await api.get(
+      '/api/models/formula-reference',
+    );
+    return response.data.data!;
+  },
+};
+
 // ── Machines (module 14 lite) ────────────────────────────────────────────────
 
 export const machineTypesApi = {
@@ -2004,5 +2064,149 @@ export const partsApi = {
   bulkUnapprove: async (uuids: string[]): Promise<number> => {
     const response = await api.post('/api/parts/bulk-unapprove', { uuids });
     return response.data.data.updated;
+  },
+};
+
+/** Pedidos — module 18 sub-area D. `number` is assigned by the API on create. */
+export const salesOrdersApi = {
+  /**
+   * The pedido grid. Flat `?field=value` filters only (never `filter[x]`), and
+   * the five tri-state booleans travel as the strings 'true' / 'false' — the
+   * API answers 400 for anything else rather than serving an unfiltered list.
+   */
+  getSalesOrders: async (
+    params: SalesOrderListFilters & {
+      page?: number;
+      limit?: number;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+      search?: string;
+      companyId?: string;
+      [key: string]: unknown;
+    } = {},
+  ): Promise<PaginatedResponse<SalesOrder>> => {
+    const response = await api.get('/api/sales-orders', { params });
+    const d = response.data;
+    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
+  },
+  /** The OPs of a pedido's order_data (`Órdenes asociadas`), number ascending. */
+  getAssociatedProductionOrders: async (
+    uuid: string,
+    params: { page?: number; limit?: number } = {},
+  ): Promise<PaginatedResponse<SalesOrderProductionOrder>> => {
+    const response = await api.get(`/api/sales-orders/${uuid}/production-orders`, { params });
+    const d = response.data;
+    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
+  },
+  getSalesOrder: async (uuid: string): Promise<SalesOrder> => {
+    const response = await api.get(`/api/sales-orders/${uuid}`);
+    return response.data.data;
+  },
+  createSalesOrder: async (data: SalesOrderFormPayload): Promise<SalesOrder> => {
+    const response = await api.post('/api/sales-orders', data);
+    return response.data.data;
+  },
+  updateSalesOrder: async (uuid: string, data: SalesOrderFormPayload): Promise<SalesOrder> => {
+    const response = await api.put(`/api/sales-orders/${uuid}`, data);
+    return response.data.data;
+  },
+  deleteSalesOrder: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/sales-orders/${uuid}`);
+  },
+  setApproval: async (
+    uuid: string,
+    machine: SalesOrderApprovalMachine,
+    action: 'approve' | 'cancel',
+  ): Promise<SalesOrder> => {
+    const response = await api.patch(`/api/sales-orders/${uuid}/approval/${machine}`, { action });
+    return response.data.data;
+  },
+  /** Cumplimiento manual (`orders.manual-fulfillment`); always cascades to the OPs. */
+  setFulfillment: async (
+    uuid: string,
+    action: 'fulfill' | 'cancel',
+  ): Promise<SalesOrder> => {
+    const response = await api.patch(`/api/sales-orders/${uuid}/fulfillment`, { action });
+    return response.data.data;
+  },
+  /**
+   * Anulación (`orders.delete`). `includeProductionOrders` is ALWAYS sent
+   * explicitly: the API rejects the field when the pedido→OP link is missing
+   * rather than accepting and ignoring it (L-007).
+   */
+  setVoid: async (
+    uuid: string,
+    action: 'void' | 'cancel',
+    includeProductionOrders: boolean,
+  ): Promise<SalesOrder> => {
+    const response = await api.patch(`/api/sales-orders/${uuid}/void`, {
+      action,
+      includeProductionOrders,
+    });
+    return response.data.data;
+  },
+};
+
+/**
+ * Órdenes de producción — module 13. `number` is assigned by the API: with a
+ * pedido it is dependent on the pedido's number, without one it is the
+ * standalone 8-digit counter.
+ */
+export const productionOrdersApi = {
+  getProductionOrders: async (
+    params: Record<string, unknown> = {},
+  ): Promise<PaginatedResponse<ProductionOrder>> => {
+    const response = await api.get('/api/production-orders', { params });
+    const d = response.data;
+    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
+  },
+  getProductionOrder: async (uuid: string): Promise<ProductionOrder> => {
+    const response = await api.get(`/api/production-orders/${uuid}`);
+    return response.data.data;
+  },
+  createProductionOrder: async (
+    data: ProductionOrderFormPayload,
+  ): Promise<ProductionOrder> => {
+    const response = await api.post('/api/production-orders', data);
+    return response.data.data;
+  },
+  updateProductionOrder: async (
+    uuid: string,
+    data: ProductionOrderFormPayload,
+  ): Promise<ProductionOrder> => {
+    const response = await api.put(`/api/production-orders/${uuid}`, data);
+    return response.data.data;
+  },
+  deleteProductionOrder: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/production-orders/${uuid}`);
+  },
+  getGenerationEligibility: async (
+    salesOrderUuid: string,
+  ): Promise<GenerationEligibility> => {
+    const response = await api.get(
+      '/api/production-orders/generation-eligibility',
+      { params: { salesOrderUuid } },
+    );
+    return response.data.data;
+  },
+  generate: async (
+    salesOrderUuid: string,
+    promisedQuantities: PromisedQuantityRow[],
+    force = false,
+  ): Promise<{ generated: ProductionOrder[]; warnings: string[] }> => {
+    const response = await api.post('/api/production-orders/generate', {
+      salesOrderUuid,
+      promisedQuantities,
+      force,
+    });
+    return response.data.data;
+  },
+  /** The six lifecycle verbs. None of them takes a request body. */
+  lifecycle: async (
+    uuid: string,
+    machine: ProductionOrderLifecycleMachine,
+  ): Promise<ProductionOrder> => {
+    const response = await api.post(`/api/production-orders/${uuid}/${machine}`);
+    return response.data.data;
   },
 };

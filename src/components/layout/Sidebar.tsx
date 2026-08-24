@@ -56,6 +56,21 @@ const Sidebar: React.FC = () => {
   };
 
   const navigationItems: NavItem[] = [
+    // Pedidos — the vendedor's daily entry point, so it leads the sidebar.
+    {
+      id: 'sales-orders',
+      label: t('nav.salesOrders'),
+      path: '/sales-orders',
+      icon: 'FileText',
+      roles: ['admin', 'superAdmin'],
+    },
+    {
+      id: 'production-orders',
+      label: t('nav.productionOrders'),
+      path: '/production-orders',
+      icon: 'Factory',
+      roles: ['admin', 'superAdmin'],
+    },
     {
       id: 'masters',
       label: t('nav.masters'),
@@ -143,6 +158,13 @@ const Sidebar: React.FC = () => {
               label: t('nav.parts'),
               path: '/parts',
               icon: 'Package',
+              roles: ['admin', 'superAdmin'],
+            },
+            {
+              id: 'models',
+              label: t('nav.models'),
+              path: '/models',
+              icon: 'Box',
               roles: ['admin', 'superAdmin'],
             },
           ],

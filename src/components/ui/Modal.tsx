@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect } from 'react';
+import React, { ReactNode, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import Button from './Button';
 
@@ -11,6 +11,24 @@ interface ModalProps {
   showCloseButton?: boolean;
 }
 
+/**
+ * Every open modal, in opening order. Escape belongs to the LAST one only, and
+ * background scroll stays locked until the stack empties: two open modals
+ * (a popup launched from a form) each register a document-level listener, so
+ * without this one Escape closed both — discarding the form's unsaved input —
+ * and closing the popup unlocked the page behind the form still on screen.
+ *
+ * ASSUMPTION: the inner modal OPENS LATER than the one it sits on top of.
+ * React runs child effects before parent effects, so a `<Modal>` whose nested
+ * `<Modal>` is already open on the very first render registers the CHILD first
+ * and the parent ends up topmost — Escape would then close the wrong one. No
+ * surface does that today (`ModelFormModal` renders `FormulaReferenceModal`
+ * with `showReference` starting at `false`); keep it that way, or replace this
+ * push-order stack with an explicit depth.
+ */
+const openModals: number[] = [];
+let modalSequence = 0;
+
 const Modal: React.FC<ModalProps> = ({
   isOpen,
   onClose,
@@ -19,22 +37,40 @@ const Modal: React.FC<ModalProps> = ({
   size = 'md',
   showCloseButton = true,
 }) => {
+  /** This instance's place in the stack; null while closed. */
+  const stackId = useRef<number | null>(null);
+
+  // Membership depends on `isOpen` ALONE: an inline `onClose` changes identity
+  // on every parent render, and re-registering would silently promote a
+  // background modal to the top of the stack.
   useEffect(() => {
+    if (!isOpen) return;
+    modalSequence += 1;
+    const id = modalSequence;
+    stackId.current = id;
+    openModals.push(id);
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      stackId.current = null;
+      const index = openModals.indexOf(id);
+      if (index !== -1) openModals.splice(index, 1);
+      if (openModals.length === 0) document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      const topmost = openModals[openModals.length - 1];
+      if (e.key === 'Escape' && topmost === stackId.current) {
         onClose();
       }
     };
 
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'hidden';
-    }
-
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
-    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;

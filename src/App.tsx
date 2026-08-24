@@ -22,6 +22,11 @@ import PaperSheets from './pages/PaperSheets';
 import CorrugationClasses from './pages/CorrugationClasses';
 import Corrugations from './pages/Corrugations';
 import Parts from './pages/Parts';
+import Models from './pages/Models';
+import ProductionOrders from './pages/ProductionOrders';
+import SalesOrders from './pages/SalesOrders';
+import SalesOrderForm from './pages/SalesOrderForm';
+import SalesOrderProductionOrders from './pages/SalesOrderProductionOrders';
 import PaperStock from './pages/PaperStock';
 import SheetStock from './pages/SheetStock';
 import ToolingTypes from './pages/ToolingTypes';
@@ -219,6 +224,58 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
                   <Parts />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/models"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <Models />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/production-orders"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <ProductionOrders />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Pedidos. /new MUST precede /:uuid or the literal is captured. */}
+            <Route
+              path="/sales-orders"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <SalesOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sales-orders/new"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <SalesOrderForm />
+                </ProtectedRoute>
+              }
+            />
+            {/* The static tail outranks `/sales-orders/:uuid` in React Router's
+                ranking, so the edit route keeps working (L-011). */}
+            <Route
+              path="/sales-orders/:uuid/production-orders"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <SalesOrderProductionOrders />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/sales-orders/:uuid"
+              element={
+                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                  <SalesOrderForm />
                 </ProtectedRoute>
               }
             />

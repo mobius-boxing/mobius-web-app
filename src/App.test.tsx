@@ -6,6 +6,12 @@ jest.mock('react-router-dom', () => ({
   Routes: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   Route: ({ element }: { element: React.ReactNode }) => <>{element}</>,
   Navigate: () => null,
+  // Added by sales-order-list: this smoke test renders EVERY route element at
+  // once, so the mock has to cover the whole router surface the pages use.
+  // `SalesOrderProductionOrders` renders a `<Link>` back to the list.
+  Link: ({ to, children }: { to: string; children: React.ReactNode }) => (
+    <a href={to}>{children}</a>
+  ),
   useNavigate: () => jest.fn(),
   useLocation: () => ({
     pathname: '/',

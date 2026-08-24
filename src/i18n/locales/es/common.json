@@ -61,7 +61,10 @@
     "productionRoutes": "Rutas de Producción",
     "machines": "Máquinas",
     "machineTypes": "Tipos de Máquina",
-    "parts": "Partes"
+    "parts": "Partes",
+    "models": "Modelos",
+    "salesOrders": "Pedidos",
+    "productionOrders": "Órdenes de Producción"
   },
   "roles": {
     "title": "Perfiles y Permisos",
@@ -1925,6 +1928,76 @@
       "nameRequired": "El nombre es obligatorio"
     }
   },
+  "models": {
+    "title": "Modelos de cajas",
+    "subtitle": "Fórmulas de plancha, aletas y trazadores por modelo",
+    "addModel": "Agregar Modelo",
+    "editModel": "Editar modelo",
+    "deleteModel": "Eliminar modelo",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este modelo?",
+    "deleteError": "No se pudo eliminar el modelo",
+    "searchPlaceholder": "Buscar modelos...",
+    "createTitle": "Crear Modelo",
+    "editTitle": "Editar Modelo",
+    "columns": {
+      "code": "Código",
+      "description": "Descripción",
+      "flapType": "Tipo de aleta",
+      "complement": "Complemento",
+      "actions": "Acciones"
+    },
+    "empty": {
+      "title": "Sin modelos",
+      "description": "Ningún modelo coincide con la búsqueda",
+      "noData": "Comience creando un modelo"
+    },
+    "sections": {
+      "data": "Datos del modelo",
+      "measures": "Medidas",
+      "externalDeltas": "Diferencias externas",
+      "corrugationTraces": "Trazadores corrugado",
+      "printTraces": "Trazadores impresión",
+      "image": "Imagen"
+    },
+    "fields": {
+      "code": "Código",
+      "description": "Descripción",
+      "flapType": "Tipo de aleta",
+      "complement": "Complemento",
+      "sheetLengthFormula": "Largo de plancha",
+      "sheetWidthFormula": "Ancho de plancha",
+      "lowerFlapFormula": "Aleta inferior",
+      "upperFlapFormula": "Aleta superior",
+      "boxSurfaceFormula": "Superficie caja",
+      "externalLengthDeltaFormula": "Dif. largo externo",
+      "externalWidthDeltaFormula": "Dif. ancho externo",
+      "externalHeightDeltaFormula": "Dif. altura externa",
+      "imageFile": "Imagen"
+    },
+    "form": {
+      "none": "Sin seleccionar",
+      "saveError": "Error al guardar el modelo",
+      "addRow": "Agregar",
+      "removeRow": "Eliminar",
+      "moveUp": "Subir",
+      "moveDown": "Bajar",
+      "referenceButton": "Campos y funciones",
+      "test": "Probar",
+      "exampleValue": "Valor de ejemplo: {{value}}",
+      "noTraces": "Sin trazadores"
+    },
+    "reference": {
+      "title": "Campos y funciones",
+      "filterPlaceholder": "Filtrar...",
+      "parameters": "Campos",
+      "functions": "Funciones",
+      "operators": "Operadores",
+      "name": "Nombre",
+      "label": "Descripción",
+      "example": "Valor de ejemplo",
+      "signature": "Firma"
+    }
+  },
   "machineTypes": {
     "title": "Tipos de Máquina",
     "subtitle": "Gestionar catálogo de tipos de máquina",
@@ -2184,5 +2257,242 @@
     },
     "selectedCount": "{{count}} seleccionadas",
     "clearSelection": "Limpiar selección"
+  },
+  "salesOrders": {
+    "title": "Pedidos",
+    "subtitle": "Alta y edición de pedidos de clientes",
+    "allOrders": "Todos los pedidos",
+    "addOrder": "Nuevo pedido",
+    "editOrder": "Editar pedido",
+    "deleteOrder": "Eliminar pedido",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este pedido?",
+    "searchPlaceholder": "Buscar pedidos...",
+    "createTitle": "Alta de Pedido",
+    "editTitle": "Editar Pedido",
+    "formSubtitle": "Elija primero el cliente; el producto se filtra por ese cliente",
+    "numberAssignedOnSave": "— (se asigna al guardar)",
+    "loadFailed": "No se pudo cargar el pedido",
+    "saveFailed": "Error al guardar el pedido",
+    "deleteFailed": "No se pudo eliminar el pedido",
+    "columns": {
+      "number": "Número",
+      "customer": "Cliente",
+      "product": "Producto",
+      "quantity": "Cantidad",
+      "deliveryDate": "Fecha de entrega",
+      "status": "Estado",
+      "actions": "Acciones",
+      "createdAt": "F. creación",
+      "purchaseOrder": "Orden de compra",
+      "item": "Producto/Parte/Plancha",
+      "supplierCode": "Código proveedor",
+      "salesUser": "Vendedor",
+      "commercialApproved": "A/C",
+      "financialApproved": "A/F",
+      "needsAdvanceInvoice": "Ant.",
+      "invoiceSent": "Emit.",
+      "fulfilled": "Cumplido",
+      "voided": "Anulado",
+      "price": "Precio"
+    },
+    "empty": {
+      "title": "Sin pedidos",
+      "description": "Ningún pedido coincide con la búsqueda",
+      "noData": "Comience creando un pedido"
+    },
+    "fields": {
+      "number": "Número",
+      "createdAt": "Fecha de creación",
+      "quotation": "Cotización",
+      "quotationDate": "Fecha de cotización",
+      "status": "Estado",
+      "customer": "Cliente",
+      "product": "Producto",
+      "quantity": "Cantidad",
+      "deliveryLocation": "Lugar de entrega",
+      "salesUser": "Vendedor",
+      "deliveryDate": "Fecha de entrega",
+      "purchaseOrder": "Orden de compra",
+      "supplierCode": "Código proveedor",
+      "price": "Precio (p. unidad)",
+      "priceTotal": "Total",
+      "paid": "Pagado (total)",
+      "salesSector": "Sector ventas",
+      "needsAdvanceInvoice": "Factura anticipada",
+      "invoiceSent": "Factura emitida",
+      "notes": "Observaciones",
+      "conversionNotes": "Observaciones conversión",
+      "dispatchNotes": "Observaciones despacho",
+      "orderType": "Tipo de pedido",
+      "part": "Parte"
+    },
+    "placeholders": {
+      "customer": "Seleccione un cliente",
+      "product": "Seleccione un producto",
+      "productNeedsCustomer": "Elija primero un cliente",
+      "deliveryLocation": "Sin lugar de entrega",
+      "salesUser": "Vendedor del cliente (por defecto)",
+      "part": "Seleccione una parte"
+    },
+    "approvals": {
+      "title": "Aprobaciones",
+      "commercial": "Aprobación comercial:",
+      "financial": "Aprobación financiera:",
+      "creditOverride": "Override límite de crédito:",
+      "pending": "Pendiente",
+      "cancelled": "Cancelado",
+      "approve": "Aprobar",
+      "cancel": "Cancelar"
+    },
+    "lifecycle": {
+      "title": "Estado del pedido",
+      "fulfillment": "Cumplimiento:",
+      "void": "Anulación:",
+      "fulfill": "Cumplir",
+      "cancel": "Cancelar",
+      "voidAction": "Anular",
+      "pending": "Pendiente",
+      "cancelled": "Cancelado",
+      "includeProductionOrders": "Incluir órdenes de producción asociadas",
+      "confirmFulfill": "¿Cumplir el pedido {{number}}? Sus órdenes de producción pendientes quedarán cumplidas.",
+      "confirmFulfillCancel": "¿Cancelar el cumplimiento del pedido {{number}}? Sus órdenes de producción cumplidas quedarán pendientes.",
+      "confirmVoid": "¿Anular el pedido {{number}}?",
+      "confirmVoidCancel": "¿Cancelar la anulación del pedido {{number}}?",
+      "confirmVoidKeepsOrders": "Las órdenes de producción asociadas NO serán anuladas.",
+      "confirmVoidIncludesOrders": "Las órdenes de producción asociadas también serán anuladas.",
+      "confirmVoidCancelIncludesOrders": "Las órdenes de producción asociadas dejarán de estar anuladas.",
+      "confirmVoidCancelKeepsOrders": "Las órdenes de producción asociadas mantendrán su estado actual.",
+      "voidBlockedTooltip": "Un pedido cumplido no puede anularse",
+      "error": "No se pudo actualizar el estado del pedido"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "commercially-approved": "Aprobado comercialmente",
+      "financially-approved": "Aprobado financieramente",
+      "approved": "Aprobado",
+      "fulfilled": "Cumplido",
+      "voided": "Anulado"
+    },
+    "validation": {
+      "customerRequired": "Debe especificar un cliente",
+      "productRequired": "Debe especificar un producto",
+      "quantityRequired": "Debe especificar una cantidad",
+      "quantityPositive": "Debe especificar una cantidad mayor que cero",
+      "partRequired": "Debe especificar una parte"
+    },
+    "filters": {
+      "number": "Número",
+      "customer": "Cliente",
+      "allCustomers": "Todos los clientes",
+      "deliveryDateFrom": "F. entrega desde",
+      "deliveryDateTo": "F. entrega hasta",
+      "product": "Producto",
+      "part": "Parte",
+      "sheet": "Plancha",
+      "clearType": "Sin tipo",
+      "allItems": "Todos",
+      "fulfilled": "Cumplidos",
+      "voided": "Anulados",
+      "withoutProductionOrders": "Sin órdenes",
+      "allProductionOrdersFulfilled": "Con todas las órdenes cumplidas",
+      "clear": "Limpiar"
+    },
+    "viewProductionOrders": "Ver órdenes",
+    "associatedOrders": {
+      "title": "Órdenes de producción asociadas al pedido {{number}}",
+      "back": "Volver a pedidos",
+      "empty": "El pedido no tiene órdenes de producción asociadas",
+      "error": "No se pudieron cargar las órdenes asociadas",
+      "columns": {
+        "number": "Número",
+        "customer": "Cliente",
+        "part": "Parte",
+        "description": "Descripción",
+        "quantity": "Cantidad",
+        "orderDate": "Fecha",
+        "deliveryDate": "F. entrega",
+        "schedulingApproved": "A/P",
+        "completed": "Cumpl.",
+        "voided": "Anul."
+      }
+    },
+    "orderTypes": {
+      "product": "Pedido de producto",
+      "part": "Pedido de parte"
+    }
+  },
+  "productionOrders": {
+    "title": "Órdenes de Producción",
+    "subtitle": "Órdenes de producción generadas desde pedidos o creadas manualmente",
+    "searchPlaceholder": "Buscar por número...",
+    "empty": "No hay órdenes de producción",
+    "deleteConfirm": "¿Eliminar esta orden de producción?",
+    "deleteOrder": "Eliminar orden",
+    "generateButton": "Generar órdenes",
+    "pickSalesOrder": "Seleccione un pedido",
+    "forSalesOrder": "Órdenes de producción del pedido",
+    "detailTitle": "Orden {{number}}",
+    "columns": {
+      "number": "Número",
+      "salesOrder": "Pedido",
+      "customer": "Cliente",
+      "product": "Producto",
+      "description": "Descripción",
+      "quantity": "Cantidad",
+      "orderDate": "Fecha",
+      "deliveryDate": "F. entrega",
+      "scheduling": "A/P",
+      "completion": "Cumpl.",
+      "actions": "Acciones"
+    },
+    "filters": {
+      "allScheduling": "Habilitación: todas",
+      "enabled": "Habilitadas",
+      "disabled": "No habilitadas",
+      "allCompletion": "Cumplimiento: todas",
+      "open": "Pendientes",
+      "completed": "Cumplidas",
+      "allVoid": "Anulación: todas",
+      "active": "Vigentes",
+      "voided": "Anuladas",
+      "deliveryFrom": "F. entrega desde",
+      "deliveryTo": "F. entrega hasta"
+    },
+    "lifecycle": {
+      "scheduling": "Habilitación",
+      "completion": "Cumplimiento",
+      "void": "Anulación",
+      "pending": "Pendiente",
+      "cancelled": "Cancelada",
+      "set": {
+        "scheduling": "Habilitar",
+        "completion": "Cumplir",
+        "void": "Anular"
+      },
+      "cancel": {
+        "scheduling": "Deshabilitar",
+        "completion": "Cancelar cumplimiento",
+        "void": "Cancelar anulación"
+      }
+    },
+    "generate": {
+      "title": "Generar órdenes de producción",
+      "question1": "El pedido no tiene órdenes de producción asociadas.",
+      "question2": "¿Desea generarlas automáticamente?",
+      "yes": "Sí",
+      "no": "No",
+      "blockedTitle": "No es posible generar órdenes para este pedido:",
+      "sumMismatch": "La suma de las cantidades no coincide con la cantidad del pedido.",
+      "total": "Total: {{total}} de {{pedido}}",
+      "voidedTitle": "Pedido anulado",
+      "voidedConfirm": "Se intenta generar las órdenes de un pedido anulado.\n¿Desea generarlas de todas maneras?",
+      "loadFailed": "No se pudo verificar el pedido",
+      "failed": "No se pudieron generar las órdenes",
+      "columns": {
+        "deliveryDate": "Fecha de entrega",
+        "percentage": "Porcentaje",
+        "quantity": "Cantidad"
+      }
+    }
   }
 }
