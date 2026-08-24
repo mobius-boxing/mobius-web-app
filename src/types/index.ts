@@ -1090,6 +1090,71 @@ export interface CreatePalletizationForm {
   palletTypeUuid?: string;
 }
 
+// ── Models (module 08 — box models + formula engine) ─────────────────────────
+
+export interface ModelTextOnImage {
+  x: number;
+  y: number;
+  texto: string;
+  campo: string;
+}
+
+export interface Model {
+  uuid: string;
+  code?: string | null;
+  description: string;
+  sheetLengthFormula?: string | null;
+  sheetWidthFormula?: string | null;
+  corrugationScoreLineFormulas?: string | null;
+  printScoreLineFormulas?: string | null;
+  lowerFlapFormula?: string | null;
+  upperFlapFormula?: string | null;
+  externalLengthDeltaFormula?: string | null;
+  externalWidthDeltaFormula?: string | null;
+  externalHeightDeltaFormula?: string | null;
+  boxSurfaceFormula?: string | null;
+  imageFileUuid?: string | null;
+  textsOnImage?: ModelTextOnImage[];
+  flapTypeUuid?: string | null;
+  complementUuid?: string | null;
+  flapType?: { uuid: string; code?: string | null; description?: string | null } | null;
+  complement?: { uuid: string; code?: string | null; description?: string | null } | null;
+  createdAt?: string;
+}
+
+export interface CreateModelForm {
+  code: string;
+  description: string;
+  sheetLengthFormula?: string | null;
+  sheetWidthFormula?: string | null;
+  corrugationScoreLineFormulas?: string | null;
+  printScoreLineFormulas?: string | null;
+  lowerFlapFormula?: string | null;
+  upperFlapFormula?: string | null;
+  externalLengthDeltaFormula?: string | null;
+  externalWidthDeltaFormula?: string | null;
+  externalHeightDeltaFormula?: string | null;
+  boxSurfaceFormula?: string | null;
+  imageFileUuid?: string | null;
+  textsOnImage?: ModelTextOnImage[];
+  flapTypeUuid?: string | null;
+  complementUuid?: string | null;
+  companyId?: string;
+}
+
+export interface FormulaReference {
+  parameters: { name: string; label: string; example: number }[];
+  functions: { name: string; signature: string; description: string }[];
+  operators: { symbol: string; description: string }[];
+}
+
+export interface FormulaTestResult {
+  ok: boolean;
+  error?: string;
+  exampleValue?: number | null;
+  exampleValueText?: string;
+}
+
 // ── Machines (module 14 lite) ────────────────────────────────────────────────
 
 export interface MachineType {
@@ -1312,4 +1377,261 @@ export interface PartFormPayload {
   traceTypeUuid?: string;
   complementUuid?: string;
   [key: string]: any;
+}
+
+/**
+ * Pedido (module 18 sub-area D). Derived server-side, never stored: first
+ * match wins in this order (see the API's sales-order.interfaces.ts).
+ */
+export type SalesOrderStatus =
+  | 'voided'
+  | 'fulfilled'
+  | 'approved'
+  | 'financially-approved'
+  | 'commercially-approved'
+  | 'pending';
+
+/** The two permission-gated approval machines of a pedido. */
+export type SalesOrderApprovalMachine = 'commercial' | 'financial';
+
+/** DatosPedido — the 1:1 production-side header of a pedido. */
+export interface SalesOrderOrderData {
+  uuid: string;
+  number?: string | null;
+  quantity?: number;
+  notes?: string | null;
+  dispatchNotes?: string | null;
+  conversionNotes?: string | null;
+  deliveryLocation?: { uuid: string; address?: string | null } | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/** SECURITY: uuid-only — the API never returns a numeric id. */
+export interface SalesOrder {
+  uuid: string;
+  number: string;
+  quantity: number;
+  price?: number | null;
+  paid?: number | null;
+  /** Derived: price × quantity, null without a price. */
+  priceTotal?: number | null;
+  deliveryDate?: string | null;
+  purchaseOrder?: string | null;
+  supplierCode?: string | null;
+  /** Present only for callers holding orders.view-sales-sector. */
+  salesSector?: string | null;
+  needsAdvanceInvoice?: boolean | null;
+  invoiceSent?: boolean | null;
+  stockOrder?: boolean;
+  specialOrder?: boolean;
+  createdBy?: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+
+  customer?: { uuid: string; name?: string | null; code?: string | null } | null;
+  product?: {
+    uuid: string;
+    code?: string | null;
+    description?: string | null;
+  } | null;
+  salesUser?: {
+    uuid: string;
+    name?: string | null;
+    email?: string | null;
+  } | null;
+  orderData?: SalesOrderOrderData | null;
+
+  // Approval lifecycle pairs, as the API returns them (ISO strings).
+  commercialApprovedAt?: string | null;
+  commercialApprovedBy?: string | null;
+  commercialCancelledAt?: string | null;
+  commercialCancelledBy?: string | null;
+  financialApprovedAt?: string | null;
+  financialApprovedBy?: string | null;
+  financialCancelledAt?: string | null;
+  financialCancelledBy?: string | null;
+  /** Written by the credit engine only — read-only here. */
+  creditLimitOverrideAt?: string | null;
+  creditLimitOverrideBy?: string | null;
+
+  // Cumplimiento and anulación pairs, as the API returns them (ISO strings).
+  fulfilledAt?: string | null;
+  fulfilledBy?: string | null;
+  fulfillmentCancelledAt?: string | null;
+  fulfillmentCancelledBy?: string | null;
+  voidedAt?: string | null;
+  voidedBy?: string | null;
+  voidCancelledAt?: string | null;
+  voidCancelledBy?: string | null;
+
+  /**
+   * Grid column 6, built server-side from the pedido's producto / parte /
+   * plancha (`Producto: <code> - <description> - Revisión: <rev>`).
+   */
+  itemDescription?: string;
+
+  // Derived lifecycle read-outs.
+  status?: SalesOrderStatus;
+  commerciallyApproved?: boolean;
+  financiallyApproved?: boolean;
+  fulfilled?: boolean;
+  voided?: boolean;
+  creditLimitOverridden?: boolean;
+}
+
+/** One row of `GET /sales-orders/:uuid/production-orders` (uuid-only). */
+export interface SalesOrderProductionOrder {
+  uuid: string;
+  number: string;
+  orderDate?: string | null;
+  deliveryDate?: string | null;
+  quantity: number;
+  part?: { uuid: string; code?: string | null; description?: string | null } | null;
+  customer?: { uuid: string; name?: string | null } | null;
+  schedulingApprovedAt?: string | null;
+  completedAt?: string | null;
+  voidedAt?: string | null;
+}
+
+/**
+ * The pedido grid's filter bar, as the API receives it: flat `?field=value`,
+ * booleans as the strings `'true'` / `'false'` (the API rejects anything else),
+ * and AT MOST ONE of productUuid / partUuid / sheetSupplyUuid (the exclusive
+ * radio trio).
+ */
+export interface SalesOrderListFilters {
+  number?: string;
+  customerUuid?: string;
+  productUuid?: string;
+  partUuid?: string;
+  sheetSupplyUuid?: string;
+  deliveryDateFrom?: string;
+  deliveryDateTo?: string;
+  fulfilled?: 'true' | 'false';
+  voided?: 'true' | 'false';
+  onlyApproved?: 'true' | 'false';
+  withoutProductionOrders?: 'true' | 'false';
+  allProductionOrdersFulfilled?: 'true' | 'false';
+}
+
+/** What the "Alta de Pedido" form POSTs / PUTs. `number` is server-generated. */
+export interface SalesOrderFormPayload {
+  customerUuid?: string;
+  productUuid?: string;
+  /** The parte path's discriminator; the API derives the cliente from it. */
+  partUuid?: string;
+  quantity?: number;
+  deliveryLocationUuid?: string | null;
+  salesUserUuid?: string | null;
+  deliveryDate?: string | null;
+  purchaseOrder?: string | null;
+  supplierCode?: string | null;
+  price?: number;
+  paid?: number;
+  salesSector?: string | null;
+  needsAdvanceInvoice?: boolean;
+  invoiceSent?: boolean;
+  notes?: string | null;
+  dispatchNotes?: string | null;
+  conversionNotes?: string | null;
+}
+
+// ── Órdenes de producción (module 13) ────────────────────────────────────────
+
+/** The three orthogonal lifecycle machines of a production order. */
+export type ProductionOrderLifecycleMachine =
+  | 'enable'
+  | 'disable'
+  | 'complete'
+  | 'complete/cancel'
+  | 'void'
+  | 'void/cancel';
+
+/** Nested reference on the API surface: uuid plus a label field or two. */
+export interface ProductionOrderRef {
+  uuid: string;
+  code?: string | null;
+  name?: string | null;
+  number?: string | null;
+  description?: string | null;
+}
+
+/** One `CantidadPrometida` row of the generate dialog. */
+export interface PromisedQuantityRow {
+  quantity: number;
+  deliveryDate: string | null;
+}
+
+/** `GET /production-orders/generation-eligibility` payload. */
+export interface GenerationEligibility {
+  canGenerate: boolean;
+  alreadyHasOrders: boolean;
+  blockingReasons: Array<{ code: string; message: string }>;
+  /** The pedido is voided: `Sí` must confirm before posting with `force`. */
+  requiresForce: boolean;
+  oneOrderPerSalesOrder: boolean;
+  defaultRow: { quantity: number; deliveryDate: string | null };
+}
+
+export interface ProductionOrder {
+  uuid: string;
+  number: string;
+  orderDate?: string | null;
+  quantity: number;
+  deliveryDate?: string | null;
+  notes?: string | null;
+
+  newPlate?: boolean;
+  newPlateReady?: boolean;
+  newDie?: boolean;
+  newDieReady?: boolean;
+  isSample?: boolean;
+  dispatchable?: boolean | null;
+
+  // The three lifecycle machines, as the API returns them (ISO strings).
+  schedulingApprovedAt?: string | null;
+  schedulingApprovedByUser?: string | null;
+  schedulingCancelledAt?: string | null;
+  schedulingCancelledByUser?: string | null;
+  completedAt?: string | null;
+  completedByUser?: string | null;
+  completionCancelledAt?: string | null;
+  completionCancelledByUser?: string | null;
+  voidedAt?: string | null;
+  voidedByUser?: string | null;
+  voidCancelledAt?: string | null;
+  voidCancelledByUser?: string | null;
+
+  createdAt?: string;
+  createdByUser?: string | null;
+  updatedAt?: string | null;
+
+  part?: ProductionOrderRef | null;
+  product?: ProductionOrderRef | null;
+  customer?: ProductionOrderRef | null;
+  orderData?: ProductionOrderRef | null;
+  salesOrder?: ProductionOrderRef | null;
+  route?: ProductionOrderRef | null;
+  palletization?: ProductionOrderRef | null;
+
+  // Derived server-side, never stored.
+  habilitada?: boolean;
+  cumplida?: boolean;
+  anulada?: boolean;
+  clisePendiente?: boolean;
+  troquelPendiente?: boolean;
+}
+
+/** What the manual create/edit path sends. `number` is server-generated. */
+export interface ProductionOrderFormPayload {
+  partUuid?: string;
+  salesOrderUuid?: string | null;
+  orderDataUuid?: string | null;
+  routeUuid?: string | null;
+  palletizationUuid?: string | null;
+  quantity?: number;
+  deliveryDate?: string | null;
+  orderDate?: string | null;
+  notes?: string | null;
 }

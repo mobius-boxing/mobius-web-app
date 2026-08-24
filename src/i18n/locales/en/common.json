@@ -61,7 +61,10 @@
     "productionRoutes": "Production Routes",
     "machines": "Machines",
     "machineTypes": "Machine Types",
-    "parts": "Parts"
+    "parts": "Parts",
+    "models": "Models",
+    "salesOrders": "Sales Orders",
+    "productionOrders": "Production Orders"
   },
   "roles": {
     "title": "Roles & Permissions",
@@ -1925,6 +1928,76 @@
       "nameRequired": "Name is required"
     }
   },
+  "models": {
+    "title": "Box models",
+    "subtitle": "Sheet, flap and score-line formulas per model",
+    "addModel": "Add Model",
+    "editModel": "Edit model",
+    "deleteModel": "Delete model",
+    "deleteConfirm": "Are you sure you want to delete this model?",
+    "deleteError": "The model could not be deleted",
+    "searchPlaceholder": "Search models...",
+    "createTitle": "Create Model",
+    "editTitle": "Edit Model",
+    "columns": {
+      "code": "Code",
+      "description": "Description",
+      "flapType": "Flap type",
+      "complement": "Complement",
+      "actions": "Actions"
+    },
+    "empty": {
+      "title": "No models",
+      "description": "No model matches your search",
+      "noData": "Start by creating a model"
+    },
+    "sections": {
+      "data": "Model data",
+      "measures": "Measures",
+      "externalDeltas": "External differences",
+      "corrugationTraces": "Corrugation score lines",
+      "printTraces": "Print score lines",
+      "image": "Image"
+    },
+    "fields": {
+      "code": "Code",
+      "description": "Description",
+      "flapType": "Flap type",
+      "complement": "Complement",
+      "sheetLengthFormula": "Sheet length",
+      "sheetWidthFormula": "Sheet width",
+      "lowerFlapFormula": "Lower flap",
+      "upperFlapFormula": "Upper flap",
+      "boxSurfaceFormula": "Box surface",
+      "externalLengthDeltaFormula": "External length diff.",
+      "externalWidthDeltaFormula": "External width diff.",
+      "externalHeightDeltaFormula": "External height diff.",
+      "imageFile": "Image"
+    },
+    "form": {
+      "none": "None",
+      "saveError": "Error saving the model",
+      "addRow": "Add",
+      "removeRow": "Remove",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "referenceButton": "Fields and functions",
+      "test": "Test",
+      "exampleValue": "Example value: {{value}}",
+      "noTraces": "No score lines"
+    },
+    "reference": {
+      "title": "Fields and functions",
+      "filterPlaceholder": "Filter...",
+      "parameters": "Fields",
+      "functions": "Functions",
+      "operators": "Operators",
+      "name": "Name",
+      "label": "Description",
+      "example": "Example value",
+      "signature": "Signature"
+    }
+  },
   "machineTypes": {
     "title": "Machine Types",
     "subtitle": "Manage machine type catalog",
@@ -2184,5 +2257,242 @@
     },
     "selectedCount": "{{count}} selected",
     "clearSelection": "Clear selection"
+  },
+  "salesOrders": {
+    "title": "Sales Orders",
+    "subtitle": "Create and edit customer orders",
+    "allOrders": "All sales orders",
+    "addOrder": "New order",
+    "editOrder": "Edit order",
+    "deleteOrder": "Delete order",
+    "deleteConfirm": "Are you sure you want to delete this order?",
+    "searchPlaceholder": "Search orders...",
+    "createTitle": "New Sales Order",
+    "editTitle": "Edit Sales Order",
+    "formSubtitle": "Pick the customer first; products are filtered by that customer",
+    "numberAssignedOnSave": "— (assigned on save)",
+    "loadFailed": "Could not load the order",
+    "saveFailed": "Error saving the order",
+    "deleteFailed": "The order could not be deleted",
+    "columns": {
+      "number": "Number",
+      "customer": "Customer",
+      "product": "Product",
+      "quantity": "Quantity",
+      "deliveryDate": "Delivery date",
+      "status": "Status",
+      "actions": "Actions",
+      "createdAt": "Created",
+      "purchaseOrder": "Purchase order",
+      "item": "Product/Part/Sheet",
+      "supplierCode": "Supplier code",
+      "salesUser": "Sales rep",
+      "commercialApproved": "C/A",
+      "financialApproved": "F/A",
+      "needsAdvanceInvoice": "Adv.",
+      "invoiceSent": "Sent",
+      "fulfilled": "Fulfilled",
+      "voided": "Voided",
+      "price": "Price"
+    },
+    "empty": {
+      "title": "No sales orders",
+      "description": "No order matches the search",
+      "noData": "Start by creating an order"
+    },
+    "fields": {
+      "number": "Number",
+      "createdAt": "Created at",
+      "quotation": "Quotation",
+      "quotationDate": "Quotation date",
+      "status": "Status",
+      "customer": "Customer",
+      "product": "Product",
+      "quantity": "Quantity",
+      "deliveryLocation": "Delivery location",
+      "salesUser": "Salesperson",
+      "deliveryDate": "Delivery date",
+      "purchaseOrder": "Purchase order",
+      "supplierCode": "Supplier code",
+      "price": "Price (per unit)",
+      "priceTotal": "Total",
+      "paid": "Paid (total)",
+      "salesSector": "Sales sector",
+      "needsAdvanceInvoice": "Advance invoice",
+      "invoiceSent": "Invoice sent",
+      "notes": "Notes",
+      "conversionNotes": "Conversion notes",
+      "dispatchNotes": "Dispatch notes",
+      "orderType": "Order type",
+      "part": "Part"
+    },
+    "placeholders": {
+      "customer": "Select a customer",
+      "product": "Select a product",
+      "productNeedsCustomer": "Pick a customer first",
+      "deliveryLocation": "No delivery location",
+      "salesUser": "Customer's salesperson (default)",
+      "part": "Select a part"
+    },
+    "approvals": {
+      "title": "Approvals",
+      "commercial": "Commercial approval:",
+      "financial": "Financial approval:",
+      "creditOverride": "Credit limit override:",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "approve": "Approve",
+      "cancel": "Cancel"
+    },
+    "lifecycle": {
+      "title": "Order state",
+      "fulfillment": "Fulfillment:",
+      "void": "Void:",
+      "fulfill": "Fulfill",
+      "cancel": "Cancel",
+      "voidAction": "Void",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "includeProductionOrders": "Include associated production orders",
+      "confirmFulfill": "Fulfill order {{number}}? Its open production orders will be completed.",
+      "confirmFulfillCancel": "Cancel the fulfillment of order {{number}}? Its completed production orders will be reopened.",
+      "confirmVoid": "Void order {{number}}?",
+      "confirmVoidCancel": "Cancel the void of order {{number}}?",
+      "confirmVoidKeepsOrders": "The associated production orders will NOT be voided.",
+      "confirmVoidIncludesOrders": "The associated production orders will be voided too.",
+      "confirmVoidCancelIncludesOrders": "The associated production orders will no longer be voided.",
+      "confirmVoidCancelKeepsOrders": "The associated production orders will keep their current state.",
+      "voidBlockedTooltip": "A fulfilled order cannot be voided",
+      "error": "The order state could not be updated"
+    },
+    "status": {
+      "pending": "Pending",
+      "commercially-approved": "Commercially approved",
+      "financially-approved": "Financially approved",
+      "approved": "Approved",
+      "fulfilled": "Fulfilled",
+      "voided": "Voided"
+    },
+    "validation": {
+      "customerRequired": "A customer is required",
+      "productRequired": "A product is required",
+      "quantityRequired": "A quantity is required",
+      "quantityPositive": "Quantity must be greater than zero",
+      "partRequired": "A part is required"
+    },
+    "filters": {
+      "number": "Number",
+      "customer": "Customer",
+      "allCustomers": "All customers",
+      "deliveryDateFrom": "Delivery date from",
+      "deliveryDateTo": "Delivery date to",
+      "product": "Product",
+      "part": "Part",
+      "sheet": "Sheet",
+      "clearType": "No type",
+      "allItems": "All",
+      "fulfilled": "Fulfilled",
+      "voided": "Voided",
+      "withoutProductionOrders": "Without orders",
+      "allProductionOrdersFulfilled": "All orders fulfilled",
+      "clear": "Clear"
+    },
+    "viewProductionOrders": "View orders",
+    "associatedOrders": {
+      "title": "Production orders linked to sales order {{number}}",
+      "back": "Back to sales orders",
+      "empty": "This sales order has no linked production orders",
+      "error": "The linked production orders could not be loaded",
+      "columns": {
+        "number": "Number",
+        "customer": "Customer",
+        "part": "Part",
+        "description": "Description",
+        "quantity": "Quantity",
+        "orderDate": "Date",
+        "deliveryDate": "Delivery",
+        "schedulingApproved": "S/A",
+        "completed": "Compl.",
+        "voided": "Void."
+      }
+    },
+    "orderTypes": {
+      "product": "Product order",
+      "part": "Part order"
+    }
+  },
+  "productionOrders": {
+    "title": "Production Orders",
+    "subtitle": "Production orders generated from sales orders or created manually",
+    "searchPlaceholder": "Search by number...",
+    "empty": "No production orders",
+    "deleteConfirm": "Delete this production order?",
+    "deleteOrder": "Delete order",
+    "generateButton": "Generate orders",
+    "pickSalesOrder": "Select a sales order",
+    "forSalesOrder": "Production orders for this sales order",
+    "detailTitle": "Order {{number}}",
+    "columns": {
+      "number": "Number",
+      "salesOrder": "Sales order",
+      "customer": "Customer",
+      "product": "Product",
+      "description": "Description",
+      "quantity": "Quantity",
+      "orderDate": "Date",
+      "deliveryDate": "Delivery date",
+      "scheduling": "Sched.",
+      "completion": "Compl.",
+      "actions": "Actions"
+    },
+    "filters": {
+      "allScheduling": "Scheduling: all",
+      "enabled": "Enabled",
+      "disabled": "Not enabled",
+      "allCompletion": "Completion: all",
+      "open": "Open",
+      "completed": "Completed",
+      "allVoid": "Void: all",
+      "active": "Active",
+      "voided": "Voided",
+      "deliveryFrom": "Delivery date from",
+      "deliveryTo": "Delivery date to"
+    },
+    "lifecycle": {
+      "scheduling": "Habilitación (scheduling)",
+      "completion": "Cumplimiento (completion)",
+      "void": "Anulación (void)",
+      "pending": "Pending",
+      "cancelled": "Cancelled",
+      "set": {
+        "scheduling": "Enable",
+        "completion": "Complete",
+        "void": "Void"
+      },
+      "cancel": {
+        "scheduling": "Disable",
+        "completion": "Cancel completion",
+        "void": "Cancel void"
+      }
+    },
+    "generate": {
+      "title": "Generate production orders",
+      "question1": "El pedido no tiene órdenes de producción asociadas.",
+      "question2": "¿Desea generarlas automáticamente?",
+      "yes": "Sí",
+      "no": "No",
+      "blockedTitle": "Orders cannot be generated for this sales order:",
+      "sumMismatch": "La suma de las cantidades no coincide con la cantidad del pedido.",
+      "total": "Total: {{total}} of {{pedido}}",
+      "voidedTitle": "Voided sales order",
+      "voidedConfirm": "Se intenta generar las órdenes de un pedido anulado.\n¿Desea generarlas de todas maneras?",
+      "loadFailed": "Could not check the sales order",
+      "failed": "Orders could not be generated",
+      "columns": {
+        "deliveryDate": "Delivery date",
+        "percentage": "Percentage",
+        "quantity": "Quantity"
+      }
+    }
   }
 }
