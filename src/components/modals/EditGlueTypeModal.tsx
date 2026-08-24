@@ -60,7 +60,7 @@ const EditGlueTypeModal: React.FC<EditGlueTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('glueTypes.code')} *
           </label>
           <Input
@@ -73,7 +73,7 @@ const EditGlueTypeModal: React.FC<EditGlueTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('glueTypes.description')}
           </label>
           <Input

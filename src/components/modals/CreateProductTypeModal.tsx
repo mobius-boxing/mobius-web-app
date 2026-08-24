@@ -52,7 +52,7 @@ const CreateProductTypeModal: React.FC<CreateProductTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('productTypes.code')} *
           </label>
           <Input
@@ -65,7 +65,7 @@ const CreateProductTypeModal: React.FC<CreateProductTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('productTypes.name')} *
           </label>
           <Input

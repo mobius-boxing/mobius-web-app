@@ -395,7 +395,7 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
           </h3>
           <div className="grid grid-cols-2 gap-4 mb-3">
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
+              <label className="gd-label">
                 {t('warehouses.gridRows')} *
               </label>
               <input
@@ -409,7 +409,7 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
+              <label className="gd-label">
                 {t('warehouses.gridCols')} *
               </label>
               <input

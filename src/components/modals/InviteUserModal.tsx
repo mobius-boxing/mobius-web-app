@@ -123,7 +123,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             Role
           </label>
           <select
@@ -144,7 +144,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
 
         {currentUser?.role === 'superAdmin' && selectedRole !== 'superAdmin' && (
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               Company
             </label>
             <select
@@ -165,7 +165,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         )}
 
         {selectedRole === 'superAdmin' && currentUser?.role === 'superAdmin' && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <div className="gd-alert gd-alert-info">
             <p className="text-sm text-blue-800">
               <strong>Note:</strong> Super Admins have platform-wide access and are not associated with any specific company.
             </p>

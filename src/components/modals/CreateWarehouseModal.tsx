@@ -55,7 +55,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('warehouses.name')} *
           </label>
           <Input
@@ -70,7 +70,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
         <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
+              <label className="gd-label">
                 {t('warehouses.gridRows')} *
               </label>
               <Input
@@ -87,7 +87,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
+              <label className="gd-label">
                 {t('warehouses.gridCols')} *
               </label>
               <Input

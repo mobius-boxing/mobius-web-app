@@ -126,7 +126,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSupplies.code')} *
           </label>
           <Input
@@ -139,7 +139,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSupplies.name')} *
           </label>
           <Input
@@ -152,7 +152,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSupplies.description')}
           </label>
           <Input
@@ -162,7 +162,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSupplies.manufacturer')}
           </label>
           <select
@@ -179,7 +179,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSupplies.supplier')}
           </label>
           <select
@@ -196,7 +196,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSupplies.paperType')}
           </label>
           <select
@@ -214,7 +214,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperSupplies.grammage')}
             </label>
             <Input
@@ -228,7 +228,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperSupplies.price')}
             </label>
             <Input
@@ -244,14 +244,14 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperSupplies.color')}
             </label>
             <Input {...register('color')} placeholder={t('paperSupplies.colorPlaceholder')} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperSupplies.fscType')}
             </label>
             <select
@@ -270,7 +270,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperSupplies.minimumStockWeightKg')}
             </label>
             <Input
@@ -284,7 +284,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperSupplies.minimumStockDiameterMm')}
             </label>
             <Input

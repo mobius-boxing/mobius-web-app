@@ -263,7 +263,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('productionRoutes.name')} *
             </label>
             <Input value={name} onChange={(e) => setName(e.target.value)} required />

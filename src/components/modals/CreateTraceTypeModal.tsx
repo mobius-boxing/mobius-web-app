@@ -52,7 +52,7 @@ const CreateTraceTypeModal: React.FC<CreateTraceTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('traceTypes.code')} *
           </label>
           <Input
@@ -65,7 +65,7 @@ const CreateTraceTypeModal: React.FC<CreateTraceTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('traceTypes.description')}
           </label>
           <Input

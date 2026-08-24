@@ -62,7 +62,7 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('roles.name')} *
           </label>
           <Input
@@ -76,7 +76,7 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('roles.profileType')}
           </label>
           <select

@@ -89,11 +89,11 @@ const ProductionRoutes: React.FC = () => {
       header: t('productionRoutes.columns.status'),
       render: (_: any, r: ProductionRoute) => (
         <div className="flex gap-1">
-          {r.isGlobal && badge(t('productionRoutes.global'), 'bg-blue-100 text-blue-800')}
+          {r.isGlobal && badge(t('productionRoutes.global'), 'gd-badge-info')}
           {r.active
-            ? badge(t('productionRoutes.active'), 'bg-green-100 text-green-800')
+            ? badge(t('productionRoutes.active'), 'gd-badge-positive')
             : badge(t('productionRoutes.inactive'), 'bg-secondary-100 text-secondary-600')}
-          {r.isDefault && badge(t('productionRoutes.default'), 'bg-amber-100 text-amber-800')}
+          {r.isDefault && badge(t('productionRoutes.default'), 'gd-badge-warning')}
         </div>
       ),
     },
@@ -150,7 +150,7 @@ const ProductionRoutes: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-secondary-900">{t('productionRoutes.title')}</h1>
+            <h1 className="gd-page-title">{t('productionRoutes.title')}</h1>
             <p className="text-secondary-600">{t('productionRoutes.subtitle')}</p>
           </div>
           <Button
@@ -181,7 +181,7 @@ const ProductionRoutes: React.FC = () => {
               <div className="text-center py-12">
                 <RouteIcon className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('productionRoutes.empty.title')}</h3>
-                <p className="mt-1 text-sm text-secondary-500">{t('productionRoutes.empty.description')}</p>
+                <p className="gd-page-sub">{t('productionRoutes.empty.description')}</p>
               </div>
             ) : (
               <>

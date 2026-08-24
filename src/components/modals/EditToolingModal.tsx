@@ -113,7 +113,7 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolings.description')}
           </label>
           <textarea
@@ -125,14 +125,14 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolings.code')}
           </label>
           <Input {...register('code')} placeholder={t('toolings.codePlaceholder')} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolings.toolingType')} *
           </label>
           <select
@@ -154,7 +154,7 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolings.manufacturer')}
           </label>
           <select
@@ -171,7 +171,7 @@ const EditToolingModal: React.FC<EditToolingModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolings.supplier')}
           </label>
           <select

@@ -97,7 +97,7 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('finishedGoods.description')}
           </label>
           <textarea
@@ -110,7 +110,7 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('finishedGoods.supplier')}
             </label>
             <select
@@ -127,7 +127,7 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('finishedGoods.manufacturer')}
             </label>
             <select

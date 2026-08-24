@@ -48,7 +48,7 @@ const EditMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, mac
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('machineTypes.name')} *
           </label>
           <Input
@@ -57,7 +57,7 @@ const EditMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, mac
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('machineTypes.attribute')}
           </label>
           <Input {...register('attribute')} />

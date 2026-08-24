@@ -141,7 +141,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolingStock.warehouse')} *
           </label>
           <select
@@ -164,7 +164,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
 
         {selectedWarehouse && (
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('toolingStock.warehouseLocation')}
             </label>
             {selectedLocation ? (
@@ -202,7 +202,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
         )}
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolingStock.tooling')} *
           </label>
           <select
@@ -224,7 +224,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolingStock.supplier')}
           </label>
           <select
@@ -241,7 +241,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolingStock.manufacturer')}
           </label>
           <select
@@ -259,7 +259,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('toolingStock.quantity')} *
             </label>
             <Input
@@ -274,7 +274,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('toolingStock.price')}
             </label>
             <Input
@@ -289,7 +289,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolingStock.comments')}
           </label>
           <Input

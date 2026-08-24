@@ -131,7 +131,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperStock.warehouse')} *
           </label>
           <select
@@ -154,7 +154,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
 
         {selectedWarehouse && (
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperStock.warehouseLocation')}
             </label>
             {selectedLocation ? (
@@ -192,7 +192,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
         )}
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperStock.paperSupply')} *
           </label>
           <select
@@ -214,7 +214,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperStock.supplier')}
           </label>
           <select
@@ -231,7 +231,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperStock.manufacturer')}
           </label>
           <select
@@ -249,7 +249,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
 
         <div className="grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperStock.weight')}
             </label>
             <Input
@@ -263,7 +263,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperStock.diameter')}
             </label>
             <Input
@@ -277,7 +277,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperStock.width')}
             </label>
             <Input
@@ -292,7 +292,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperStock.price')}
           </label>
           <Input
@@ -306,7 +306,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperStock.comments')}
           </label>
           <Input

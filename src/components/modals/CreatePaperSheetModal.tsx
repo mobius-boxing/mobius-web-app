@@ -89,7 +89,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSheets.code')} *
           </label>
           <Input
@@ -102,7 +102,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSheets.name')} *
           </label>
           <Input
@@ -115,7 +115,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSheets.description')}
           </label>
           <Input
@@ -125,7 +125,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSheets.supplier')}
           </label>
           <select
@@ -142,7 +142,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSheets.manufacturer')}
           </label>
           <select
@@ -159,7 +159,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSheets.corrugation')}
           </label>
           <select
@@ -177,7 +177,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperSheets.length')}
             </label>
             <Input
@@ -191,7 +191,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('paperSheets.width')}
             </label>
             <Input
@@ -206,7 +206,7 @@ const CreatePaperSheetModal: React.FC<CreatePaperSheetModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperSheets.minimumStock')}
           </label>
           <Input

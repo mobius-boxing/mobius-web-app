@@ -9,7 +9,7 @@ const ProductionOrders: React.FC = () => {
     <Layout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-secondary-900">
+          <h1 className="gd-page-title">
             {t('productionOrders.title')}
           </h1>
           <p className="text-secondary-600">{t('productionOrders.subtitle')}</p>

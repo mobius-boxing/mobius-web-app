@@ -88,7 +88,7 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
         />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('consumableSupplies.description')}
           </label>
           <textarea
@@ -100,7 +100,7 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('consumableSupplies.consumableType')} *
           </label>
           <select
@@ -122,7 +122,7 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('consumableSupplies.manufacturer')}
           </label>
           <select
@@ -139,7 +139,7 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('consumableSupplies.supplier')}
           </label>
           <select
@@ -158,14 +158,14 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('consumableSupplies.location')}
             </label>
             <Input {...register('location')} placeholder={t('consumableSupplies.locationPlaceholder')} />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('consumableSupplies.expiry')}
             </label>
             <Input {...register('expiry')} placeholder={t('consumableSupplies.expiryPlaceholder')} />
@@ -174,7 +174,7 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('consumableSupplies.minimumStock')}
             </label>
             <Input
@@ -186,7 +186,7 @@ const CreateConsumableSupplyModal: React.FC<CreateConsumableSupplyModalProps> = 
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('consumableSupplies.color')}
             </label>
             <select

@@ -55,7 +55,7 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('roles.name')} *
           </label>
           <Input
@@ -68,7 +68,7 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('roles.profileType')}
           </label>
           <select

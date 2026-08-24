@@ -60,7 +60,7 @@ const EditFlapTypeModal: React.FC<EditFlapTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('flapTypes.code')} *
           </label>
           <Input
@@ -73,7 +73,7 @@ const EditFlapTypeModal: React.FC<EditFlapTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('flapTypes.description')}
           </label>
           <Input

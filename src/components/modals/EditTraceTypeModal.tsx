@@ -60,7 +60,7 @@ const EditTraceTypeModal: React.FC<EditTraceTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('traceTypes.code')} *
           </label>
           <Input
@@ -73,7 +73,7 @@ const EditTraceTypeModal: React.FC<EditTraceTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('traceTypes.description')}
           </label>
           <Input

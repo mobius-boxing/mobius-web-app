@@ -60,7 +60,7 @@ const EditFscTypeModal: React.FC<EditFscTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('fscTypes.code')} *
           </label>
           <Input
@@ -73,7 +73,7 @@ const EditFscTypeModal: React.FC<EditFscTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('fscTypes.description')}
           </label>
           <Input

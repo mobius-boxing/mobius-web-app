@@ -80,7 +80,7 @@ const EditColorModal: React.FC<EditColorModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('colors.code')} *
           </label>
           <Input
@@ -93,28 +93,28 @@ const EditColorModal: React.FC<EditColorModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('colors.name')}
           </label>
           <Input {...register('name')} placeholder={t('colors.namePlaceholder')} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('colors.description')}
           </label>
           <Input {...register('description')} placeholder={t('colors.descriptionPlaceholder')} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('colors.observations')}
           </label>
           <Input {...register('observations')} placeholder={t('colors.observationsPlaceholder')} />
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('colors.tonality')}
           </label>
           <Input
@@ -125,7 +125,7 @@ const EditColorModal: React.FC<EditColorModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('colors.colorType')}
           </label>
           <select

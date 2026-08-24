@@ -612,7 +612,7 @@ const Sidebar: React.FC = () => {
 
   return (
     <div
-      className={`flex flex-col bg-white border-r border-secondary-200 h-full transition-all duration-300 ${
+      className={`gd-sidebar flex flex-col h-full transition-all duration-300 ${
         isCollapsed ? 'w-16' : 'w-64'
       }`}
     >

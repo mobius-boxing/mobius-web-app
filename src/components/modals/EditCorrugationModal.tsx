@@ -149,7 +149,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('corrugations.description')}
           </label>
           <textarea
@@ -161,7 +161,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('corrugations.corrugationClass')}
           </label>
           <select

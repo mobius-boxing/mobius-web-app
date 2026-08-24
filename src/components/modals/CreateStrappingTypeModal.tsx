@@ -52,7 +52,7 @@ const CreateStrappingTypeModal: React.FC<CreateStrappingTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('strappingTypes.code')} *
           </label>
           <Input
@@ -65,7 +65,7 @@ const CreateStrappingTypeModal: React.FC<CreateStrappingTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('strappingTypes.description')}
           </label>
           <Input

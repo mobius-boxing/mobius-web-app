@@ -46,7 +46,7 @@ const PalletizationFormFields: React.FC<PalletizationFormFieldsProps> = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-1">
+        <label className="gd-label">
           {t('palletizations.description')}
         </label>
         <textarea
@@ -75,7 +75,7 @@ const PalletizationFormFields: React.FC<PalletizationFormFieldsProps> = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-1">
+        <label className="gd-label">
           {t('palletizations.palletType')}
         </label>
         <select
@@ -93,7 +93,7 @@ const PalletizationFormFields: React.FC<PalletizationFormFieldsProps> = ({
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-1">
+        <label className="gd-label">
           {t('palletizations.observations')}
         </label>
         <textarea

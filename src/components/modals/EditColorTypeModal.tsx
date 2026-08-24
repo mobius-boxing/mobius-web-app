@@ -60,7 +60,7 @@ const EditColorTypeModal: React.FC<EditColorTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('colorTypes.name')} *
           </label>
           <Input
@@ -73,7 +73,7 @@ const EditColorTypeModal: React.FC<EditColorTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('colorTypes.description')}
           </label>
           <Input

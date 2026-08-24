@@ -83,7 +83,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({
   return (
     <div>
       {label && (
-        <label className="block text-sm font-medium text-secondary-700 mb-1">
+        <label className="gd-label">
           {label}
         </label>
       )}

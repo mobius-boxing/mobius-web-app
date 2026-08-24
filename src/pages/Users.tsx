@@ -101,20 +101,20 @@ const Users: React.FC = () => {
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
       case 'superAdmin':
-        return 'bg-purple-100 text-purple-800';
+        return 'gd-badge-brand';
       case 'admin':
-        return 'bg-blue-100 text-blue-800';
+        return 'gd-badge-info';
       case 'member':
-        return 'bg-green-100 text-green-800';
+        return 'gd-badge-positive';
       default:
-        return 'bg-secondary-100 text-secondary-800';
+        return 'gd-badge-neutral';
     }
   };
 
   const getStatusBadgeColor = (isActive: boolean) => {
     return isActive
-      ? 'bg-green-100 text-green-800'
-      : 'bg-red-100 text-red-800';
+      ? 'gd-badge-positive'
+      : 'gd-badge-negative';
   };
 
   const columns = [
@@ -202,7 +202,7 @@ const Users: React.FC = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-secondary-900">User Management</h1>
+            <h1 className="gd-page-title">User Management</h1>
             <p className="text-secondary-600 mt-1">
               Manage users and their permissions
             </p>

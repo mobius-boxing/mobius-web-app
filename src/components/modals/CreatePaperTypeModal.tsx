@@ -63,7 +63,7 @@ const CreatePaperTypeModal: React.FC<CreatePaperTypeModalProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('paperTypes.description')}
           </label>
           <textarea

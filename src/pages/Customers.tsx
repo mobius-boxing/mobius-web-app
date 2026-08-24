@@ -84,8 +84,8 @@ const Customers: React.FC = () => {
 
   const getStatusBadgeColor = (isActive: boolean) => {
     return isActive
-      ? 'bg-green-100 text-green-800'
-      : 'bg-red-100 text-red-800';
+      ? 'gd-badge-positive'
+      : 'gd-badge-negative';
   };
 
   const columns = [
@@ -176,7 +176,7 @@ const Customers: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-secondary-900">{t('customers.title')}</h1>
+            <h1 className="gd-page-title">{t('customers.title')}</h1>
             <p className="text-secondary-600">{t('customers.subtitle')}</p>
           </div>
           <Button
@@ -216,7 +216,7 @@ const Customers: React.FC = () => {
               <div className="text-center py-12">
                 <UserIcon className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('customers.empty.title')}</h3>
-                <p className="mt-1 text-sm text-secondary-500">
+                <p className="gd-page-sub">
                   {search ? t('customers.empty.description') : t('customers.empty.noData')}
                 </p>
                 {!search && (

@@ -180,7 +180,7 @@ const PaperSheets: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-secondary-900">{t('paperSheets.title')}</h1>
+            <h1 className="gd-page-title">{t('paperSheets.title')}</h1>
             <p className="text-secondary-600">{t('paperSheets.subtitle')}</p>
           </div>
           <Button
@@ -220,7 +220,7 @@ const PaperSheets: React.FC = () => {
               <div className="text-center py-12">
                 <FileText className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('paperSheets.empty.title')}</h3>
-                <p className="mt-1 text-sm text-secondary-500">
+                <p className="gd-page-sub">
                   {search ? t('paperSheets.empty.description') : t('paperSheets.empty.noData')}
                 </p>
                 {!search && (

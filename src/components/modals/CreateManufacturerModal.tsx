@@ -46,7 +46,7 @@ const CreateManufacturerModal: React.FC<CreateManufacturerModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('manufacturers.code')} *
           </label>
           <Input
@@ -59,7 +59,7 @@ const CreateManufacturerModal: React.FC<CreateManufacturerModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('manufacturers.name')} *
           </label>
           <Input

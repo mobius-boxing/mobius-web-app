@@ -52,7 +52,7 @@ const CreateBoxTypeModal: React.FC<CreateBoxTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('boxTypes.code')} *
           </label>
           <Input
@@ -65,7 +65,7 @@ const CreateBoxTypeModal: React.FC<CreateBoxTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('boxTypes.name')} *
           </label>
           <Input

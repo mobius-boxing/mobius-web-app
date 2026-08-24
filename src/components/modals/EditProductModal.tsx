@@ -132,7 +132,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.code')} *
           </label>
           <Input
@@ -145,7 +145,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.clientCode')}
           </label>
           <Input
@@ -155,7 +155,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.customer')} *
           </label>
           <select
@@ -177,7 +177,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.description')}
           </label>
           <textarea
@@ -190,7 +190,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('products.revision')}
             </label>
             <Input
@@ -213,7 +213,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.productType')}
           </label>
           <select
@@ -230,7 +230,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.boxType')}
           </label>
           <select
@@ -258,10 +258,10 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                     partsCount === 0
-                      ? 'bg-amber-100 text-amber-800'
+                      ? 'gd-badge-warning'
                       : partsCount === 1
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-blue-100 text-blue-800'
+                        ? 'gd-badge-positive'
+                        : 'gd-badge-info'
                   }`}
                 >
                   {partsCount === 0

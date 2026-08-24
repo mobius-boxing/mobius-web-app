@@ -129,7 +129,7 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('sheetStock.warehouse')} *
           </label>
           <select
@@ -152,7 +152,7 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
 
         {selectedWarehouse && (
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('sheetStock.warehouseLocation')}
             </label>
             {selectedLocation ? (
@@ -190,7 +190,7 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
         )}
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('sheetStock.paperSheet')} *
           </label>
           <select
@@ -212,7 +212,7 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('sheetStock.supplier')}
           </label>
           <select
@@ -229,7 +229,7 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('sheetStock.manufacturer')}
           </label>
           <select
@@ -247,7 +247,7 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('sheetStock.quantity')} *
             </label>
             <Input
@@ -262,7 +262,7 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('sheetStock.price')}
             </label>
             <Input
@@ -277,7 +277,7 @@ const CreateSheetStockModal: React.FC<CreateSheetStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('sheetStock.comments')}
           </label>
           <Input

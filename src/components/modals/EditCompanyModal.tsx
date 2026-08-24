@@ -77,7 +77,7 @@ const EditCompanyModal: React.FC<EditCompanyModalProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('companies.description')}
           </label>
           <textarea

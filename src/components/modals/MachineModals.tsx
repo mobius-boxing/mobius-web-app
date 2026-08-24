@@ -28,13 +28,13 @@ const MachineFields: React.FC<{
     <>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('machines.code')}
           </label>
           <Input {...register('code')} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('machines.machineType')} *
           </label>
           <select
@@ -56,26 +56,26 @@ const MachineFields: React.FC<{
         </div>
       </div>
       <div>
-        <label className="block text-sm font-medium text-secondary-700 mb-1">
+        <label className="gd-label">
           {t('machines.description')}
         </label>
         <Input {...register('description')} />
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('machines.setupTime')}
           </label>
           <Input type="number" step="any" {...register('setupTime')} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('machines.sheetWidthMin')}
           </label>
           <Input type="number" step="any" {...register('sheetWidthMin')} />
         </div>
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('machines.sheetWidthMax')}
           </label>
           <Input type="number" step="any" {...register('sheetWidthMax')} />
@@ -83,7 +83,7 @@ const MachineFields: React.FC<{
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('machines.sourceWarehouse')}
           </label>
           <select className="input-field w-full" {...register('sourceWarehouseUuid')}>
@@ -96,7 +96,7 @@ const MachineFields: React.FC<{
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('machines.destinationWarehouse')}
           </label>
           <select className="input-field w-full" {...register('destinationWarehouseUuid')}>

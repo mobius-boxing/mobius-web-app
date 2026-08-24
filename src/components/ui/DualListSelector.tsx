@@ -172,7 +172,7 @@ function DualListSelector<T>({
     <div className="grid grid-cols-[1fr_auto_1fr] gap-4">
       <div className="flex flex-col space-y-3">
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-2">
+          <label className="gd-label">
             {availableLabel}
           </label>
           <div className="relative">
@@ -245,7 +245,7 @@ function DualListSelector<T>({
 
       <div className="flex flex-col space-y-3">
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-2">
+          <label className="gd-label">
             {assignedLabel}
           </label>
           <div className="relative">

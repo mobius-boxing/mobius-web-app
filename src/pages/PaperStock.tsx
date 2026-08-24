@@ -172,7 +172,7 @@ const PaperStockPage: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-secondary-900">{t('paperStock.title')}</h1>
+            <h1 className="gd-page-title">{t('paperStock.title')}</h1>
             <p className="text-secondary-600">{t('paperStock.subtitle')}</p>
           </div>
           <Button
@@ -212,7 +212,7 @@ const PaperStockPage: React.FC = () => {
               <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('paperStock.empty.title')}</h3>
-                <p className="mt-1 text-sm text-secondary-500">
+                <p className="gd-page-sub">
                   {search ? t('paperStock.empty.description') : t('paperStock.empty.noData')}
                 </p>
                 {!search && (

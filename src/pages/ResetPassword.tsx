@@ -85,7 +85,7 @@ const ResetPassword: React.FC = () => {
         </div>
 
         {success ? (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+          <div className="gd-alert gd-alert-success">
             <div className="text-center">
               <div className="mx-auto h-12 w-12 flex items-center justify-center rounded-full bg-green-100 mb-4">
                 <CheckCircle className="h-6 w-6 text-green-600" />
@@ -101,7 +101,7 @@ const ResetPassword: React.FC = () => {
         ) : (
           <form className="space-y-6 bg-white border border-secondary-200 rounded-2xl shadow-lg p-8" onSubmit={handleSubmit(onSubmit)}>
             {error && (
-              <div className="bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+              <div className="gd-alert gd-alert-danger">
                 <p className="text-sm text-red-800">{error}</p>
               </div>
             )}

@@ -129,7 +129,7 @@ const DeliveryZones: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-secondary-900">{t('deliveryZones.title')}</h1>
+            <h1 className="gd-page-title">{t('deliveryZones.title')}</h1>
             <p className="text-secondary-600">{t('deliveryZones.subtitle')}</p>
           </div>
           <Button onClick={() => setShowCreateModal(true)} className="inline-flex items-center">
@@ -166,7 +166,7 @@ const DeliveryZones: React.FC = () => {
               <div className="text-center py-12">
                 <MapPin className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('deliveryZones.empty.title')}</h3>
-                <p className="mt-1 text-sm text-secondary-500">
+                <p className="gd-page-sub">
                   {search ? t('deliveryZones.empty.description') : t('deliveryZones.empty.noData')}
                 </p>
                 {!search && (

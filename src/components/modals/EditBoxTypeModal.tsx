@@ -60,7 +60,7 @@ const EditBoxTypeModal: React.FC<EditBoxTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('boxTypes.code')} *
           </label>
           <Input
@@ -73,7 +73,7 @@ const EditBoxTypeModal: React.FC<EditBoxTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('boxTypes.name')} *
           </label>
           <Input

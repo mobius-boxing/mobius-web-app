@@ -60,7 +60,7 @@ const EditProductTypeModal: React.FC<EditProductTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('productTypes.code')} *
           </label>
           <Input
@@ -73,7 +73,7 @@ const EditProductTypeModal: React.FC<EditProductTypeModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('productTypes.name')} *
           </label>
           <Input

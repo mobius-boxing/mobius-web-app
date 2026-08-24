@@ -170,7 +170,7 @@ const SalesOrderProductionOrders: React.FC = () => {
       <div className="space-y-6" data-testid="sales-order-production-orders">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-secondary-900">
+            <h1 className="gd-page-title">
               {t('salesOrders.associatedOrders.title', {
                 number: order?.number ?? '',
               })}

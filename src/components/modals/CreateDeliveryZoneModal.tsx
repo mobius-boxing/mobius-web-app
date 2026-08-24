@@ -53,7 +53,7 @@ const CreateDeliveryZoneModal: React.FC<CreateDeliveryZoneModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('deliveryZones.code')} *
           </label>
           <Input
@@ -66,7 +66,7 @@ const CreateDeliveryZoneModal: React.FC<CreateDeliveryZoneModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('deliveryZones.description')}
           </label>
           <Input

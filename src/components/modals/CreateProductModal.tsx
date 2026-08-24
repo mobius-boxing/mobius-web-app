@@ -120,7 +120,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
         </p>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.code')} *
           </label>
           <Input
@@ -133,7 +133,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.clientCode')}
           </label>
           <Input
@@ -143,7 +143,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.customer')} *
           </label>
           <select
@@ -165,7 +165,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.description')}
           </label>
           <textarea
@@ -178,7 +178,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('products.revision')}
             </label>
             <Input
@@ -202,7 +202,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.productType')}
           </label>
           <select
@@ -219,7 +219,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('products.boxType')}
           </label>
           <select
@@ -242,7 +242,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
             </h3>
 
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
+              <label className="gd-label">
                 {t('products.initialPart.corrugation')} *
               </label>
               <select
@@ -267,7 +267,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-secondary-700 mb-1">
+                <label className="gd-label">
                   {t('products.initialPart.sheetLength')} *
                 </label>
                 <Input
@@ -282,7 +282,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-secondary-700 mb-1">
+                <label className="gd-label">
                   {t('products.initialPart.sheetWidth')} *
                 </label>
                 <Input
@@ -312,7 +312,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-secondary-700 mb-1">
+              <label className="gd-label">
                 {t('products.initialPart.route')}
               </label>
               <select

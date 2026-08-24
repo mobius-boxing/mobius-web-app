@@ -52,7 +52,7 @@ const Login: React.FC = () => {
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white text-lg font-bold shadow-sm">
               M
             </div>
-            <span className="text-2xl font-bold tracking-tight text-secondary-900">
+            <span className="gd-page-title">
               Mobius
             </span>
           </div>
@@ -69,7 +69,7 @@ const Login: React.FC = () => {
           onSubmit={handleSubmit(onSubmit)}
         >
           {error && (
-            <div className="flex items-start gap-2.5 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+            <div className="flex items-start gap-2.5 gd-alert gd-alert-danger">
               <p className="text-sm text-red-800">{error}</p>
             </div>
           )}

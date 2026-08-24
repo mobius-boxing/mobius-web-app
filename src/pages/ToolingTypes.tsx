@@ -122,10 +122,10 @@ const ToolingTypes: React.FC = () => {
       key: 'automaticConsumption',
       header: t('toolingTypes.columns.automaticConsumption'),
       render: (value: any, toolingType: ToolingType) => (
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+        <span className={`gd-badge ${
           toolingType?.automaticConsumption
-            ? 'bg-green-100 text-green-800'
-            : 'bg-secondary-100 text-secondary-800'
+            ? 'gd-badge-positive'
+            : 'gd-badge-neutral'
         }`}>
           {toolingType?.automaticConsumption ? t('common.yes') : t('common.no')}
         </span>
@@ -163,7 +163,7 @@ const ToolingTypes: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-secondary-900">{t('toolingTypes.title')}</h1>
+            <h1 className="gd-page-title">{t('toolingTypes.title')}</h1>
             <p className="text-secondary-600">{t('toolingTypes.subtitle')}</p>
           </div>
           <Button
@@ -203,7 +203,7 @@ const ToolingTypes: React.FC = () => {
               <div className="text-center py-12">
                 <Wrench className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('toolingTypes.empty.title')}</h3>
-                <p className="mt-1 text-sm text-secondary-500">
+                <p className="gd-page-sub">
                   {search ? t('toolingTypes.empty.description') : t('toolingTypes.empty.noData')}
                 </p>
                 {!search && (

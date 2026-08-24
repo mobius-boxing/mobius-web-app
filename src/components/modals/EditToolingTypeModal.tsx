@@ -96,7 +96,7 @@ const EditToolingTypeModal: React.FC<EditToolingTypeModalProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('toolingTypes.description')}
           </label>
           <textarea

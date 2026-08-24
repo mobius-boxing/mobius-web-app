@@ -83,7 +83,7 @@ const EditFluteTypeModal: React.FC<EditFluteTypeModalProps> = ({
         />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('fluteTypes.description')}
           </label>
           <textarea

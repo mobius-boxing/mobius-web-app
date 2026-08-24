@@ -87,7 +87,7 @@ const Modal: React.FC<ModalProps> = ({
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4 text-center">
         <div
-          className="fixed inset-0 bg-secondary-950 bg-opacity-75 backdrop-blur-sm transition-opacity"
+          className="gd-modal-overlay fixed inset-0 transition-opacity"
           aria-hidden="true"
           onClick={onClose}
         />
@@ -98,7 +98,7 @@ const Modal: React.FC<ModalProps> = ({
           {(title || showCloseButton) && (
             <div className="flex items-start justify-between mb-5">
               {title && (
-                <h3 className="text-lg font-semibold tracking-tight text-secondary-900">
+                <h3 className="gd-modal-title">
                   {title}
                 </h3>
               )}

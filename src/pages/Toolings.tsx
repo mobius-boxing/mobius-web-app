@@ -171,7 +171,7 @@ const Toolings: React.FC = () => {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-secondary-900">{t('toolings.title')}</h1>
+            <h1 className="gd-page-title">{t('toolings.title')}</h1>
             <p className="text-secondary-600">{t('toolings.subtitle')}</p>
           </div>
           <Button
@@ -211,7 +211,7 @@ const Toolings: React.FC = () => {
               <div className="text-center py-12">
                 <Wrench className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('toolings.empty.title')}</h3>
-                <p className="mt-1 text-sm text-secondary-500">
+                <p className="gd-page-sub">
                   {search ? t('toolings.empty.description') : t('toolings.empty.noData')}
                 </p>
                 {!search && (

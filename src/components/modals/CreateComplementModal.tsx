@@ -52,7 +52,7 @@ const CreateComplementModal: React.FC<CreateComplementModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('complements.code')} *
           </label>
           <Input
@@ -65,7 +65,7 @@ const CreateComplementModal: React.FC<CreateComplementModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('complements.description')}
           </label>
           <Input

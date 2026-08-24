@@ -1,0 +1,898 @@
+/* ============================================================================
+   GOLD.CSS — Visual redesign layer for the Mobius web app
+   ----------------------------------------------------------------------------
+   Loaded LAST in src/index.tsx, after index.css. This file is a single,
+   removable unit: delete the `import './styles/gold.css'` line and every
+   visual change in this pass reverts. No existing CSS was deleted.
+
+   It builds on the existing "Warm Industrial" OKLCH tokens (--p-*, --n-*,
+   --canvas) rather than introducing a parallel palette. The brand accent
+   stays ochre; what changes is how decisively it is used.
+
+   Scope discipline:
+     - GLOBAL (deliberate, conservative): display font on headings, warm
+       atmosphere + grain, easing/elevation tokens, reduced-motion.
+     - SCOPED to `.gd` (the dashboard root): typographic scale, KPI cards,
+       composition bar, quick actions, skeletons, entry motion.
+   ============================================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+/* ── Layer 1: Tokens ─────────────────────────────────────────────────────── */
+:root {
+  /* Typefaces.
+     WHY: Inter was doing display AND body duty — the single loudest
+     "nobody chose this" signal in the audit. Space Grotesk carries the
+     industrial half of "Warm Industrial" at large sizes; Inter keeps the
+     body text boring on purpose; JetBrains Mono gives labels and numerals
+     a machine-room voice that a backoffice earns. */
+  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Easing.
+     WHY: `transition-colors duration-150` (the only motion the dashboard
+     had) is a CSS-keyword shrug. These curves are already used by the
+     Tailwind keyframes in this repo — promoting them to tokens makes them
+     reachable from plain CSS. */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Hairlines + elevation, warm rather than cool grey.
+     WHY: every surface in the audit was `border-secondary-200 shadow-sm` —
+     one undifferentiated depth for KPIs, panels and shortcuts alike. */
+  --gd-hairline: oklch(var(--n-950) / 0.07);
+  --gd-hairline-strong: oklch(var(--n-950) / 0.13);
+  --gd-elev-rest: 0 1px 2px oklch(var(--n-950) / 0.04);
+  --gd-elev-lift:
+    0 2px 6px oklch(var(--n-950) / 0.05),
+    0 14px 28px -12px oklch(var(--n-950) / 0.14);
+
+  /* Spacing rhythm — replaces the ad-hoc p-5 / p-6 / gap-4 / gap-5 mix. */
+  --gd-gap: 1.25rem;
+  --gd-pad: 1.75rem;
+  --gd-block: 2.5rem;
+}
+
+/* ── Layer 2: Typography (global, conservative) ──────────────────────────── */
+/* Sizes stay where they are outside `.gd`; only the face and the tracking
+   change, so Users/Companies pages keep their exact layout. */
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+}
+
+/* ── Layer 6: Atmosphere (global) ────────────────────────────────────────── */
+/* WHY: `bg-canvas` was a flat fill. A near-invisible warm bloom off the
+   top-left plus a grain overlay give the canvas a floor to sit on. Both are
+   felt, not seen — the gradient tops out at 0.35 alpha of an already pale
+   ochre, the grain at 2%. */
+/* The atmosphere is painted on the shell elements rather than on <body> so it
+   is scoped to the app's own surfaces; `body` keeps the flat canvas colour as
+   a backstop for anything rendered outside a shell. */
+body {
+  background-color: oklch(var(--canvas));
+}
+
+.gd-shell,
+.gd-auth {
+  position: relative;
+  background-color: oklch(var(--canvas));
+  background-image:
+    radial-gradient(120vw 70vh at 12% -10%, oklch(var(--p-100) / 0.38) 0%, transparent 60%),
+    radial-gradient(90vw 60vh at 100% 0%, oklch(var(--n-200) / 0.35) 0%, transparent 55%);
+}
+
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.02;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+}
+
+
+/* ── Layer 7: Motion primitives (global classes, opt-in) ─────────────────── */
+@keyframes gd-enter-up {
+  from { opacity: 0; transform: translateY(16px); filter: blur(5px); }
+  to   { opacity: 1; transform: translateY(0);    filter: blur(0); }
+}
+
+.enter-up {
+  animation: gd-enter-up 0.65s var(--ease-out) both;
+  animation-delay: var(--stagger, 0ms);
+}
+
+@keyframes gd-shimmer {
+  from { background-position: -160% 0; }
+  to   { background-position: 260% 0; }
+}
+
+/* ============================================================================
+   DASHBOARD SCOPE — everything below applies only inside `.gd`
+   ============================================================================ */
+
+.gd {
+  font-family: var(--font-body);
+  display: flex;
+  flex-direction: column;
+  gap: var(--gd-block);
+}
+
+/* ── Shared: eyebrow ─────────────────────────────────────────────────────── */
+.gd-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+}
+
+/* ── Loading skeleton ────────────────────────────────────────────────────── */
+/* WHY: the old state was a lone spinner in a fixed h-64 box, so the page
+   jumped when data landed. The skeleton holds the real layout. */
+.gd-skel {
+  border-radius: 0.5rem;
+  background: linear-gradient(
+    90deg,
+    oklch(var(--n-200)) 0%,
+    oklch(var(--n-100)) 45%,
+    oklch(var(--n-200)) 90%
+  );
+  background-size: 220% 100%;
+  animation: gd-shimmer 1.6s linear infinite;
+}
+
+.gd-skel--card {
+  min-height: 9.5rem;
+  border-radius: 1.125rem;
+  border: 1px solid var(--gd-hairline);
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  :root { --gd-pad: 1.375rem; --gd-block: 2rem; }
+
+  .gd-head { align-items: flex-start; }
+  .gd-head__aside { width: 100%; justify-content: space-between; }
+  .gd-title { max-width: none; }
+  .gd-kpi { min-height: 8.5rem; }
+  .gd-kpi__icon { width: 5.25rem; height: 5.25rem; }
+  .gd-actions { grid-template-columns: 1fr; }
+}
+
+/* ── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .enter-up {
+    animation: none;
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+  .gd-skel { animation: none; }
+
+  .gd *,
+  .gd *::before,
+  .gd *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================================
+   PART 2 — APP SHELL + SHARED COMPONENTS
+   ----------------------------------------------------------------------------
+   Pass 2 of the redesign: sidebar, buttons, inputs, tables, badges, alerts,
+   modals, page headers, auth pages.
+
+   Leverage note: index.css defines shared classes in @layer components
+   (.btn-primary, .input-field, .card, .section-card, .sidebar-item,
+   .page-title, .table-container). gold.css loads after it, so overriding
+   those class NAMES upgrades every page at once without editing each file —
+   the Tailwind path the skill prescribes (change the system, not the callers).
+   ============================================================================ */
+
+/* ── App shell ───────────────────────────────────────────────────────────── */
+/* ── Sidebar: graphite rail ──────────────────────────────────────────────── */
+/* WHY: the sidebar was white-on-warm-white against a white content area —
+   two surfaces with no separation doing equal visual work, and the active
+   item was a solid bg-primary-100 slab that shouted louder than the page
+   heading. Graphite gives the shell an anchor, drops the nav out of the
+   content's reading order, and lets the ochre act as a pointer instead of
+   a highlighter. */
+.gd-sidebar {
+  background: oklch(var(--n-950));
+  border-right: 1px solid oklch(var(--n-950));
+  color: oklch(var(--n-300));
+  color-scheme: dark;
+}
+
+.gd-sidebar hr,
+.gd-sidebar .gd-sb-divider {
+  border-color: oklch(1 0 0 / 0.07);
+}
+
+/* The original had a border-b on five consecutive blocks — a ladder of
+   hairlines. Only the brand block and the footer keep one. */
+.gd-sb-block {
+  border-bottom: 1px solid oklch(1 0 0 / 0.07);
+}
+
+.gd-sb-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: 4.25rem;
+  padding: 0 1.125rem;
+  border-bottom: 1px solid oklch(1 0 0 / 0.07);
+}
+
+.gd-sb-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.125rem;
+  height: 2.125rem;
+  flex: none;
+  border-radius: 0.625rem;
+  background: oklch(var(--p-500));
+  color: oklch(var(--n-950));
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+
+.gd-sb-wordmark {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: oklch(var(--white));
+  line-height: 1.2;
+}
+
+.gd-sb-sub {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+  line-height: 1.4;
+}
+
+/* Identity block */
+.gd-sb-user {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.125rem;
+}
+
+.gd-sb-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  flex: none;
+  border-radius: 9999px;
+  background: oklch(var(--p-500) / 0.16);
+  border: 1px solid oklch(var(--p-500) / 0.32);
+  color: oklch(var(--p-300));
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.gd-sb-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: oklch(var(--n-100));
+  line-height: 1.3;
+}
+
+.gd-sb-role {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+  line-height: 1.5;
+}
+
+/* Nav items — override index.css .sidebar-item* */
+.gd-sidebar .sidebar-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6875rem 1rem;
+  min-height: 44px;
+  border-radius: 0.625rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.005em;
+  transition:
+    background-color 0.3s var(--ease-snap),
+    color 0.3s var(--ease-snap);
+}
+
+/* index.css states the intent explicitly: "active state is a tint + weight,
+   never a side stripe." Honoured — the graphite rail supplies the contrast
+   that the old bg-primary-100 slab was straining for, without a stripe. */
+.gd-sidebar .sidebar-item-inactive {
+  color: oklch(var(--n-400));
+  background: transparent;
+}
+
+.gd-sidebar .sidebar-item-inactive:hover {
+  background: oklch(1 0 0 / 0.05);
+  color: oklch(var(--n-100));
+}
+
+.gd-sidebar .sidebar-item-active {
+  background: oklch(1 0 0 / 0.08);
+  color: oklch(var(--white));
+  font-weight: 600;
+}
+
+
+.gd-sidebar .sidebar-item svg { flex: none; }
+
+.gd-sb-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 1rem 1.125rem;
+  overflow-y: auto;
+  flex: 1 1 auto;
+}
+
+.gd-sb-navlabel {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(var(--n-600));
+  padding: 0 1rem 0.5rem;
+}
+
+.gd-sb-foot {
+  padding: 0.875rem 1.125rem;
+  border-top: 1px solid oklch(1 0 0 / 0.07);
+}
+
+/* Selects inside the rail (company + language switchers) */
+.gd-sidebar label {
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+}
+
+.gd-sidebar select {
+  background: oklch(1 0 0 / 0.06);
+  border: 1px solid oklch(1 0 0 / 0.12);
+  border-radius: 0.5rem;
+  color: oklch(var(--n-200));
+  font-size: 0.8125rem;
+  padding: 0.375rem 0.5rem;
+  transition: border-color 0.3s var(--ease-snap), background-color 0.3s var(--ease-snap);
+}
+
+.gd-sidebar select:hover {
+  background: oklch(1 0 0 / 0.09);
+  border-color: oklch(1 0 0 / 0.2);
+}
+
+.gd-sidebar select:focus-visible {
+  outline: none;
+  border-color: oklch(var(--p-500));
+  box-shadow: 0 0 0 3px oklch(var(--p-500) / 0.25);
+}
+
+.gd-sidebar svg { color: inherit; }
+
+/* ── Dark-context overrides for the rail's light-mode utilities ──────────── */
+/* WHY: unlike the backoffice, this Sidebar keeps its Tailwind colour classes
+   in the JSX (it has collapse state, nested groups and permission gating that
+   are not worth restructuring for a repaint). Remapping the handful of
+   utilities it uses is the non-invasive way to make them legible on graphite —
+   the wordmark and the user's name were rendering near-black on near-black. */
+.gd-sidebar .border-secondary-200 { border-color: oklch(1 0 0 / 0.1) !important; }
+.gd-sidebar .text-secondary-900 { color: oklch(var(--n-100)) !important; }
+.gd-sidebar .text-secondary-800 { color: oklch(var(--n-200)) !important; }
+.gd-sidebar .text-secondary-700 { color: oklch(var(--n-300)) !important; }
+.gd-sidebar .text-secondary-600 { color: oklch(var(--n-400)) !important; }
+.gd-sidebar .text-secondary-500 { color: oklch(var(--n-500)) !important; }
+.gd-sidebar .text-secondary-400 { color: oklch(var(--n-500)) !important; }
+.gd-sidebar .bg-white { background-color: transparent !important; }
+.gd-sidebar .hover\:bg-secondary-100:hover { background-color: oklch(1 0 0 / 0.07) !important; }
+.gd-sidebar .hover\:text-secondary-800:hover { color: oklch(var(--white)) !important; }
+.gd-sidebar .hover\:text-secondary-900:hover { color: oklch(var(--white)) !important; }
+
+/* The brand mark keeps its ochre; the small avatar tint needs to read on dark */
+.gd-sidebar .bg-primary-100 {
+  background-color: oklch(var(--p-500) / 0.18) !important;
+}
+.gd-sidebar .text-primary-600,
+.gd-sidebar .text-primary-700,
+.gd-sidebar .text-primary-900 { color: oklch(var(--p-300)) !important; }
+.gd-sidebar .text-secondary-500 { color: oklch(var(--n-500)); }
+
+/* Sign-out gets a danger-leaning hover; it is the one destructive control here. */
+.gd-sb-signout:hover {
+  background: oklch(var(--red-500) / 0.14) !important;
+  color: oklch(var(--red-300)) !important;
+}
+
+/* NOTE: no responsive rail rules here. This app's Sidebar owns its own
+   collapse (isCollapsed -> w-16 / w-64, persisted to localStorage), so a
+   media-query collapse would fight the component's state. */
+
+/* ── Page header ─────────────────────────────────────────────────────────── */
+/* Same hierarchy fix as the dashboard: 24px bold was doing headline duty. */
+.page-title,
+.gd-page-title {
+  font-family: var(--font-display);
+  font-size: clamp(1.625rem, 2.4vw, 2.125rem);
+  font-weight: 500;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  color: oklch(var(--n-950));
+}
+
+.page-subtitle,
+.gd-page-sub {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: oklch(var(--n-500));
+  max-width: 62ch;
+}
+
+.gd-page-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--gd-hairline);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+/* WHY: every button was transition-colors only — a flat colour swap with no
+   physical feedback. Buttons are where perceived quality is decided. */
+.gd-b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-body);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    transform 0.35s var(--ease-snap),
+    box-shadow 0.35s var(--ease-snap),
+    background-color 0.3s var(--ease-snap),
+    border-color 0.3s var(--ease-snap),
+    color 0.3s var(--ease-snap);
+}
+
+.gd-b:hover:not(:disabled) { transform: translateY(-2px); }
+.gd-b:active:not(:disabled) { transform: translateY(0) scale(0.975); transition-duration: 0.1s; }
+.gd-b:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+.gd-b:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px oklch(var(--p-500) / 0.3);
+}
+
+.gd-b-solid {
+  background: oklch(var(--p-600));
+  color: oklch(var(--white));
+  box-shadow: var(--gd-elev-rest);
+}
+.gd-b-solid:hover:not(:disabled) {
+  background: oklch(var(--p-700));
+  box-shadow: var(--gd-elev-lift);
+}
+
+.gd-b-outline {
+  background: oklch(var(--white));
+  color: oklch(var(--n-800));
+  border-color: var(--gd-hairline-strong);
+  box-shadow: var(--gd-elev-rest);
+}
+.gd-b-outline:hover:not(:disabled) {
+  border-color: oklch(var(--p-400));
+  color: oklch(var(--n-950));
+  box-shadow: var(--gd-elev-lift);
+}
+
+.gd-b-soft {
+  background: oklch(var(--n-100));
+  color: oklch(var(--n-800));
+}
+.gd-b-soft:hover:not(:disabled) { background: oklch(var(--n-200)); }
+
+.gd-b-ghost {
+  background: transparent;
+  color: oklch(var(--n-600));
+}
+.gd-b-ghost:hover:not(:disabled) {
+  background: oklch(var(--n-950) / 0.05);
+  color: oklch(var(--n-950));
+  transform: none;
+}
+
+.gd-b-danger {
+  background: oklch(var(--red-600));
+  color: oklch(var(--white));
+  box-shadow: var(--gd-elev-rest);
+}
+.gd-b-danger:hover:not(:disabled) {
+  background: oklch(var(--red-700));
+  box-shadow: var(--gd-elev-lift);
+}
+.gd-b-danger:focus-visible { box-shadow: 0 0 0 3px oklch(var(--red-500) / 0.3); }
+
+.gd-b-sm { padding: 0.4375rem 0.875rem; font-size: 0.8125rem; min-height: 36px; }
+.gd-b-md { padding: 0.625rem 1.25rem; font-size: 0.8125rem; min-height: 44px; }
+.gd-b-lg { padding: 0.8125rem 1.75rem; font-size: 0.9375rem; min-height: 50px; }
+
+/* Keep the index.css shared button classes in step with the same language. */
+.btn-primary { border-radius: 9999px; padding: 0.625rem 1.25rem; min-height: 44px; }
+.btn-secondary { border-radius: 9999px; padding: 0.625rem 1.25rem; min-height: 44px; }
+.btn-danger { border-radius: 9999px; padding: 0.625rem 1.25rem; min-height: 44px; }
+
+/* ── Inputs ──────────────────────────────────────────────────────────────── */
+.input-field,
+.gd-input {
+  min-height: 44px;
+  border-radius: 0.625rem;
+  border: 1px solid var(--gd-hairline-strong);
+  background: oklch(var(--white));
+  font-size: 0.875rem;
+  color: oklch(var(--n-900));
+  transition:
+    border-color 0.3s var(--ease-snap),
+    box-shadow 0.3s var(--ease-snap),
+    background-color 0.3s var(--ease-snap);
+}
+
+.input-field::placeholder,
+.gd-input::placeholder {
+  color: oklch(var(--n-400));
+}
+
+.input-field:hover:not(:disabled),
+.gd-input:hover:not(:disabled) { border-color: oklch(var(--n-400)); }
+
+.input-field:focus,
+.gd-input:focus {
+  outline: none;
+  border-color: oklch(var(--p-500));
+  box-shadow: 0 0 0 3px oklch(var(--p-500) / 0.22);
+}
+
+.gd-label {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+  margin-bottom: 0.5rem;
+}
+
+/* Search field with a leading icon */
+.gd-search input {
+  padding-left: 2.5rem !important;
+}
+
+/* ── Surfaces ────────────────────────────────────────────────────────────── */
+.card,
+.section-card,
+.table-container,
+.gd-surface {
+  background: oklch(var(--white));
+  border: 1px solid var(--gd-hairline);
+  border-radius: 1.125rem;
+  box-shadow: var(--gd-elev-rest);
+}
+
+.card-header,
+.gd-surface-head {
+  padding: 1.125rem 1.5rem;
+  border-bottom: 1px solid var(--gd-hairline);
+  background: transparent;
+}
+
+/* ── Tables ──────────────────────────────────────────────────────────────── */
+/* WHY: headers were 12px uppercase body-font grey — the same voice as the
+   data underneath. Mono headers separate label from value at a glance. */
+.gd-table thead th {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+  padding: 0.875rem 1.5rem;
+  border-bottom: 1px solid var(--gd-hairline);
+  white-space: nowrap;
+}
+
+.gd-table tbody td {
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  color: oklch(var(--n-800));
+  border-bottom: 1px solid oklch(var(--n-950) / 0.045);
+}
+
+.gd-table tbody tr {
+  transition: background-color 0.25s var(--ease-snap);
+}
+
+.gd-table tbody tr:hover {
+  background: oklch(var(--p-500) / 0.04);
+}
+
+.gd-table tbody tr:last-child td { border-bottom: none; }
+
+.gd-table-empty {
+  padding: 4.5rem 1.5rem !important;
+  text-align: center;
+  font-size: 0.875rem;
+  color: oklch(var(--n-500));
+}
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+/* WHY: bg-purple-100/bg-blue-100/bg-green-100/bg-red-100 pills — the same
+   pastel-chip crime removed from the dashboard, still live on Users,
+   Companies and the modules modal. Replaced with one outline system where
+   a tone dot carries the meaning. */
+.gd-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4375rem;
+  padding: 0.25rem 0.625rem 0.25rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--gd-badge-line, var(--gd-hairline-strong));
+  background: var(--gd-badge-bg, oklch(var(--n-100)));
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.005em;
+  color: var(--gd-badge-fg, oklch(var(--n-700)));
+  white-space: nowrap;
+}
+
+.gd-badge::before {
+  content: '';
+  width: 0.375rem;
+  height: 0.375rem;
+  border-radius: 9999px;
+  flex: none;
+  background: var(--gd-badge-dot, oklch(var(--n-400)));
+}
+
+.gd-badge-neutral {
+  --gd-badge-bg: oklch(var(--n-100));
+  --gd-badge-line: oklch(var(--n-950) / 0.1);
+  --gd-badge-fg: oklch(var(--n-700));
+  --gd-badge-dot: oklch(var(--n-500));
+}
+
+.gd-badge-brand {
+  --gd-badge-bg: oklch(var(--p-500) / 0.1);
+  --gd-badge-line: oklch(var(--p-500) / 0.3);
+  --gd-badge-fg: oklch(var(--p-800));
+  --gd-badge-dot: oklch(var(--p-600));
+}
+
+.gd-badge-positive {
+  --gd-badge-bg: oklch(var(--green-500) / 0.1);
+  --gd-badge-line: oklch(var(--green-500) / 0.28);
+  --gd-badge-fg: oklch(var(--green-800));
+  --gd-badge-dot: oklch(var(--green-600));
+}
+
+.gd-badge-negative {
+  --gd-badge-bg: oklch(var(--red-500) / 0.09);
+  --gd-badge-line: oklch(var(--red-500) / 0.26);
+  --gd-badge-fg: oklch(var(--red-800));
+  --gd-badge-dot: oklch(var(--red-600));
+}
+
+.gd-badge-warning {
+  --gd-badge-bg: oklch(var(--amber-500) / 0.13);
+  --gd-badge-line: oklch(var(--amber-600) / 0.3);
+  --gd-badge-fg: oklch(var(--amber-900));
+  --gd-badge-dot: oklch(var(--amber-600));
+}
+
+.gd-badge-info {
+  --gd-badge-bg: oklch(var(--blue-500) / 0.09);
+  --gd-badge-line: oklch(var(--blue-500) / 0.26);
+  --gd-badge-fg: oklch(var(--blue-800));
+  --gd-badge-dot: oklch(var(--blue-600));
+}
+
+/* ── Alerts ──────────────────────────────────────────────────────────────── */
+/* WHY: `bg-red-50 border border-red-200 rounded-lg p-4` was copy-pasted at
+   ten call sites. One class, one definition. */
+.gd-alert {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--gd-alert-line);
+  border-left-width: 3px;
+  background: var(--gd-alert-bg);
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--gd-alert-fg);
+}
+
+.gd-alert p { margin: 0; max-width: none; color: inherit; }
+
+.gd-alert-danger {
+  --gd-alert-bg: oklch(var(--red-500) / 0.07);
+  --gd-alert-line: oklch(var(--red-500) / 0.35);
+  --gd-alert-fg: oklch(var(--red-800));
+}
+
+.gd-alert-info {
+  --gd-alert-bg: oklch(var(--blue-500) / 0.07);
+  --gd-alert-line: oklch(var(--blue-500) / 0.32);
+  --gd-alert-fg: oklch(var(--blue-800));
+}
+
+.gd-alert-success {
+  --gd-alert-bg: oklch(var(--green-500) / 0.08);
+  --gd-alert-line: oklch(var(--green-500) / 0.32);
+  --gd-alert-fg: oklch(var(--green-800));
+}
+
+/* ── Modals ──────────────────────────────────────────────────────────────── */
+.gd-modal-overlay {
+  background: oklch(var(--n-950) / 0.5);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+}
+
+.gd-modal-panel {
+  background: oklch(var(--white));
+  border: 1px solid var(--gd-hairline);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 4px 12px oklch(var(--n-950) / 0.08),
+    0 32px 64px -16px oklch(var(--n-950) / 0.28);
+}
+
+.gd-modal-title {
+  font-family: var(--font-display);
+  font-size: 1.1875rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  color: oklch(var(--n-950));
+  margin: 0;
+}
+
+/* ── Auth pages ──────────────────────────────────────────────────────────── */
+/* WHY: a 24px heading over a generic shadow-lg card. The first screen of the
+   product looked like a bootstrapped admin template. */
+.gd-auth {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.25rem;
+}
+
+.gd-auth__inner { width: 100%; max-width: 26rem; }
+
+.gd-auth__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.875rem;
+  background: oklch(var(--n-950));
+  color: oklch(var(--p-400));
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 700;
+  box-shadow: var(--gd-elev-lift);
+}
+
+.gd-auth__eyebrow {
+  display: block;
+  margin-top: 1.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+}
+
+.gd-auth__title {
+  margin: 0.625rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.875rem, 4vw, 2.5rem);
+  font-weight: 500;
+  line-height: 1.04;
+  letter-spacing: -0.04em;
+  color: oklch(var(--n-950));
+}
+
+.gd-auth__sub {
+  margin: 0.75rem 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: oklch(var(--n-500));
+  max-width: 34ch;
+}
+
+.gd-auth__card {
+  margin-top: 2.25rem;
+  padding: 1.875rem;
+  background: oklch(var(--white));
+  border: 1px solid var(--gd-hairline);
+  border-radius: 1.25rem;
+  box-shadow:
+    0 1px 2px oklch(var(--n-950) / 0.04),
+    0 20px 44px -20px oklch(var(--n-950) / 0.18);
+}
+
+.gd-auth__foot {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.gd-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: oklch(var(--p-700));
+  transition: color 0.25s var(--ease-snap);
+}
+
+.gd-link:hover { color: oklch(var(--p-800)); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Reduced motion (shell + components) ─────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .gd-sidebar,
+  .gd-sidebar *,
+  .gd-b,
+  .gd-table tbody tr {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

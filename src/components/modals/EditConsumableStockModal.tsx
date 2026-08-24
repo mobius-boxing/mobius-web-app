@@ -141,7 +141,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
         <ErrorMessage message={error} />
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('consumableStock.warehouse')} *
           </label>
           <select
@@ -164,7 +164,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
 
         {selectedWarehouse && (
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('consumableStock.warehouseLocation')}
             </label>
             {selectedLocation ? (
@@ -202,7 +202,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
         )}
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('consumableStock.consumableSupply')} *
           </label>
           <select
@@ -224,7 +224,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('consumableStock.supplier')}
           </label>
           <select
@@ -241,7 +241,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('consumableStock.manufacturer')}
           </label>
           <select
@@ -259,7 +259,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('consumableStock.quantity')} *
             </label>
             <Input
@@ -274,7 +274,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-secondary-700 mb-1">
+            <label className="gd-label">
               {t('consumableStock.price')}
             </label>
             <Input
@@ -289,7 +289,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-secondary-700 mb-1">
+          <label className="gd-label">
             {t('consumableStock.comments')}
           </label>
           <Input
