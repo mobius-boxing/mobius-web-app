@@ -33,3 +33,20 @@ export const setToken = (token: string): void => {
 export const clearToken = (): void => {
   document.cookie = buildCookie(`${COOKIE_NAME}=`, 0);
 };
+
+// The superAdmin company switcher's choice. It lives here rather than in
+// CompanyContext so the API layer can drop it when the server reports the
+// company is gone, without importing the context (which imports the API).
+export const COMPANY_STORAGE_KEY = 'selected_company_uuid';
+
+/** Returns true when a stored selection was actually removed. */
+export const clearSelectedCompany = (): boolean => {
+  try {
+    if (localStorage.getItem(COMPANY_STORAGE_KEY) === null) return false;
+    localStorage.removeItem(COMPANY_STORAGE_KEY);
+    return true;
+  } catch {
+    // Private mode / storage disabled: nothing was stored, nothing to clear.
+    return false;
+  }
+};

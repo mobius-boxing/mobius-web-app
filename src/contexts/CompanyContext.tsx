@@ -3,6 +3,7 @@ import { Company } from '../types';
 import { companiesApi } from '../services/api';
 import { useAuth } from './AuthContext';
 import { logger } from '../utils/logger';
+import { COMPANY_STORAGE_KEY } from '../utils/session';
 
 interface CompanyContextType {
   selectedCompany: Company | null;
@@ -15,7 +16,7 @@ interface CompanyContextType {
 
 const CompanyContext = createContext<CompanyContextType | undefined>(undefined);
 
-const STORAGE_KEY = 'selected_company_uuid';
+const STORAGE_KEY = COMPANY_STORAGE_KEY;
 
 export const useCompany = () => {
   const context = useContext(CompanyContext);

@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { getToken, clearToken } from '../utils/session';
+import { getToken, clearToken, clearSelectedCompany } from '../utils/session';
 import {
   ApiResponse,
   PaginatedResponse,
@@ -157,6 +157,19 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !isSelfHandled) {
       clearToken();
       window.location.href = '/login';
+    }
+    // The superAdmin's selected company no longer exists. Every company-scoped
+    // list would otherwise answer with zero rows, and the app would render that
+    // as "this tenant has no data" on every screen at once. Drop the stale
+    // selection and reload so CompanyContext re-selects a company that exists.
+    // Guarded on having actually removed something, so a browser that cannot
+    // write localStorage does not reload forever.
+    if (
+      error.response?.status === 404 &&
+      error.response?.data?.code === 'COMPANY_NOT_FOUND' &&
+      clearSelectedCompany()
+    ) {
+      window.location.reload();
     }
     return Promise.reject(error);
   }
