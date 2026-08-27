@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import ProductionOrders from '../../pages/ProductionOrders';
 
 const mockGetProductionOrders = jest.fn();
@@ -149,5 +149,94 @@ describe('the Fecha and F. entrega columns', () => {
     const deliveryDates = screen.getAllByTestId('order-delivery-date');
     expect(deliveryDates[0]).toHaveTextContent('01/01/2030');
     expect(deliveryDates[1]).toHaveTextContent('-');
+  });
+});
+
+// ── filters ──────────────────────────────────────────────────────────────────
+describe('the filter bar', () => {
+  /**
+   * The filters used to live in five `useState` hooks with a manual
+   * `refresh()` effect, which refetched at whatever page the user was on.
+   * Narrowing the set from page 2 then returned an empty grid: the server had
+   * one page of results and was being asked for the second. The whole filter
+   * object now flows through `useEntityList.setFilters`, which resets the page.
+   */
+  it('resets to page 1 when a filter changes', async () => {
+    mockGetProductionOrders.mockResolvedValue({
+      data: orders,
+      total: 50,
+      page: 2,
+      limit: 20,
+      totalPages: 3,
+    });
+
+    render(<ProductionOrders />);
+    await waitFor(() => expect(mockGetProductionOrders).toHaveBeenCalled());
+
+    // Walk to page 2 and confirm the API really was asked for it.
+    fireEvent.click(screen.getByRole('button', { name: '2' }));
+    await waitFor(() =>
+      expect(mockGetProductionOrders).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 2 }),
+      ),
+    );
+
+    const beforeFilter = mockGetProductionOrders.mock.calls.length;
+
+    fireEvent.change(screen.getByTestId('filter-scheduling-state'), {
+      target: { value: 'enabled' },
+    });
+
+    await waitFor(() =>
+      expect(mockGetProductionOrders.mock.calls.length).toBeGreaterThan(
+        beforeFilter,
+      ),
+    );
+
+    const last = mockGetProductionOrders.mock.calls.at(-1)![0];
+    expect(last).toMatchObject({ page: 1, schedulingState: 'enabled' });
+  });
+
+  it('sends each filter through to the list endpoint', async () => {
+    render(<ProductionOrders />);
+    await waitFor(() => expect(mockGetProductionOrders).toHaveBeenCalled());
+
+    fireEvent.change(screen.getByTestId('filter-completion-state'), {
+      target: { value: 'completed' },
+    });
+    fireEvent.change(screen.getByTestId('filter-delivery-from'), {
+      target: { value: '2026-08-01' },
+    });
+
+    await waitFor(() =>
+      expect(mockGetProductionOrders).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          completionState: 'completed',
+          deliveryDateFrom: '2026-08-01',
+        }),
+      ),
+    );
+  });
+
+  it('Limpiar drops every filter and is inert until one is set', async () => {
+    render(<ProductionOrders />);
+    await waitFor(() => expect(mockGetProductionOrders).toHaveBeenCalled());
+
+    const clear = screen.getByTestId('filter-clear');
+    expect(clear).toBeDisabled();
+
+    fireEvent.change(screen.getByTestId('filter-void-state'), {
+      target: { value: 'voided' },
+    });
+    await waitFor(() => expect(clear).not.toBeDisabled());
+
+    fireEvent.click(clear);
+
+    await waitFor(() =>
+      expect(mockGetProductionOrders).toHaveBeenLastCalledWith(
+        expect.not.objectContaining({ voidState: 'voided' }),
+      ),
+    );
+    expect(screen.getByTestId('filter-void-state')).toHaveValue('');
   });
 });

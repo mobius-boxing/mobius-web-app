@@ -1515,6 +1515,24 @@ export interface SalesOrderListFilters {
   allProductionOrdersFulfilled?: 'true' | 'false';
 }
 
+/**
+ * The órdenes de producción list filters, exactly the tri-state/range params
+ * `GET /production-orders` documents. Held as ONE object so the whole set
+ * flows through `useEntityList.setFilters`, which resets the page — filters
+ * kept as separate `useState` silently refetched page N with a narrower set.
+ *
+ * A `type` and not an `interface` on purpose: only a type alias gets the
+ * implicit index signature that makes it assignable to the hook's
+ * `Record<string, unknown>` filter slot.
+ */
+export type ProductionOrderListFilters = {
+  schedulingState?: 'enabled' | 'disabled';
+  completionState?: 'open' | 'completed';
+  voidState?: 'active' | 'voided';
+  deliveryDateFrom?: string;
+  deliveryDateTo?: string;
+};
+
 /** What the "Alta de Pedido" form POSTs / PUTs. `number` is server-generated. */
 export interface SalesOrderFormPayload {
   customerUuid?: string;

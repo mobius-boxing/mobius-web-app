@@ -4,12 +4,16 @@ import { CheckCircle2, Clock, Trash2, XCircle } from 'lucide-react';
 import Button from '../ui/Button';
 import Table from '../ui/Table';
 import Pagination from '../ui/Pagination';
-import { SearchInput } from '../ui/SearchInput';
 import ConfirmModal from '../ui/ConfirmModal';
 import Modal from '../ui/Modal';
 import GenerateOrdersDialog from './GenerateOrdersDialog';
+import ProductionOrdersFilterBar from './ProductionOrdersFilterBar';
 import ProductionOrderLifecycleControl from './ProductionOrderLifecycleControl';
-import { ProductionOrder, SalesOrder } from '../../types';
+import {
+  ProductionOrder,
+  ProductionOrderListFilters,
+  SalesOrder,
+} from '../../types';
 import { productionOrdersApi, salesOrdersApi } from '../../services/api';
 import { useEntityList } from '../../hooks/useEntityList';
 import { useConfirmModal } from '../../hooks/useConfirmModal';
@@ -54,11 +58,6 @@ const ProductionOrdersGrid: React.FC<Props> = ({
   const { effectiveCompanyId } = useEffectiveCompany();
   const { has } = usePermissions();
   const confirmModal = useConfirmModal();
-  const [schedulingState, setSchedulingState] = useState('');
-  const [completionState, setCompletionState] = useState('');
-  const [voidState, setVoidState] = useState('');
-  const [deliveryDateFrom, setDeliveryDateFrom] = useState('');
-  const [deliveryDateTo, setDeliveryDateTo] = useState('');
   const [generateFor, setGenerateFor] = useState<string | null>(null);
   const [detail, setDetail] = useState<ProductionOrder | null>(null);
   /** Standalone page only: the pedido the manual "Generar órdenes" acts on. */
@@ -67,25 +66,15 @@ const ProductionOrdersGrid: React.FC<Props> = ({
 
   const fetchOrders = useCallback(
     (params: Record<string, unknown>) => {
+      // `params` already carries page, limit, search, sort AND every filter
+      // the bar set — useEntityList merges its own filter slot in. Only the
+      // scope this grid imposes is added here.
       const query: Record<string, unknown> = { ...params };
       if (effectiveCompanyId) query.companyId = effectiveCompanyId;
       if (salesOrderUuid) query.salesOrderUuid = salesOrderUuid;
-      if (schedulingState) query.schedulingState = schedulingState;
-      if (completionState) query.completionState = completionState;
-      if (voidState) query.voidState = voidState;
-      if (deliveryDateFrom) query.deliveryDateFrom = deliveryDateFrom;
-      if (deliveryDateTo) query.deliveryDateTo = deliveryDateTo;
       return productionOrdersApi.getProductionOrders(query);
     },
-    [
-      effectiveCompanyId,
-      salesOrderUuid,
-      schedulingState,
-      completionState,
-      voidState,
-      deliveryDateFrom,
-      deliveryDateTo,
-    ],
+    [effectiveCompanyId, salesOrderUuid],
   );
 
   const {
@@ -98,23 +87,27 @@ const ProductionOrdersGrid: React.FC<Props> = ({
     sortBy,
     sortOrder,
     setSort,
+    filters,
+    setFilters,
   } = useEntityList<ProductionOrder>({
     fetchFn: fetchOrders,
     searchFields: ['number'],
   });
 
+  // Scope changes only. Filter changes are deliberately NOT here: they go
+  // through `setFilters`, which resets to page 1 and refetches on its own.
+  // Refreshing here too would fire the request twice — the second at the stale
+  // page number, which is what made a filter change on page 4 return nothing.
   useEffect(() => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    effectiveCompanyId,
-    salesOrderUuid,
-    schedulingState,
-    completionState,
-    voidState,
-    deliveryDateFrom,
-    deliveryDateTo,
-  ]);
+  }, [effectiveCompanyId, salesOrderUuid]);
+
+  /** `Limpiar` — drops the filters and the free-text search, back to page 1. */
+  const handleClearFilters = () => {
+    setSearch('');
+    setFilters({});
+  };
 
   // UI §7: the standalone page offers generation on demand, so it needs a
   // pedido to act on. Embedded under a pedido this list is already scoped.
@@ -259,99 +252,49 @@ const ProductionOrdersGrid: React.FC<Props> = ({
 
   return (
     <div className="space-y-3" data-testid="production-orders-list">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        {!compact && (
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="w-64">
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder={t('productionOrders.searchPlaceholder')}
-              />
-            </div>
+      {!compact && (
+        <ProductionOrdersFilterBar
+          value={filters as ProductionOrderListFilters}
+          onChange={setFilters}
+          search={search}
+          onSearchChange={setSearch}
+          onClear={handleClearFilters}
+        />
+      )}
+
+      {/* The generation action gets its own row — sharing one wrapping flex
+          row with six filter controls is what made both unreadable. */}
+      {canGenerate && (
+        <div className="flex items-center justify-end gap-2">
+          {!salesOrderUuid && (
+            // `.input-field` is w-full; unbounded it eats the row and pushes
+            // the button onto a line of its own.
             <select
-              name="schedulingState"
-              className="input-field"
-              data-testid="filter-scheduling-state"
-              value={schedulingState}
-              onChange={(e) => setSchedulingState(e.target.value)}
+              name="salesOrderUuid"
+              className="input-field w-64"
+              data-testid="generate-sales-order-select"
+              aria-label={t('productionOrders.pickSalesOrder')}
+              value={pickedSalesOrder}
+              onChange={(e) => setPickedSalesOrder(e.target.value)}
             >
-              <option value="">{t('productionOrders.filters.allScheduling')}</option>
-              <option value="enabled">{t('productionOrders.filters.enabled')}</option>
-              <option value="disabled">{t('productionOrders.filters.disabled')}</option>
+              <option value="">{t('productionOrders.pickSalesOrder')}</option>
+              {salesOrders.map((order) => (
+                <option key={order.uuid} value={order.uuid}>
+                  {order.number}
+                </option>
+              ))}
             </select>
-            <select
-              name="completionState"
-              className="input-field"
-              data-testid="filter-completion-state"
-              value={completionState}
-              onChange={(e) => setCompletionState(e.target.value)}
-            >
-              <option value="">{t('productionOrders.filters.allCompletion')}</option>
-              <option value="open">{t('productionOrders.filters.open')}</option>
-              <option value="completed">{t('productionOrders.filters.completed')}</option>
-            </select>
-            <select
-              name="voidState"
-              className="input-field"
-              data-testid="filter-void-state"
-              value={voidState}
-              onChange={(e) => setVoidState(e.target.value)}
-            >
-              <option value="">{t('productionOrders.filters.allVoid')}</option>
-              <option value="active">{t('productionOrders.filters.active')}</option>
-              <option value="voided">{t('productionOrders.filters.voided')}</option>
-            </select>
-            <input
-              name="deliveryDateFrom"
-              type="date"
-              className="input-field"
-              data-testid="filter-delivery-from"
-              aria-label={t('productionOrders.filters.deliveryFrom')}
-              value={deliveryDateFrom}
-              onChange={(e) => setDeliveryDateFrom(e.target.value)}
-            />
-            <input
-              name="deliveryDateTo"
-              type="date"
-              className="input-field"
-              data-testid="filter-delivery-to"
-              aria-label={t('productionOrders.filters.deliveryTo')}
-              value={deliveryDateTo}
-              onChange={(e) => setDeliveryDateTo(e.target.value)}
-            />
-          </div>
-        )}
-        {canGenerate && (
-          <div className="flex items-center gap-2">
-            {!salesOrderUuid && (
-              <select
-                name="salesOrderUuid"
-                className="input-field"
-                data-testid="generate-sales-order-select"
-                aria-label={t('productionOrders.pickSalesOrder')}
-                value={pickedSalesOrder}
-                onChange={(e) => setPickedSalesOrder(e.target.value)}
-              >
-                <option value="">{t('productionOrders.pickSalesOrder')}</option>
-                {salesOrders.map((order) => (
-                  <option key={order.uuid} value={order.uuid}>
-                    {order.number}
-                  </option>
-                ))}
-              </select>
-            )}
-            <Button
-              size="sm"
-              disabled={!salesOrderUuid && !pickedSalesOrder}
-              data-testid="generate-orders-btn"
-              onClick={() => setGenerateFor(salesOrderUuid ?? pickedSalesOrder)}
-            >
-              {t('productionOrders.generateButton')}
-            </Button>
-          </div>
-        )}
-      </div>
+          )}
+          <Button
+            size="sm"
+            disabled={!salesOrderUuid && !pickedSalesOrder}
+            data-testid="generate-orders-btn"
+            onClick={() => setGenerateFor(salesOrderUuid ?? pickedSalesOrder)}
+          >
+            {t('productionOrders.generateButton')}
+          </Button>
+        </div>
+      )}
 
       <Table
         columns={columns}

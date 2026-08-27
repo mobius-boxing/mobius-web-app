@@ -2446,17 +2446,23 @@
       "actions": "Actions"
     },
     "filters": {
-      "allScheduling": "Scheduling: all",
+      "legend": "Filters",
+      "search": "Search",
+      "scheduling": "Scheduling",
+      "allScheduling": "All",
       "enabled": "Enabled",
       "disabled": "Not enabled",
-      "allCompletion": "Completion: all",
+      "completion": "Completion",
+      "allCompletion": "All",
       "open": "Open",
       "completed": "Completed",
-      "allVoid": "Void: all",
+      "void": "Void",
+      "allVoid": "All",
       "active": "Active",
       "voided": "Voided",
       "deliveryFrom": "Delivery date from",
-      "deliveryTo": "Delivery date to"
+      "deliveryTo": "Delivery date to",
+      "clear": "Clear"
     },
     "lifecycle": {
       "scheduling": "Habilitación (scheduling)",
