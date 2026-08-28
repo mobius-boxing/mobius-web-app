@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -36,16 +36,50 @@ import { logger } from '../../utils/logger';
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
 
+/**
+ * Surviving remounts: every page renders its own <Layout>, and the routes are
+ * flat rather than nested under a layout route, so navigating unmounts this
+ * Sidebar and mounts a fresh one. The new <nav> is a new DOM node, so its
+ * scrollTop starts at 0 and the rail jumps back to the top on every click.
+ * Module scope (not state) deliberately: the value has to outlive the
+ * component instance, and writing it must not trigger a re-render on scroll.
+ */
+let navScrollTop = 0;
+
+/**
+ * ...and the same applies to which groups are open. Restoring only the scroll
+ * offset is not enough: a remount starts with every group collapsed, the nav
+ * gets much shorter, and the browser clamps the restored scrollTop to the new
+ * (smaller) maximum — the rail still jumps, just less far. Keeping both means
+ * the rail comes back exactly as the user left it.
+ */
+let expandedItemIds: string[] = [];
+
 const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
   const { has } = usePermissions();
   const location = useLocation();
+  const navRef = useRef<HTMLElement | null>(null);
+
   const { t } = useTranslation();
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(() => new Set(expandedItemIds));
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
     const saved = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
     return saved === 'true';
   });
+
+  // Restore before paint so the rail never flashes at the top. Keyed on
+  // `expandedItems` because the effect below re-expands the active item's
+  // parents a render after mount: that changes the nav's height, so the offset
+  // has to be re-applied once it settles or it clamps against a stale height.
+  // Re-running on a manual toggle is a no-op, since onScroll keeps
+  // `navScrollTop` equal to where the user actually is. Same pass also mirrors
+  // the open groups into module scope for the next mount to pick up.
+  useLayoutEffect(() => {
+    expandedItemIds = Array.from(expandedItems); // tsconfig target predates es2015 spread-over-Set
+    const el = navRef.current;
+    if (el) el.scrollTop = navScrollTop;
+  }, [expandedItems]);
 
   const toggleCollapsed = () => {
     setIsCollapsed((prev) => {
@@ -670,7 +704,13 @@ const Sidebar: React.FC = () => {
         </div>
       )}
 
-      <nav className={`flex-1 py-4 space-y-1 overflow-y-auto ${isCollapsed ? 'px-2' : 'px-4'}`}>
+      <nav
+        ref={navRef}
+        onScroll={(e) => {
+          navScrollTop = e.currentTarget.scrollTop;
+        }}
+        className={`flex-1 py-4 space-y-1 overflow-y-auto ${isCollapsed ? 'px-2' : 'px-4'}`}
+      >
         {filteredNavigation.map((item) => renderNavItem(item, 0))}
       </nav>
 
