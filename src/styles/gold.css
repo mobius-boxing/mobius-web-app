@@ -951,6 +951,134 @@ body::after {
 
 .gd-link:hover { color: oklch(var(--p-800)); text-decoration: underline; text-underline-offset: 3px; }
 
+/* ── Collapsed rail: tooltip + submenu ───────────────────────────────────── */
+/* WHY: collapsed, the rail is 4rem of unlabelled icons, and it carried two
+   separate problems. Naming a section relied on the browser's native `title`
+   — about a second of delay, in OS chrome that ignores the design. And a
+   group icon was a dead control: it toggled `expandedItems`, but the collapsed
+   branch never renders children, so the group was unreachable without
+   expanding the whole rail.
+   So: hover names the section instantly, click opens its submenu and keeps it
+   open. Both are `position: fixed` (anchored in the component off the rail's
+   right edge) because the <nav> is overflow-y-auto and would clip an
+   absolutely positioned child against its own edge. Motion is covered by the
+   reduced-motion block below, which already matches `.gd-sidebar *`. */
+
+/* Hover label. `pointer-events: none` so it can never sit under the cursor and
+   swallow a click meant for the icon. */
+.gd-sb-tip {
+  position: fixed;
+  z-index: 60;
+  transform: translateY(-50%);
+  padding: 0.3125rem 0.5625rem;
+  border-radius: 0.375rem;
+  background: oklch(var(--p-950));
+  border: 1px solid oklch(var(--p-900));
+  box-shadow: 0 4px 10px -2px oklch(var(--n-950) / 0.3);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: oklch(var(--white));
+  white-space: nowrap;
+  pointer-events: none;
+  /* 80ms reads as instant while still avoiding a hard pop. */
+  animation: gd-tip-in 0.08s var(--ease-out) both;
+}
+.gd-sb-menu {
+  position: fixed;
+  z-index: 60;
+  min-width: 11rem;
+  max-width: 17rem;
+  padding: 0.375rem;
+  border-radius: 0.625rem;
+  background: oklch(var(--p-950));
+  border: 1px solid oklch(var(--p-900));
+  box-shadow:
+    0 10px 15px -4px oklch(var(--n-950) / 0.3),
+    0 28px 44px -10px oklch(var(--n-950) / 0.35);
+  color-scheme: dark;
+  animation: gd-tip-in 0.12s var(--ease-out) both;
+}
+
+@keyframes gd-tip-in {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.gd-sb-menu__title {
+  display: block;
+  padding: 0.375rem 0.625rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: oklch(var(--white));
+  white-space: nowrap;
+}
+
+.gd-sb-menu__list {
+  margin-top: 0.25rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid oklch(1 0 0 / 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Sub-group heading inside the panel: the nav is three levels deep, so a
+   group's children can themselves be groups. They are labels, not links. */
+.gd-sb-menu__grouplabel {
+  display: block;
+  padding: 0.4375rem 0.625rem 0.1875rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+  white-space: nowrap;
+}
+
+.gd-sb-menu__group + .gd-sb-menu__group {
+  margin-top: 0.25rem;
+}
+
+.gd-sb-menu__link {
+  display: block;
+  padding: 0.4375rem 0.625rem;
+  border-radius: 0.4375rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: oklch(var(--n-400));
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s var(--ease-snap),
+    color 0.15s var(--ease-snap);
+}
+
+.gd-sb-menu__link:hover {
+  background: oklch(1 0 0 / 0.06);
+  color: oklch(var(--n-100));
+}
+
+.gd-sb-menu__link.active {
+  background: oklch(1 0 0 / 0.09);
+  color: oklch(var(--white));
+  font-weight: 600;
+}
+
 /* ── Reduced motion (shell + components) ─────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .gd-sidebar,
