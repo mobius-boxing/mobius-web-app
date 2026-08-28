@@ -22,7 +22,7 @@
     "manufacturers": "Fabricantes",
     "suppliers": "Proveedores",
     "warehouses": "Depósitos",
-    "supplies": "Insumos",
+    "supplies": "Suministros",
     "paperSupplies": "Insumos de Papel",
     "paperSheets": "Planchas de Papel",
     "corrugationClasses": "Clases de Corrugado",
@@ -31,11 +31,11 @@
     "stock": "Stock",
     "paperStock": "Stock de Bobinas",
     "sheetStock": "Stock de Planchas",
-    "toolingTypes": "Tipos de Herramental",
-    "toolings": "Herramentales",
+    "toolingTypes": "Tipos de Insumo",
+    "toolings": "Insumos",
     "consumableTypes": "Tipos de Consumibles",
     "consumableSupplies": "Consumibles",
-    "toolingStock": "Stock de Herramentales",
+    "toolingStock": "Stock de Insumos",
     "consumableStock": "Stock de Consumibles",
     "productSpecifications": "Especificaciones de Producto",
     "flapTypes": "Tipos de Aleta",
@@ -1268,11 +1268,11 @@
     "deleteConfirm": "¿Está seguro de que desea eliminar este stock?"
   },
   "toolingTypes": {
-    "title": "Tipos de Herramental",
-    "subtitle": "Gestionar catálogo de tipos de herramental",
+    "title": "Tipos de Insumo",
+    "subtitle": "Gestionar catálogo de tipos de insumo",
     "addType": "Agregar Tipo",
     "allTypes": "Todos los Tipos",
-    "searchPlaceholder": "Buscar tipos de herramental...",
+    "searchPlaceholder": "Buscar tipos de insumo...",
     "code": "Código",
     "codePlaceholder": "Ingrese código del tipo",
     "name": "Nombre",
@@ -1280,8 +1280,8 @@
     "description": "Descripción",
     "descriptionPlaceholder": "Ingrese descripción (opcional)",
     "automaticConsumption": "Consumo Automático",
-    "createTitle": "Crear Tipo de Herramental",
-    "editTitle": "Editar Tipo de Herramental",
+    "createTitle": "Crear Tipo de Insumo",
+    "editTitle": "Editar Tipo de Insumo",
     "createButton": "Crear Tipo",
     "updateButton": "Actualizar Tipo",
     "columns": {
@@ -1292,9 +1292,9 @@
       "actions": "Acciones"
     },
     "empty": {
-      "title": "No se encontraron tipos de herramental",
+      "title": "No se encontraron tipos de insumo",
       "description": "Intente ajustar sus criterios de búsqueda",
-      "noData": "Comience creando un nuevo tipo de herramental"
+      "noData": "Comience creando un nuevo tipo de insumo"
     },
     "validation": {
       "codeRequired": "El código es requerido",
@@ -1304,32 +1304,32 @@
       "nameMinLength": "El nombre debe tener al menos 1 carácter",
       "nameMaxLength": "El nombre debe tener menos de 255 caracteres"
     },
-    "createFailed": "Error al crear el tipo de herramental. Por favor, intente nuevamente.",
-    "updateFailed": "Error al actualizar el tipo de herramental. Por favor, intente nuevamente.",
-    "deleteFailed": "Error al eliminar el tipo de herramental",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de herramental?"
+    "createFailed": "Error al crear el tipo de insumo. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el tipo de insumo. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el tipo de insumo",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de insumo?"
   },
   "toolings": {
-    "title": "Herramentales",
-    "subtitle": "Gestionar inventario de herramentales",
-    "addTooling": "Agregar Herramental",
-    "allToolings": "Todos los Herramentales",
-    "searchPlaceholder": "Buscar herramentales...",
+    "title": "Insumos",
+    "subtitle": "Gestionar inventario de insumos",
+    "addTooling": "Agregar Insumo",
+    "allToolings": "Todos los Insumos",
+    "searchPlaceholder": "Buscar insumos...",
     "name": "Nombre",
-    "namePlaceholder": "Ingrese nombre del herramental",
+    "namePlaceholder": "Ingrese nombre del insumo",
     "description": "Descripción",
     "descriptionPlaceholder": "Ingrese descripción (opcional)",
-    "toolingType": "Tipo de Herramental",
-    "selectToolingType": "Seleccione tipo de herramental",
+    "toolingType": "Tipo de Insumo",
+    "selectToolingType": "Seleccione tipo de insumo",
     "manufacturer": "Fabricante",
     "selectManufacturer": "Seleccione fabricante (opcional)",
     "supplier": "Proveedor",
     "selectSupplier": "Seleccione proveedor (opcional)",
     "minimumStock": "Stock Mínimo",
-    "createTitle": "Crear Herramental",
-    "editTitle": "Editar Herramental",
-    "createButton": "Crear Herramental",
-    "updateButton": "Actualizar Herramental",
+    "createTitle": "Crear Insumo",
+    "editTitle": "Editar Insumo",
+    "createButton": "Crear Insumo",
+    "updateButton": "Actualizar Insumo",
     "columns": {
       "name": "Nombre",
       "toolingType": "Tipo",
@@ -1339,23 +1339,23 @@
       "actions": "Acciones"
     },
     "empty": {
-      "title": "No se encontraron herramentales",
+      "title": "No se encontraron insumos",
       "description": "Intente ajustar sus criterios de búsqueda",
-      "noData": "Comience agregando un nuevo herramental"
+      "noData": "Comience agregando un nuevo insumo"
     },
     "validation": {
       "nameRequired": "El nombre es requerido",
       "nameMinLength": "El nombre debe tener al menos 1 carácter",
       "nameMaxLength": "El nombre debe tener menos de 255 caracteres",
-      "toolingTypeRequired": "El tipo de herramental es requerido",
+      "toolingTypeRequired": "El tipo de insumo es requerido",
       "minimumStockMin": "El stock mínimo debe ser al menos 0"
     },
-    "createFailed": "Error al crear el herramental. Por favor, intente nuevamente.",
-    "updateFailed": "Error al actualizar el herramental. Por favor, intente nuevamente.",
-    "deleteFailed": "Error al eliminar el herramental",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este herramental?",
+    "createFailed": "Error al crear el insumo. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el insumo. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el insumo",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este insumo?",
     "code": "Código",
-    "codePlaceholder": "Código del herramental"
+    "codePlaceholder": "Código del insumo"
   },
   "consumableTypes": {
     "title": "Tipos de Consumibles",
@@ -1454,17 +1454,17 @@
     "selectColor": "Seleccione color (opcional)"
   },
   "toolingStock": {
-    "title": "Stock de Herramentales",
-    "subtitle": "Gestionar inventario de herramentales",
-    "addToolingStock": "Agregar Stock de Herramental",
-    "allToolingStock": "Todo el Stock de Herramentales",
-    "searchPlaceholder": "Buscar stock de herramentales...",
+    "title": "Stock de Insumos",
+    "subtitle": "Gestionar inventario de insumos",
+    "addToolingStock": "Agregar Stock de Insumo",
+    "allToolingStock": "Todo el Stock de Insumos",
+    "searchPlaceholder": "Buscar stock de insumos...",
     "warehouse": "Depósito",
     "selectWarehouse": "Seleccione depósito",
     "warehouseLocation": "Ubicación en Depósito",
     "selectLocation": "Seleccionar Ubicación",
-    "tooling": "Herramental",
-    "selectTooling": "Seleccione herramental",
+    "tooling": "Insumo",
+    "selectTooling": "Seleccione insumo",
     "supplier": "Proveedor",
     "selectSupplier": "Seleccione proveedor (opcional)",
     "manufacturer": "Fabricante",
@@ -1475,12 +1475,12 @@
     "pricePlaceholder": "Ingrese precio",
     "comments": "Comentarios",
     "commentsPlaceholder": "Ingrese comentarios (opcional)",
-    "createTitle": "Crear Stock de Herramental",
-    "editTitle": "Editar Stock de Herramental",
+    "createTitle": "Crear Stock de Insumo",
+    "editTitle": "Editar Stock de Insumo",
     "createButton": "Crear Stock",
     "updateButton": "Actualizar Stock",
     "columns": {
-      "tooling": "Herramental",
+      "tooling": "Insumo",
       "warehouse": "Depósito",
       "supplier": "Proveedor",
       "manufacturer": "Fabricante",
@@ -1489,13 +1489,13 @@
       "actions": "Acciones"
     },
     "empty": {
-      "title": "No se encontró stock de herramentales",
+      "title": "No se encontró stock de insumos",
       "description": "Intente ajustar sus criterios de búsqueda",
-      "noData": "Comience agregando stock de herramentales"
+      "noData": "Comience agregando stock de insumos"
     },
     "validation": {
       "warehouseRequired": "El depósito es requerido",
-      "toolingRequired": "El herramental es requerido",
+      "toolingRequired": "El insumo es requerido",
       "quantityRequired": "La cantidad es requerida"
     },
     "createFailed": "Error al crear el stock. Por favor, intente nuevamente.",
@@ -2111,8 +2111,8 @@
     "machines": "Máquinas",
     "selectMachine": "Seleccionar máquina...",
     "primary": "Titular",
-    "supplies": "Insumos",
-    "selectSupply": "Seleccionar insumo...",
+    "supplies": "Suministros",
+    "selectSupply": "Seleccionar suministro...",
     "quantity": "Cant.",
     "input": "Entrada",
     "output": "Salida",
@@ -2121,7 +2121,7 @@
       "paper": "Papel",
       "sheet": "Plancha",
       "consumable": "Consumible",
-      "tooling": "Herramental",
+      "tooling": "Insumo",
       "finishedGood": "Producto elaborado"
     },
     "searchPlaceholder": "Buscar rutas...",
@@ -2146,8 +2146,8 @@
       "removeStage": "Eliminar etapa",
       "addMachine": "Agregar máquina",
       "removeMachine": "Eliminar máquina",
-      "addSupply": "Agregar insumo",
-      "removeSupply": "Eliminar insumo"
+      "addSupply": "Agregar suministro",
+      "removeSupply": "Eliminar suministro"
     }
   },
   "parts": {
