@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import { Users, Building, Mail, Activity } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import { UserStats, CompanyStats, InvitationStats } from '../types';
 import { usersApi, companiesApi, invitationsApi } from '../services/api';
@@ -26,6 +27,7 @@ const StatCard: React.FC<StatCardProps> = ({
   description,
   trend,
 }) => {
+  const { t } = useTranslation();
   return (
     <Card className="p-5">
       <div className="flex items-start justify-between gap-3">
@@ -51,7 +53,7 @@ const StatCard: React.FC<StatCardProps> = ({
           >
             {trend.isPositive ? '+' : ''}{trend.value}%
           </span>
-          <span className="text-sm text-secondary-500">vs last month</span>
+          <span className="text-sm text-secondary-500">{t('dashboard.vsLastMonth')}</span>
         </div>
       )}
     </Card>
@@ -59,6 +61,7 @@ const StatCard: React.FC<StatCardProps> = ({
 };
 
 const Dashboard: React.FC = () => {
+  const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
   const { user } = useAuth();
   const [userStats, setUserStats] = useState<UserStats | null>(null);
@@ -104,9 +107,9 @@ const Dashboard: React.FC = () => {
 
   const getGreeting = () => {
     const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
+    if (hour < 12) return t('dashboard.greeting.morning');
+    if (hour < 18) return t('dashboard.greeting.afternoon');
+    return t('dashboard.greeting.evening');
   };
 
   if (loading) {
@@ -132,29 +135,35 @@ const Dashboard: React.FC = () => {
             {getGreeting()}, {user?.firstName}!
           </h1>
           <p className="text-sm text-secondary-500 mt-1">
-            Welcome to your {user?.role} dashboard
-            {user?.companyName && ` for ${user.companyName}`}
+            {user?.companyName
+              ? t('dashboard.welcomeForCompany', {
+                  role: t(`roleNames.${user?.role}`, { defaultValue: user?.role }),
+                  company: user.companyName,
+                })
+              : t('dashboard.welcome', {
+                  role: t(`roleNames.${user?.role}`, { defaultValue: user?.role }),
+                })}
           </p>
         </div>
 
         {user?.role === 'member' && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card title="Welcome to Mobius">
+            <Card title={t('dashboard.member.cardTitle')}>
               <p className="text-secondary-600">
-                You have member access to Mobius.
-                Contact your administrator if you need additional permissions.
+                {t('dashboard.member.body')}
               </p>
             </Card>
-            <Card title="Your Account">
+            <Card title={t('dashboard.member.accountTitle')}>
               <div className="space-y-2">
                 <p className="text-sm">
-                  <span className="font-medium">Email:</span> {user.email}
+                  <span className="font-medium">{t('dashboard.member.email')}</span> {user.email}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">Role:</span> {user.role}
+                  <span className="font-medium">{t('dashboard.member.role')}</span>{' '}
+                  {t(`roleNames.${user.role}`, { defaultValue: user.role })}
                 </p>
                 <p className="text-sm">
-                  <span className="font-medium">Company:</span> {user.companyName}
+                  <span className="font-medium">{t('dashboard.member.company')}</span> {user.companyName}
                 </p>
               </div>
             </Card>
@@ -165,37 +174,37 @@ const Dashboard: React.FC = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatCard
-                title="Total Users"
+                title={t('dashboard.stats.totalUsers')}
                 value={userStats.totalUsers}
                 icon={<Users className="h-6 w-6 text-primary-600" />}
-                description={`${userStats.activeUsers} active users`}
+                description={t('dashboard.desc.activeUsers', { n: userStats.activeUsers })}
               />
               <StatCard
-                title="Pending Invitations"
+                title={t('dashboard.stats.pendingInvitations')}
                 value={invitationStats.pendingInvitations}
                 icon={<Mail className="h-6 w-6 text-primary-600" />}
-                description="Awaiting acceptance"
+                description={t('dashboard.desc.awaitingAcceptance')}
               />
               <StatCard
-                title="Recent Invitations"
+                title={t('dashboard.stats.recentInvitations')}
                 value={userStats.recentInvitations}
                 icon={<Activity className="h-6 w-6 text-primary-600" />}
-                description="Last 30 days"
+                description={t('dashboard.desc.last30Days')}
               />
               <StatCard
-                title="Accepted Invitations"
+                title={t('dashboard.stats.acceptedInvitations')}
                 value={invitationStats.acceptedInvitations}
                 icon={<Users className="h-6 w-6 text-primary-600" />}
-                description="All time"
+                description={t('dashboard.desc.allTime')}
               />
             </div>
 
-            <Card title="Users by Role" subtitle="Distribution of user roles in your company">
+            <Card title={t('dashboard.usersByRole.title')} subtitle={t('dashboard.usersByRole.subtitle')}>
               <div className="space-y-3">
                 {userStats.usersByRole.map((roleData) => (
                   <div key={roleData.role} className="flex justify-between items-center">
                     <span className="text-sm font-medium text-secondary-900 capitalize">
-                      {roleData.role}
+                      {t(`roleNames.${roleData.role}`, { defaultValue: roleData.role })}
                     </span>
                     <span className="text-sm text-secondary-600">{roleData.count}</span>
                   </div>
@@ -209,38 +218,38 @@ const Dashboard: React.FC = () => {
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatCard
-                title="Total Companies"
+                title={t('dashboard.stats.totalCompanies')}
                 value={companyStats.totalCompanies}
                 icon={<Building className="h-6 w-6 text-primary-600" />}
-                description={`${companyStats.activeCompanies} active`}
+                description={t('dashboard.desc.activeCount', { n: companyStats.activeCompanies })}
               />
               <StatCard
-                title="Total Users"
+                title={t('dashboard.stats.totalUsers')}
                 value={userStats.totalUsers}
                 icon={<Users className="h-6 w-6 text-primary-600" />}
-                description={`${userStats.activeUsers} active users`}
+                description={t('dashboard.desc.activeUsers', { n: userStats.activeUsers })}
               />
               <StatCard
-                title="Platform Invitations"
+                title={t('dashboard.stats.platformInvitations')}
                 value={invitationStats.totalInvitations}
                 icon={<Mail className="h-6 w-6 text-primary-600" />}
-                description={`${invitationStats.pendingInvitations} pending`}
+                description={t('dashboard.desc.pendingCount', { n: invitationStats.pendingInvitations })}
               />
               <StatCard
-                title="Avg Users/Company"
+                title={t('dashboard.stats.avgUsersPerCompany')}
                 value={companyStats.averageUsersPerCompany.toFixed(1)}
                 icon={<Activity className="h-6 w-6 text-primary-600" />}
-                description="Platform average"
+                description={t('dashboard.desc.platformAverage')}
               />
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card title="Platform Users by Role" subtitle="Distribution across all companies">
+              <Card title={t('dashboard.platformUsersByRole.title')} subtitle={t('dashboard.platformUsersByRole.subtitle')}>
                 <div className="space-y-3">
                   {userStats.usersByRole.map((roleData) => (
                     <div key={roleData.role} className="flex justify-between items-center">
                       <span className="text-sm font-medium text-secondary-900 capitalize">
-                        {roleData.role}
+                        {t(`roleNames.${roleData.role}`, { defaultValue: roleData.role })}
                       </span>
                       <span className="text-sm text-secondary-600">{roleData.count}</span>
                     </div>
@@ -248,11 +257,11 @@ const Dashboard: React.FC = () => {
                 </div>
               </Card>
 
-              <Card title="Company Overview" subtitle="Platform-wide company statistics">
+              <Card title={t('dashboard.companyOverview.title')} subtitle={t('dashboard.companyOverview.subtitle')}>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-secondary-900">
-                      Companies with Users
+                      {t('dashboard.companyOverview.companiesWithUsers')}
                     </span>
                     <span className="text-sm text-secondary-600">
                       {companyStats.companiesWithUsers}
@@ -260,7 +269,7 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-secondary-900">
-                      Active Companies
+                      {t('dashboard.companyOverview.activeCompanies')}
                     </span>
                     <span className="text-sm text-secondary-600">
                       {companyStats.activeCompanies}
@@ -268,7 +277,7 @@ const Dashboard: React.FC = () => {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm font-medium text-secondary-900">
-                      Total Companies
+                      {t('dashboard.companyOverview.totalCompanies')}
                     </span>
                     <span className="text-sm text-secondary-600">
                       {companyStats.totalCompanies}

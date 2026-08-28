@@ -28,6 +28,26 @@ jest.mock('../../services/api', () => ({
   },
 }));
 
+jest.mock('react-i18next', () => {
+  const en = jest.requireActual('../../i18n/locales/en/common.json');
+  const lookup = (key: string) =>
+    key
+      .replace(/^common:/, '')
+      .split('.')
+      .reduce<any>((acc, k) => (acc == null ? acc : acc[k]), en);
+  return {
+    useTranslation: () => ({
+      t: (key: string, opts?: any) => {
+        const value = lookup(key);
+        if (typeof value !== 'string') return opts?.defaultValue ?? key;
+        return value.replace(/\{\{(\w+)\}\}/g, (_m: string, name: string) =>
+          opts && opts[name] != null ? String(opts[name]) : ''
+        );
+      },
+    }),
+  };
+});
+
 jest.mock('../../components/layout/Layout', () => ({
   __esModule: true,
   default: ({ children }: any) => <div data-testid="layout">{children}</div>,
@@ -122,7 +142,7 @@ describe('Dashboard Page', () => {
       renderDashboard();
 
       await waitFor(() => {
-        expect(screen.getByText(/Welcome to your superAdmin dashboard/)).toBeInTheDocument();
+        expect(screen.getByText(/Welcome to your Super Admin dashboard/)).toBeInTheDocument();
       });
     });
 
@@ -228,7 +248,7 @@ describe('Dashboard Page', () => {
       renderDashboard();
 
       await waitFor(() => {
-        expect(screen.getByText(/Welcome to your admin dashboard/)).toBeInTheDocument();
+        expect(screen.getByText(/Welcome to your Admin dashboard/)).toBeInTheDocument();
       });
     });
 

@@ -64,7 +64,7 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
       setAssignedSupplies([]);
     } catch (err: any) {
       logger.error('Error fetching paper supplies:', err);
-      setError('Failed to load paper supplies');
+      setError(t('paperClasses.loadSuppliesFailed'));
     } finally {
       setLoadingSupplies(false);
     }

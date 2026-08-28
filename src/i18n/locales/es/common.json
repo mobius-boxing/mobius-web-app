@@ -169,6 +169,22 @@
       "unknownCompany": "Empresa Desconocida",
       "noDescription": "Sin descripción",
       "noDate": "N/A"
+    },
+    "createTitle": "Crear Empresa",
+    "editTitle": "Editar Empresa",
+    "name": "Nombre de la Empresa",
+    "namePlaceholder": "Ingrese el nombre de la empresa",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese una descripción (opcional)",
+    "createButton": "Crear Empresa",
+    "updateButton": "Actualizar Empresa",
+    "deleteConfirm": "¿Está seguro de que desea eliminar esta empresa? Esta acción no se puede deshacer.",
+    "statusUpdateFailed": "Error al actualizar el estado de la empresa. Intente nuevamente.",
+    "validation": {
+      "nameRequired": "El nombre de la empresa es obligatorio",
+      "nameMinLength": "El nombre de la empresa debe tener al menos 2 caracteres",
+      "nameMaxLength": "El nombre de la empresa no puede superar los 100 caracteres",
+      "descriptionMaxLength": "La descripción no puede superar los 500 caracteres"
     }
   },
   "pagination": {
@@ -180,7 +196,8 @@
     "defaultTitle": "Confirmar Acción",
     "confirm": "Confirmar",
     "cancel": "Cancelar",
-    "deleteTitle": "Confirmar Eliminación"
+    "deleteTitle": "Confirmar Eliminación",
+    "warningTitle": "Advertencia"
   },
   "common": {
     "loading": "Cargando...",
@@ -197,7 +214,9 @@
     "yes": "Sí",
     "no": "No",
     "change": "Cambiar",
-    "discardChanges": "Tiene cambios sin guardar. ¿Descartarlos?"
+    "discardChanges": "Tiene cambios sin guardar. ¿Descartarlos?",
+    "clear": "Limpiar",
+    "submit": "Enviar"
   },
   "auth": {
     "accessDenied": "Acceso Denegado",
@@ -660,7 +679,8 @@
     "updateSuccess": "Clase de papel actualizada exitosamente",
     "deleteSuccess": "Clase de papel eliminada exitosamente",
     "deleteFailed": "Error al eliminar la clase de papel",
-    "deleteConfirm": "¿Está seguro de que desea eliminar esta clase de papel?"
+    "deleteConfirm": "¿Está seguro de que desea eliminar esta clase de papel?",
+    "loadSuppliesFailed": "Error al cargar los insumos de papel"
   },
   "products": {
     "title": "Productos",
@@ -2499,6 +2519,126 @@
         "percentage": "Porcentaje",
         "quantity": "Cantidad"
       }
+    }
+  },
+  "users": {
+    "title": "Gestión de Usuarios",
+    "subtitle": "Gestionar usuarios y sus permisos",
+    "inviteUser": "Invitar Usuario",
+    "searchPlaceholder": "Buscar usuarios...",
+    "allCompanies": "Todas las Empresas",
+    "allRoles": "Todos los Roles",
+    "loading": "Cargando usuarios...",
+    "noUsers": "No se encontraron usuarios",
+    "editUser": "Editar usuario",
+    "deleteUser": "Eliminar usuario",
+    "platformAdmin": "Administrador de Plataforma",
+    "noName": "N/D",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este usuario? Esta acción no se puede deshacer.",
+    "columns": {
+      "name": "Nombre",
+      "company": "Empresa",
+      "role": "Rol",
+      "status": "Estado",
+      "emailVerified": "Email Verificado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "emailStatus": {
+      "verified": "Verificado",
+      "pending": "Pendiente"
+    }
+  },
+  "roleNames": {
+    "member": "Miembro",
+    "admin": "Administrador",
+    "superAdmin": "Super Administrador"
+  },
+  "userModal": {
+    "inviteTitle": "Invitar Nuevo Usuario",
+    "editTitle": "Editar Usuario",
+    "firstName": "Nombre",
+    "firstNamePlaceholder": "Ingrese el nombre",
+    "lastName": "Apellido",
+    "lastNamePlaceholder": "Ingrese el apellido",
+    "email": "Dirección de Email",
+    "emailPlaceholder": "Ingrese la dirección de email",
+    "role": "Rol",
+    "selectRole": "Seleccione un rol",
+    "company": "Empresa",
+    "selectCompany": "Seleccione una empresa",
+    "noteLabel": "Nota:",
+    "superAdminNote": "Los Super Administradores tienen acceso a toda la plataforma y no están asociados a ninguna empresa en particular.",
+    "userIsActive": "Usuario activo",
+    "newPassword": "Nueva Contraseña",
+    "newPasswordPlaceholder": "Deje vacío para mantener la contraseña actual",
+    "passwordHint": "Complete este campo solo si desea cambiar la contraseña del usuario.",
+    "sendInvitation": "Enviar Invitación",
+    "updateButton": "Actualizar Usuario",
+    "validation": {
+      "firstNameRequired": "El nombre es obligatorio",
+      "firstNameMinLength": "El nombre debe tener al menos 2 caracteres",
+      "lastNameRequired": "El apellido es obligatorio",
+      "lastNameMinLength": "El apellido debe tener al menos 2 caracteres",
+      "emailRequired": "El email es obligatorio",
+      "emailInvalid": "Ingrese una dirección de email válida",
+      "roleRequired": "El rol es obligatorio",
+      "companyRequired": "La empresa es obligatoria",
+      "passwordMinLength": "La contraseña debe tener al menos 8 caracteres"
+    }
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Buenos días",
+      "afternoon": "Buenas tardes",
+      "evening": "Buenas noches"
+    },
+    "welcome": "Bienvenido a su panel de {{role}}",
+    "welcomeForCompany": "Bienvenido a su panel de {{role}} de {{company}}",
+    "vsLastMonth": "vs. mes anterior",
+    "member": {
+      "cardTitle": "Bienvenido a Mobius",
+      "body": "Tiene acceso de miembro a Mobius. Contacte a su administrador si necesita permisos adicionales.",
+      "accountTitle": "Su Cuenta",
+      "email": "Email:",
+      "role": "Rol:",
+      "company": "Empresa:"
+    },
+    "stats": {
+      "totalUsers": "Usuarios Totales",
+      "pendingInvitations": "Invitaciones Pendientes",
+      "recentInvitations": "Invitaciones Recientes",
+      "acceptedInvitations": "Invitaciones Aceptadas",
+      "totalCompanies": "Empresas Totales",
+      "platformInvitations": "Invitaciones de la Plataforma",
+      "avgUsersPerCompany": "Prom. Usuarios/Empresa"
+    },
+    "desc": {
+      "activeUsers": "{{n}} usuarios activos",
+      "awaitingAcceptance": "Esperando aceptación",
+      "last30Days": "Últimos 30 días",
+      "allTime": "Histórico",
+      "activeCount": "{{n}} activas",
+      "pendingCount": "{{n}} pendientes",
+      "platformAverage": "Promedio de la plataforma"
+    },
+    "usersByRole": {
+      "title": "Usuarios por Rol",
+      "subtitle": "Distribución de roles de usuario en su empresa"
+    },
+    "platformUsersByRole": {
+      "title": "Usuarios de la Plataforma por Rol",
+      "subtitle": "Distribución en todas las empresas"
+    },
+    "companyOverview": {
+      "title": "Resumen de Empresas",
+      "subtitle": "Estadísticas de empresas de toda la plataforma",
+      "companiesWithUsers": "Empresas con Usuarios",
+      "activeCompanies": "Empresas Activas",
+      "totalCompanies": "Empresas Totales"
     }
   }
 }

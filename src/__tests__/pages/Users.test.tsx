@@ -31,11 +31,25 @@ jest.mock('react-router-dom', () => ({
   useLocation: () => ({ pathname: '/users', state: null }),
 }));
 
-jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => key,
-  }),
-}));
+jest.mock('react-i18next', () => {
+  const en = jest.requireActual('../../i18n/locales/en/common.json');
+  const lookup = (key: string) =>
+    key
+      .replace(/^common:/, '')
+      .split('.')
+      .reduce<any>((acc, k) => (acc == null ? acc : acc[k]), en);
+  return {
+    useTranslation: () => ({
+      t: (key: string, opts?: any) => {
+        const value = lookup(key);
+        if (typeof value !== 'string') return opts?.defaultValue ?? key;
+        return value.replace(/\{\{(\w+)\}\}/g, (_m: string, name: string) =>
+          opts && opts[name] != null ? String(opts[name]) : ''
+        );
+      },
+    }),
+  };
+});
 
 jest.mock('../../components/layout/Layout', () => ({
   __esModule: true,
@@ -338,8 +352,9 @@ describe('Users Page', () => {
       renderUsers();
 
       await waitFor(() => {
-        const adminBadges = screen.getAllByText('admin');
-        const memberBadges = screen.getAllByText('member');
+        // Role badges now render the translated role name, not the raw slug.
+        const adminBadges = screen.getAllByText('Admin');
+        const memberBadges = screen.getAllByText('Member');
 
         expect(adminBadges.length).toBeGreaterThan(0);
         expect(memberBadges.length).toBeGreaterThan(0);

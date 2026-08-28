@@ -82,7 +82,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
       setAvailableSupplies(available);
     } catch (err: unknown) {
       logger.error('Error fetching paper supplies:', err);
-      setError('Failed to load paper supplies');
+      setError(t('paperClasses.loadSuppliesFailed'));
     } finally {
       setLoadingSupplies(false);
     }

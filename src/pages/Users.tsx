@@ -120,11 +120,11 @@ const Users: React.FC = () => {
   const columns = [
     {
       key: 'name',
-      header: 'Name',
+      header: t('users.columns.name'),
       render: (_: any, user: User) => (
         <div>
           <div className="font-medium text-secondary-900">
-            {user.firstName || 'N/A'} {user.lastName || ''}
+            {user.firstName || t('users.noName')} {user.lastName || ''}
           </div>
           <div className="text-sm text-secondary-500">{user.email}</div>
         </div>
@@ -132,49 +132,49 @@ const Users: React.FC = () => {
     },
     ...(currentUser?.role === 'superAdmin' ? [{
       key: 'company',
-      header: 'Company',
+      header: t('users.columns.company'),
       render: (_: any, user: User) => (
         <span className="text-sm text-secondary-900">
-          {user.companyName || 'Platform Admin'}
+          {user.companyName || t('users.platformAdmin')}
         </span>
       ),
     }] : []),
     {
       key: 'role',
-      header: 'Role',
+      header: t('users.columns.role'),
       render: (_: any, user: User) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getRoleBadgeColor(user.role)}`}>
-          {user.role}
+          {t(`roleNames.${user.role}`, { defaultValue: user.role })}
         </span>
       ),
     },
     {
       key: 'status',
-      header: 'Status',
+      header: t('users.columns.status'),
       render: (_: any, user: User) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(user.isActive)}`}>
-          {user.isActive ? 'Active' : 'Inactive'}
+          {user.isActive ? t('users.status.active') : t('users.status.inactive')}
         </span>
       ),
     },
     {
       key: 'emailVerified',
-      header: 'Email Verified',
+      header: t('users.columns.emailVerified'),
       render: (_: any, user: User) => (
         <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(user.emailVerified)}`}>
-          {user.emailVerified ? 'Verified' : 'Pending'}
+          {user.emailVerified ? t('users.emailStatus.verified') : t('users.emailStatus.pending')}
         </span>
       ),
     },
     {
       key: 'actions',
-      header: 'Actions',
+      header: t('users.columns.actions'),
       render: (_: any, user: User) => (
         <div className="flex items-center space-x-2">
           <button
             onClick={() => handleEditUser(user)}
             className="text-secondary-400 hover:text-secondary-600"
-            title="Edit user"
+            title={t('users.editUser')}
           >
             <Edit className="h-4 w-4" />
           </button>
@@ -183,7 +183,7 @@ const Users: React.FC = () => {
               onClick={() => handleDeleteUser(user)}
               disabled={actionLoading === user.uuid}
               className="text-red-400 hover:text-red-600 disabled:opacity-50"
-              title="Delete user"
+              title={t('users.deleteUser')}
             >
               {actionLoading === user.uuid ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
@@ -202,14 +202,14 @@ const Users: React.FC = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="gd-page-title">User Management</h1>
+            <h1 className="gd-page-title">{t('users.title')}</h1>
             <p className="text-secondary-600 mt-1">
-              Manage users and their permissions
+              {t('users.subtitle')}
             </p>
           </div>
           <Button onClick={() => setShowInviteModal(true)} className="flex items-center">
             <Plus className="h-4 w-4 mr-2" />
-            Invite User
+            {t('users.inviteUser')}
           </Button>
         </div>
 
@@ -218,7 +218,7 @@ const Users: React.FC = () => {
             <SearchInput
               value={search}
               onChange={setSearch}
-              placeholder="Search users..."
+              placeholder={t('users.searchPlaceholder')}
             />
           </div>
 
@@ -229,7 +229,7 @@ const Users: React.FC = () => {
                 onChange={(e) => setSelectedCompany(e.target.value)}
                 className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               >
-                <option value="all">All Companies</option>
+                <option value="all">{t('users.allCompanies')}</option>
                 {companies.map((company) => (
                   <option key={company.uuid} value={company.uuid}>
                     {company.name}
@@ -245,11 +245,11 @@ const Users: React.FC = () => {
               onChange={(e) => setSelectedRole(e.target.value)}
               className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
-              <option value="all">All Roles</option>
-              <option value="member">Member</option>
-              <option value="admin">Admin</option>
+              <option value="all">{t('users.allRoles')}</option>
+              <option value="member">{t('roleNames.member')}</option>
+              <option value="admin">{t('roleNames.admin')}</option>
               {currentUser?.role === 'superAdmin' && (
-                <option value="superAdmin">Super Admin</option>
+                <option value="superAdmin">{t('roleNames.superAdmin')}</option>
               )}
             </select>
           </div>
@@ -259,14 +259,14 @@ const Users: React.FC = () => {
           {loading ? (
             <div className="p-8 text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 mx-auto"></div>
-              <p className="text-secondary-600 mt-4">Loading users...</p>
+              <p className="text-secondary-600 mt-4">{t('users.loading')}</p>
             </div>
           ) : (
             <>
               <Table
                 data={filteredUsers}
                 columns={columns}
-                emptyMessage="No users found"
+                emptyMessage={t('users.noUsers')}
               />
               <Pagination {...paginationProps} />
             </>
