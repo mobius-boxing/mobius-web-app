@@ -983,7 +983,7 @@ body::after {
   white-space: nowrap;
   pointer-events: none;
   /* 80ms reads as instant while still avoiding a hard pop. */
-  animation: gd-tip-in 0.08s var(--ease-out) both;
+  animation: gd-sb-tip-in 0.08s var(--ease-out) both;
 }
 .gd-sb-menu {
   position: fixed;
@@ -998,10 +998,24 @@ body::after {
     0 10px 15px -4px oklch(var(--n-950) / 0.3),
     0 28px 44px -10px oklch(var(--n-950) / 0.35);
   color-scheme: dark;
-  animation: gd-tip-in 0.12s var(--ease-out) both;
+  animation: gd-sb-menu-in 0.12s var(--ease-out) both;
 }
 
-@keyframes gd-tip-in {
+/* Two keyframes, not one: the tooltip carries a translateY(-50%) to sit
+   centred on its icon, and a shared animation ending at `transform: none`
+   cancelled it — the label hung half its own height too low. */
+@keyframes gd-sb-tip-in {
+  from {
+    opacity: 0;
+    transform: translate(-4px, -50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes gd-sb-menu-in {
   from {
     opacity: 0;
     transform: translateX(-4px);
