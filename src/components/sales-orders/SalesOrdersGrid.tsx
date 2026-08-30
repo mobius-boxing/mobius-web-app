@@ -16,6 +16,7 @@ import { usePermissions } from '../../hooks/usePermissions';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { formatBusinessDate } from '../../utils/dates';
 import { logger } from '../../utils/logger';
+import { formatMoney } from '../../utils/money';
 
 /**
  * The mount-time filter state, and what `Limpiar` restores
@@ -278,7 +279,7 @@ const SalesOrdersGrid: React.FC = () => {
             sortable: true,
             render: (_: unknown, order: SalesOrder) => (
               <span className="text-sm text-secondary-900" data-testid="order-price">
-                {order.price ?? '-'}
+                {formatMoney(order.price)}
               </span>
             ),
           },

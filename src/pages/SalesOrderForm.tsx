@@ -30,6 +30,7 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { logger } from '../utils/logger';
+import { formatMoney } from '../utils/money';
 
 const DROPDOWN_LIMIT = 100;
 
@@ -730,7 +731,7 @@ const SalesOrderForm: React.FC = () => {
           <div>
             <span className={labelClass}>{t('salesOrders.fields.priceTotal')}</span>
             <p className="text-sm text-secondary-900 py-2" data-testid="price-total">
-              {total === null ? '-' : total.toFixed(4)}
+              {formatMoney(total)}
             </p>
           </div>
           <Input
