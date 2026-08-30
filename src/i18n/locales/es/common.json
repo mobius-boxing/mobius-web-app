@@ -761,6 +761,12 @@
       "title": "Parte inicial",
       "corrugation": "Corrugado",
       "selectCorrugation": "Seleccione un corrugado",
+      "model": "Modelo de Caja",
+      "selectModel": "Seleccione un modelo",
+      "flapType": "Tipo de Aleta",
+      "selectFlapType": "Seleccione un tipo de aleta",
+      "glueType": "Tipo de Pegado",
+      "selectGlueType": "Seleccione un tipo de pegado",
       "sheetLength": "Largo de plancha (mm)",
       "sheetWidth": "Ancho de plancha (mm)",
       "boxLength": "Largo de caja (mm)",
@@ -2210,6 +2216,7 @@
       "clientCode": "Código de cliente",
       "description": "Descripción",
       "corrugation": "Corrugado",
+      "model": "Modelo de caja",
       "boxLength": "Largo de caja (mm)",
       "boxWidth": "Ancho de caja (mm)",
       "boxHeight": "Altura de caja (mm)",
@@ -2639,6 +2646,22 @@
       "companiesWithUsers": "Empresas con Usuarios",
       "activeCompanies": "Empresas Activas",
       "totalCompanies": "Empresas Totales"
+    }
+  },
+  "validation": {
+    "required": "{{field}} es obligatorio",
+    "maxLength": "{{field}} no puede superar los {{max}} caracteres",
+    "minLength": "{{field}} debe tener al menos {{min}} caracteres",
+    "mustBeNumber": "{{field}} debe ser un número",
+    "min": "{{field}} no puede ser menor que {{min}}",
+    "max": "{{field}} no puede ser mayor que {{max}}",
+    "decimals": "{{field}} admite como máximo {{decimals}} decimales",
+    "integer": "{{field}} debe ser un número entero",
+    "invalidFormat": "{{field}} tiene un formato inválido",
+    "invalidDate": "{{field}} no es una fecha válida",
+    "selectRequired": "Seleccione {{field}}",
+    "fields": {
+      "code": "Código"
     }
   }
 }

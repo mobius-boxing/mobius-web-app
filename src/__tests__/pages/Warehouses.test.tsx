@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import Warehouses from '../../pages/Warehouses';
 import { createMockWarehouse, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
@@ -12,6 +13,10 @@ jest.mock('../../services/api', () => ({
     deleteWarehouse: (...args: any[]) => mockDeleteWarehouse(...args),
   },
 }));
+
+jest.mock('../../contexts/AuthContext', () =>
+  require('../../test-utils/renderWithProviders').authContextMock()
+);
 
 jest.mock('react-router-dom', () => ({
   useNavigate: () => jest.fn(),
@@ -158,10 +163,15 @@ describe('Warehouses Page', () => {
       await waitFor(() => {
         expect(screen.getByText('Add Warehouse')).toBeInTheDocument();
       });
+      // The page fetches twice on mount (useEntityList's autoFetch plus the
+      // page's own effectiveCompanyId effect), so pin the delta — one extra
+      // request caused by the create — rather than a magic total.
+      const callsBeforeCreate = mockGetWarehouses.mock.calls.length;
+
       fireEvent.click(screen.getByText('Add Warehouse'));
       fireEvent.click(screen.getByText('Create'));
       await waitFor(() => {
-        expect(mockGetWarehouses).toHaveBeenCalledTimes(2);
+        expect(mockGetWarehouses).toHaveBeenCalledTimes(callsBeforeCreate + 1);
       });
     });
   });

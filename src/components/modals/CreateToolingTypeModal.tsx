@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CreateToolingTypeForm } from '../../types';
 import { toolingTypesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createToolingTypeSchema } from '../../validation/schemas/toolingType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -36,6 +37,7 @@ const CreateToolingTypeModal: React.FC<CreateToolingTypeModalProps> = ({
   } = useModalForm<CreateToolingTypeForm>({
     onSuccess,
     onClose,
+    schema: createToolingTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) => toolingTypesApi.createToolingType({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
@@ -46,34 +48,14 @@ const CreateToolingTypeModal: React.FC<CreateToolingTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: t('toolingTypes.validation.codeRequired'),
-            minLength: {
-              value: 1,
-              message: t('toolingTypes.validation.codeMinLength'),
-            },
-            maxLength: {
-              value: 50,
-              message: t('toolingTypes.validation.codeMaxLength'),
-            },
-          })}
+          {...register('code')}
           label={t('toolingTypes.code')}
           placeholder={t('toolingTypes.codePlaceholder')}
           error={errors.code?.message as string}
         />
 
         <Input
-          {...register('name', {
-            required: t('toolingTypes.validation.nameRequired'),
-            minLength: {
-              value: 1,
-              message: t('toolingTypes.validation.nameMinLength'),
-            },
-            maxLength: {
-              value: 255,
-              message: t('toolingTypes.validation.nameMaxLength'),
-            },
-          })}
+          {...register('name')}
           label={t('toolingTypes.name')}
           placeholder={t('toolingTypes.namePlaceholder')}
           error={errors.name?.message as string}

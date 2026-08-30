@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createProductionRouteSchema } from '../../validation/schemas/productionRoute';
+import { firstIssue } from '../../validation/formErrors';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import {
   ProductionRoute,
@@ -193,6 +195,19 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Pattern B: `useState` form, so the schema runs here. `stages` stays out
+    // of it — see the schema header.
+    const problem = firstIssue(createProductionRouteSchema(t), {
+      name,
+      isGlobal,
+      active,
+      isDefault,
+    });
+    if (problem) {
+      setError(problem);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setWarnings([]);

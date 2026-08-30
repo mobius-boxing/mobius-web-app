@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { salesOrderSchema } from '../validation/schemas/salesOrder';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import {
@@ -133,7 +135,15 @@ const SalesOrderForm: React.FC = () => {
     unregister,
     reset,
     formState: { errors, dirtyFields },
-  } = useForm<SalesOrderFormValues>({ defaultValues: EMPTY_VALUES });
+  } = useForm<SalesOrderFormValues>({
+    defaultValues: EMPTY_VALUES,
+    // Rebuilt when the mode changes: the required fields differ between the
+    // producto and parte paths, and editing disables the identity selects.
+    resolver: zodResolver(
+      salesOrderSchema(t, { isEdit, orderType })
+    ) as never,
+    mode: 'onBlur',
+  });
 
   const customerUuid = watch('customerUuid');
   const partUuid = watch('partUuid');
@@ -537,11 +547,7 @@ const SalesOrderForm: React.FC = () => {
               className={selectClass}
               data-testid="customer-select"
               disabled={isEdit || loading}
-              {...register('customerUuid', {
-                // Immutable and disabled on edit, where it is never submitted;
-                // a required rule on a disabled control would block the save.
-                required: isEdit ? false : t('salesOrders.validation.customerRequired'),
-              })}
+              {...register('customerUuid')}
             >
               <option value="">{t('salesOrders.placeholders.customer')}</option>
               {customers.map((customer) => (
@@ -578,9 +584,7 @@ const SalesOrderForm: React.FC = () => {
                   className={selectClass}
                   data-testid="part-select"
                   disabled={loading}
-                  {...register('partUuid', {
-                    required: t('salesOrders.validation.partRequired'),
-                  })}
+                  {...register('partUuid')}
                 >
                   <option value="">{t('salesOrders.placeholders.part')}</option>
                   {parts.map((part) => (
@@ -614,9 +618,7 @@ const SalesOrderForm: React.FC = () => {
               className={selectClass}
               data-testid="product-select"
               disabled={isEdit || !customerUuid || loading}
-              {...register('productUuid', {
-                required: isEdit ? false : t('salesOrders.validation.productRequired'),
-              })}
+              {...register('productUuid')}
             >
               <option value="">
                 {customerUuid
@@ -645,11 +647,7 @@ const SalesOrderForm: React.FC = () => {
             required
             data-testid="quantity-input"
             error={errors.quantity?.message}
-            {...register('quantity', {
-              required: t('salesOrders.validation.quantityRequired'),
-              validate: (value) =>
-                Number(value) > 0 || t('salesOrders.validation.quantityPositive'),
-            })}
+            {...register('quantity')}
           />
 
           {/* 4. Lugar de entrega */}

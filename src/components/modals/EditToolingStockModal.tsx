@@ -9,6 +9,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editToolingStockSchema } from '../../validation/schemas/toolingStock';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { MapPin, X } from 'lucide-react';
 import { logger } from '../../utils/logger';
@@ -50,6 +51,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
   } = useModalForm<CreateToolingStockForm>({
     onSuccess,
     onClose,
+    schema: editToolingStockSchema(t),
   });
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseUuid' });
@@ -145,9 +147,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
             {t('toolingStock.warehouse')} *
           </label>
           <select
-            {...register('warehouseUuid', {
-              required: t('toolingStock.validation.warehouseRequired'),
-            })}
+            {...register('warehouseUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('toolingStock.selectWarehouse')}</option>
@@ -206,9 +206,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
             {t('toolingStock.tooling')} *
           </label>
           <select
-            {...register('toolingUuid', {
-              required: t('toolingStock.validation.toolingRequired'),
-            })}
+            {...register('toolingUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('toolingStock.selectTooling')}</option>
@@ -238,6 +236,9 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierUuid.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -255,6 +256,9 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerUuid.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -264,10 +268,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
             </label>
             <Input
               type="number"
-              {...register('quantity', {
-                required: t('toolingStock.validation.quantityRequired'),
-                valueAsNumber: true,
-              })}
+              {...register('quantity')}
               placeholder={t('toolingStock.quantityPlaceholder')}
               error={errors.quantity?.message}
             />
@@ -280,9 +281,8 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('price', {
-                valueAsNumber: true,
-              })}
+              {...register('price')}
+              error={errors.price?.message as string}
               placeholder={t('toolingStock.pricePlaceholder')}
             />
           </div>
@@ -294,6 +294,7 @@ const EditToolingStockModal: React.FC<EditToolingStockModalProps> = ({
           </label>
           <Input
             {...register('comments')}
+            error={errors.comments?.message as string}
             placeholder={t('toolingStock.commentsPlaceholder')}
           />
         </div>

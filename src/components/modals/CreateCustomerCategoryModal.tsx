@@ -4,6 +4,7 @@ import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { CreateCustomerCategoryForm } from '../../types';
 import { customerCategoriesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createCustomerCategorySchema } from '../../validation/schemas/customerCategory';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -36,6 +37,7 @@ const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = 
   } = useModalForm<CreateCustomerCategoryForm>({
     onSuccess,
     onClose,
+    schema: createCustomerCategorySchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -51,17 +53,7 @@ const CreateCustomerCategoryModal: React.FC<CreateCustomerCategoryModalProps> = 
         <ErrorMessage message={error} />
 
         <Input
-          {...register('name', {
-            required: t('customerCategories.validation.nameRequired'),
-            minLength: {
-              value: 2,
-              message: t('customerCategories.validation.nameMinLength'),
-            },
-            maxLength: {
-              value: 100,
-              message: t('customerCategories.validation.nameMaxLength'),
-            },
-          })}
+          {...register('name')}
           label={t('customerCategories.name')}
           placeholder={t('customerCategories.namePlaceholder')}
           error={errors.name?.message as string}

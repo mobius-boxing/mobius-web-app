@@ -4,6 +4,7 @@ import { CreateGlueTypeForm } from '../../types';
 import { glueTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createGlueTypeSchema } from '../../validation/schemas/glueType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateGlueTypeModal: React.FC<CreateGlueTypeModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createGlueTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -56,9 +58,7 @@ const CreateGlueTypeModal: React.FC<CreateGlueTypeModalProps> = ({
             {t('glueTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('glueTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('glueTypes.codePlaceholder')}
             error={errors.code?.message}
           />

@@ -4,6 +4,7 @@ import { CreateWarehouseForm } from '../../types';
 import { warehousesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createWarehouseSchema } from '../../validation/schemas/warehouse';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -40,6 +41,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
     },
     onSuccess,
     onClose,
+    schema: createWarehouseSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -51,7 +53,11 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('warehouses.createTitle')}>
-      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+      <form
+        onSubmit={formSubmit(onSubmit)}
+        className="space-y-4"
+        noValidate
+      >
         <ErrorMessage message={error} />
 
         <div>
@@ -59,9 +65,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
             {t('warehouses.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('warehouses.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('warehouses.namePlaceholder')}
             error={errors.name?.message}
           />
@@ -75,12 +79,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
               </label>
               <Input
                 type="number"
-                {...register('gridRows', {
-                  required: t('warehouses.validation.gridRowsRequired'),
-                  min: { value: 1, message: t('warehouses.validation.gridRowsMin') },
-                  max: { value: 50, message: t('warehouses.validation.gridRowsMax') },
-                  valueAsNumber: true,
-                })}
+                {...register('gridRows')}
                 placeholder="10"
                 defaultValue={10}
                 error={errors.gridRows?.message}
@@ -92,12 +91,7 @@ const CreateWarehouseModal: React.FC<CreateWarehouseModalProps> = ({
               </label>
               <Input
                 type="number"
-                {...register('gridCols', {
-                  required: t('warehouses.validation.gridColsRequired'),
-                  min: { value: 1, message: t('warehouses.validation.gridColsMin') },
-                  max: { value: 50, message: t('warehouses.validation.gridColsMax') },
-                  valueAsNumber: true,
-                })}
+                {...register('gridCols')}
                 placeholder="10"
                 defaultValue={10}
                 error={errors.gridCols?.message}

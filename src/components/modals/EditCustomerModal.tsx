@@ -6,6 +6,7 @@ import { customersApi, customerCategoriesApi, usersApi } from '../../services/ap
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editCustomerSchema } from '../../validation/schemas/customer';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { logger } from '../../utils/logger';
 
@@ -39,6 +40,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   } = useModalForm<CreateCustomerForm>({
     onSuccess,
     onClose,
+    schema: editCustomerSchema(t),
   });
 
   const { handleSubmit: formSubmit, reset } = form;

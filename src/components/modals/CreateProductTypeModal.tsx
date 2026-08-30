@@ -4,6 +4,7 @@ import { CreateProductTypeForm } from '../../types';
 import { productTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createProductTypeSchema } from '../../validation/schemas/productType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateProductTypeModal: React.FC<CreateProductTypeModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createProductTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -56,9 +58,7 @@ const CreateProductTypeModal: React.FC<CreateProductTypeModalProps> = ({
             {t('productTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('productTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('productTypes.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -69,9 +69,7 @@ const CreateProductTypeModal: React.FC<CreateProductTypeModalProps> = ({
             {t('productTypes.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('productTypes.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('productTypes.namePlaceholder')}
             error={errors.name?.message}
           />

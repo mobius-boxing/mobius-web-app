@@ -4,6 +4,10 @@ import { Machine, MachineType, CreateMachineForm, Warehouse } from '../../types'
 import { machinesApi, machineTypesApi, warehousesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import {
+  createMachineSchema,
+  editMachineSchema,
+} from '../../validation/schemas/machine';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -31,7 +35,7 @@ const MachineFields: React.FC<{
           <label className="gd-label">
             {t('machines.code')}
           </label>
-          <Input {...register('code')} />
+          <Input {...register('code')} error={errors.code?.message as string} />
         </div>
         <div>
           <label className="gd-label">
@@ -39,9 +43,7 @@ const MachineFields: React.FC<{
           </label>
           <select
             className="input-field w-full"
-            {...register('machineTypeUuid', {
-              required: t('machines.validation.typeRequired'),
-            })}
+            {...register('machineTypeUuid')}
           >
             <option value="">{t('machines.selectType')}</option>
             {machineTypes.map((mt) => (
@@ -59,26 +61,26 @@ const MachineFields: React.FC<{
         <label className="gd-label">
           {t('machines.description')}
         </label>
-        <Input {...register('description')} />
+        <Input {...register('description')} error={errors.description?.message as string} />
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div>
           <label className="gd-label">
             {t('machines.setupTime')}
           </label>
-          <Input type="number" step="any" {...register('setupTime')} />
+          <Input type="number" step="any" {...register('setupTime')} error={errors.setupTime?.message as string} />
         </div>
         <div>
           <label className="gd-label">
             {t('machines.sheetWidthMin')}
           </label>
-          <Input type="number" step="any" {...register('sheetWidthMin')} />
+          <Input type="number" step="any" {...register('sheetWidthMin')} error={errors.sheetWidthMin?.message as string} />
         </div>
         <div>
           <label className="gd-label">
             {t('machines.sheetWidthMax')}
           </label>
-          <Input type="number" step="any" {...register('sheetWidthMax')} />
+          <Input type="number" step="any" {...register('sheetWidthMax')} error={errors.sheetWidthMax?.message as string} />
         </div>
       </div>
       <div className="grid grid-cols-2 gap-3">
@@ -94,6 +96,9 @@ const MachineFields: React.FC<{
               </option>
             ))}
           </select>
+          {errors.sourceWarehouseUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.sourceWarehouseUuid.message as string}</p>
+          )}
         </div>
         <div>
           <label className="gd-label">
@@ -107,6 +112,9 @@ const MachineFields: React.FC<{
               </option>
             ))}
           </select>
+          {errors.destinationWarehouseUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.destinationWarehouseUuid.message as string}</p>
+          )}
         </div>
       </div>
     </>
@@ -152,7 +160,7 @@ export const CreateMachineModal: React.FC<BaseProps> = ({ isOpen, onClose, onSuc
     error,
     handleSubmit,
     handleClose,
-  } = useModalForm<CreateMachineForm>({ defaultValues: {}, onSuccess, onClose });
+  } = useModalForm<CreateMachineForm>({ defaultValues: {}, onSuccess, onClose, schema: createMachineSchema(t) });
 
   const onSubmit = handleSubmit((data) =>
     machinesApi.createMachine({ ...clean(data), companyId: effectiveCompanyId })
@@ -184,7 +192,12 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
     error,
     handleSubmit,
     handleClose,
-  } = useModalForm<CreateMachineForm>({ defaultValues: {}, onSuccess, onClose });
+  } = useModalForm<CreateMachineForm>({
+    defaultValues: {},
+    onSuccess,
+    onClose,
+    schema: editMachineSchema(t),
+  });
 
   useEffect(() => {
     if (isOpen && machine) {

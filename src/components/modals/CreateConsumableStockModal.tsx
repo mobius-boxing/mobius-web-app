@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CreateConsumableStockForm, Manufacturer, Supplier, Warehouse, ConsumableSupply, WarehouseLocation } from '../../types';
 import { consumableStockApi, manufacturersApi, suppliersApi, warehousesApi, consumableSuppliesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createConsumableStockSchema } from '../../validation/schemas/consumableStock';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
@@ -47,6 +48,7 @@ const CreateConsumableStockModal: React.FC<CreateConsumableStockModalProps> = ({
   } = useModalForm<CreateConsumableStockForm>({
     onSuccess,
     onClose,
+    schema: createConsumableStockSchema(t),
   });
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseUuid' });
@@ -133,9 +135,7 @@ const CreateConsumableStockModal: React.FC<CreateConsumableStockModalProps> = ({
             {t('consumableStock.warehouse')} *
           </label>
           <select
-            {...register('warehouseUuid', {
-              required: t('consumableStock.validation.warehouseRequired'),
-            })}
+            {...register('warehouseUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('consumableStock.selectWarehouse')}</option>
@@ -194,9 +194,7 @@ const CreateConsumableStockModal: React.FC<CreateConsumableStockModalProps> = ({
             {t('consumableStock.consumableSupply')} *
           </label>
           <select
-            {...register('consumableSupplyUuid', {
-              required: t('consumableStock.validation.consumableSupplyRequired'),
-            })}
+            {...register('consumableSupplyUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('consumableStock.selectConsumableSupply')}</option>
@@ -226,6 +224,9 @@ const CreateConsumableStockModal: React.FC<CreateConsumableStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierUuid.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -243,6 +244,9 @@ const CreateConsumableStockModal: React.FC<CreateConsumableStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerUuid.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -252,10 +256,7 @@ const CreateConsumableStockModal: React.FC<CreateConsumableStockModalProps> = ({
             </label>
             <Input
               type="number"
-              {...register('quantity', {
-                required: t('consumableStock.validation.quantityRequired'),
-                valueAsNumber: true,
-              })}
+              {...register('quantity')}
               placeholder={t('consumableStock.quantityPlaceholder')}
               error={errors.quantity?.message}
             />
@@ -268,9 +269,8 @@ const CreateConsumableStockModal: React.FC<CreateConsumableStockModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('price', {
-                valueAsNumber: true,
-              })}
+              {...register('price')}
+              error={errors.price?.message as string}
               placeholder={t('consumableStock.pricePlaceholder')}
             />
           </div>
@@ -282,6 +282,7 @@ const CreateConsumableStockModal: React.FC<CreateConsumableStockModalProps> = ({
           </label>
           <Input
             {...register('comments')}
+            error={errors.comments?.message as string}
             placeholder={t('consumableStock.commentsPlaceholder')}
           />
         </div>

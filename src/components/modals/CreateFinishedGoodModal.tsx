@@ -4,6 +4,7 @@ import { CreateFinishedGoodForm, Manufacturer, Supplier } from '../../types';
 import { finishedGoodsApi, manufacturersApi, suppliersApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createFinishedGoodSchema } from '../../validation/schemas/finishedGood';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -40,6 +41,7 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createFinishedGoodSchema(t),
   });
 
   useEffect(() => {
@@ -66,7 +68,6 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
   const onSubmit = handleSubmit((data) =>
     finishedGoodsApi.createFinishedGood({
       ...data,
-      minimumStock: data.minimumStock ? Number(data.minimumStock) : undefined,
       supplierUuid: data.supplierUuid || undefined,
       manufacturerUuid: data.manufacturerUuid || undefined,
       companyId: effectiveCompanyId,
@@ -87,9 +88,7 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
           />
 
           <Input
-            {...register('name', {
-              required: t('finishedGoods.validation.nameRequired'),
-            })}
+            {...register('name')}
             label={`${t('finishedGoods.name')} *`}
             placeholder={t('finishedGoods.namePlaceholder')}
             error={errors.name?.message}
@@ -106,6 +105,9 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
             placeholder={t('finishedGoods.descriptionPlaceholder')}
             className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-600">{errors.description.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -124,6 +126,9 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
                 </option>
               ))}
             </select>
+            {errors.supplierUuid && (
+              <p className="mt-1 text-sm text-red-600">{errors.supplierUuid.message as string}</p>
+            )}
           </div>
 
           <div>
@@ -141,10 +146,14 @@ const CreateFinishedGoodModal: React.FC<CreateFinishedGoodModalProps> = ({
                 </option>
               ))}
             </select>
+            {errors.manufacturerUuid && (
+              <p className="mt-1 text-sm text-red-600">{errors.manufacturerUuid.message as string}</p>
+            )}
           </div>
 
           <Input
             {...register('minimumStock')}
+            error={errors.minimumStock?.message as string}
             type="number"
             step="1"
             label={t('finishedGoods.minimumStock')}

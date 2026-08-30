@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { MachineType, CreateMachineTypeForm } from '../../types';
 import { machineTypesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editMachineTypeSchema } from '../../validation/schemas/machineType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -24,7 +25,7 @@ const EditMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, mac
     error,
     handleSubmit,
     handleClose,
-  } = useModalForm<CreateMachineTypeForm>({ defaultValues: {}, onSuccess, onClose });
+  } = useModalForm<CreateMachineTypeForm>({ defaultValues: {}, onSuccess, onClose, schema: editMachineTypeSchema(t) });
 
   useEffect(() => {
     if (isOpen && machineType) {
@@ -52,7 +53,7 @@ const EditMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, mac
             {t('machineTypes.name')} *
           </label>
           <Input
-            {...register('name', { required: t('machineTypes.validation.nameRequired') })}
+            {...register('name')}
             error={errors.name?.message}
           />
         </div>
@@ -60,7 +61,7 @@ const EditMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, mac
           <label className="gd-label">
             {t('machineTypes.attribute')}
           </label>
-          <Input {...register('attribute')} />
+          <Input {...register('attribute')} error={errors.attribute?.message as string} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <label className="flex items-center gap-2 text-sm text-secondary-700">

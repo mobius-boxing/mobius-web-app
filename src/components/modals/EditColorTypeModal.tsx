@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editColorTypeSchema } from '../../validation/schemas/colorType';
 
 interface EditColorTypeModalProps {
   isOpen: boolean;
@@ -37,13 +38,14 @@ const EditColorTypeModal: React.FC<EditColorTypeModalProps> = ({
   } = useModalForm<CreateColorTypeForm>({
     onSuccess,
     onClose,
+    schema: editColorTypeSchema(t),
   });
 
   useEffect(() => {
     if (isOpen && colorType) {
       reset({
         name: colorType.name,
-        description: colorType.description,
+        description: colorType.description ?? '',
       });
     }
   }, [isOpen, colorType, reset]);
@@ -64,9 +66,7 @@ const EditColorTypeModal: React.FC<EditColorTypeModalProps> = ({
             {t('colorTypes.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('colorTypes.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('colorTypes.namePlaceholder')}
             error={errors.name?.message}
           />

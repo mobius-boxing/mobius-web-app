@@ -5,6 +5,7 @@ import { paperSuppliesApi, manufacturersApi, suppliersApi, paperTypesApi, fscTyp
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createPaperSupplySchema } from '../../validation/schemas/paperSupply';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
@@ -41,6 +42,7 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
   } = useModalForm<CreatePaperSupplyForm>({
     onSuccess,
     onClose,
+    schema: createPaperSupplySchema(t),
   });
 
   useEffect(() => {
@@ -101,9 +103,7 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
             {t('paperSupplies.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('paperSupplies.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('paperSupplies.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -114,9 +114,7 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
             {t('paperSupplies.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('paperSupplies.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('paperSupplies.namePlaceholder')}
             error={errors.name?.message}
           />
@@ -128,6 +126,7 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
           </label>
           <Input
             {...register('description')}
+            error={errors.description?.message as string}
             placeholder={t('paperSupplies.descriptionPlaceholder')}
           />
         </div>
@@ -147,6 +146,9 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerId && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerId.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -164,6 +166,9 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierId && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierId.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -181,6 +186,9 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.paperTypeId && (
+            <p className="mt-1 text-sm text-red-600">{errors.paperTypeId.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -191,9 +199,8 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('grammage', {
-                valueAsNumber: true,
-              })}
+              {...register('grammage')}
+              error={errors.grammage?.message as string}
               placeholder={t('paperSupplies.grammagePlaceholder')}
             />
           </div>
@@ -205,9 +212,8 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('price', {
-                valueAsNumber: true,
-              })}
+              {...register('price')}
+              error={errors.price?.message as string}
               placeholder={t('paperSupplies.pricePlaceholder')}
             />
           </div>
@@ -218,7 +224,7 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
             <label className="gd-label">
               {t('paperSupplies.color')}
             </label>
-            <Input {...register('color')} placeholder={t('paperSupplies.colorPlaceholder')} />
+            <Input {...register('color')} error={errors.color?.message as string} placeholder={t('paperSupplies.colorPlaceholder')} />
           </div>
 
           <div>
@@ -236,6 +242,9 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
                 </option>
               ))}
             </select>
+            {errors.fscTypeId && (
+              <p className="mt-1 text-sm text-red-600">{errors.fscTypeId.message as string}</p>
+            )}
           </div>
         </div>
 
@@ -247,9 +256,8 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
             <Input
               type="number"
               step="any"
-              {...register('minimumStockWeightKg', {
-                valueAsNumber: true,
-              })}
+              {...register('minimumStockWeightKg')}
+              error={errors.minimumStockWeightKg?.message as string}
               placeholder={t('paperSupplies.minimumStockWeightKgPlaceholder')}
             />
           </div>
@@ -261,9 +269,8 @@ const CreatePaperSupplyModal: React.FC<CreatePaperSupplyModalProps> = ({
             <Input
               type="number"
               step="any"
-              {...register('minimumStockDiameterMm', {
-                valueAsNumber: true,
-              })}
+              {...register('minimumStockDiameterMm')}
+              error={errors.minimumStockDiameterMm?.message as string}
               placeholder={t('paperSupplies.minimumStockDiameterMmPlaceholder')}
             />
           </div>

@@ -4,6 +4,7 @@ import { CreateFlapTypeForm } from '../../types';
 import { flapTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createFlapTypeSchema } from '../../validation/schemas/flapType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateFlapTypeModal: React.FC<CreateFlapTypeModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createFlapTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -56,9 +58,7 @@ const CreateFlapTypeModal: React.FC<CreateFlapTypeModalProps> = ({
             {t('flapTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('flapTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('flapTypes.codePlaceholder')}
             error={errors.code?.message}
           />

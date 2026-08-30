@@ -9,6 +9,7 @@ import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editSheetStockSchema } from '../../validation/schemas/sheetStock';
 import { MapPin, X } from 'lucide-react';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { logger } from '../../utils/logger';
@@ -45,6 +46,7 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
   } = useModalForm<CreateSheetStockForm>({
     onSuccess,
     onClose,
+    schema: editSheetStockSchema(t),
   });
 
   const {
@@ -161,9 +163,7 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
             {t('sheetStock.warehouse')} *
           </label>
           <select
-            {...register('warehouseId', {
-              required: t('sheetStock.validation.warehouseRequired'),
-            })}
+            {...register('warehouseId')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('sheetStock.selectWarehouse')}</option>
@@ -222,9 +222,7 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
             {t('sheetStock.paperSheet')} *
           </label>
           <select
-            {...register('paperSheetId', {
-              required: t('sheetStock.validation.paperSheetRequired'),
-            })}
+            {...register('paperSheetId')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('sheetStock.selectPaperSheet')}</option>
@@ -254,6 +252,9 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierId && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierId.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -271,6 +272,9 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerId && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerId.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -280,10 +284,7 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
             </label>
             <Input
               type="number"
-              {...register('quantity', {
-                required: t('sheetStock.validation.quantityRequired'),
-                valueAsNumber: true,
-              })}
+              {...register('quantity')}
               placeholder={t('sheetStock.quantityPlaceholder')}
               error={errors.quantity?.message}
             />
@@ -296,9 +297,8 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('price', {
-                valueAsNumber: true,
-              })}
+              {...register('price')}
+              error={errors.price?.message as string}
               placeholder={t('sheetStock.pricePlaceholder')}
             />
           </div>
@@ -310,6 +310,7 @@ const EditSheetStockModal: React.FC<EditSheetStockModalProps> = ({
           </label>
           <Input
             {...register('comments')}
+            error={errors.comments?.message as string}
             placeholder={t('sheetStock.commentsPlaceholder')}
           />
         </div>

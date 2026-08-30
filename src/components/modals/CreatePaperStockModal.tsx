@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CreatePaperStockForm, Manufacturer, Supplier, Warehouse, PaperSupply, WarehouseLocation } from '../../types';
 import { paperStockApi, manufacturersApi, suppliersApi, warehousesApi, paperSuppliesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createPaperStockSchema } from '../../validation/schemas/paperStock';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -47,6 +48,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
   } = useModalForm<CreatePaperStockForm>({
     onSuccess,
     onClose,
+    schema: createPaperStockSchema(t),
   });
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseId' });
@@ -135,9 +137,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
             {t('paperStock.warehouse')} *
           </label>
           <select
-            {...register('warehouseId', {
-              required: t('paperStock.validation.warehouseRequired'),
-            })}
+            {...register('warehouseId')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('paperStock.selectWarehouse')}</option>
@@ -196,9 +196,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
             {t('paperStock.paperSupply')} *
           </label>
           <select
-            {...register('paperSupplyId', {
-              required: t('paperStock.validation.paperSupplyRequired'),
-            })}
+            {...register('paperSupplyId')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('paperStock.selectPaperSupply')}</option>
@@ -228,6 +226,9 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierId && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierId.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -245,6 +246,9 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerId && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerId.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-4">
@@ -255,9 +259,8 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('weight', {
-                valueAsNumber: true,
-              })}
+              {...register('weight')}
+              error={errors.weight?.message as string}
               placeholder={t('paperStock.weightPlaceholder')}
             />
           </div>
@@ -269,9 +272,8 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('diameter', {
-                valueAsNumber: true,
-              })}
+              {...register('diameter')}
+              error={errors.diameter?.message as string}
               placeholder={t('paperStock.diameterPlaceholder')}
             />
           </div>
@@ -283,9 +285,8 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('width', {
-                valueAsNumber: true,
-              })}
+              {...register('width')}
+              error={errors.width?.message as string}
               placeholder={t('paperStock.widthPlaceholder')}
             />
           </div>
@@ -298,9 +299,8 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
           <Input
             type="number"
             step="0.01"
-            {...register('price', {
-              valueAsNumber: true,
-            })}
+            {...register('price')}
+            error={errors.price?.message as string}
             placeholder={t('paperStock.pricePlaceholder')}
           />
         </div>
@@ -311,6 +311,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
           </label>
           <Input
             {...register('comments')}
+            error={errors.comments?.message as string}
             placeholder={t('paperStock.commentsPlaceholder')}
           />
         </div>

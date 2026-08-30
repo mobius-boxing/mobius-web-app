@@ -6,6 +6,7 @@ import { manufacturersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createManufacturerSchema } from '../../validation/schemas/manufacturer';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 
@@ -36,6 +37,7 @@ const CreateManufacturerModal: React.FC<CreateManufacturerModalProps> = ({
   } = useModalForm<CreateManufacturerForm>({
     onSuccess,
     onClose,
+    schema: createManufacturerSchema(t),
   });
 
   const onSubmit = handleSubmit((data) => manufacturersApi.createManufacturer({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
@@ -50,9 +52,7 @@ const CreateManufacturerModal: React.FC<CreateManufacturerModalProps> = ({
             {t('manufacturers.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('manufacturers.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('manufacturers.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -63,9 +63,7 @@ const CreateManufacturerModal: React.FC<CreateManufacturerModalProps> = ({
             {t('manufacturers.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('manufacturers.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('manufacturers.namePlaceholder')}
             error={errors.name?.message}
           />

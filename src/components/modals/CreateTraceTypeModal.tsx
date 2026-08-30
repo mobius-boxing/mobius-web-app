@@ -4,6 +4,7 @@ import { CreateTraceTypeForm } from '../../types';
 import { traceTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createTraceTypeSchema } from '../../validation/schemas/traceType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateTraceTypeModal: React.FC<CreateTraceTypeModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createTraceTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -56,9 +58,7 @@ const CreateTraceTypeModal: React.FC<CreateTraceTypeModalProps> = ({
             {t('traceTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('traceTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('traceTypes.codePlaceholder')}
             error={errors.code?.message}
           />

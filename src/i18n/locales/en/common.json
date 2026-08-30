@@ -761,6 +761,12 @@
       "title": "Initial part",
       "corrugation": "Corrugated board",
       "selectCorrugation": "Select a corrugated board",
+      "model": "Box model",
+      "selectModel": "Select a box model",
+      "flapType": "Flap type",
+      "selectFlapType": "Select a flap type",
+      "glueType": "Glue type",
+      "selectGlueType": "Select a glue type",
       "sheetLength": "Sheet length (mm)",
       "sheetWidth": "Sheet width (mm)",
       "boxLength": "Box length (mm)",
@@ -2210,6 +2216,7 @@
       "clientCode": "Client code",
       "description": "Description",
       "corrugation": "Corrugation",
+      "model": "Box model",
       "boxLength": "Box length (mm)",
       "boxWidth": "Box width (mm)",
       "boxHeight": "Box height (mm)",
@@ -2639,6 +2646,22 @@
       "companiesWithUsers": "Companies with Users",
       "activeCompanies": "Active Companies",
       "totalCompanies": "Total Companies"
+    }
+  },
+  "validation": {
+    "required": "{{field}} is required",
+    "maxLength": "{{field}} must be at most {{max}} characters",
+    "minLength": "{{field}} must be at least {{min}} characters",
+    "mustBeNumber": "{{field}} must be a number",
+    "min": "{{field}} cannot be less than {{min}}",
+    "max": "{{field}} cannot be greater than {{max}}",
+    "decimals": "{{field}} allows at most {{decimals}} decimals",
+    "integer": "{{field}} must be a whole number",
+    "invalidFormat": "{{field}} has an invalid format",
+    "invalidDate": "{{field}} is not a valid date",
+    "selectRequired": "Please select {{field}}",
+    "fields": {
+      "code": "Code"
     }
   }
 }

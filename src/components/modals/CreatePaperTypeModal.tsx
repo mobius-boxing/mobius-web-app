@@ -6,6 +6,7 @@ import { paperTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createPaperTypeSchema } from '../../validation/schemas/paperType';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 
@@ -36,6 +37,7 @@ const CreatePaperTypeModal: React.FC<CreatePaperTypeModalProps> = ({
   } = useModalForm<CreatePaperTypeForm>({
     onSuccess,
     onClose,
+    schema: createPaperTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) => paperTypesApi.createPaperType({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
@@ -46,17 +48,7 @@ const CreatePaperTypeModal: React.FC<CreatePaperTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: 'Code is required',
-            minLength: {
-              value: 1,
-              message: 'Code must be at least 1 character',
-            },
-            maxLength: {
-              value: 50,
-              message: 'Code must be less than 50 characters',
-            },
-          })}
+          {...register('code')}
           label={t('paperTypes.code')}
           placeholder={t('paperTypes.codePlaceholder')}
           error={errors.code?.message as string}

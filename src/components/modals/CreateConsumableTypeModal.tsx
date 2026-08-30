@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CreateConsumableTypeForm } from '../../types';
 import { consumableTypesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createConsumableTypeSchema } from '../../validation/schemas/consumableType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -36,6 +37,7 @@ const CreateConsumableTypeModal: React.FC<CreateConsumableTypeModalProps> = ({
   } = useModalForm<CreateConsumableTypeForm>({
     onSuccess,
     onClose,
+    schema: createConsumableTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) => consumableTypesApi.createConsumableType({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
@@ -46,34 +48,14 @@ const CreateConsumableTypeModal: React.FC<CreateConsumableTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: t('consumableTypes.validation.codeRequired'),
-            minLength: {
-              value: 1,
-              message: t('consumableTypes.validation.codeMinLength'),
-            },
-            maxLength: {
-              value: 50,
-              message: t('consumableTypes.validation.codeMaxLength'),
-            },
-          })}
+          {...register('code')}
           label={t('consumableTypes.code')}
           placeholder={t('consumableTypes.codePlaceholder')}
           error={errors.code?.message as string}
         />
 
         <Input
-          {...register('name', {
-            required: t('consumableTypes.validation.nameRequired'),
-            minLength: {
-              value: 1,
-              message: t('consumableTypes.validation.nameMinLength'),
-            },
-            maxLength: {
-              value: 255,
-              message: t('consumableTypes.validation.nameMaxLength'),
-            },
-          })}
+          {...register('name')}
           label={t('consumableTypes.name')}
           placeholder={t('consumableTypes.namePlaceholder')}
           error={errors.name?.message as string}

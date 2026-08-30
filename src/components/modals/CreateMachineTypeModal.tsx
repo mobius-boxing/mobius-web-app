@@ -4,6 +4,7 @@ import { CreateMachineTypeForm } from '../../types';
 import { machineTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createMachineTypeSchema } from '../../validation/schemas/machineType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -25,7 +26,7 @@ const CreateMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess })
     error,
     handleSubmit,
     handleClose,
-  } = useModalForm<CreateMachineTypeForm>({ defaultValues: {}, onSuccess, onClose });
+  } = useModalForm<CreateMachineTypeForm>({ defaultValues: {}, onSuccess, onClose, schema: createMachineTypeSchema(t) });
 
   const onSubmit = handleSubmit((data) =>
     machineTypesApi.createMachineType({ ...data, companyId: effectiveCompanyId })
@@ -40,7 +41,8 @@ const CreateMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess })
             {t('machineTypes.name')} *
           </label>
           <Input
-            {...register('name', { required: t('machineTypes.validation.nameRequired') })}
+            {...register('name')}
+            error={errors.name?.message as string}
             placeholder={t('machineTypes.namePlaceholder')}
           />
           {errors.name && <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>}
@@ -49,7 +51,7 @@ const CreateMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess })
           <label className="gd-label">
             {t('machineTypes.attribute')}
           </label>
-          <Input {...register('attribute')} placeholder={t('machineTypes.attributePlaceholder')} />
+          <Input {...register('attribute')} error={errors.attribute?.message as string} placeholder={t('machineTypes.attributePlaceholder')} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <label className="flex items-center gap-2 text-sm text-secondary-700">

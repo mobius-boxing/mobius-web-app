@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editTraceTypeSchema } from '../../validation/schemas/traceType';
 
 interface EditTraceTypeModalProps {
   isOpen: boolean;
@@ -37,13 +38,14 @@ const EditTraceTypeModal: React.FC<EditTraceTypeModalProps> = ({
   } = useModalForm<CreateTraceTypeForm>({
     onSuccess,
     onClose,
+    schema: editTraceTypeSchema(t),
   });
 
   useEffect(() => {
     if (isOpen && traceType) {
       reset({
         code: traceType.code,
-        description: traceType.description,
+        description: traceType.description ?? '',
       });
     }
   }, [isOpen, traceType, reset]);
@@ -64,9 +66,7 @@ const EditTraceTypeModal: React.FC<EditTraceTypeModalProps> = ({
             {t('traceTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('traceTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('traceTypes.codePlaceholder')}
             error={errors.code?.message}
           />

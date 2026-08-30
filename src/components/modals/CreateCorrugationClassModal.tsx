@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CreateCorrugationClassForm } from '../../types';
 import { corrugationClassesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createCorrugationClassSchema } from '../../validation/schemas/corrugationClass';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -36,6 +37,7 @@ const CreateCorrugationClassModal: React.FC<CreateCorrugationClassModalProps> = 
   } = useModalForm<CreateCorrugationClassForm>({
     onSuccess,
     onClose,
+    schema: createCorrugationClassSchema(t),
   });
 
   const onSubmit = handleSubmit((data) => corrugationClassesApi.createCorrugationClass({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
@@ -46,17 +48,7 @@ const CreateCorrugationClassModal: React.FC<CreateCorrugationClassModalProps> = 
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: t('corrugationClasses.validation.codeRequired'),
-            minLength: {
-              value: 1,
-              message: t('corrugationClasses.validation.codeMinLength'),
-            },
-            maxLength: {
-              value: 50,
-              message: t('corrugationClasses.validation.codeMaxLength'),
-            },
-          })}
+          {...register('code')}
           label={t('corrugationClasses.code')}
           placeholder={t('corrugationClasses.codePlaceholder')}
           error={errors.code?.message as string}
