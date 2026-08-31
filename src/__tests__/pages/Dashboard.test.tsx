@@ -1,20 +1,19 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
+import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import { MemoryRouter } from 'react-router-dom';
 import Dashboard from '../../pages/Dashboard';
+import { createMockCompany } from '../../test-utils/api.mock';
 
 let mockUser: any = null;
+const mockGetCompanies = jest.fn();
 const mockGetUserStats = jest.fn();
 const mockGetCompanyStats = jest.fn();
 const mockGetInvitationStats = jest.fn();
 
-jest.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: mockUser,
-    isAuthenticated: !!mockUser,
-    isLoading: false,
-  }),
-}));
+jest.mock('../../contexts/AuthContext', () =>
+  require('../../test-utils/renderWithProviders').authContextMock()
+);
 
 jest.mock('../../services/api', () => ({
   usersApi: {
@@ -22,6 +21,8 @@ jest.mock('../../services/api', () => ({
   },
   companiesApi: {
     getCompanyStats: () => mockGetCompanyStats(),
+    // The real CompanyProvider loads the switcher list for superAdmins.
+    getCompanies: (...args: any[]) => mockGetCompanies(...args),
   },
   invitationsApi: {
     getInvitationStats: (...args: any[]) => mockGetInvitationStats(...args),
@@ -75,6 +76,8 @@ describe('Dashboard Page', () => {
     recentInvitations: 3,
   };
 
+  const mockCompany = createMockCompany();
+
   const mockCompanyStats = {
     totalCompanies: 10,
     activeCompanies: 8,
@@ -93,13 +96,22 @@ describe('Dashboard Page', () => {
     return render(
       <MemoryRouter>
         <Dashboard />
-      </MemoryRouter>
+      </MemoryRouter>,
+      { user: mockUser }
     );
   };
 
   beforeEach(() => {
     jest.clearAllMocks();
     mockUser = null;
+    localStorage.clear();
+    mockGetCompanies.mockResolvedValue({
+      data: [mockCompany],
+      total: 1,
+      page: 1,
+      limit: 100,
+      totalPages: 1,
+    });
   });
 
   describe('Loading State', () => {
@@ -197,8 +209,9 @@ describe('Dashboard Page', () => {
 
       await waitFor(() => {
         expect(screen.getByText('Platform Users by Role')).toBeInTheDocument();
-        expect(screen.getByText('admin')).toBeInTheDocument();
-        expect(screen.getByText('member')).toBeInTheDocument();
+        // Roles render through `roleNames.*` now, so the labels are translated.
+        expect(screen.getByText('Admin')).toBeInTheDocument();
+        expect(screen.getByText('Member')).toBeInTheDocument();
       });
     });
   });

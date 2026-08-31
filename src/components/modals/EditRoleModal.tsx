@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CreateRoleForm, Role } from '../../types';
 import { rolesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editRoleSchema } from '../../validation/schemas/role';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -39,6 +40,7 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: editRoleSchema(t),
   });
 
   useEffect(() => {
@@ -66,9 +68,7 @@ const EditRoleModal: React.FC<EditRoleModalProps> = ({
             {t('roles.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('roles.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('roles.namePlaceholder')}
             error={errors.name?.message}
             disabled={role?.isProtected}

@@ -6,6 +6,7 @@ import { invitationsApi, companiesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
+import { inviteUserSchema } from '../../validation/schemas/invitation';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { logger } from '../../utils/logger';
@@ -39,6 +40,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   } = useModalForm<InviteUserRequest>({
     onSuccess,
     onClose,
+    schema: inviteUserSchema(t),
   });
 
   const selectedRole = watch('role');
@@ -84,26 +86,14 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
-            {...register('firstName', {
-              required: t('userModal.validation.firstNameRequired'),
-              minLength: {
-                value: 2,
-                message: t('userModal.validation.firstNameMinLength'),
-              },
-            })}
+            {...register('firstName')}
             label={t('userModal.firstName')}
             placeholder={t('userModal.firstNamePlaceholder')}
             error={errors.firstName?.message as string}
           />
 
           <Input
-            {...register('lastName', {
-              required: t('userModal.validation.lastNameRequired'),
-              minLength: {
-                value: 2,
-                message: t('userModal.validation.lastNameMinLength'),
-              },
-            })}
+            {...register('lastName')}
             label={t('userModal.lastName')}
             placeholder={t('userModal.lastNamePlaceholder')}
             error={errors.lastName?.message as string}
@@ -111,13 +101,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         </div>
 
         <Input
-          {...register('email', {
-            required: t('userModal.validation.emailRequired'),
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: t('userModal.validation.emailInvalid'),
-            },
-          })}
+          {...register('email')}
           type="email"
           label={t('userModal.email')}
           placeholder={t('userModal.emailPlaceholder')}
@@ -129,7 +113,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
             {t('userModal.role')}
           </label>
           <select
-            {...register('role', { required: t('userModal.validation.roleRequired') })}
+            {...register('role')}
             className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           >
             <option value="">{t('userModal.selectRole')}</option>
@@ -150,7 +134,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
               {t('userModal.company')}
             </label>
             <select
-              {...register('companyId', { required: t('userModal.validation.companyRequired') })}
+              {...register('companyId')}
               className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
               <option value="">{t('userModal.selectCompany')}</option>

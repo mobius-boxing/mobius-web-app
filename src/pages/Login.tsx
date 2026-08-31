@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '../validation/schemas/auth';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
@@ -22,7 +24,10 @@ const Login: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginCredentials>();
+  } = useForm<LoginCredentials>({
+    resolver: zodResolver(loginSchema(t)) as never,
+    mode: 'onBlur',
+  });
 
   const from = location.state?.from?.pathname || '/dashboard';
 
@@ -76,13 +81,7 @@ const Login: React.FC = () => {
 
           <div className="space-y-4">
             <Input
-              {...register('email', {
-                required: t('login.validation.emailRequired'),
-                pattern: {
-                  value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                  message: t('login.validation.emailInvalid'),
-                },
-              })}
+              {...register('email')}
               type="email"
               label={t('login.emailLabel')}
               placeholder={t('login.emailPlaceholder')}
@@ -92,9 +91,7 @@ const Login: React.FC = () => {
 
             <div className="relative">
               <Input
-                {...register('password', {
-                  required: t('login.validation.passwordRequired'),
-                })}
+                {...register('password')}
                 type={showPassword ? 'text' : 'password'}
                 label={t('login.passwordLabel')}
                 placeholder={t('login.passwordPlaceholder')}

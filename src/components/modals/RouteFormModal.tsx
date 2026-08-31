@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createProductionRouteSchema } from '../../validation/schemas/productionRoute';
+import { firstIssue } from '../../validation/formErrors';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import {
   ProductionRoute,
@@ -193,6 +195,19 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Pattern B: `useState` form, so the schema runs here. `stages` stays out
+    // of it — see the schema header.
+    const problem = firstIssue(createProductionRouteSchema(t), {
+      name,
+      isGlobal,
+      active,
+      isDefault,
+    });
+    if (problem) {
+      setError(problem);
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setWarnings([]);
@@ -203,6 +218,11 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
       isDefault,
       companyId: effectiveCompanyId,
       stages: stages.map((stage, i) => ({
+        // Identity reference for the API's diff-and-upsert (audit P1b): sent
+        // only for rows that came back from the GET. A stage added in this
+        // modal has no server uuid and is sent without the field, so the API
+        // inserts it. `clientId` is a React key, never a server identity.
+        ...(stage.uuid ? { uuid: stage.uuid } : {}),
         number: i + 1,
         description: stage.description,
         isCorrugation: stage.isCorrugation ?? false,
@@ -214,6 +234,9 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
         supplies: stage.supplies
           .filter((s) => s.supplyUuid)
           .map((s) => ({
+            // Same identity reference as the stage above; omitted for supplies
+            // added in this modal.
+            ...(s.uuid ? { uuid: s.uuid } : {}),
             direction: s.direction,
             supplyType: s.supplyType,
             supplyUuid: s.supplyUuid!,

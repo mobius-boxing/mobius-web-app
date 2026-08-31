@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editGlueTypeSchema } from '../../validation/schemas/glueType';
 
 interface EditGlueTypeModalProps {
   isOpen: boolean;
@@ -37,13 +38,14 @@ const EditGlueTypeModal: React.FC<EditGlueTypeModalProps> = ({
   } = useModalForm<CreateGlueTypeForm>({
     onSuccess,
     onClose,
+    schema: editGlueTypeSchema(t),
   });
 
   useEffect(() => {
     if (isOpen && glueType) {
       reset({
         code: glueType.code,
-        description: glueType.description,
+        description: glueType.description ?? '',
       });
     }
   }, [isOpen, glueType, reset]);
@@ -64,9 +66,7 @@ const EditGlueTypeModal: React.FC<EditGlueTypeModalProps> = ({
             {t('glueTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('glueTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('glueTypes.codePlaceholder')}
             error={errors.code?.message}
           />

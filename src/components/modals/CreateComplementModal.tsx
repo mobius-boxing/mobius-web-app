@@ -4,6 +4,7 @@ import { CreateComplementForm } from '../../types';
 import { complementsApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createComplementSchema } from '../../validation/schemas/complement';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateComplementModal: React.FC<CreateComplementModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createComplementSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -56,9 +58,7 @@ const CreateComplementModal: React.FC<CreateComplementModalProps> = ({
             {t('complements.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('complements.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('complements.codePlaceholder')}
             error={errors.code?.message}
           />

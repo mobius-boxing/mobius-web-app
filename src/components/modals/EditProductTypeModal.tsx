@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editProductTypeSchema } from '../../validation/schemas/productType';
 
 interface EditProductTypeModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ const EditProductTypeModal: React.FC<EditProductTypeModalProps> = ({
   } = useModalForm<CreateProductTypeForm>({
     onSuccess,
     onClose,
+    schema: editProductTypeSchema(t),
   });
 
   useEffect(() => {
@@ -64,9 +66,7 @@ const EditProductTypeModal: React.FC<EditProductTypeModalProps> = ({
             {t('productTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('productTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('productTypes.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -77,9 +77,7 @@ const EditProductTypeModal: React.FC<EditProductTypeModalProps> = ({
             {t('productTypes.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('productTypes.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('productTypes.namePlaceholder')}
             error={errors.name?.message}
           />

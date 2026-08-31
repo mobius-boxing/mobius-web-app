@@ -4,6 +4,7 @@ import { CreateStrappingTypeForm } from '../../types';
 import { strappingTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createStrappingTypeSchema } from '../../validation/schemas/strappingType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateStrappingTypeModal: React.FC<CreateStrappingTypeModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createStrappingTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -56,9 +58,7 @@ const CreateStrappingTypeModal: React.FC<CreateStrappingTypeModalProps> = ({
             {t('strappingTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('strappingTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('strappingTypes.codePlaceholder')}
             error={errors.code?.message}
           />

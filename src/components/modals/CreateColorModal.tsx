@@ -4,6 +4,7 @@ import { ColorType, CreateColorForm } from '../../types';
 import { colorsApi, colorTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createColorSchema } from '../../validation/schemas/color';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -39,6 +40,7 @@ const CreateColorModal: React.FC<CreateColorModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createColorSchema(t),
   });
 
   useEffect(() => {
@@ -52,7 +54,6 @@ const CreateColorModal: React.FC<CreateColorModalProps> = ({
   const onSubmit = handleSubmit((data) =>
     colorsApi.createColor({
       ...data,
-      tonality: data.tonality !== undefined && data.tonality !== null && `${data.tonality}` !== '' ? Number(data.tonality) : undefined,
       colorTypeUuid: data.colorTypeUuid || undefined,
       companyId: effectiveCompanyId,
     })
@@ -68,9 +69,7 @@ const CreateColorModal: React.FC<CreateColorModalProps> = ({
             {t('colors.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('colors.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('colors.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -80,21 +79,21 @@ const CreateColorModal: React.FC<CreateColorModalProps> = ({
           <label className="gd-label">
             {t('colors.name')}
           </label>
-          <Input {...register('name')} placeholder={t('colors.namePlaceholder')} />
+          <Input {...register('name')} error={errors.name?.message as string} placeholder={t('colors.namePlaceholder')} />
         </div>
 
         <div>
           <label className="gd-label">
             {t('colors.description')}
           </label>
-          <Input {...register('description')} placeholder={t('colors.descriptionPlaceholder')} />
+          <Input {...register('description')} error={errors.description?.message as string} placeholder={t('colors.descriptionPlaceholder')} />
         </div>
 
         <div>
           <label className="gd-label">
             {t('colors.observations')}
           </label>
-          <Input {...register('observations')} placeholder={t('colors.observationsPlaceholder')} />
+          <Input {...register('observations')} error={errors.observations?.message as string} placeholder={t('colors.observationsPlaceholder')} />
         </div>
 
         <div>
@@ -104,6 +103,7 @@ const CreateColorModal: React.FC<CreateColorModalProps> = ({
           <Input
             type="number"
             {...register('tonality')}
+            error={errors.tonality?.message as string}
             placeholder={t('colors.tonalityPlaceholder')}
           />
         </div>
@@ -123,6 +123,9 @@ const CreateColorModal: React.FC<CreateColorModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.colorTypeUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.colorTypeUuid.message as string}</p>
+          )}
         </div>
 
         <ModalFooter

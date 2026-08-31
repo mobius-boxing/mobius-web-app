@@ -4,6 +4,7 @@ import { CreateColorTypeForm } from '../../types';
 import { colorTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createColorTypeSchema } from '../../validation/schemas/colorType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateColorTypeModal: React.FC<CreateColorTypeModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createColorTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -56,9 +58,7 @@ const CreateColorTypeModal: React.FC<CreateColorTypeModalProps> = ({
             {t('colorTypes.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('colorTypes.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('colorTypes.namePlaceholder')}
             error={errors.name?.message}
           />

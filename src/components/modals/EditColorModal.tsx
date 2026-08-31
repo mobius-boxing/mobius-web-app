@@ -8,6 +8,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editColorSchema } from '../../validation/schemas/color';
 import { logger } from '../../utils/logger';
 
 interface EditColorModalProps {
@@ -41,6 +42,7 @@ const EditColorModal: React.FC<EditColorModalProps> = ({
   } = useModalForm<CreateColorForm>({
     onSuccess,
     onClose,
+    schema: editColorSchema(t),
   });
 
   useEffect(() => {
@@ -69,7 +71,6 @@ const EditColorModal: React.FC<EditColorModalProps> = ({
   const onSubmit = handleSubmit((data) =>
     colorsApi.updateColor(color.uuid, {
       ...data,
-      tonality: data.tonality !== undefined && data.tonality !== null && `${data.tonality}` !== '' ? Number(data.tonality) : undefined,
       colorTypeUuid: data.colorTypeUuid || undefined,
     })
   );
@@ -84,9 +85,7 @@ const EditColorModal: React.FC<EditColorModalProps> = ({
             {t('colors.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('colors.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('colors.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -96,21 +95,21 @@ const EditColorModal: React.FC<EditColorModalProps> = ({
           <label className="gd-label">
             {t('colors.name')}
           </label>
-          <Input {...register('name')} placeholder={t('colors.namePlaceholder')} />
+          <Input {...register('name')} error={errors.name?.message as string} placeholder={t('colors.namePlaceholder')} />
         </div>
 
         <div>
           <label className="gd-label">
             {t('colors.description')}
           </label>
-          <Input {...register('description')} placeholder={t('colors.descriptionPlaceholder')} />
+          <Input {...register('description')} error={errors.description?.message as string} placeholder={t('colors.descriptionPlaceholder')} />
         </div>
 
         <div>
           <label className="gd-label">
             {t('colors.observations')}
           </label>
-          <Input {...register('observations')} placeholder={t('colors.observationsPlaceholder')} />
+          <Input {...register('observations')} error={errors.observations?.message as string} placeholder={t('colors.observationsPlaceholder')} />
         </div>
 
         <div>
@@ -120,6 +119,7 @@ const EditColorModal: React.FC<EditColorModalProps> = ({
           <Input
             type="number"
             {...register('tonality')}
+            error={errors.tonality?.message as string}
             placeholder={t('colors.tonalityPlaceholder')}
           />
         </div>
@@ -139,6 +139,9 @@ const EditColorModal: React.FC<EditColorModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.colorTypeUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.colorTypeUuid.message as string}</p>
+          )}
         </div>
 
         <ModalFooter

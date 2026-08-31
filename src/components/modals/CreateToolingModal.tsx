@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CreateToolingForm, ToolingType, Manufacturer, Supplier } from '../../types';
 import { toolingsApi, toolingTypesApi, manufacturersApi, suppliersApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createToolingSchema } from '../../validation/schemas/tooling';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
@@ -40,6 +41,7 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
   } = useModalForm<CreateToolingForm>({
     onSuccess,
     onClose,
+    schema: createToolingSchema(t),
   });
 
   useEffect(() => {
@@ -71,17 +73,7 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('name', {
-            required: t('toolings.validation.nameRequired'),
-            minLength: {
-              value: 1,
-              message: t('toolings.validation.nameMinLength'),
-            },
-            maxLength: {
-              value: 255,
-              message: t('toolings.validation.nameMaxLength'),
-            },
-          })}
+          {...register('name')}
           label={t('toolings.name')}
           placeholder={t('toolings.namePlaceholder')}
           error={errors.name?.message as string}
@@ -97,13 +89,16 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
             placeholder={t('toolings.descriptionPlaceholder')}
             rows={3}
           />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-600">{errors.description.message as string}</p>
+          )}
         </div>
 
         <div>
           <label className="gd-label">
             {t('toolings.code')}
           </label>
-          <Input {...register('code')} placeholder={t('toolings.codePlaceholder')} />
+          <Input {...register('code')} error={errors.code?.message as string} placeholder={t('toolings.codePlaceholder')} />
         </div>
 
         <div>
@@ -111,9 +106,7 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
             {t('toolings.toolingType')} *
           </label>
           <select
-            {...register('toolingTypeUuid', {
-              required: t('toolings.validation.toolingTypeRequired'),
-            })}
+            {...register('toolingTypeUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('toolings.selectToolingType')}</option>
@@ -143,6 +136,9 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerUuid.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -160,16 +156,13 @@ const CreateToolingModal: React.FC<CreateToolingModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierUuid.message as string}</p>
+          )}
         </div>
 
         <Input
-          {...register('minimumStock', {
-            valueAsNumber: true,
-            min: {
-              value: 0,
-              message: t('toolings.validation.minimumStockMin'),
-            },
-          })}
+          {...register('minimumStock')}
           type="number"
           label={t('toolings.minimumStock')}
           placeholder="0"

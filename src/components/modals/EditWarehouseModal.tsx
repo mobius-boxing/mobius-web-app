@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editWarehouseSchema } from '../../validation/schemas/warehouse';
 
 interface EditWarehouseModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ const EditWarehouseModal: React.FC<EditWarehouseModalProps> = ({
   } = useModalForm<CreateWarehouseForm>({
     onSuccess,
     onClose,
+    schema: editWarehouseSchema(t),
   });
 
   useEffect(() => {
@@ -63,9 +65,7 @@ const EditWarehouseModal: React.FC<EditWarehouseModalProps> = ({
             {t('warehouses.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('warehouses.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('warehouses.namePlaceholder')}
             error={errors.name?.message}
           />

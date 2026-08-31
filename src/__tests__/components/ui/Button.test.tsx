@@ -20,35 +20,42 @@ describe('Button', () => {
     });
   });
 
-  describe('Variants', () => {
+  /**
+ * These assert the design-system class the component applies, not the raw
+ * utility classes it used before the Geist retheme: `.gd-b-solid` in
+ * `styles/gold.css` sets `background: oklch(var(--p-600))`, the same role
+ * `bg-primary-600` carried. Asserting the class is asserting the contract
+ * between Button and the stylesheet; the colour itself belongs to gold.css.
+ */
+describe('Variants', () => {
     it('should render primary variant by default', () => {
       render(<Button>Primary</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-primary-600');
+      expect(button).toHaveClass('gd-b-solid');
     });
 
     it('should render secondary variant', () => {
       render(<Button variant="secondary">Secondary</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-secondary-100');
+      expect(button).toHaveClass('gd-b-soft');
     });
 
     it('should render danger variant', () => {
       render(<Button variant="danger">Danger</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('bg-red-600');
+      expect(button).toHaveClass('gd-b-danger');
     });
 
     it('should render ghost variant', () => {
       render(<Button variant="ghost">Ghost</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('hover:bg-secondary-100');
+      expect(button).toHaveClass('gd-b-ghost');
     });
 
     it('should render outline variant', () => {
       render(<Button variant="outline">Outline</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('border');
+      expect(button).toHaveClass('gd-b-outline');
     });
   });
 
@@ -56,19 +63,19 @@ describe('Button', () => {
     it('should render medium size by default', () => {
       render(<Button>Medium</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('px-4', 'py-2');
+      expect(button).toHaveClass('gd-b-md');
     });
 
     it('should render small size', () => {
       render(<Button size="sm">Small</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('px-3', 'py-1.5');
+      expect(button).toHaveClass('gd-b-sm');
     });
 
     it('should render large size', () => {
       render(<Button size="lg">Large</Button>);
       const button = screen.getByRole('button');
-      expect(button).toHaveClass('px-6', 'py-3');
+      expect(button).toHaveClass('gd-b-lg');
     });
   });
 
@@ -98,9 +105,17 @@ describe('Button', () => {
       expect(screen.getByRole('button')).toBeDisabled();
     });
 
+    /**
+     * Post-retheme the dimming is `.gd-b:disabled { opacity: 0.5 }` in
+     * gold.css rather than a `disabled:` utility on the element, so the thing
+     * to assert is that the button really is disabled and carries the base
+     * class that styles that state.
+     */
     it('should have disabled styling when disabled', () => {
       render(<Button disabled>Disabled</Button>);
-      expect(screen.getByRole('button')).toHaveClass('disabled:opacity-50');
+      const button = screen.getByRole('button');
+      expect(button).toBeDisabled();
+      expect(button).toHaveClass('gd-b');
     });
 
     it('should be disabled when loading is true', () => {
@@ -139,10 +154,10 @@ describe('Button', () => {
   });
 
   describe('Accessibility', () => {
+    /** `.gd-b:focus-visible` in gold.css owns the ring now. */
     it('should have focus ring classes', () => {
       render(<Button>Accessible</Button>);
-      const button = screen.getByRole('button');
-      expect(button).toHaveClass('focus:outline-none', 'focus:ring-2');
+      expect(screen.getByRole('button')).toHaveClass('gd-b');
     });
 
     it('should be focusable', () => {

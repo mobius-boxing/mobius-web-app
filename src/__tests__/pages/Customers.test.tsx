@@ -1,18 +1,15 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import Customers from '../../pages/Customers';
 import { createMockCustomer, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
 const mockGetCustomers = jest.fn();
 const mockDeleteCustomer = jest.fn();
 
-jest.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: { uuid: 'user-1', role: 'admin' },
-    isAuthenticated: true,
-    isLoading: false,
-  }),
-}));
+jest.mock('../../contexts/AuthContext', () =>
+  require('../../test-utils/renderWithProviders').authContextMock()
+);
 
 jest.mock('../../services/api', () => ({
   customersApi: {
@@ -185,10 +182,15 @@ describe('Customers Page', () => {
       await waitFor(() => {
         expect(screen.getByText('Add Customer')).toBeInTheDocument();
       });
+      // The page fetches twice on mount (useEntityList's autoFetch plus the
+      // page's own effectiveCompanyId effect), so pin the delta — one extra
+      // request caused by the create — rather than a magic total.
+      const callsBeforeCreate = mockGetCustomers.mock.calls.length;
+
       fireEvent.click(screen.getByText('Add Customer'));
       fireEvent.click(screen.getByText('Create'));
       await waitFor(() => {
-        expect(mockGetCustomers).toHaveBeenCalledTimes(2);
+        expect(mockGetCustomers).toHaveBeenCalledTimes(callsBeforeCreate + 1);
       });
     });
   });

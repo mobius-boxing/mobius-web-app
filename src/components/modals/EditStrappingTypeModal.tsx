@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editStrappingTypeSchema } from '../../validation/schemas/strappingType';
 
 interface EditStrappingTypeModalProps {
   isOpen: boolean;
@@ -37,13 +38,14 @@ const EditStrappingTypeModal: React.FC<EditStrappingTypeModalProps> = ({
   } = useModalForm<CreateStrappingTypeForm>({
     onSuccess,
     onClose,
+    schema: editStrappingTypeSchema(t),
   });
 
   useEffect(() => {
     if (isOpen && strappingType) {
       reset({
         code: strappingType.code,
-        description: strappingType.description,
+        description: strappingType.description ?? '',
       });
     }
   }, [isOpen, strappingType, reset]);
@@ -64,9 +66,7 @@ const EditStrappingTypeModal: React.FC<EditStrappingTypeModalProps> = ({
             {t('strappingTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('strappingTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('strappingTypes.codePlaceholder')}
             error={errors.code?.message}
           />

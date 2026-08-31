@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editBoxTypeSchema } from '../../validation/schemas/boxType';
 
 interface EditBoxTypeModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ const EditBoxTypeModal: React.FC<EditBoxTypeModalProps> = ({
   } = useModalForm<CreateBoxTypeForm>({
     onSuccess,
     onClose,
+    schema: editBoxTypeSchema(t),
   });
 
   useEffect(() => {
@@ -64,9 +66,7 @@ const EditBoxTypeModal: React.FC<EditBoxTypeModalProps> = ({
             {t('boxTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('boxTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('boxTypes.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -77,9 +77,7 @@ const EditBoxTypeModal: React.FC<EditBoxTypeModalProps> = ({
             {t('boxTypes.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('boxTypes.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('boxTypes.namePlaceholder')}
             error={errors.name?.message}
           />

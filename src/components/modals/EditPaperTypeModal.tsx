@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editPaperTypeSchema } from '../../validation/schemas/paperType';
 import { PaperType, CreatePaperTypeForm } from '../../types';
 import { paperTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
@@ -37,6 +38,7 @@ const EditPaperTypeModal: React.FC<EditPaperTypeModalProps> = ({
   } = useModalForm<CreatePaperTypeForm>({
     onSuccess,
     onClose,
+    schema: editPaperTypeSchema(t),
   });
 
   useEffect(() => {
@@ -61,17 +63,7 @@ const EditPaperTypeModal: React.FC<EditPaperTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: 'Code is required',
-            minLength: {
-              value: 1,
-              message: 'Code must be at least 1 character',
-            },
-            maxLength: {
-              value: 50,
-              message: 'Code must be less than 50 characters',
-            },
-          })}
+          {...register('code')}
           label={t('paperTypes.code')}
           placeholder={t('paperTypes.codePlaceholder')}
           error={errors.code?.message as string}

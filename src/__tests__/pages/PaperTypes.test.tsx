@@ -1,18 +1,15 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import PaperTypes from '../../pages/PaperTypes';
 import { createMockPaperType, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
 const mockGetPaperTypes = jest.fn();
 const mockDeletePaperType = jest.fn();
 
-jest.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: { uuid: 'user-1', role: 'admin' },
-    isAuthenticated: true,
-    isLoading: false,
-  }),
-}));
+jest.mock('../../contexts/AuthContext', () =>
+  require('../../test-utils/renderWithProviders').authContextMock()
+);
 
 jest.mock('../../services/api', () => ({
   paperTypesApi: {
@@ -180,10 +177,15 @@ describe('PaperTypes Page', () => {
       await waitFor(() => {
         expect(screen.getByText('Add Paper Type')).toBeInTheDocument();
       });
+      // The page fetches twice on mount (useEntityList's autoFetch plus the
+      // page's own effectiveCompanyId effect), so pin the delta — one extra
+      // request caused by the create — rather than a magic total.
+      const callsBeforeCreate = mockGetPaperTypes.mock.calls.length;
+
       fireEvent.click(screen.getByText('Add Paper Type'));
       fireEvent.click(screen.getByText('Create'));
       await waitFor(() => {
-        expect(mockGetPaperTypes).toHaveBeenCalledTimes(2);
+        expect(mockGetPaperTypes).toHaveBeenCalledTimes(callsBeforeCreate + 1);
       });
     });
   });

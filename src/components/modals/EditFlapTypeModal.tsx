@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editFlapTypeSchema } from '../../validation/schemas/flapType';
 
 interface EditFlapTypeModalProps {
   isOpen: boolean;
@@ -37,13 +38,14 @@ const EditFlapTypeModal: React.FC<EditFlapTypeModalProps> = ({
   } = useModalForm<CreateFlapTypeForm>({
     onSuccess,
     onClose,
+    schema: editFlapTypeSchema(t),
   });
 
   useEffect(() => {
     if (isOpen && flapType) {
       reset({
         code: flapType.code,
-        description: flapType.description,
+        description: flapType.description ?? '',
       });
     }
   }, [isOpen, flapType, reset]);
@@ -64,9 +66,7 @@ const EditFlapTypeModal: React.FC<EditFlapTypeModalProps> = ({
             {t('flapTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('flapTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('flapTypes.codePlaceholder')}
             error={errors.code?.message}
           />

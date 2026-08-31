@@ -6,6 +6,7 @@ import { suppliersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createSupplierSchema } from '../../validation/schemas/supplier';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 
@@ -43,6 +44,7 @@ const CreateSupplierModal: React.FC<CreateSupplierModalProps> = ({
     },
     onSuccess,
     onClose,
+    schema: createSupplierSchema(t),
   });
 
   const onSubmit = handleSubmit((data) => suppliersApi.createSupplier({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
@@ -57,9 +59,7 @@ const CreateSupplierModal: React.FC<CreateSupplierModalProps> = ({
             {t('suppliers.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('suppliers.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('suppliers.codePlaceholder')}
             error={errors.code?.message}
           />

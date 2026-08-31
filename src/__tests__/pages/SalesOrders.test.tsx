@@ -338,7 +338,29 @@ describe('the Precio column (AC-33)', () => {
     await renderGrid();
 
     expect(screen.getByText('##salesOrders.columns.price##')).toBeInTheDocument();
-    expect(screen.getByTestId('order-price')).toHaveTextContent('12.5');
+    expect(screen.getByTestId('order-price')).toHaveTextContent('12,50');
+  });
+
+  /**
+   * Trello #39 — the column used to print the raw column value, so the
+   * `numeric(18,4)` scale and the ungrouped digits reached the user.
+   */
+  it('formats the amount es-AR instead of printing it raw', async () => {
+    mockGetSalesOrders.mockImplementation(async () =>
+      page([{ ...openOrder, price: 220000 }]),
+    );
+    await renderGrid();
+
+    expect(screen.getByTestId('order-price')).toHaveTextContent('220.000,00');
+  });
+
+  it('keeps the dash placeholder for an order with no price', async () => {
+    mockGetSalesOrders.mockImplementation(async () =>
+      page([{ ...openOrder, price: null }]),
+    );
+    await renderGrid();
+
+    expect(screen.getByTestId('order-price')).toHaveTextContent('-');
   });
 
   it('leaves both out of the DOM without the code', async () => {

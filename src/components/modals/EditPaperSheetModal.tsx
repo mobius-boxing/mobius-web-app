@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editPaperSheetSchema } from '../../validation/schemas/paperSheet';
 import { PaperSheet, CreatePaperSheetForm, Manufacturer, Supplier, Corrugation } from '../../types';
 import { paperSheetsApi, manufacturersApi, suppliersApi, corrugationsApi } from '../../services/api';
 import Modal from '../ui/Modal';
@@ -44,6 +45,7 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
   } = useModalForm<CreatePaperSheetForm>({
     onSuccess,
     onClose,
+    schema: editPaperSheetSchema(t),
   });
 
   useEffect(() => {
@@ -117,9 +119,7 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
             {t('paperSheets.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('paperSheets.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('paperSheets.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -130,9 +130,7 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
             {t('paperSheets.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('paperSheets.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('paperSheets.namePlaceholder')}
             error={errors.name?.message}
           />
@@ -144,6 +142,7 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
           </label>
           <Input
             {...register('description')}
+            error={errors.description?.message as string}
             placeholder={t('paperSheets.descriptionPlaceholder')}
           />
         </div>
@@ -163,6 +162,9 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierId && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierId.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -180,6 +182,9 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerId && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerId.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -197,6 +202,9 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.corrugationId && (
+            <p className="mt-1 text-sm text-red-600">{errors.corrugationId.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -207,9 +215,8 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('length', {
-                valueAsNumber: true,
-              })}
+              {...register('length')}
+              error={errors.length?.message as string}
               placeholder={t('paperSheets.lengthPlaceholder')}
             />
           </div>
@@ -221,9 +228,8 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('width', {
-                valueAsNumber: true,
-              })}
+              {...register('width')}
+              error={errors.width?.message as string}
               placeholder={t('paperSheets.widthPlaceholder')}
             />
           </div>
@@ -235,9 +241,8 @@ const EditPaperSheetModal: React.FC<EditPaperSheetModalProps> = ({
           </label>
           <Input
             type="number"
-            {...register('minimumStock', {
-              valueAsNumber: true,
-            })}
+            {...register('minimumStock')}
+            error={errors.minimumStock?.message as string}
             placeholder={t('paperSheets.minimumStockPlaceholder')}
           />
         </div>

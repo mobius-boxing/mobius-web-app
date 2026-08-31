@@ -1,10 +1,15 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import CorrugationClasses from '../../pages/CorrugationClasses';
 import { createMockCorrugationClass, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
 const mockGetCorrugationClasses = jest.fn();
 const mockDeleteCorrugationClass = jest.fn();
+
+jest.mock('../../contexts/AuthContext', () =>
+  require('../../test-utils/renderWithProviders').authContextMock()
+);
 
 jest.mock('../../services/api', () => ({
   corrugationClassesApi: {
@@ -188,11 +193,16 @@ describe('CorrugationClasses Page', () => {
         expect(screen.getByText('Add Class')).toBeInTheDocument();
       });
 
+      // The page fetches twice on mount (useEntityList's autoFetch plus the
+      // page's own effectiveCompanyId effect), so pin the delta — one extra
+      // request caused by the create — rather than a magic total.
+      const callsBeforeCreate = mockGetCorrugationClasses.mock.calls.length;
+
       fireEvent.click(screen.getByText('Add Class'));
       fireEvent.click(screen.getByText('Create'));
 
       await waitFor(() => {
-        expect(mockGetCorrugationClasses).toHaveBeenCalledTimes(2);
+        expect(mockGetCorrugationClasses).toHaveBeenCalledTimes(callsBeforeCreate + 1);
       });
     });
   });

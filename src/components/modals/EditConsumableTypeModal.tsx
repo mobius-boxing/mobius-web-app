@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editConsumableTypeSchema } from '../../validation/schemas/consumableType';
 
 interface EditConsumableTypeModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ const EditConsumableTypeModal: React.FC<EditConsumableTypeModalProps> = ({
   } = useModalForm<CreateConsumableTypeForm>({
     onSuccess,
     onClose,
+    schema: editConsumableTypeSchema(t),
   });
 
   useEffect(() => {
@@ -61,34 +63,14 @@ const EditConsumableTypeModal: React.FC<EditConsumableTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: t('consumableTypes.validation.codeRequired'),
-            minLength: {
-              value: 1,
-              message: t('consumableTypes.validation.codeMinLength'),
-            },
-            maxLength: {
-              value: 50,
-              message: t('consumableTypes.validation.codeMaxLength'),
-            },
-          })}
+          {...register('code')}
           label={t('consumableTypes.code')}
           placeholder={t('consumableTypes.codePlaceholder')}
           error={errors.code?.message as string}
         />
 
         <Input
-          {...register('name', {
-            required: t('consumableTypes.validation.nameRequired'),
-            minLength: {
-              value: 1,
-              message: t('consumableTypes.validation.nameMinLength'),
-            },
-            maxLength: {
-              value: 255,
-              message: t('consumableTypes.validation.nameMaxLength'),
-            },
-          })}
+          {...register('name')}
           label={t('consumableTypes.name')}
           placeholder={t('consumableTypes.namePlaceholder')}
           error={errors.name?.message as string}

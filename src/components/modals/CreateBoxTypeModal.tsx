@@ -4,6 +4,7 @@ import { CreateBoxTypeForm } from '../../types';
 import { boxTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createBoxTypeSchema } from '../../validation/schemas/boxType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateBoxTypeModal: React.FC<CreateBoxTypeModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createBoxTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -56,9 +58,7 @@ const CreateBoxTypeModal: React.FC<CreateBoxTypeModalProps> = ({
             {t('boxTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('boxTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('boxTypes.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -69,9 +69,7 @@ const CreateBoxTypeModal: React.FC<CreateBoxTypeModalProps> = ({
             {t('boxTypes.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('boxTypes.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('boxTypes.namePlaceholder')}
             error={errors.name?.message}
           />

@@ -38,39 +38,32 @@ jest.mock('../../services/api', () => ({
   },
 }));
 
-jest.mock('react-i18next', () => ({
-  useTranslation: () => ({
-    t: (key: string) => {
-      const translations: Record<string, string> = {
-        'companies.title': 'Companies',
-        'companies.subtitle': 'Manage your companies',
-        'companies.addCompany': 'Add Company',
-        'companies.searchPlaceholder': 'Search companies...',
-        'companies.allCompanies': 'All Companies',
-        'companies.columns.company': 'Company',
-        'companies.columns.status': 'Status',
-        'companies.columns.created': 'Created',
-        'companies.columns.actions': 'Actions',
-        'companies.status.active': 'Active',
-        'companies.status.inactive': 'Inactive',
-        'companies.actions.deactivate': 'Deactivate',
-        'companies.actions.activate': 'Activate',
-        'companies.deleteConfirm': 'Are you sure you want to delete this company?',
-        'companies.deleteFailed': 'Failed to delete company',
-        'companies.statusUpdateFailed': 'Failed to update status',
-        'companies.empty.title': 'No companies found',
-        'companies.empty.description': 'No companies match your search.',
-        'companies.empty.noData': 'Get started by creating a company.',
-        'companies.fallbacks.unknownCompany': 'Unknown Company',
-        'companies.fallbacks.noDescription': 'No description',
-        'companies.fallbacks.noDate': 'N/A',
-        'auth.accessDenied': 'Access Denied',
-        'auth.noPermission': 'You do not have permission to view this page.',
-      };
-      return translations[key] || key;
-    },
-  }),
-}));
+/**
+ * Resolve from the real locale file rather than a hand-maintained map. The map
+ * this replaces had already drifted from the app: it lacked
+ * `companies.actions.delete` entirely and carried an older, shorter
+ * `deleteConfirm` string, so the tests were asserting copy that no longer
+ * shipped. Same pattern as Users.test.tsx.
+ */
+jest.mock('react-i18next', () => {
+  const en = jest.requireActual('../../i18n/locales/en/common.json');
+  const lookup = (key: string) =>
+    key
+      .replace(/^common:/, '')
+      .split('.')
+      .reduce<any>((acc, k) => (acc == null ? acc : acc[k]), en);
+  return {
+    useTranslation: () => ({
+      t: (key: string, opts?: any) => {
+        const value = lookup(key);
+        if (typeof value !== 'string') return opts?.defaultValue ?? key;
+        return value.replace(/\{\{(\w+)\}\}/g, (_m: string, name: string) =>
+          opts && opts[name] != null ? String(opts[name]) : ''
+        );
+      },
+    }),
+  };
+});
 
 jest.mock('../../components/modals/CreateCompanyModal', () => ({
   __esModule: true,
@@ -129,7 +122,7 @@ describe('Companies Page', () => {
       renderCompanies();
 
       await waitFor(() => {
-        expect(screen.getByText('Manage your companies')).toBeInTheDocument();
+        expect(screen.getByText('Manage all companies in the system')).toBeInTheDocument();
       });
     });
 
@@ -294,64 +287,52 @@ describe('Companies Page', () => {
   });
 
   describe('Delete Company', () => {
-    it('should show confirmation before delete', async () => {
-      renderCompanies();
+    /**
+     * These used to assert `window.confirm`. The page moved to the in-app
+     * `ConfirmModal` (useConfirmModal), so the flow is now: click the row's
+     * delete button, the modal renders the message, and the API is called only
+     * after its Confirm button is pressed. The old tests also guarded the click
+     * behind `if (deleteButtons.length > 0)`, which quietly passed when the
+     * selector matched nothing — these fail loudly instead.
+     */
+    const openDeleteDialog = async () => {
+      renderCompanies()
 
       await waitFor(() => {
         expect(screen.getByText('Company A')).toBeInTheDocument();
       });
 
-      const actionRows = document.querySelectorAll('.flex.items-center.space-x-2');
-      const firstRowButtons = actionRows[0]?.querySelectorAll('button');
-      const deleteButton = firstRowButtons?.[2]; // Third button is delete (after edit and toggle status)
+      // One row per record, so take the first row's button.
+      const deleteButton = (await screen.findAllByTitle('Delete'))[0];
+      fireEvent.click(deleteButton);
+    };
 
-      if (deleteButton) {
-        fireEvent.click(deleteButton as HTMLElement);
-        expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this company?');
-      }
+    it('shows the confirmation dialog before deleting', async () => {
+      await openDeleteDialog();
+
+      expect(
+        await screen.findByText('Are you sure you want to delete this company? This action cannot be undone.')
+      ).toBeInTheDocument();
+      expect(mockDeleteCompany).not.toHaveBeenCalled();
     });
 
-    it('should not delete if confirmation is cancelled', async () => {
-      window.confirm = jest.fn(() => false);
-      renderCompanies();
+    it('does not delete when the dialog is cancelled', async () => {
+      await openDeleteDialog();
 
-      await waitFor(() => {
-        expect(screen.getByText('Company A')).toBeInTheDocument();
-      });
-
-      const actionRows = document.querySelectorAll('.flex.items-center.space-x-2');
-      const firstRowButtons = actionRows[0]?.querySelectorAll('button');
-      const deleteButton = firstRowButtons?.[2];
-
-      if (deleteButton) {
-        fireEvent.click(deleteButton as HTMLElement);
-      }
+      fireEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
 
       expect(mockDeleteCompany).not.toHaveBeenCalled();
     });
 
-    it('should call delete API on confirm', async () => {
+    it('calls the delete API on confirm', async () => {
       mockDeleteCompany.mockResolvedValue(undefined);
-      renderCompanies();
+      await openDeleteDialog();
 
-      await waitFor(() => {
-        expect(screen.getByText('Company A')).toBeInTheDocument();
-      });
+      fireEvent.click(await screen.findByRole('button', { name: 'Confirm' }));
 
-      const actionRows = document.querySelectorAll('.flex.items-center.space-x-2');
-      const firstRowButtons = actionRows[0]?.querySelectorAll('button');
-      const deleteButton = firstRowButtons?.[2];
-
-      if (deleteButton) {
-        fireEvent.click(deleteButton as HTMLElement);
-      }
-
-      await waitFor(() => {
-        expect(mockDeleteCompany).toHaveBeenCalled();
-      });
+      await waitFor(() => expect(mockDeleteCompany).toHaveBeenCalled());
     });
   });
-
   describe('Toggle Status', () => {
     it('should show deactivate button for active companies', async () => {
       renderCompanies();
@@ -424,7 +405,7 @@ describe('Companies Page', () => {
 
       await waitFor(() => {
         const activeBadges = screen.getAllByText('Active');
-        expect(activeBadges[0].closest('span')).toHaveClass('bg-green-100');
+        expect(activeBadges[0].closest('span')).toHaveClass('gd-badge-positive');
       });
     });
 
@@ -433,7 +414,7 @@ describe('Companies Page', () => {
 
       await waitFor(() => {
         const inactiveBadge = screen.getByText('Inactive');
-        expect(inactiveBadge.closest('span')).toHaveClass('bg-red-100');
+        expect(inactiveBadge.closest('span')).toHaveClass('gd-badge-negative');
       });
     });
   });

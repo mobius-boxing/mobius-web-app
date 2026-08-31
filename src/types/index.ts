@@ -397,6 +397,12 @@ export interface CorrugationLayer {
 
 /** One Capa row as sent on create/update. */
 export interface CorrugationLayerInput {
+  /**
+   * Server-assigned identity, round-tripped on update so the API can upsert
+   * the stored row instead of recreating it (audit P1b). Absent on rows added
+   * in the editor and on every create payload; never client-generated.
+   */
+  uuid?: string;
   position: number;
   isLiner: boolean;
   paperClassUuid?: string;
@@ -485,6 +491,9 @@ export interface CreateProductInitialPart {
   description?: string;
   corrugationUuid: string;
   productionRouteUuid?: string;
+  modelUuid?: string;
+  flapTypeUuid?: string;
+  glueTypeUuid?: string;
   sheetLength?: number;
   sheetWidth?: number;
   boxLength?: number;

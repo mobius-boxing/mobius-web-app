@@ -6,6 +6,7 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import DualListSelector from '../ui/DualListSelector';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createPaperClassSchema } from '../../validation/schemas/paperClass';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
@@ -45,6 +46,7 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
       onSuccess();
     },
     onClose,
+    schema: createPaperClassSchema(t),
   });
 
   useEffect(() => {
@@ -108,34 +110,14 @@ const CreatePaperClassModal: React.FC<CreatePaperClassModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: 'Code is required',
-            minLength: {
-              value: 1,
-              message: 'Code must be at least 1 character',
-            },
-            maxLength: {
-              value: 50,
-              message: 'Code must be less than 50 characters',
-            },
-          })}
+          {...register('code')}
           label={t('paperClasses.code')}
           placeholder={t('paperClasses.codePlaceholder')}
           error={errors.code?.message as string}
         />
 
         <Input
-          {...register('name', {
-            required: 'Name is required',
-            minLength: {
-              value: 2,
-              message: 'Name must be at least 2 characters',
-            },
-            maxLength: {
-              value: 100,
-              message: 'Name must be less than 100 characters',
-            },
-          })}
+          {...register('name')}
           label={t('paperClasses.name')}
           placeholder={t('paperClasses.namePlaceholder')}
           error={errors.name?.message as string}

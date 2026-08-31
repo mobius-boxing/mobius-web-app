@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editManufacturerSchema } from '../../validation/schemas/manufacturer';
 import { Manufacturer, CreateManufacturerForm } from '../../types';
 import { manufacturersApi } from '../../services/api';
 import Modal from '../ui/Modal';
@@ -37,6 +38,7 @@ const EditManufacturerModal: React.FC<EditManufacturerModalProps> = ({
   } = useModalForm<CreateManufacturerForm>({
     onSuccess,
     onClose,
+    schema: editManufacturerSchema(t),
   });
 
   useEffect(() => {
@@ -65,9 +67,7 @@ const EditManufacturerModal: React.FC<EditManufacturerModalProps> = ({
             {t('manufacturers.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('manufacturers.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('manufacturers.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -78,9 +78,7 @@ const EditManufacturerModal: React.FC<EditManufacturerModalProps> = ({
             {t('manufacturers.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('manufacturers.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('manufacturers.namePlaceholder')}
             error={errors.name?.message}
           />

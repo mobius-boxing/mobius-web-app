@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editSupplierSchema } from '../../validation/schemas/supplier';
 import { Supplier, CreateSupplierForm } from '../../types';
 import { suppliersApi } from '../../services/api';
 import Modal from '../ui/Modal';
@@ -37,6 +38,7 @@ const EditSupplierModal: React.FC<EditSupplierModalProps> = ({
   } = useModalForm<CreateSupplierForm>({
     onSuccess,
     onClose,
+    schema: editSupplierSchema(t),
   });
 
   useEffect(() => {
@@ -69,9 +71,7 @@ const EditSupplierModal: React.FC<EditSupplierModalProps> = ({
             {t('suppliers.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('suppliers.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('suppliers.codePlaceholder')}
             error={errors.code?.message}
           />

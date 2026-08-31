@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { partSchema } from '../../validation/schemas/part';
+import { firstIssue } from '../../validation/formErrors';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import ErrorMessage from '../ui/ErrorMessage';
@@ -11,6 +13,7 @@ import {
   corrugationsApi,
   productionRoutesApi,
   palletizationsApi,
+  modelsApi,
   flapTypesApi,
   glueTypesApi,
   strappingTypesApi,
@@ -43,6 +46,7 @@ const partToForm = (p: Part): Record<string, any> => {
     corrugation,
     productionRoute,
     palletization,
+    model,
     flapType,
     glueType,
     strappingType,
@@ -56,6 +60,7 @@ const partToForm = (p: Part): Record<string, any> => {
     corrugationUuid: corrugation?.uuid,
     productionRouteUuid: productionRoute?.uuid,
     palletizationUuid: palletization?.uuid,
+    modelUuid: model?.uuid,
     flapTypeUuid: flapType?.uuid,
     glueTypeUuid: glueType?.uuid,
     strappingTypeUuid: strappingType?.uuid,
@@ -121,10 +126,11 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
     const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
     (async () => {
       try {
-        const [corr, routes, pallets, flaps, glues, straps, traces, comps] = await Promise.all([
+        const [corr, routes, pallets, models, flaps, glues, straps, traces, comps] = await Promise.all([
           corrugationsApi.getCorrugations({ limit: 100, ...companyFilter }),
           productionRoutesApi.getRoutes({ limit: 100, isGlobal: 'true', ...companyFilter }),
           palletizationsApi.getPalletizations({ limit: 100, ...companyFilter }),
+          modelsApi.getModels({ limit: 100, ...companyFilter }),
           flapTypesApi.getFlapTypes({ limit: 100, ...companyFilter }),
           glueTypesApi.getGlueTypes({ limit: 100, ...companyFilter }),
           strappingTypesApi.getStrappingTypes({ limit: 100, ...companyFilter }),
@@ -135,6 +141,10 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
           corrugation: corr.data.map((x: any) => ({ uuid: x.uuid, label: x.code })),
           route: routes.data.map((x: any) => ({ uuid: x.uuid, label: x.name })),
           palletization: pallets.data.map((x: any) => ({ uuid: x.uuid, label: x.name ?? x.code })),
+          model: models.data.map((x: any) => ({
+            uuid: x.uuid,
+            label: [x.code, x.description].filter(Boolean).join(' - '),
+          })),
           flapType: flaps.data.map((x: any) => ({ uuid: x.uuid, label: x.code })),
           glueType: glues.data.map((x: any) => ({ uuid: x.uuid, label: x.code })),
           strappingType: straps.data.map((x: any) => ({ uuid: x.uuid, label: x.code })),
@@ -181,6 +191,33 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
   };
 
   const submit = async () => {
+    // Pattern B: this form is `useState`, so the schema runs here rather than
+    // through `useModalForm`'s resolver. The score-line grids stay out of it —
+    // see the schema header.
+    const problem = firstIssue(partSchema(t), {
+      code: form.code,
+      clientCode: form.clientCode,
+      description: form.description,
+      corrugationUuid: form.corrugationUuid,
+      productionRouteUuid: form.productionRouteUuid,
+      palletizationUuid: form.palletizationUuid,
+      modelUuid: form.modelUuid,
+      flapTypeUuid: form.flapTypeUuid,
+      glueTypeUuid: form.glueTypeUuid,
+      strappingTypeUuid: form.strappingTypeUuid,
+      traceTypeUuid: form.traceTypeUuid,
+      complementUuid: form.complementUuid,
+      boxLength: form.boxLength,
+      boxWidth: form.boxWidth,
+      boxHeight: form.boxHeight,
+      sheetLength: form.sheetLength,
+      sheetWidth: form.sheetWidth,
+    });
+    if (problem) {
+      setError(problem);
+      return;
+    }
+
     try {
       setSaving(true);
       setError(null);
@@ -196,6 +233,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
         corrugationUuid: form.corrugationUuid,
         productionRouteUuid: form.productionRouteUuid ?? undefined,
         palletizationUuid: form.palletizationUuid,
+        modelUuid: form.modelUuid,
         flapTypeUuid: form.flapTypeUuid,
         glueTypeUuid: form.glueTypeUuid,
         strappingTypeUuid: form.strappingTypeUuid,
@@ -346,6 +384,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
       {tab === 1 && (
         <div className="space-y-4">
           {field('corrugation', select('corrugationUuid', 'corrugation'))}
+          {field('model', select('modelUuid', 'model'))}
           <div className="grid grid-cols-3 gap-4">
             {field('boxLength', numInput('boxLength', true))}
             {field('boxWidth', numInput('boxWidth', true))}

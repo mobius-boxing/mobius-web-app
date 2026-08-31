@@ -1,22 +1,19 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import Products from '../../pages/Products';
 import { createMockProduct, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
 const mockGetProducts = jest.fn();
 const mockDeleteProduct = jest.fn();
 
-jest.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: { uuid: 'user-1', role: 'admin' },
-    isAuthenticated: true,
-    isLoading: false,
-  }),
-}));
+jest.mock('../../contexts/AuthContext', () =>
+  require('../../test-utils/renderWithProviders').authContextMock()
+);
 
 jest.mock('../../services/api', () => ({
   productsApi: {
-    getProducts: () => mockGetProducts(),
+    getProducts: (...args: any[]) => mockGetProducts(...args),
     deleteProduct: (...args: any[]) => mockDeleteProduct(...args),
   },
 }));
@@ -86,7 +83,20 @@ const mockProducts = [
 describe('Products Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    mockGetProducts.mockResolvedValue(createMockPaginatedResponse(mockProducts));
+    // Unlike its sibling pages, Products renders `data` (the server's answer)
+    // instead of useEntityList's client-side `filteredData`, so search is a
+    // round trip: the fake API has to honour the `search` param the page sends.
+    mockGetProducts.mockImplementation((params: any = {}) => {
+      const term = String(params.search ?? '').toLowerCase();
+      const matches = term
+        ? mockProducts.filter((product) =>
+            [product.code, product.clientCode, product.description, product.customerName].some(
+              (field) => String(field ?? '').toLowerCase().includes(term)
+            )
+          )
+        : mockProducts;
+      return Promise.resolve(createMockPaginatedResponse(matches));
+    });
   });
 
   describe('Rendering', () => {
@@ -197,10 +207,15 @@ describe('Products Page', () => {
       await waitFor(() => {
         expect(screen.getByText('Add Product')).toBeInTheDocument();
       });
+      // The page fetches twice on mount (useEntityList's autoFetch plus the
+      // page's own effectiveCompanyId effect), so pin the delta — one extra
+      // request caused by the create — rather than a magic total.
+      const callsBeforeCreate = mockGetProducts.mock.calls.length;
+
       fireEvent.click(screen.getByText('Add Product'));
       fireEvent.click(screen.getByText('Create'));
       await waitFor(() => {
-        expect(mockGetProducts).toHaveBeenCalledTimes(2);
+        expect(mockGetProducts).toHaveBeenCalledTimes(callsBeforeCreate + 1);
       });
     });
   });
