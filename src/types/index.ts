@@ -397,6 +397,9 @@ export interface CorrugationLayer {
 
 /** One Capa row as sent on create/update. */
 export interface CorrugationLayerInput {
+  /** Server-assigned; present only on layers loaded from the API. Sent back on
+   * save so the backend diffs the collection instead of rewriting it. */
+  uuid?: string;
   position: number;
   isLiner: boolean;
   paperClassUuid?: string;

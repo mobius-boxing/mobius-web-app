@@ -218,6 +218,11 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
       isDefault,
       companyId: effectiveCompanyId,
       stages: stages.map((stage, i) => ({
+        // Server-assigned uuid, sent only for rows that came from the API, so
+        // the backend diffs this save instead of deleting and reinserting every
+        // stage. A stage added in this modal has none and must not get one —
+        // clientId is a React key, never an identity the server knows.
+        ...(stage.uuid ? { uuid: stage.uuid } : {}),
         number: i + 1,
         description: stage.description,
         isCorrugation: stage.isCorrugation ?? false,
@@ -229,6 +234,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
         supplies: stage.supplies
           .filter((s) => s.supplyUuid)
           .map((s) => ({
+            ...(s.uuid ? { uuid: s.uuid } : {}),
             direction: s.direction,
             supplyType: s.supplyType,
             supplyUuid: s.supplyUuid!,

@@ -98,6 +98,9 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
       setFluteTypes(fluteTypesRes.data || []);
       setLayers(
         (fullCorrugation?.layers || []).map((layer) => ({
+          // Keep the server uuid so the save diffs these layers instead of
+          // deleting and reinserting every one. A layer added here has none.
+          uuid: layer.uuid,
           position: layer.position,
           isLiner: layer.isLiner,
           paperClassUuid: layer.paperClass?.uuid,
@@ -118,7 +121,8 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
       ...data,
       // SECURITY: Send UUID, not numeric ID
       corrugationClassUuid: data.corrugationClassUuid || undefined,
-      // Capas: replaced wholesale on save.
+      // Capas: diffed on save — layers carrying a uuid are matched and updated
+      // in place, layers without one are inserted, missing ones are removed.
       layers,
     };
     // SECURITY: Use corrugation UUID, not numeric ID
