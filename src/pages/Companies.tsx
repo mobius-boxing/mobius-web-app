@@ -157,6 +157,7 @@ const Companies: React.FC = () => {
             onClick={() => handleDelete(company)}
             disabled={actionLoading === company?.uuid || !company}
             className="text-red-600 hover:text-red-700"
+            title={t('companies.actions.delete')}
           >
             <Trash2 className="h-4 w-4" />
           </Button>

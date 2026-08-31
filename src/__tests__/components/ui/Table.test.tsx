@@ -159,13 +159,17 @@ describe('Table', () => {
       expect(document.querySelector('tbody')).toBeInTheDocument();
     });
 
+    /**
+     * Row hover is no longer a per-row utility class: the retheme moved it to
+     * `.gd-table tbody tr:hover` in gold.css, scoped by the class on <table>.
+     * So the contract to assert is that the table opts into that stylesheet
+     * and still renders the rows the rule targets.
+     */
     it('should have hover styles on rows', () => {
       render(<Table columns={mockColumns} data={mockData} />);
-
-      const rows = document.querySelectorAll('tbody tr');
-      rows.forEach((row) => {
-        expect(row).toHaveClass('hover:bg-secondary-50');
-      });
+      const table = document.querySelector('table');
+      expect(table).toHaveClass('gd-table');
+      expect(document.querySelectorAll('tbody tr').length).toBe(mockData.length);
     });
   });
 

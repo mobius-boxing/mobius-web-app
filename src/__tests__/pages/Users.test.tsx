@@ -297,56 +297,52 @@ describe('Users Page', () => {
   });
 
   describe('Delete User', () => {
-    it('should show confirmation before delete', async () => {
-      renderUsers();
+    /**
+     * These used to assert `window.confirm`. The page moved to the in-app
+     * `ConfirmModal` (useConfirmModal), so the flow is now: click the row's
+     * delete button, the modal renders the message, and the API is called only
+     * after its Confirm button is pressed. The old tests also guarded the click
+     * behind `if (deleteButtons.length > 0)`, which quietly passed when the
+     * selector matched nothing — these fail loudly instead.
+     */
+    const openDeleteDialog = async () => {
+      renderUsers()
 
       await waitFor(() => {
         expect(screen.getByText('admin@test.com')).toBeInTheDocument();
       });
 
-      const deleteButtons = document.querySelectorAll('button[title="Delete user"]');
-      if (deleteButtons.length > 0) {
-        fireEvent.click(deleteButtons[0] as HTMLElement);
-      }
+      // One row per record, so take the first row's button.
+      const deleteButton = (await screen.findAllByTitle('Delete user'))[0];
+      fireEvent.click(deleteButton);
+    };
 
-      expect(window.confirm).toHaveBeenCalledWith('Are you sure you want to delete this user?');
+    it('shows the confirmation dialog before deleting', async () => {
+      await openDeleteDialog();
+
+      expect(
+        await screen.findByText('Are you sure you want to delete this user? This action cannot be undone.')
+      ).toBeInTheDocument();
+      expect(mockDeleteUser).not.toHaveBeenCalled();
     });
 
-    it('should not delete if confirmation is cancelled', async () => {
-      window.confirm = jest.fn(() => false);
-      renderUsers();
+    it('does not delete when the dialog is cancelled', async () => {
+      await openDeleteDialog();
 
-      await waitFor(() => {
-        expect(screen.getByText('admin@test.com')).toBeInTheDocument();
-      });
-
-      const deleteButtons = document.querySelectorAll('button[title="Delete user"]');
-      if (deleteButtons.length > 0) {
-        fireEvent.click(deleteButtons[0] as HTMLElement);
-      }
+      fireEvent.click(await screen.findByRole('button', { name: 'Cancel' }));
 
       expect(mockDeleteUser).not.toHaveBeenCalled();
     });
 
-    it('should call delete API on confirm', async () => {
+    it('calls the delete API on confirm', async () => {
       mockDeleteUser.mockResolvedValue(undefined);
-      renderUsers();
+      await openDeleteDialog();
 
-      await waitFor(() => {
-        expect(screen.getByText('admin@test.com')).toBeInTheDocument();
-      });
+      fireEvent.click(await screen.findByRole('button', { name: 'Confirm' }));
 
-      const deleteButtons = document.querySelectorAll('button[title="Delete user"]');
-      if (deleteButtons.length > 0) {
-        fireEvent.click(deleteButtons[0] as HTMLElement);
-      }
-
-      await waitFor(() => {
-        expect(mockDeleteUser).toHaveBeenCalled();
-      });
+      await waitFor(() => expect(mockDeleteUser).toHaveBeenCalled());
     });
   });
-
   describe('Role Badges', () => {
     it('should show correct badge colors for roles', async () => {
       renderUsers();
