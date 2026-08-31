@@ -1,5 +1,6 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import Button from './Button';
 
 interface ModalProps {
@@ -37,6 +38,7 @@ const Modal: React.FC<ModalProps> = ({
   size = 'md',
   showCloseButton = true,
 }) => {
+  const { t } = useTranslation();
   /** This instance's place in the stack; null while closed. */
   const stackId = useRef<number | null>(null);
 
@@ -108,7 +110,7 @@ const Modal: React.FC<ModalProps> = ({
                   size="sm"
                   onClick={onClose}
                   className="-mr-2 -mt-1 ml-auto p-2"
-                  aria-label="Close"
+                  aria-label={t('common.close')}
                 >
                   <X className="w-4 h-4" />
                 </Button>

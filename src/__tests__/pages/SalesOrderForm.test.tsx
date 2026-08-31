@@ -644,3 +644,65 @@ describe('SalesOrderForm edit mode (AC-23)', () => {
     expect(mockUpdateSalesOrder.mock.calls[0][1].salesUserUuid).toBeNull();
   });
 });
+
+/**
+ * Trello #39 — the Total printed `220000.0000`, the `numeric(18,4)` storage
+ * scale leaking into the UI. It is a DISPLAY concern only: the price box stays
+ * a raw `type="number"` field, or grouped text would break typing and the
+ * numeric parse on submit.
+ */
+describe('SalesOrderForm amount formatting (Trello #39)', () => {
+  const enterAmounts = async (quantity: string, price: string) => {
+    render(<SalesOrderForm />);
+    await screen.findByTestId('customer-select');
+
+    await selectCustomer(CUSTOMER_A);
+    await selectProduct(PRODUCT_A1);
+    fireEvent.change(screen.getByTestId('quantity-input'), {
+      target: { value: quantity },
+    });
+    fireEvent.change(screen.getByTestId('price-input'), {
+      target: { value: price },
+    });
+  };
+
+  it('renders the total es-AR with two decimals, not four', async () => {
+    await enterAmounts('1000', '220');
+
+    await waitFor(() =>
+      expect(screen.getByTestId('price-total')).toHaveTextContent('220.000,00'),
+    );
+  });
+
+  it('shows the dash placeholder while no price is entered', async () => {
+    render(<SalesOrderForm />);
+    await screen.findByTestId('customer-select');
+
+    await selectCustomer(CUSTOMER_A);
+    fireEvent.change(screen.getByTestId('quantity-input'), {
+      target: { value: '1000' },
+    });
+
+    expect(screen.getByTestId('price-total')).toHaveTextContent('-');
+  });
+
+  it('leaves the precio input itself unformatted and still typable', async () => {
+    await enterAmounts('1000', '1234.5');
+
+    const priceInput = screen.getByTestId('price-input') as HTMLInputElement;
+    await waitFor(() => expect(priceInput.value).toBe('1234.5'));
+    expect(screen.getByTestId('price-total')).toHaveTextContent('1.234.500,00');
+
+    fireEvent.change(priceInput, { target: { value: '1234.56' } });
+    await waitFor(() => expect(priceInput.value).toBe('1234.56'));
+  });
+
+  it('sends the price as a plain number on submit', async () => {
+    mockCreateSalesOrder.mockResolvedValue({ uuid: ORDER_UUID, number: '00000009' });
+    await enterAmounts('1000', '220');
+    fireEvent.submit(screen.getByTestId('sales-order-form'));
+
+    await waitFor(() => expect(mockCreateSalesOrder).toHaveBeenCalled());
+    expect(mockCreateSalesOrder.mock.calls[0][0].price).toBe(220);
+  });
+});

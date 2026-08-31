@@ -9,6 +9,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editConsumableStockSchema } from '../../validation/schemas/consumableStock';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { MapPin, X } from 'lucide-react';
 import { logger } from '../../utils/logger';
@@ -50,6 +51,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
   } = useModalForm<CreateConsumableStockForm>({
     onSuccess,
     onClose,
+    schema: editConsumableStockSchema(t),
   });
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseUuid' });
@@ -145,9 +147,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
             {t('consumableStock.warehouse')} *
           </label>
           <select
-            {...register('warehouseUuid', {
-              required: t('consumableStock.validation.warehouseRequired'),
-            })}
+            {...register('warehouseUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('consumableStock.selectWarehouse')}</option>
@@ -206,9 +206,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
             {t('consumableStock.consumableSupply')} *
           </label>
           <select
-            {...register('consumableSupplyUuid', {
-              required: t('consumableStock.validation.consumableSupplyRequired'),
-            })}
+            {...register('consumableSupplyUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('consumableStock.selectConsumableSupply')}</option>
@@ -238,6 +236,9 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierUuid.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -255,6 +256,9 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerUuid.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -264,10 +268,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
             </label>
             <Input
               type="number"
-              {...register('quantity', {
-                required: t('consumableStock.validation.quantityRequired'),
-                valueAsNumber: true,
-              })}
+              {...register('quantity')}
               placeholder={t('consumableStock.quantityPlaceholder')}
               error={errors.quantity?.message}
             />
@@ -280,9 +281,8 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('price', {
-                valueAsNumber: true,
-              })}
+              {...register('price')}
+              error={errors.price?.message as string}
               placeholder={t('consumableStock.pricePlaceholder')}
             />
           </div>
@@ -294,6 +294,7 @@ const EditConsumableStockModal: React.FC<EditConsumableStockModalProps> = ({
           </label>
           <Input
             {...register('comments')}
+            error={errors.comments?.message as string}
             placeholder={t('consumableStock.commentsPlaceholder')}
           />
         </div>

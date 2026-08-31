@@ -169,6 +169,22 @@
       "unknownCompany": "Unknown Company",
       "noDescription": "No description",
       "noDate": "N/A"
+    },
+    "createTitle": "Create Company",
+    "editTitle": "Edit Company",
+    "name": "Company Name",
+    "namePlaceholder": "Enter company name",
+    "description": "Description",
+    "descriptionPlaceholder": "Enter a description (optional)",
+    "createButton": "Create Company",
+    "updateButton": "Update Company",
+    "deleteConfirm": "Are you sure you want to delete this company? This action cannot be undone.",
+    "statusUpdateFailed": "Failed to update company status. Please try again.",
+    "validation": {
+      "nameRequired": "Company name is required",
+      "nameMinLength": "Company name must be at least 2 characters",
+      "nameMaxLength": "Company name must be at most 100 characters",
+      "descriptionMaxLength": "Description must be at most 500 characters"
     }
   },
   "pagination": {
@@ -180,7 +196,8 @@
     "defaultTitle": "Confirm Action",
     "confirm": "Confirm",
     "cancel": "Cancel",
-    "deleteTitle": "Confirm Delete"
+    "deleteTitle": "Confirm Delete",
+    "warningTitle": "Warning"
   },
   "common": {
     "loading": "Loading...",
@@ -197,7 +214,9 @@
     "yes": "Yes",
     "no": "No",
     "change": "Change",
-    "discardChanges": "You have unsaved changes. Discard them?"
+    "discardChanges": "You have unsaved changes. Discard them?",
+    "clear": "Clear",
+    "submit": "Submit"
   },
   "auth": {
     "accessDenied": "Access Denied",
@@ -660,7 +679,8 @@
     "updateSuccess": "Paper class updated successfully",
     "deleteSuccess": "Paper class deleted successfully",
     "deleteFailed": "Failed to delete paper class",
-    "deleteConfirm": "Are you sure you want to delete this paper class?"
+    "deleteConfirm": "Are you sure you want to delete this paper class?",
+    "loadSuppliesFailed": "Failed to load paper supplies"
   },
   "products": {
     "title": "Products",
@@ -741,6 +761,12 @@
       "title": "Initial part",
       "corrugation": "Corrugated board",
       "selectCorrugation": "Select a corrugated board",
+      "model": "Box model",
+      "selectModel": "Select a box model",
+      "flapType": "Flap type",
+      "selectFlapType": "Select a flap type",
+      "glueType": "Glue type",
+      "selectGlueType": "Select a glue type",
       "sheetLength": "Sheet length (mm)",
       "sheetWidth": "Sheet width (mm)",
       "boxLength": "Box length (mm)",
@@ -2190,6 +2216,7 @@
       "clientCode": "Client code",
       "description": "Description",
       "corrugation": "Corrugation",
+      "model": "Box model",
       "boxLength": "Box length (mm)",
       "boxWidth": "Box width (mm)",
       "boxHeight": "Box height (mm)",
@@ -2499,6 +2526,142 @@
         "percentage": "Percentage",
         "quantity": "Quantity"
       }
+    }
+  },
+  "users": {
+    "title": "User Management",
+    "subtitle": "Manage users and their permissions",
+    "inviteUser": "Invite User",
+    "searchPlaceholder": "Search users...",
+    "allCompanies": "All Companies",
+    "allRoles": "All Roles",
+    "loading": "Loading users...",
+    "noUsers": "No users found",
+    "editUser": "Edit user",
+    "deleteUser": "Delete user",
+    "platformAdmin": "Platform Admin",
+    "noName": "N/A",
+    "deleteConfirm": "Are you sure you want to delete this user? This action cannot be undone.",
+    "columns": {
+      "name": "Name",
+      "company": "Company",
+      "role": "Role",
+      "status": "Status",
+      "emailVerified": "Email Verified",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "emailStatus": {
+      "verified": "Verified",
+      "pending": "Pending"
+    }
+  },
+  "roleNames": {
+    "member": "Member",
+    "admin": "Admin",
+    "superAdmin": "Super Admin"
+  },
+  "userModal": {
+    "inviteTitle": "Invite New User",
+    "editTitle": "Edit User",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Enter first name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Enter last name",
+    "email": "Email Address",
+    "emailPlaceholder": "Enter email address",
+    "role": "Role",
+    "selectRole": "Select a role",
+    "company": "Company",
+    "selectCompany": "Select a company",
+    "noteLabel": "Note:",
+    "superAdminNote": "Super Admins have platform-wide access and are not associated with any specific company.",
+    "userIsActive": "User is active",
+    "newPassword": "New Password",
+    "newPasswordPlaceholder": "Leave empty to keep current password",
+    "passwordHint": "Only fill this if you want to change the user's password.",
+    "sendInvitation": "Send Invitation",
+    "updateButton": "Update User",
+    "validation": {
+      "firstNameRequired": "First name is required",
+      "firstNameMinLength": "First name must be at least 2 characters",
+      "lastNameRequired": "Last name is required",
+      "lastNameMinLength": "Last name must be at least 2 characters",
+      "emailRequired": "Email is required",
+      "emailInvalid": "Please enter a valid email address",
+      "roleRequired": "Role is required",
+      "companyRequired": "Company is required",
+      "passwordMinLength": "Password must be at least 8 characters"
+    }
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "welcome": "Welcome to your {{role}} dashboard",
+    "welcomeForCompany": "Welcome to your {{role}} dashboard for {{company}}",
+    "vsLastMonth": "vs last month",
+    "member": {
+      "cardTitle": "Welcome to Mobius",
+      "body": "You have member access to Mobius. Contact your administrator if you need additional permissions.",
+      "accountTitle": "Your Account",
+      "email": "Email:",
+      "role": "Role:",
+      "company": "Company:"
+    },
+    "stats": {
+      "totalUsers": "Total Users",
+      "pendingInvitations": "Pending Invitations",
+      "recentInvitations": "Recent Invitations",
+      "acceptedInvitations": "Accepted Invitations",
+      "totalCompanies": "Total Companies",
+      "platformInvitations": "Platform Invitations",
+      "avgUsersPerCompany": "Avg Users/Company"
+    },
+    "desc": {
+      "activeUsers": "{{n}} active users",
+      "awaitingAcceptance": "Awaiting acceptance",
+      "last30Days": "Last 30 days",
+      "allTime": "All time",
+      "activeCount": "{{n}} active",
+      "pendingCount": "{{n}} pending",
+      "platformAverage": "Platform average"
+    },
+    "usersByRole": {
+      "title": "Users by Role",
+      "subtitle": "Distribution of user roles in your company"
+    },
+    "platformUsersByRole": {
+      "title": "Platform Users by Role",
+      "subtitle": "Distribution across all companies"
+    },
+    "companyOverview": {
+      "title": "Company Overview",
+      "subtitle": "Platform-wide company statistics",
+      "companiesWithUsers": "Companies with Users",
+      "activeCompanies": "Active Companies",
+      "totalCompanies": "Total Companies"
+    }
+  },
+  "validation": {
+    "required": "{{field}} is required",
+    "maxLength": "{{field}} must be at most {{max}} characters",
+    "minLength": "{{field}} must be at least {{min}} characters",
+    "mustBeNumber": "{{field}} must be a number",
+    "min": "{{field}} cannot be less than {{min}}",
+    "max": "{{field}} cannot be greater than {{max}}",
+    "decimals": "{{field}} allows at most {{decimals}} decimals",
+    "integer": "{{field}} must be a whole number",
+    "invalidFormat": "{{field}} has an invalid format",
+    "invalidDate": "{{field}} is not a valid date",
+    "selectRequired": "Please select {{field}}",
+    "fields": {
+      "code": "Code"
     }
   }
 }

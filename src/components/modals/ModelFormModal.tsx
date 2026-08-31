@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { createModelSchema } from '../../validation/schemas/model';
+import { firstIssue } from '../../validation/formErrors';
 import { ArrowDown, ArrowUp, BookOpen, Plus, Trash2 } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
@@ -109,6 +111,19 @@ const ModelFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, model }) 
   const set = (key: string, value: any) => setForm((f) => ({ ...f, [key]: value }));
 
   const submit = async () => {
+    // Pattern B: this form is `useState`, so the schema runs here instead of
+    // through `useModalForm`'s resolver. Same rules as every other entity.
+    const problem = firstIssue(createModelSchema(t), {
+      code: form.code,
+      description: form.description,
+      flapTypeUuid: form.flapTypeUuid ?? undefined,
+      complementUuid: form.complementUuid ?? undefined,
+    });
+    if (problem) {
+      setError(problem);
+      return;
+    }
+
     try {
       setSaving(true);
       setError(null);

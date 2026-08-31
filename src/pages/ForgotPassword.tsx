@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { forgotPasswordSchema } from '../validation/schemas/auth';
 import { useTranslation } from 'react-i18next';
 import { Mail, ArrowLeft } from 'lucide-react';
 import { authApi } from '../services/api';
@@ -23,7 +25,10 @@ const ForgotPassword: React.FC = () => {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<ForgotPasswordForm>();
+  } = useForm<ForgotPasswordForm>({
+    resolver: zodResolver(forgotPasswordSchema(t)) as never,
+    mode: 'onBlur',
+  });
 
   const onSubmit = async (data: ForgotPasswordForm) => {
     setIsLoading(true);
@@ -91,13 +96,7 @@ const ForgotPassword: React.FC = () => {
 
             <div className="space-y-4">
               <Input
-                {...register('email', {
-                  required: t('forgotPassword.validation.emailRequired'),
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: t('forgotPassword.validation.emailInvalid'),
-                  },
-                })}
+                {...register('email')}
                 type="email"
                 label={t('forgotPassword.emailLabel')}
                 placeholder={t('forgotPassword.emailPlaceholder')}

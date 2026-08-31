@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CreatePalletTypeForm } from '../../types';
 import { palletTypesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createPalletTypeSchema } from '../../validation/schemas/palletType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -24,18 +25,18 @@ const CreatePalletTypeModal: React.FC<CreatePalletTypeModalProps> = ({ isOpen, o
     error,
     handleSubmit,
     handleClose,
-  } = useModalForm<CreatePalletTypeForm>({ defaultValues: {}, onSuccess, onClose });
+  } = useModalForm<CreatePalletTypeForm>({
+    defaultValues: {},
+    onSuccess,
+    onClose,
+    schema: createPalletTypeSchema(t),
+  });
 
-  const num = (v: any) => (v === '' || v === undefined ? undefined : Number(v));
   const onSubmit = handleSubmit((data) =>
     palletTypesApi.createPalletType({
-        // superAdmin operating-as: backend resolves this body companyId.
-        ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
+      // superAdmin operating-as: backend resolves this body companyId.
+      ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
       ...data,
-      length: num(data.length),
-      width: num(data.width),
-      weight: num(data.weight),
-      height: num(data.height),
     })
   );
 
@@ -45,7 +46,7 @@ const CreatePalletTypeModal: React.FC<CreatePalletTypeModalProps> = ({ isOpen, o
         <ErrorMessage message={error} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            {...register('code', { required: t('palletTypes.validation.codeRequired') })}
+            {...register('code')}
             label={`${t('palletTypes.code')} *`}
             error={errors.code?.message}
           />

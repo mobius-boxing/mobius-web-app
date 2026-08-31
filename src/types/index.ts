@@ -485,6 +485,9 @@ export interface CreateProductInitialPart {
   description?: string;
   corrugationUuid: string;
   productionRouteUuid?: string;
+  modelUuid?: string;
+  flapTypeUuid?: string;
+  glueTypeUuid?: string;
   sheetLength?: number;
   sheetWidth?: number;
   boxLength?: number;

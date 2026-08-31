@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CreateToolingStockForm, Manufacturer, Supplier, Warehouse, Tooling, WarehouseLocation } from '../../types';
 import { toolingStockApi, manufacturersApi, suppliersApi, warehousesApi, toolingsApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createToolingStockSchema } from '../../validation/schemas/toolingStock';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
@@ -47,6 +48,7 @@ const CreateToolingStockModal: React.FC<CreateToolingStockModalProps> = ({
   } = useModalForm<CreateToolingStockForm>({
     onSuccess,
     onClose,
+    schema: createToolingStockSchema(t),
   });
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseUuid' });
@@ -133,9 +135,7 @@ const CreateToolingStockModal: React.FC<CreateToolingStockModalProps> = ({
             {t('toolingStock.warehouse')} *
           </label>
           <select
-            {...register('warehouseUuid', {
-              required: t('toolingStock.validation.warehouseRequired'),
-            })}
+            {...register('warehouseUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('toolingStock.selectWarehouse')}</option>
@@ -194,9 +194,7 @@ const CreateToolingStockModal: React.FC<CreateToolingStockModalProps> = ({
             {t('toolingStock.tooling')} *
           </label>
           <select
-            {...register('toolingUuid', {
-              required: t('toolingStock.validation.toolingRequired'),
-            })}
+            {...register('toolingUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('toolingStock.selectTooling')}</option>
@@ -226,6 +224,9 @@ const CreateToolingStockModal: React.FC<CreateToolingStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierUuid.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -243,6 +244,9 @@ const CreateToolingStockModal: React.FC<CreateToolingStockModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerUuid.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -252,10 +256,7 @@ const CreateToolingStockModal: React.FC<CreateToolingStockModalProps> = ({
             </label>
             <Input
               type="number"
-              {...register('quantity', {
-                required: t('toolingStock.validation.quantityRequired'),
-                valueAsNumber: true,
-              })}
+              {...register('quantity')}
               placeholder={t('toolingStock.quantityPlaceholder')}
               error={errors.quantity?.message}
             />
@@ -268,9 +269,8 @@ const CreateToolingStockModal: React.FC<CreateToolingStockModalProps> = ({
             <Input
               type="number"
               step="0.01"
-              {...register('price', {
-                valueAsNumber: true,
-              })}
+              {...register('price')}
+              error={errors.price?.message as string}
               placeholder={t('toolingStock.pricePlaceholder')}
             />
           </div>
@@ -282,6 +282,7 @@ const CreateToolingStockModal: React.FC<CreateToolingStockModalProps> = ({
           </label>
           <Input
             {...register('comments')}
+            error={errors.comments?.message as string}
             placeholder={t('toolingStock.commentsPlaceholder')}
           />
         </div>

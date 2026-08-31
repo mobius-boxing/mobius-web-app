@@ -5,30 +5,32 @@
    removable unit: delete the `import './styles/gold.css'` line and every
    visual change in this pass reverts. No existing CSS was deleted.
 
-   It builds on the existing "Warm Industrial" OKLCH tokens (--p-*, --n-*,
+   It builds on the existing "Geist Blue" OKLCH tokens (--p-*, --n-*,
    --canvas) rather than introducing a parallel palette. The brand accent
-   stays ochre; what changes is how decisively it is used.
+   is the supplied blue; what changes is how decisively it is used.
 
    Scope discipline:
-     - GLOBAL (deliberate, conservative): display font on headings, warm
+     - GLOBAL (deliberate, conservative): display font on headings, ambient
        atmosphere + grain, easing/elevation tokens, reduced-motion.
      - SCOPED to `.gd` (the dashboard root): typographic scale, KPI cards,
        composition bar, quick actions, skeletons, entry motion.
    ============================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+/* Geist + Geist Mono are imported once, from index.css. */
 
 /* ── Layer 1: Tokens ─────────────────────────────────────────────────────── */
 :root {
   /* Typefaces.
-     WHY: Inter was doing display AND body duty — the single loudest
-     "nobody chose this" signal in the audit. Space Grotesk carries the
-     industrial half of "Warm Industrial" at large sizes; Inter keeps the
-     body text boring on purpose; JetBrains Mono gives labels and numerals
-     a machine-room voice that a backoffice earns. */
-  --font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+     WHY: the previous pass ran three unrelated families (Space Grotesk,
+     Inter, JetBrains Mono) that never agreed on a skeleton. The app now
+     runs on one. Geist is a variable face (100–900) with a matching mono,
+     so the three voices come from weight, tracking and case rather than
+     from three typefaces fighting each other: 600–700 with negative
+     tracking for display, 400–500 for body, Geist Mono for labels and
+     numerals. Two files, one type system. */
+  --font-display: 'Geist', system-ui, sans-serif;
+  --font-body: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
 
   /* Easing.
      WHY: `transition-colors duration-150` (the only motion the dashboard
@@ -38,7 +40,7 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-snap: cubic-bezier(0.22, 1, 0.36, 1);
 
-  /* Hairlines + elevation, warm rather than cool grey.
+  /* Hairlines + elevation, navy-tinted rather than neutral grey.
      WHY: every surface in the audit was `border-secondary-200 shadow-sm` —
      one undifferentiated depth for KPIs, panels and shortcuts alike. */
   --gd-hairline: oklch(var(--n-950) / 0.07);
@@ -64,10 +66,10 @@ h1, h2, h3, h4 {
 }
 
 /* ── Layer 6: Atmosphere (global) ────────────────────────────────────────── */
-/* WHY: `bg-canvas` was a flat fill. A near-invisible warm bloom off the
+/* WHY: `bg-canvas` was a flat fill. A near-invisible blue bloom off the
    top-left plus a grain overlay give the canvas a floor to sit on. Both are
    felt, not seen — the gradient tops out at 0.35 alpha of an already pale
-   ochre, the grain at 2%. */
+   brand tint, the grain at 2%. */
 /* The atmosphere is painted on the shell elements rather than on <body> so it
    is scoped to the app's own surfaces; `body` keeps the flat canvas colour as
    a backstop for anything rendered outside a shell. */
@@ -199,16 +201,16 @@ body::after {
    ============================================================================ */
 
 /* ── App shell ───────────────────────────────────────────────────────────── */
-/* ── Sidebar: graphite rail ──────────────────────────────────────────────── */
-/* WHY: the sidebar was white-on-warm-white against a white content area —
-   two surfaces with no separation doing equal visual work, and the active
-   item was a solid bg-primary-100 slab that shouted louder than the page
-   heading. Graphite gives the shell an anchor, drops the nav out of the
-   content's reading order, and lets the ochre act as a pointer instead of
-   a highlighter. */
+/* ── Sidebar: deep navy rail ─────────────────────────────────────────────── */
+/* WHY: the sidebar was white-on-white against a white content area — two
+   surfaces with no separation doing equal visual work, and the active item
+   was a solid bg-primary-100 slab that shouted louder than the page heading.
+   The rail is now p-950 (#081c38, the darkest supplied colour), which anchors
+   the shell, drops the nav out of the content's reading order, and puts the
+   brand's own ink where the app's structure lives rather than on a badge. */
 .gd-sidebar {
-  background: oklch(var(--n-950));
-  border-right: 1px solid oklch(var(--n-950));
+  background: oklch(var(--p-950));
+  border-right: 1px solid oklch(var(--p-900));
   color: oklch(var(--n-300));
   color-scheme: dark;
 }
@@ -327,7 +329,7 @@ body::after {
 }
 
 /* index.css states the intent explicitly: "active state is a tint + weight,
-   never a side stripe." Honoured — the graphite rail supplies the contrast
+   never a side stripe." Honoured — the navy rail supplies the contrast
    that the old bg-primary-100 slab was straining for, without a stripe. */
 .gd-sidebar .sidebar-item-inactive {
   color: oklch(var(--n-400));
@@ -409,7 +411,7 @@ body::after {
 /* WHY: unlike the backoffice, this Sidebar keeps its Tailwind colour classes
    in the JSX (it has collapse state, nested groups and permission gating that
    are not worth restructuring for a repaint). Remapping the handful of
-   utilities it uses is the non-invasive way to make them legible on graphite —
+   utilities it uses is the non-invasive way to make them legible on navy —
    the wordmark and the user's name were rendering near-black on near-black. */
 .gd-sidebar .border-secondary-200 { border-color: oklch(1 0 0 / 0.1) !important; }
 .gd-sidebar .text-secondary-900 { color: oklch(var(--n-100)) !important; }
@@ -423,7 +425,7 @@ body::after {
 .gd-sidebar .hover\:text-secondary-800:hover { color: oklch(var(--white)) !important; }
 .gd-sidebar .hover\:text-secondary-900:hover { color: oklch(var(--white)) !important; }
 
-/* The brand mark keeps its ochre; the small avatar tint needs to read on dark */
+/* The brand mark keeps its blue; the small avatar tint needs to read on dark */
 .gd-sidebar .bg-primary-100 {
   background-color: oklch(var(--p-500) / 0.18) !important;
 }
@@ -948,6 +950,148 @@ body::after {
 }
 
 .gd-link:hover { color: oklch(var(--p-800)); text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Collapsed rail: tooltip + submenu ───────────────────────────────────── */
+/* WHY: collapsed, the rail is 4rem of unlabelled icons, and it carried two
+   separate problems. Naming a section relied on the browser's native `title`
+   — about a second of delay, in OS chrome that ignores the design. And a
+   group icon was a dead control: it toggled `expandedItems`, but the collapsed
+   branch never renders children, so the group was unreachable without
+   expanding the whole rail.
+   So: hover names the section instantly, click opens its submenu and keeps it
+   open. Both are `position: fixed` (anchored in the component off the rail's
+   right edge) because the <nav> is overflow-y-auto and would clip an
+   absolutely positioned child against its own edge. Motion is covered by the
+   reduced-motion block below, which already matches `.gd-sidebar *`. */
+
+/* Hover label. `pointer-events: none` so it can never sit under the cursor and
+   swallow a click meant for the icon. */
+.gd-sb-tip {
+  position: fixed;
+  z-index: 60;
+  transform: translateY(-50%);
+  padding: 0.3125rem 0.5625rem;
+  border-radius: 0.375rem;
+  background: oklch(var(--p-950));
+  border: 1px solid oklch(var(--p-900));
+  box-shadow: 0 4px 10px -2px oklch(var(--n-950) / 0.3);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: oklch(var(--white));
+  white-space: nowrap;
+  pointer-events: none;
+  /* 80ms reads as instant while still avoiding a hard pop. */
+  animation: gd-sb-tip-in 0.08s var(--ease-out) both;
+}
+.gd-sb-menu {
+  position: fixed;
+  z-index: 60;
+  min-width: 11rem;
+  max-width: 17rem;
+  padding: 0.375rem;
+  border-radius: 0.625rem;
+  background: oklch(var(--p-950));
+  border: 1px solid oklch(var(--p-900));
+  box-shadow:
+    0 10px 15px -4px oklch(var(--n-950) / 0.3),
+    0 28px 44px -10px oklch(var(--n-950) / 0.35);
+  color-scheme: dark;
+  animation: gd-sb-menu-in 0.12s var(--ease-out) both;
+}
+
+/* Two keyframes, not one: the tooltip carries a translateY(-50%) to sit
+   centred on its icon, and a shared animation ending at `transform: none`
+   cancelled it — the label hung half its own height too low. */
+@keyframes gd-sb-tip-in {
+  from {
+    opacity: 0;
+    transform: translate(-4px, -50%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%);
+  }
+}
+
+@keyframes gd-sb-menu-in {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.gd-sb-menu__title {
+  display: block;
+  padding: 0.375rem 0.625rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: oklch(var(--white));
+  white-space: nowrap;
+}
+
+.gd-sb-menu__list {
+  margin-top: 0.25rem;
+  padding-top: 0.25rem;
+  border-top: 1px solid oklch(1 0 0 / 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+/* Sub-group heading inside the panel: the nav is three levels deep, so a
+   group's children can themselves be groups. They are labels, not links. */
+.gd-sb-menu__grouplabel {
+  display: block;
+  padding: 0.4375rem 0.625rem 0.1875rem;
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+  white-space: nowrap;
+}
+
+.gd-sb-menu__group + .gd-sb-menu__group {
+  margin-top: 0.25rem;
+}
+
+.gd-sb-menu__link {
+  display: block;
+  padding: 0.4375rem 0.625rem;
+  border-radius: 0.4375rem;
+  font-family: var(--font-body);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: oklch(var(--n-400));
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s var(--ease-snap),
+    color 0.15s var(--ease-snap);
+}
+
+.gd-sb-menu__link:hover {
+  background: oklch(1 0 0 / 0.06);
+  color: oklch(var(--n-100));
+}
+
+.gd-sb-menu__link.active {
+  background: oklch(1 0 0 / 0.09);
+  color: oklch(var(--white));
+  font-weight: 600;
+}
 
 /* ── Reduced motion (shell + components) ─────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {

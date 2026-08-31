@@ -63,13 +63,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
-            {...register('name', {
-              required: t('common:customerModal.validation.nameRequired'),
-              minLength: {
-                value: 2,
-                message: t('common:customerModal.validation.nameMinLength'),
-              },
-            })}
+            {...register('name')}
             label={`${t('common:customerModal.customerName')} *`}
             placeholder={t('common:customerModal.enterCustomerName')}
             error={errors.name?.message as string}
@@ -136,6 +130,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
             placeholder={t('common:customerModal.enterNotes')}
             className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
           />
+          {errors.notes && (
+            <p className="mt-1 text-sm text-red-600">{errors.notes.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

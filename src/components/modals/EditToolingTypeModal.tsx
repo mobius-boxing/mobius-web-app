@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editToolingTypeSchema } from '../../validation/schemas/toolingType';
 
 interface EditToolingTypeModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ const EditToolingTypeModal: React.FC<EditToolingTypeModalProps> = ({
   } = useModalForm<CreateToolingTypeForm>({
     onSuccess,
     onClose,
+    schema: editToolingTypeSchema(t),
   });
 
   useEffect(() => {
@@ -62,34 +64,14 @@ const EditToolingTypeModal: React.FC<EditToolingTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: t('toolingTypes.validation.codeRequired'),
-            minLength: {
-              value: 1,
-              message: t('toolingTypes.validation.codeMinLength'),
-            },
-            maxLength: {
-              value: 50,
-              message: t('toolingTypes.validation.codeMaxLength'),
-            },
-          })}
+          {...register('code')}
           label={t('toolingTypes.code')}
           placeholder={t('toolingTypes.codePlaceholder')}
           error={errors.code?.message as string}
         />
 
         <Input
-          {...register('name', {
-            required: t('toolingTypes.validation.nameRequired'),
-            minLength: {
-              value: 1,
-              message: t('toolingTypes.validation.nameMinLength'),
-            },
-            maxLength: {
-              value: 255,
-              message: t('toolingTypes.validation.nameMaxLength'),
-            },
-          })}
+          {...register('name')}
           label={t('toolingTypes.name')}
           placeholder={t('toolingTypes.namePlaceholder')}
           error={errors.name?.message as string}

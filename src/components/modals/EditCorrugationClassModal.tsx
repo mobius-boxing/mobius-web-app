@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editCorrugationClassSchema } from '../../validation/schemas/corrugationClass';
 
 interface EditCorrugationClassModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ const EditCorrugationClassModal: React.FC<EditCorrugationClassModalProps> = ({
   } = useModalForm<CreateCorrugationClassForm>({
     onSuccess,
     onClose,
+    schema: editCorrugationClassSchema(t),
   });
 
   useEffect(() => {
@@ -61,17 +63,7 @@ const EditCorrugationClassModal: React.FC<EditCorrugationClassModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: t('corrugationClasses.validation.codeRequired'),
-            minLength: {
-              value: 1,
-              message: t('corrugationClasses.validation.codeMinLength'),
-            },
-            maxLength: {
-              value: 50,
-              message: t('corrugationClasses.validation.codeMaxLength'),
-            },
-          })}
+          {...register('code')}
           label={t('corrugationClasses.code')}
           placeholder={t('corrugationClasses.codePlaceholder')}
           error={errors.code?.message as string}

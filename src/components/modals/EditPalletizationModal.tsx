@@ -4,6 +4,7 @@ import { Palletization, CreatePalletizationForm, PalletType } from '../../types'
 import { palletizationsApi, palletTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editPalletizationSchema } from '../../validation/schemas/palletization';
 import Modal from '../ui/Modal';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
@@ -35,7 +36,7 @@ const EditPalletizationModal: React.FC<EditPalletizationModalProps> = ({
     error,
     handleSubmit,
     handleClose,
-  } = useModalForm<CreatePalletizationForm>({ defaultValues: {}, onSuccess, onClose });
+  } = useModalForm<CreatePalletizationForm>({ defaultValues: {}, onSuccess, onClose, schema: editPalletizationSchema(t) });
 
   useEffect(() => {
     if (isOpen && palletization) {
@@ -65,18 +66,10 @@ const EditPalletizationModal: React.FC<EditPalletizationModalProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, palletization, effectiveCompanyId]);
 
-  const n = (v: any) => (v === '' || v === undefined ? undefined : Number(v));
   const onSubmit = handleSubmit((data) => {
     if (!palletization) return Promise.reject(new Error('No palletization selected'));
     return palletizationsApi.updatePalletization(palletization.uuid, {
       ...data,
-      boxesPerPackage: n(data.boxesPerPackage),
-      packagesPerLevel: n(data.packagesPerLevel),
-      levelsPerPallet: n(data.levelsPerPallet),
-      additionalPackages: n(data.additionalPackages),
-      sheetsPerPallet: n(data.sheetsPerPallet),
-      maxPalletHeight: n(data.maxPalletHeight),
-      surface: n(data.surface),
       palletTypeUuid: data.palletTypeUuid || undefined,
       technicalFileUuid,
       imageFileUuid,

@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editCustomerCategorySchema } from '../../validation/schemas/customerCategory';
 
 interface EditCustomerCategoryModalProps {
   isOpen: boolean;
@@ -37,6 +38,7 @@ const EditCustomerCategoryModal: React.FC<EditCustomerCategoryModalProps> = ({
   } = useModalForm<CreateCustomerCategoryForm>({
     onSuccess,
     onClose,
+    schema: editCustomerCategorySchema(t),
   });
 
   useEffect(() => {
@@ -59,17 +61,7 @@ const EditCustomerCategoryModal: React.FC<EditCustomerCategoryModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('name', {
-            required: t('customerCategories.validation.nameRequired'),
-            minLength: {
-              value: 2,
-              message: t('customerCategories.validation.nameMinLength'),
-            },
-            maxLength: {
-              value: 100,
-              message: t('customerCategories.validation.nameMaxLength'),
-            },
-          })}
+          {...register('name')}
           label={t('customerCategories.name')}
           placeholder={t('customerCategories.namePlaceholder')}
           error={errors.name?.message as string}

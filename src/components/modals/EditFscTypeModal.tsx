@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editFscTypeSchema } from '../../validation/schemas/fscType';
 
 interface EditFscTypeModalProps {
   isOpen: boolean;
@@ -37,13 +38,14 @@ const EditFscTypeModal: React.FC<EditFscTypeModalProps> = ({
   } = useModalForm<CreateFscTypeForm>({
     onSuccess,
     onClose,
+    schema: editFscTypeSchema(t),
   });
 
   useEffect(() => {
     if (isOpen && fscType) {
       reset({
         code: fscType.code,
-        description: fscType.description,
+        description: fscType.description ?? '',
       });
     }
   }, [isOpen, fscType, reset]);
@@ -64,9 +66,7 @@ const EditFscTypeModal: React.FC<EditFscTypeModalProps> = ({
             {t('fscTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('fscTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('fscTypes.codePlaceholder')}
             error={errors.code?.message}
           />

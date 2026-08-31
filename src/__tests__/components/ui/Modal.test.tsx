@@ -63,7 +63,9 @@ describe('Modal', () => {
       const onClose = jest.fn();
       render(<Modal isOpen={true} onClose={onClose}>Content</Modal>);
 
-      const backdrop = document.querySelector('.bg-opacity-75');
+      // Post-retheme the backdrop is `.gd-modal-overlay` (gold.css), not a
+      // `bg-opacity-75` utility. Same element, same onClick.
+      const backdrop = document.querySelector('.gd-modal-overlay');
       fireEvent.click(backdrop!);
 
       expect(onClose).toHaveBeenCalledTimes(1);

@@ -1,10 +1,15 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import Corrugations from '../../pages/Corrugations';
 import { createMockCorrugation, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
 const mockGetCorrugations = jest.fn();
 const mockDeleteCorrugation = jest.fn();
+
+jest.mock('../../contexts/AuthContext', () =>
+  require('../../test-utils/renderWithProviders').authContextMock()
+);
 
 jest.mock('../../services/api', () => ({
   corrugationsApi: {
@@ -192,11 +197,16 @@ describe('Corrugations Page', () => {
         expect(screen.getByText('Add Corrugation')).toBeInTheDocument();
       });
 
+      // The page fetches twice on mount (useEntityList's autoFetch plus the
+      // page's own effectiveCompanyId effect), so pin the delta — one extra
+      // request caused by the create — rather than a magic total.
+      const callsBeforeCreate = mockGetCorrugations.mock.calls.length;
+
       fireEvent.click(screen.getByText('Add Corrugation'));
       fireEvent.click(screen.getByText('Create'));
 
       await waitFor(() => {
-        expect(mockGetCorrugations).toHaveBeenCalledTimes(2);
+        expect(mockGetCorrugations).toHaveBeenCalledTimes(callsBeforeCreate + 1);
       });
     });
   });

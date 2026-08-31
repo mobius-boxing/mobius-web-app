@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -36,16 +36,142 @@ import { logger } from '../../utils/logger';
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
 
+/**
+ * Surviving remounts: every page renders its own <Layout>, and the routes are
+ * flat rather than nested under a layout route, so navigating unmounts this
+ * Sidebar and mounts a fresh one. The new <nav> is a new DOM node, so its
+ * scrollTop starts at 0 and the rail jumps back to the top on every click.
+ * Module scope (not state) deliberately: the value has to outlive the
+ * component instance, and writing it must not trigger a re-render on scroll.
+ */
+let navScrollTop = 0;
+
+/**
+ * ...and the same applies to which groups are open. Restoring only the scroll
+ * offset is not enough: a remount starts with every group collapsed, the nav
+ * gets much shorter, and the browser clamps the restored scrollTop to the new
+ * (smaller) maximum — the rail still jumps, just less far. Keeping both means
+ * the rail comes back exactly as the user left it.
+ */
+let expandedItemIds: string[] = [];
+
 const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
   const { has } = usePermissions();
   const location = useLocation();
+  const navRef = useRef<HTMLElement | null>(null);
+
   const { t } = useTranslation();
-  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(() => new Set(expandedItemIds));
   const [isCollapsed, setIsCollapsed] = useState<boolean>(() => {
     const saved = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
     return saved === 'true';
   });
+
+  // Restore before paint so the rail never flashes at the top. Keyed on
+  // `expandedItems` because the effect below re-expands the active item's
+  // parents a render after mount: that changes the nav's height, so the offset
+  // has to be re-applied once it settles or it clamps against a stale height.
+  // Re-running on a manual toggle is a no-op, since onScroll keeps
+  // `navScrollTop` equal to where the user actually is. Same pass also mirrors
+  // the open groups into module scope for the next mount to pick up.
+  useLayoutEffect(() => {
+    expandedItemIds = Array.from(expandedItems); // tsconfig target predates es2015 spread-over-Set
+    const el = navRef.current;
+    if (el) el.scrollTop = navScrollTop;
+  }, [expandedItems]);
+
+  /**
+   * Collapsed rail: two separate affordances, because they answer two
+   * different questions.
+   *
+   * `tip`     — hover/focus, instant, the section name and nothing else. The
+   *             native `title` took about a second to appear and rendered in
+   *             OS chrome that ignores the design.
+   * `submenu` — click, and it stays open. Collapsed, a group icon used to be a
+   *             dead control: it toggled `expandedItems`, but the collapsed
+   *             branch never renders children, so nothing happened and the
+   *             group was unreachable without expanding the whole rail.
+   *
+   * Both are `position: fixed` rather than absolutely-positioned children
+   * because the <nav> is overflow-y-auto and would clip them against its edge.
+   */
+  const [tip, setTip] = useState<
+    { label: string; top: number; left: number } | null
+  >(null);
+  const [submenu, setSubmenu] = useState<
+    { item: NavItem; top: number; left: number } | null
+  >(null);
+  const submenuRef = useRef<HTMLDivElement | null>(null);
+
+  // Anchor off the rail's right edge, not the icon's: the icon sits inside the
+  // rail's padding, so its own rect leaves a panel overlapping the border.
+  const railRightOf = (el: HTMLElement) => {
+    const rail = el.closest('.gd-sidebar');
+    return rail
+      ? rail.getBoundingClientRect().right
+      : el.getBoundingClientRect().right;
+  };
+
+  const showTip = (label: string, el: HTMLElement, itemId?: string) => {
+    // While a group's submenu is open, its own name is redundant.
+    if (itemId && submenu?.item.id === itemId) return;
+    const rect = el.getBoundingClientRect();
+    setTip({
+      label,
+      top: rect.top + rect.height / 2,
+      left: railRightOf(el) + 8,
+    });
+  };
+  const hideTip = () => setTip(null);
+
+  const toggleSubmenu = (item: NavItem, el: HTMLElement) => {
+    setTip(null);
+    setSubmenu((current) => {
+      if (current && current.item.id === item.id) return null;
+      const rect = el.getBoundingClientRect();
+      return { item, top: rect.top, left: railRightOf(el) + 8 };
+    });
+  };
+
+  // A group near the bottom of the rail can be taller than the space below it
+  // (Maestros carries 36 links). Measure once mounted and pull it back into the
+  // viewport by writing the style directly — adjusting state here would just
+  // cause a second render for the same paint.
+  useLayoutEffect(() => {
+    const el = submenuRef.current;
+    if (!el || !submenu) return;
+    const maxTop = window.innerHeight - el.offsetHeight - 8;
+    el.style.top = `${Math.max(8, Math.min(submenu.top, maxTop))}px`;
+  }, [submenu]);
+
+  // An open submenu is dismissed by clicking away or pressing Escape. The
+  // trigger is excluded so its own click toggles rather than close-then-reopen.
+  useEffect(() => {
+    if (!submenu) return;
+    const onPointerDown = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (submenuRef.current?.contains(target as Node)) return;
+      if (target?.closest?.('[data-submenu-trigger]')) return;
+      setSubmenu(null);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setSubmenu(null);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [submenu]);
+
+  useEffect(() => {
+    if (!isCollapsed) {
+      setTip(null);
+      setSubmenu(null);
+    }
+  }, [isCollapsed]);
 
   const toggleCollapsed = () => {
     setIsCollapsed((prev) => {
@@ -531,6 +657,31 @@ const Sidebar: React.FC = () => {
     }
   };
 
+  const renderSubmenuItems = (items: NavItem[]): React.ReactNode =>
+    items
+      .filter((child) => (user ? child.roles.includes(user.role) : false))
+      .map((child) => {
+        if (child.children && child.children.length > 0) {
+          return (
+            <div key={child.id} className="gd-sb-menu__group">
+              <span className="gd-sb-menu__grouplabel">{child.label}</span>
+              {renderSubmenuItems(child.children)}
+            </div>
+          );
+        }
+        if (!child.path) return null; // neither a link nor a group: nothing to show
+        return (
+          <NavLink
+            key={child.id}
+            to={child.path}
+            className="gd-sb-menu__link"
+            onClick={() => setSubmenu(null)}
+          >
+            {child.label}
+          </NavLink>
+        );
+      });
+
   const renderNavItem = (item: NavItem, depth: number): React.ReactNode => {
     const hasChildren = item.children && item.children.length > 0;
     const isExpanded = expandedItems.has(item.id);
@@ -541,12 +692,27 @@ const Sidebar: React.FC = () => {
     const textSize = depth === 0 ? '' : 'text-sm';
 
     if (isCollapsed && depth === 0) {
+      // `aria-label` takes over the accessible name that `title` used to
+      // provide: these controls are icon-only and the tooltip is presentational.
+      const hoverProps = {
+        onMouseEnter: (e: React.MouseEvent<HTMLElement>) =>
+          showTip(item.label, e.currentTarget, item.id),
+        onMouseLeave: hideTip,
+        onFocus: (e: React.FocusEvent<HTMLElement>) =>
+          showTip(item.label, e.currentTarget, item.id),
+        onBlur: hideTip,
+      };
+
       if (hasChildren) {
         return (
           <div key={item.id} className="relative group">
             <button
-              onClick={() => toggleExpanded(item.id)}
-              title={item.label}
+              data-submenu-trigger
+              onClick={(e) => toggleSubmenu(item, e.currentTarget)}
+              aria-label={item.label}
+              aria-haspopup="menu"
+              aria-expanded={submenu?.item.id === item.id}
+              {...hoverProps}
               className={`sidebar-item ${
                 hasActiveChild ? 'sidebar-item-active' : 'sidebar-item-inactive'
               } w-full justify-center`}
@@ -560,7 +726,8 @@ const Sidebar: React.FC = () => {
         <NavLink
           key={item.id}
           to={item.path!}
-          title={item.label}
+          aria-label={item.label}
+          {...hoverProps}
           className={`sidebar-item ${
             isActive ? 'sidebar-item-active' : 'sidebar-item-inactive'
           } justify-center`}
@@ -670,7 +837,17 @@ const Sidebar: React.FC = () => {
         </div>
       )}
 
-      <nav className={`flex-1 py-4 space-y-1 overflow-y-auto ${isCollapsed ? 'px-2' : 'px-4'}`}>
+      <nav
+        ref={navRef}
+        onScroll={(e) => {
+          navScrollTop = e.currentTarget.scrollTop;
+          // Both panels are anchored to an icon's rect, which the scroll
+          // invalidates.
+          setTip(null);
+          setSubmenu(null);
+        }}
+        className={`flex-1 py-4 space-y-1 overflow-y-auto ${isCollapsed ? 'px-2' : 'px-4'}`}
+      >
         {filteredNavigation.map((item) => renderNavItem(item, 0))}
       </nav>
 
@@ -683,13 +860,48 @@ const Sidebar: React.FC = () => {
       <div className={`border-t border-secondary-200 ${isCollapsed ? 'p-2' : 'p-4'}`}>
         <button
           onClick={handleLogout}
-          title={isCollapsed ? t('nav.signOut') : undefined}
+          aria-label={isCollapsed ? t('nav.signOut') : undefined}
+          onMouseEnter={
+            isCollapsed ? (e) => showTip(t('nav.signOut'), e.currentTarget) : undefined
+          }
+          onMouseLeave={isCollapsed ? hideTip : undefined}
+          onFocus={
+            isCollapsed ? (e) => showTip(t('nav.signOut'), e.currentTarget) : undefined
+          }
+          onBlur={isCollapsed ? hideTip : undefined}
           className={`sidebar-item sidebar-item-inactive w-full ${isCollapsed ? 'justify-center' : 'text-left'}`}
         >
           <LogOut className="h-5 w-5" />
           {!isCollapsed && <span className="ml-3">{t('nav.signOut')}</span>}
         </button>
       </div>
+
+      {isCollapsed && tip && (
+        <div
+          role="tooltip"
+          className="gd-sb-tip"
+          style={{ top: tip.top, left: tip.left }}
+        >
+          {tip.label}
+        </div>
+      )}
+
+      {isCollapsed && submenu && (
+        <div
+          ref={submenuRef}
+          role="menu"
+          aria-label={submenu.item.label}
+          className="gd-sb-menu"
+          style={{ top: submenu.top, left: submenu.left }}
+        >
+          <span className="gd-sb-menu__title">{submenu.item.label}</span>
+          {submenu.item.children && submenu.item.children.length > 0 && (
+            <div className="gd-sb-menu__list">
+              {renderSubmenuItems(submenu.item.children)}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

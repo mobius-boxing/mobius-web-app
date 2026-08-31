@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createCustomerSchema } from '../../validation/schemas/customer';
 import { CreateCustomerForm, CustomerCategory, User, ContactInfo } from '../../types';
 import { customersApi, customerCategoriesApi, usersApi } from '../../services/api';
 import Modal from '../ui/Modal';
@@ -40,6 +41,7 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
     },
     onSuccess,
     onClose,
+    schema: createCustomerSchema(t),
   });
 
   useEffect(() => {

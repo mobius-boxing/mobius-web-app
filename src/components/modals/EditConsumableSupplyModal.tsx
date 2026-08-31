@@ -8,6 +8,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editConsumableSupplySchema } from '../../validation/schemas/consumableSupply';
 
 interface EditConsumableSupplyModalProps {
   isOpen: boolean;
@@ -43,6 +44,7 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
   } = useModalForm<CreateConsumableSupplyForm>({
     onSuccess,
     onClose,
+    schema: editConsumableSupplySchema(t),
   });
 
   useEffect(() => {
@@ -93,18 +95,14 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: t('consumableSupplies.validation.codeRequired'),
-          })}
+          {...register('code')}
           label={t('consumableSupplies.code')}
           placeholder={t('consumableSupplies.codePlaceholder')}
           error={errors.code?.message as string}
         />
 
         <Input
-          {...register('name', {
-            required: t('consumableSupplies.validation.nameRequired'),
-          })}
+          {...register('name')}
           label={t('consumableSupplies.name')}
           placeholder={t('consumableSupplies.namePlaceholder')}
           error={errors.name?.message as string}
@@ -120,6 +118,9 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
             placeholder={t('consumableSupplies.descriptionPlaceholder')}
             rows={3}
           />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-600">{errors.description.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -127,9 +128,7 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
             {t('consumableSupplies.consumableType')} *
           </label>
           <select
-            {...register('consumableTypeUuid', {
-              required: t('consumableSupplies.validation.consumableTypeRequired'),
-            })}
+            {...register('consumableTypeUuid')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('consumableSupplies.selectConsumableType')}</option>
@@ -159,6 +158,9 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.manufacturerUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.manufacturerUuid.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -176,6 +178,9 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.supplierUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.supplierUuid.message as string}</p>
+          )}
         </div>
 
 
@@ -184,14 +189,14 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
             <label className="gd-label">
               {t('consumableSupplies.location')}
             </label>
-            <Input {...register('location')} placeholder={t('consumableSupplies.locationPlaceholder')} />
+            <Input {...register('location')} error={errors.location?.message as string} placeholder={t('consumableSupplies.locationPlaceholder')} />
           </div>
 
           <div>
             <label className="gd-label">
               {t('consumableSupplies.expiry')}
             </label>
-            <Input {...register('expiry')} placeholder={t('consumableSupplies.expiryPlaceholder')} />
+            <Input {...register('expiry')} error={errors.expiry?.message as string} placeholder={t('consumableSupplies.expiryPlaceholder')} />
           </div>
         </div>
 
@@ -203,7 +208,8 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
             <Input
               type="number"
               step="any"
-              {...register('minimumStock', { valueAsNumber: true })}
+              {...register('minimumStock')}
+              error={errors.minimumStock?.message as string}
               placeholder={t('consumableSupplies.minimumStockPlaceholder')}
             />
           </div>
@@ -223,6 +229,9 @@ const EditConsumableSupplyModal: React.FC<EditConsumableSupplyModalProps> = ({
                 </option>
               ))}
             </select>
+            {errors.colorUuid && (
+              <p className="mt-1 text-sm text-red-600">{errors.colorUuid.message as string}</p>
+            )}
           </div>
         </div>
         <ModalFooter

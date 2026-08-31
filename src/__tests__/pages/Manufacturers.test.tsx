@@ -1,18 +1,15 @@
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import Manufacturers from '../../pages/Manufacturers';
 import { createMockManufacturer, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
 const mockGetManufacturers = jest.fn();
 const mockDeleteManufacturer = jest.fn();
 
-jest.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: { uuid: 'user-1', role: 'admin' },
-    isAuthenticated: true,
-    isLoading: false,
-  }),
-}));
+jest.mock('../../contexts/AuthContext', () =>
+  require('../../test-utils/renderWithProviders').authContextMock()
+);
 
 jest.mock('../../services/api', () => ({
   manufacturersApi: {

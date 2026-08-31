@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { warehouseGridSchema } from '../../validation/schemas/warehouse';
+import { firstIssue } from '../../validation/formErrors';
 import { Warehouse, WarehouseLocation, BatchUpdateLocation } from '../../types';
 import { warehousesApi } from '../../services/api';
 import Modal from '../ui/Modal';
@@ -201,8 +203,14 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
   const handleGridResize = async () => {
     if (!warehouse) return;
 
-    if (newGridRows < 1 || newGridRows > 50 || newGridCols < 1 || newGridCols > 50) {
-      setError(t('warehouses.grid.validation.dimensionsRange'));
+    // The 1..50 bound lives in `validation/schemas/warehouse.ts`, which the
+    // Create modal already uses; this used to restate it inline.
+    const problem = firstIssue(warehouseGridSchema(t), {
+      gridRows: newGridRows,
+      gridCols: newGridCols,
+    });
+    if (problem) {
+      setError(problem);
       return;
     }
 

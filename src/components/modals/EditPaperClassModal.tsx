@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editPaperClassSchema } from '../../validation/schemas/paperClass';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { PaperClass, CreatePaperClassForm, PaperSupply } from '../../types';
 import { paperClassesApi, paperSuppliesApi } from '../../services/api';
@@ -45,6 +46,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
   } = useModalForm<CreatePaperClassForm>({
     onSuccess,
     onClose,
+    schema: editPaperClassSchema(t),
   });
 
   useEffect(() => {
@@ -82,7 +84,7 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
       setAvailableSupplies(available);
     } catch (err: unknown) {
       logger.error('Error fetching paper supplies:', err);
-      setError('Failed to load paper supplies');
+      setError(t('paperClasses.loadSuppliesFailed'));
     } finally {
       setLoadingSupplies(false);
     }
@@ -131,34 +133,14 @@ const EditPaperClassModal: React.FC<EditPaperClassModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: 'Code is required',
-            minLength: {
-              value: 1,
-              message: 'Code must be at least 1 character',
-            },
-            maxLength: {
-              value: 50,
-              message: 'Code must be less than 50 characters',
-            },
-          })}
+          {...register('code')}
           label={t('paperClasses.code')}
           placeholder={t('paperClasses.codePlaceholder')}
           error={errors.code?.message as string}
         />
 
         <Input
-          {...register('name', {
-            required: 'Name is required',
-            minLength: {
-              value: 2,
-              message: 'Name must be at least 2 characters',
-            },
-            maxLength: {
-              value: 100,
-              message: 'Name must be less than 100 characters',
-            },
-          })}
+          {...register('name')}
           label={t('paperClasses.name')}
           placeholder={t('paperClasses.namePlaceholder')}
           error={errors.name?.message as string}

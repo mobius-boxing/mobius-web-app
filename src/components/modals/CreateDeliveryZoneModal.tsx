@@ -4,6 +4,7 @@ import { CreateDeliveryZoneForm } from '../../types';
 import { deliveryZonesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createDeliveryZoneSchema } from '../../validation/schemas/deliveryZone';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateDeliveryZoneModal: React.FC<CreateDeliveryZoneModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createDeliveryZoneSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -57,9 +59,7 @@ const CreateDeliveryZoneModal: React.FC<CreateDeliveryZoneModalProps> = ({
             {t('deliveryZones.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('deliveryZones.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('deliveryZones.codePlaceholder')}
             error={errors.code?.message}
           />

@@ -4,6 +4,7 @@ import { CreateFscTypeForm } from '../../types';
 import { fscTypesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createFscTypeSchema } from '../../validation/schemas/fscType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const CreateFscTypeModal: React.FC<CreateFscTypeModalProps> = ({
     defaultValues: {},
     onSuccess,
     onClose,
+    schema: createFscTypeSchema(t),
   });
 
   const onSubmit = handleSubmit((data) =>
@@ -56,9 +58,7 @@ const CreateFscTypeModal: React.FC<CreateFscTypeModalProps> = ({
             {t('fscTypes.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('fscTypes.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('fscTypes.codePlaceholder')}
             error={errors.code?.message}
           />

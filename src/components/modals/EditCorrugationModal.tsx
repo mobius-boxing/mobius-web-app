@@ -20,6 +20,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editCorrugationSchema } from '../../validation/schemas/corrugation';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { logger } from '../../utils/logger';
 
@@ -58,6 +59,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
   } = useModalForm<CreateCorrugationForm>({
     onSuccess,
     onClose,
+    schema: editCorrugationSchema(t),
   });
 
   useEffect(() => {
@@ -114,9 +116,6 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
   const onSubmit = handleSubmit(async (data) => {
     const submitData = {
       ...data,
-      theoreticalGrammage: data.theoreticalGrammage ? Number(data.theoreticalGrammage) : undefined,
-      suggestedWidth: data.suggestedWidth ? Number(data.suggestedWidth) : undefined,
-      caliper: data.caliper ? Number(data.caliper) : undefined,
       // SECURITY: Send UUID, not numeric ID
       corrugationClassUuid: data.corrugationClassUuid || undefined,
       // Capas: replaced wholesale on save.
@@ -132,17 +131,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: t('corrugations.validation.codeRequired'),
-            minLength: {
-              value: 1,
-              message: t('corrugations.validation.codeMinLength'),
-            },
-            maxLength: {
-              value: 50,
-              message: t('corrugations.validation.codeMaxLength'),
-            },
-          })}
+          {...register('code')}
           label={t('corrugations.code')}
           placeholder={t('corrugations.codePlaceholder')}
           error={errors.code?.message as string}
@@ -158,6 +147,9 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
             placeholder={t('corrugations.descriptionPlaceholder')}
             rows={3}
           />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-600">{errors.description.message as string}</p>
+          )}
         </div>
 
         <div>
@@ -175,11 +167,15 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
               </option>
             ))}
           </select>
+          {errors.corrugationClassUuid && (
+            <p className="mt-1 text-sm text-red-600">{errors.corrugationClassUuid.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-3 gap-4">
           <Input
             {...register('theoreticalGrammage')}
+            error={errors.theoreticalGrammage?.message as string}
             type="number"
             step="0.01"
             label={t('corrugations.theoreticalGrammage')}
@@ -188,6 +184,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
 
           <Input
             {...register('suggestedWidth')}
+            error={errors.suggestedWidth?.message as string}
             type="number"
             step="0.01"
             label={t('corrugations.suggestedWidth')}
@@ -196,6 +193,7 @@ const EditCorrugationModal: React.FC<EditCorrugationModalProps> = ({
 
           <Input
             {...register('caliper')}
+            error={errors.caliper?.message as string}
             type="number"
             step="0.0001"
             label={t('corrugations.caliper')}

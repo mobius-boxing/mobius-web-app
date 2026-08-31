@@ -22,7 +22,7 @@
     "manufacturers": "Fabricantes",
     "suppliers": "Proveedores",
     "warehouses": "Depósitos",
-    "supplies": "Insumos",
+    "supplies": "Suministros",
     "paperSupplies": "Insumos de Papel",
     "paperSheets": "Planchas de Papel",
     "corrugationClasses": "Clases de Corrugado",
@@ -31,11 +31,11 @@
     "stock": "Stock",
     "paperStock": "Stock de Bobinas",
     "sheetStock": "Stock de Planchas",
-    "toolingTypes": "Tipos de Herramental",
-    "toolings": "Herramentales",
+    "toolingTypes": "Tipos de Insumo",
+    "toolings": "Insumos",
     "consumableTypes": "Tipos de Consumibles",
     "consumableSupplies": "Consumibles",
-    "toolingStock": "Stock de Herramentales",
+    "toolingStock": "Stock de Insumos",
     "consumableStock": "Stock de Consumibles",
     "productSpecifications": "Especificaciones de Producto",
     "flapTypes": "Tipos de Aleta",
@@ -169,6 +169,22 @@
       "unknownCompany": "Empresa Desconocida",
       "noDescription": "Sin descripción",
       "noDate": "N/A"
+    },
+    "createTitle": "Crear Empresa",
+    "editTitle": "Editar Empresa",
+    "name": "Nombre de la Empresa",
+    "namePlaceholder": "Ingrese el nombre de la empresa",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Ingrese una descripción (opcional)",
+    "createButton": "Crear Empresa",
+    "updateButton": "Actualizar Empresa",
+    "deleteConfirm": "¿Está seguro de que desea eliminar esta empresa? Esta acción no se puede deshacer.",
+    "statusUpdateFailed": "Error al actualizar el estado de la empresa. Intente nuevamente.",
+    "validation": {
+      "nameRequired": "El nombre de la empresa es obligatorio",
+      "nameMinLength": "El nombre de la empresa debe tener al menos 2 caracteres",
+      "nameMaxLength": "El nombre de la empresa no puede superar los 100 caracteres",
+      "descriptionMaxLength": "La descripción no puede superar los 500 caracteres"
     }
   },
   "pagination": {
@@ -180,7 +196,8 @@
     "defaultTitle": "Confirmar Acción",
     "confirm": "Confirmar",
     "cancel": "Cancelar",
-    "deleteTitle": "Confirmar Eliminación"
+    "deleteTitle": "Confirmar Eliminación",
+    "warningTitle": "Advertencia"
   },
   "common": {
     "loading": "Cargando...",
@@ -197,7 +214,9 @@
     "yes": "Sí",
     "no": "No",
     "change": "Cambiar",
-    "discardChanges": "Tiene cambios sin guardar. ¿Descartarlos?"
+    "discardChanges": "Tiene cambios sin guardar. ¿Descartarlos?",
+    "clear": "Limpiar",
+    "submit": "Enviar"
   },
   "auth": {
     "accessDenied": "Acceso Denegado",
@@ -660,7 +679,8 @@
     "updateSuccess": "Clase de papel actualizada exitosamente",
     "deleteSuccess": "Clase de papel eliminada exitosamente",
     "deleteFailed": "Error al eliminar la clase de papel",
-    "deleteConfirm": "¿Está seguro de que desea eliminar esta clase de papel?"
+    "deleteConfirm": "¿Está seguro de que desea eliminar esta clase de papel?",
+    "loadSuppliesFailed": "Error al cargar los insumos de papel"
   },
   "products": {
     "title": "Productos",
@@ -741,6 +761,12 @@
       "title": "Parte inicial",
       "corrugation": "Corrugado",
       "selectCorrugation": "Seleccione un corrugado",
+      "model": "Modelo de Caja",
+      "selectModel": "Seleccione un modelo",
+      "flapType": "Tipo de Aleta",
+      "selectFlapType": "Seleccione un tipo de aleta",
+      "glueType": "Tipo de Pegado",
+      "selectGlueType": "Seleccione un tipo de pegado",
       "sheetLength": "Largo de plancha (mm)",
       "sheetWidth": "Ancho de plancha (mm)",
       "boxLength": "Largo de caja (mm)",
@@ -1248,11 +1274,11 @@
     "deleteConfirm": "¿Está seguro de que desea eliminar este stock?"
   },
   "toolingTypes": {
-    "title": "Tipos de Herramental",
-    "subtitle": "Gestionar catálogo de tipos de herramental",
+    "title": "Tipos de Insumo",
+    "subtitle": "Gestionar catálogo de tipos de insumo",
     "addType": "Agregar Tipo",
     "allTypes": "Todos los Tipos",
-    "searchPlaceholder": "Buscar tipos de herramental...",
+    "searchPlaceholder": "Buscar tipos de insumo...",
     "code": "Código",
     "codePlaceholder": "Ingrese código del tipo",
     "name": "Nombre",
@@ -1260,8 +1286,8 @@
     "description": "Descripción",
     "descriptionPlaceholder": "Ingrese descripción (opcional)",
     "automaticConsumption": "Consumo Automático",
-    "createTitle": "Crear Tipo de Herramental",
-    "editTitle": "Editar Tipo de Herramental",
+    "createTitle": "Crear Tipo de Insumo",
+    "editTitle": "Editar Tipo de Insumo",
     "createButton": "Crear Tipo",
     "updateButton": "Actualizar Tipo",
     "columns": {
@@ -1272,9 +1298,9 @@
       "actions": "Acciones"
     },
     "empty": {
-      "title": "No se encontraron tipos de herramental",
+      "title": "No se encontraron tipos de insumo",
       "description": "Intente ajustar sus criterios de búsqueda",
-      "noData": "Comience creando un nuevo tipo de herramental"
+      "noData": "Comience creando un nuevo tipo de insumo"
     },
     "validation": {
       "codeRequired": "El código es requerido",
@@ -1284,32 +1310,32 @@
       "nameMinLength": "El nombre debe tener al menos 1 carácter",
       "nameMaxLength": "El nombre debe tener menos de 255 caracteres"
     },
-    "createFailed": "Error al crear el tipo de herramental. Por favor, intente nuevamente.",
-    "updateFailed": "Error al actualizar el tipo de herramental. Por favor, intente nuevamente.",
-    "deleteFailed": "Error al eliminar el tipo de herramental",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de herramental?"
+    "createFailed": "Error al crear el tipo de insumo. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el tipo de insumo. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el tipo de insumo",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este tipo de insumo?"
   },
   "toolings": {
-    "title": "Herramentales",
-    "subtitle": "Gestionar inventario de herramentales",
-    "addTooling": "Agregar Herramental",
-    "allToolings": "Todos los Herramentales",
-    "searchPlaceholder": "Buscar herramentales...",
+    "title": "Insumos",
+    "subtitle": "Gestionar inventario de insumos",
+    "addTooling": "Agregar Insumo",
+    "allToolings": "Todos los Insumos",
+    "searchPlaceholder": "Buscar insumos...",
     "name": "Nombre",
-    "namePlaceholder": "Ingrese nombre del herramental",
+    "namePlaceholder": "Ingrese nombre del insumo",
     "description": "Descripción",
     "descriptionPlaceholder": "Ingrese descripción (opcional)",
-    "toolingType": "Tipo de Herramental",
-    "selectToolingType": "Seleccione tipo de herramental",
+    "toolingType": "Tipo de Insumo",
+    "selectToolingType": "Seleccione tipo de insumo",
     "manufacturer": "Fabricante",
     "selectManufacturer": "Seleccione fabricante (opcional)",
     "supplier": "Proveedor",
     "selectSupplier": "Seleccione proveedor (opcional)",
     "minimumStock": "Stock Mínimo",
-    "createTitle": "Crear Herramental",
-    "editTitle": "Editar Herramental",
-    "createButton": "Crear Herramental",
-    "updateButton": "Actualizar Herramental",
+    "createTitle": "Crear Insumo",
+    "editTitle": "Editar Insumo",
+    "createButton": "Crear Insumo",
+    "updateButton": "Actualizar Insumo",
     "columns": {
       "name": "Nombre",
       "toolingType": "Tipo",
@@ -1319,23 +1345,23 @@
       "actions": "Acciones"
     },
     "empty": {
-      "title": "No se encontraron herramentales",
+      "title": "No se encontraron insumos",
       "description": "Intente ajustar sus criterios de búsqueda",
-      "noData": "Comience agregando un nuevo herramental"
+      "noData": "Comience agregando un nuevo insumo"
     },
     "validation": {
       "nameRequired": "El nombre es requerido",
       "nameMinLength": "El nombre debe tener al menos 1 carácter",
       "nameMaxLength": "El nombre debe tener menos de 255 caracteres",
-      "toolingTypeRequired": "El tipo de herramental es requerido",
+      "toolingTypeRequired": "El tipo de insumo es requerido",
       "minimumStockMin": "El stock mínimo debe ser al menos 0"
     },
-    "createFailed": "Error al crear el herramental. Por favor, intente nuevamente.",
-    "updateFailed": "Error al actualizar el herramental. Por favor, intente nuevamente.",
-    "deleteFailed": "Error al eliminar el herramental",
-    "deleteConfirm": "¿Está seguro de que desea eliminar este herramental?",
+    "createFailed": "Error al crear el insumo. Por favor, intente nuevamente.",
+    "updateFailed": "Error al actualizar el insumo. Por favor, intente nuevamente.",
+    "deleteFailed": "Error al eliminar el insumo",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este insumo?",
     "code": "Código",
-    "codePlaceholder": "Código del herramental"
+    "codePlaceholder": "Código del insumo"
   },
   "consumableTypes": {
     "title": "Tipos de Consumibles",
@@ -1434,17 +1460,17 @@
     "selectColor": "Seleccione color (opcional)"
   },
   "toolingStock": {
-    "title": "Stock de Herramentales",
-    "subtitle": "Gestionar inventario de herramentales",
-    "addToolingStock": "Agregar Stock de Herramental",
-    "allToolingStock": "Todo el Stock de Herramentales",
-    "searchPlaceholder": "Buscar stock de herramentales...",
+    "title": "Stock de Insumos",
+    "subtitle": "Gestionar inventario de insumos",
+    "addToolingStock": "Agregar Stock de Insumo",
+    "allToolingStock": "Todo el Stock de Insumos",
+    "searchPlaceholder": "Buscar stock de insumos...",
     "warehouse": "Depósito",
     "selectWarehouse": "Seleccione depósito",
     "warehouseLocation": "Ubicación en Depósito",
     "selectLocation": "Seleccionar Ubicación",
-    "tooling": "Herramental",
-    "selectTooling": "Seleccione herramental",
+    "tooling": "Insumo",
+    "selectTooling": "Seleccione insumo",
     "supplier": "Proveedor",
     "selectSupplier": "Seleccione proveedor (opcional)",
     "manufacturer": "Fabricante",
@@ -1455,12 +1481,12 @@
     "pricePlaceholder": "Ingrese precio",
     "comments": "Comentarios",
     "commentsPlaceholder": "Ingrese comentarios (opcional)",
-    "createTitle": "Crear Stock de Herramental",
-    "editTitle": "Editar Stock de Herramental",
+    "createTitle": "Crear Stock de Insumo",
+    "editTitle": "Editar Stock de Insumo",
     "createButton": "Crear Stock",
     "updateButton": "Actualizar Stock",
     "columns": {
-      "tooling": "Herramental",
+      "tooling": "Insumo",
       "warehouse": "Depósito",
       "supplier": "Proveedor",
       "manufacturer": "Fabricante",
@@ -1469,13 +1495,13 @@
       "actions": "Acciones"
     },
     "empty": {
-      "title": "No se encontró stock de herramentales",
+      "title": "No se encontró stock de insumos",
       "description": "Intente ajustar sus criterios de búsqueda",
-      "noData": "Comience agregando stock de herramentales"
+      "noData": "Comience agregando stock de insumos"
     },
     "validation": {
       "warehouseRequired": "El depósito es requerido",
-      "toolingRequired": "El herramental es requerido",
+      "toolingRequired": "El insumo es requerido",
       "quantityRequired": "La cantidad es requerida"
     },
     "createFailed": "Error al crear el stock. Por favor, intente nuevamente.",
@@ -2091,8 +2117,8 @@
     "machines": "Máquinas",
     "selectMachine": "Seleccionar máquina...",
     "primary": "Titular",
-    "supplies": "Insumos",
-    "selectSupply": "Seleccionar insumo...",
+    "supplies": "Suministros",
+    "selectSupply": "Seleccionar suministro...",
     "quantity": "Cant.",
     "input": "Entrada",
     "output": "Salida",
@@ -2101,7 +2127,7 @@
       "paper": "Papel",
       "sheet": "Plancha",
       "consumable": "Consumible",
-      "tooling": "Herramental",
+      "tooling": "Insumo",
       "finishedGood": "Producto elaborado"
     },
     "searchPlaceholder": "Buscar rutas...",
@@ -2126,8 +2152,8 @@
       "removeStage": "Eliminar etapa",
       "addMachine": "Agregar máquina",
       "removeMachine": "Eliminar máquina",
-      "addSupply": "Agregar insumo",
-      "removeSupply": "Eliminar insumo"
+      "addSupply": "Agregar suministro",
+      "removeSupply": "Eliminar suministro"
     }
   },
   "parts": {
@@ -2190,6 +2216,7 @@
       "clientCode": "Código de cliente",
       "description": "Descripción",
       "corrugation": "Corrugado",
+      "model": "Modelo de caja",
       "boxLength": "Largo de caja (mm)",
       "boxWidth": "Ancho de caja (mm)",
       "boxHeight": "Altura de caja (mm)",
@@ -2499,6 +2526,142 @@
         "percentage": "Porcentaje",
         "quantity": "Cantidad"
       }
+    }
+  },
+  "users": {
+    "title": "Gestión de Usuarios",
+    "subtitle": "Gestionar usuarios y sus permisos",
+    "inviteUser": "Invitar Usuario",
+    "searchPlaceholder": "Buscar usuarios...",
+    "allCompanies": "Todas las Empresas",
+    "allRoles": "Todos los Roles",
+    "loading": "Cargando usuarios...",
+    "noUsers": "No se encontraron usuarios",
+    "editUser": "Editar usuario",
+    "deleteUser": "Eliminar usuario",
+    "platformAdmin": "Administrador de Plataforma",
+    "noName": "N/D",
+    "deleteConfirm": "¿Está seguro de que desea eliminar este usuario? Esta acción no se puede deshacer.",
+    "columns": {
+      "name": "Nombre",
+      "company": "Empresa",
+      "role": "Rol",
+      "status": "Estado",
+      "emailVerified": "Email Verificado",
+      "actions": "Acciones"
+    },
+    "status": {
+      "active": "Activo",
+      "inactive": "Inactivo"
+    },
+    "emailStatus": {
+      "verified": "Verificado",
+      "pending": "Pendiente"
+    }
+  },
+  "roleNames": {
+    "member": "Miembro",
+    "admin": "Administrador",
+    "superAdmin": "Super Administrador"
+  },
+  "userModal": {
+    "inviteTitle": "Invitar Nuevo Usuario",
+    "editTitle": "Editar Usuario",
+    "firstName": "Nombre",
+    "firstNamePlaceholder": "Ingrese el nombre",
+    "lastName": "Apellido",
+    "lastNamePlaceholder": "Ingrese el apellido",
+    "email": "Dirección de Email",
+    "emailPlaceholder": "Ingrese la dirección de email",
+    "role": "Rol",
+    "selectRole": "Seleccione un rol",
+    "company": "Empresa",
+    "selectCompany": "Seleccione una empresa",
+    "noteLabel": "Nota:",
+    "superAdminNote": "Los Super Administradores tienen acceso a toda la plataforma y no están asociados a ninguna empresa en particular.",
+    "userIsActive": "Usuario activo",
+    "newPassword": "Nueva Contraseña",
+    "newPasswordPlaceholder": "Deje vacío para mantener la contraseña actual",
+    "passwordHint": "Complete este campo solo si desea cambiar la contraseña del usuario.",
+    "sendInvitation": "Enviar Invitación",
+    "updateButton": "Actualizar Usuario",
+    "validation": {
+      "firstNameRequired": "El nombre es obligatorio",
+      "firstNameMinLength": "El nombre debe tener al menos 2 caracteres",
+      "lastNameRequired": "El apellido es obligatorio",
+      "lastNameMinLength": "El apellido debe tener al menos 2 caracteres",
+      "emailRequired": "El email es obligatorio",
+      "emailInvalid": "Ingrese una dirección de email válida",
+      "roleRequired": "El rol es obligatorio",
+      "companyRequired": "La empresa es obligatoria",
+      "passwordMinLength": "La contraseña debe tener al menos 8 caracteres"
+    }
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Buenos días",
+      "afternoon": "Buenas tardes",
+      "evening": "Buenas noches"
+    },
+    "welcome": "Bienvenido a su panel de {{role}}",
+    "welcomeForCompany": "Bienvenido a su panel de {{role}} de {{company}}",
+    "vsLastMonth": "vs. mes anterior",
+    "member": {
+      "cardTitle": "Bienvenido a Mobius",
+      "body": "Tiene acceso de miembro a Mobius. Contacte a su administrador si necesita permisos adicionales.",
+      "accountTitle": "Su Cuenta",
+      "email": "Email:",
+      "role": "Rol:",
+      "company": "Empresa:"
+    },
+    "stats": {
+      "totalUsers": "Usuarios Totales",
+      "pendingInvitations": "Invitaciones Pendientes",
+      "recentInvitations": "Invitaciones Recientes",
+      "acceptedInvitations": "Invitaciones Aceptadas",
+      "totalCompanies": "Empresas Totales",
+      "platformInvitations": "Invitaciones de la Plataforma",
+      "avgUsersPerCompany": "Prom. Usuarios/Empresa"
+    },
+    "desc": {
+      "activeUsers": "{{n}} usuarios activos",
+      "awaitingAcceptance": "Esperando aceptación",
+      "last30Days": "Últimos 30 días",
+      "allTime": "Histórico",
+      "activeCount": "{{n}} activas",
+      "pendingCount": "{{n}} pendientes",
+      "platformAverage": "Promedio de la plataforma"
+    },
+    "usersByRole": {
+      "title": "Usuarios por Rol",
+      "subtitle": "Distribución de roles de usuario en su empresa"
+    },
+    "platformUsersByRole": {
+      "title": "Usuarios de la Plataforma por Rol",
+      "subtitle": "Distribución en todas las empresas"
+    },
+    "companyOverview": {
+      "title": "Resumen de Empresas",
+      "subtitle": "Estadísticas de empresas de toda la plataforma",
+      "companiesWithUsers": "Empresas con Usuarios",
+      "activeCompanies": "Empresas Activas",
+      "totalCompanies": "Empresas Totales"
+    }
+  },
+  "validation": {
+    "required": "{{field}} es obligatorio",
+    "maxLength": "{{field}} no puede superar los {{max}} caracteres",
+    "minLength": "{{field}} debe tener al menos {{min}} caracteres",
+    "mustBeNumber": "{{field}} debe ser un número",
+    "min": "{{field}} no puede ser menor que {{min}}",
+    "max": "{{field}} no puede ser mayor que {{max}}",
+    "decimals": "{{field}} admite como máximo {{decimals}} decimales",
+    "integer": "{{field}} debe ser un número entero",
+    "invalidFormat": "{{field}} tiene un formato inválido",
+    "invalidDate": "{{field}} no es una fecha válida",
+    "selectRequired": "Seleccione {{field}}",
+    "fields": {
+      "code": "Código"
     }
   }
 }

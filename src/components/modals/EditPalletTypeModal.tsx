@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { PalletType, CreatePalletTypeForm } from '../../types';
 import { palletTypesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editPalletTypeSchema } from '../../validation/schemas/palletType';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -23,7 +24,7 @@ const EditPalletTypeModal: React.FC<EditPalletTypeModalProps> = ({ isOpen, onClo
     error,
     handleSubmit,
     handleClose,
-  } = useModalForm<CreatePalletTypeForm>({ defaultValues: {}, onSuccess, onClose });
+  } = useModalForm<CreatePalletTypeForm>({ defaultValues: {}, onSuccess, onClose, schema: editPalletTypeSchema(t) });
 
   useEffect(() => {
     if (isOpen && palletType) {
@@ -39,15 +40,10 @@ const EditPalletTypeModal: React.FC<EditPalletTypeModalProps> = ({ isOpen, onClo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, palletType]);
 
-  const num = (v: any) => (v === '' || v === undefined ? undefined : Number(v));
   const onSubmit = handleSubmit((data) => {
     if (!palletType) return Promise.reject(new Error('No pallet type selected'));
     return palletTypesApi.updatePalletType(palletType.uuid, {
       ...data,
-      length: num(data.length),
-      width: num(data.width),
-      weight: num(data.weight),
-      height: num(data.height),
     });
   });
 
@@ -57,17 +53,17 @@ const EditPalletTypeModal: React.FC<EditPalletTypeModalProps> = ({ isOpen, onClo
         <ErrorMessage message={error} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
-            {...register('code', { required: t('palletTypes.validation.codeRequired') })}
+            {...register('code')}
             label={`${t('palletTypes.code')} *`}
             error={errors.code?.message}
           />
-          <Input {...register('description')} label={t('palletTypes.description')} />
+          <Input {...register('description')} error={errors.description?.message as string} label={t('palletTypes.description')} />
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          <Input {...register('length')} type="number" step="any" label={t('palletTypes.length')} placeholder="mm" />
-          <Input {...register('width')} type="number" step="any" label={t('palletTypes.width')} placeholder="mm" />
-          <Input {...register('height')} type="number" step="any" label={t('palletTypes.height')} placeholder="mm" />
-          <Input {...register('weight')} type="number" step="any" label={t('palletTypes.weight')} placeholder="kg" />
+          <Input {...register('length')} error={errors.length?.message as string} type="number" step="any" label={t('palletTypes.length')} placeholder="mm" />
+          <Input {...register('width')} error={errors.width?.message as string} type="number" step="any" label={t('palletTypes.width')} placeholder="mm" />
+          <Input {...register('height')} error={errors.height?.message as string} type="number" step="any" label={t('palletTypes.height')} placeholder="mm" />
+          <Input {...register('weight')} error={errors.weight?.message as string} type="number" step="any" label={t('palletTypes.weight')} placeholder="kg" />
         </div>
         <ModalFooter loading={loading} onCancel={handleClose} submitText={t('common.save')} />
       </form>

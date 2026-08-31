@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { CreateRoleForm, RoleProfileType } from '../../types';
 import { rolesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createRoleSchema } from '../../validation/schemas/role';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { ErrorMessage } from '../ui/ErrorMessage';
@@ -45,6 +46,7 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
     defaultValues: { profileType: 'general', hasAccessToAllMachines: true },
     onSuccess,
     onClose,
+    schema: createRoleSchema(t),
   });
 
   const onSubmit = handleSubmit((data) => rolesApi.createRole({ ...data, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }));
@@ -59,9 +61,7 @@ const CreateRoleModal: React.FC<CreateRoleModalProps> = ({
             {t('roles.name')} *
           </label>
           <Input
-            {...register('name', {
-              required: t('roles.validation.nameRequired'),
-            })}
+            {...register('name')}
             placeholder={t('roles.namePlaceholder')}
             error={errors.name?.message}
           />

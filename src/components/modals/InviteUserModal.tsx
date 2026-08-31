@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { Company, InviteUserRequest } from '../../types';
 import { invitationsApi, companiesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
+import { inviteUserSchema } from '../../validation/schemas/invitation';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { logger } from '../../utils/logger';
@@ -20,6 +22,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   onClose,
   onSuccess,
 }) => {
+  const { t } = useTranslation();
   const { user: currentUser } = useAuth();
   const [companies, setCompanies] = useState<Company[]>([]);
 
@@ -37,6 +40,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   } = useModalForm<InviteUserRequest>({
     onSuccess,
     onClose,
+    schema: inviteUserSchema(t),
   });
 
   const selectedRole = watch('role');
@@ -76,65 +80,47 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Invite New User">
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('userModal.inviteTitle')}>
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
-            {...register('firstName', {
-              required: 'First name is required',
-              minLength: {
-                value: 2,
-                message: 'First name must be at least 2 characters',
-              },
-            })}
-            label="First Name"
-            placeholder="Enter first name"
+            {...register('firstName')}
+            label={t('userModal.firstName')}
+            placeholder={t('userModal.firstNamePlaceholder')}
             error={errors.firstName?.message as string}
           />
 
           <Input
-            {...register('lastName', {
-              required: 'Last name is required',
-              minLength: {
-                value: 2,
-                message: 'Last name must be at least 2 characters',
-              },
-            })}
-            label="Last Name"
-            placeholder="Enter last name"
+            {...register('lastName')}
+            label={t('userModal.lastName')}
+            placeholder={t('userModal.lastNamePlaceholder')}
             error={errors.lastName?.message as string}
           />
         </div>
 
         <Input
-          {...register('email', {
-            required: 'Email is required',
-            pattern: {
-              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-              message: 'Please enter a valid email address',
-            },
-          })}
+          {...register('email')}
           type="email"
-          label="Email Address"
-          placeholder="Enter email address"
+          label={t('userModal.email')}
+          placeholder={t('userModal.emailPlaceholder')}
           error={errors.email?.message as string}
         />
 
         <div>
           <label className="gd-label">
-            Role
+            {t('userModal.role')}
           </label>
           <select
-            {...register('role', { required: 'Role is required' })}
+            {...register('role')}
             className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           >
-            <option value="">Select a role</option>
-            <option value="member">Member</option>
-            <option value="admin">Admin</option>
+            <option value="">{t('userModal.selectRole')}</option>
+            <option value="member">{t('roleNames.member')}</option>
+            <option value="admin">{t('roleNames.admin')}</option>
             {currentUser?.role === 'superAdmin' && (
-              <option value="superAdmin">Super Admin</option>
+              <option value="superAdmin">{t('roleNames.superAdmin')}</option>
             )}
           </select>
           {errors.role && (
@@ -145,13 +131,13 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         {currentUser?.role === 'superAdmin' && selectedRole !== 'superAdmin' && (
           <div>
             <label className="gd-label">
-              Company
+              {t('userModal.company')}
             </label>
             <select
-              {...register('companyId', { required: 'Company is required' })}
+              {...register('companyId')}
               className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             >
-              <option value="">Select a company</option>
+              <option value="">{t('userModal.selectCompany')}</option>
               {companies.map((company) => (
                 <option key={company.uuid} value={company.uuid}>
                   {company.name}
@@ -167,7 +153,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         {selectedRole === 'superAdmin' && currentUser?.role === 'superAdmin' && (
           <div className="gd-alert gd-alert-info">
             <p className="text-sm text-blue-800">
-              <strong>Note:</strong> Super Admins have platform-wide access and are not associated with any specific company.
+              <strong>{t('userModal.noteLabel')}</strong> {t('userModal.superAdminNote')}
             </p>
           </div>
         )}
@@ -175,7 +161,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
         <ModalFooter
           loading={loading}
           onCancel={handleClose}
-          submitText="Send Invitation"
+          submitText={t('userModal.sendInvitation')}
         />
       </form>
     </Modal>

@@ -7,6 +7,7 @@ import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editComplementSchema } from '../../validation/schemas/complement';
 
 interface EditComplementModalProps {
   isOpen: boolean;
@@ -37,13 +38,14 @@ const EditComplementModal: React.FC<EditComplementModalProps> = ({
   } = useModalForm<CreateComplementForm>({
     onSuccess,
     onClose,
+    schema: editComplementSchema(t),
   });
 
   useEffect(() => {
     if (isOpen && complement) {
       reset({
         code: complement.code,
-        description: complement.description,
+        description: complement.description ?? '',
       });
     }
   }, [isOpen, complement, reset]);
@@ -64,9 +66,7 @@ const EditComplementModal: React.FC<EditComplementModalProps> = ({
             {t('complements.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('complements.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('complements.codePlaceholder')}
             error={errors.code?.message}
           />

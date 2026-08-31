@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { DeliveryZone, CreateDeliveryZoneForm } from '../../types';
 import { deliveryZonesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
+import { editDeliveryZoneSchema } from '../../validation/schemas/deliveryZone';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
@@ -37,6 +38,7 @@ const EditDeliveryZoneModal: React.FC<EditDeliveryZoneModalProps> = ({
   } = useModalForm<CreateDeliveryZoneForm>({
     onSuccess,
     onClose,
+    schema: editDeliveryZoneSchema(t),
   });
 
   useEffect(() => {
@@ -64,9 +66,7 @@ const EditDeliveryZoneModal: React.FC<EditDeliveryZoneModalProps> = ({
             {t('deliveryZones.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('deliveryZones.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('deliveryZones.codePlaceholder')}
             error={errors.code?.message}
           />

@@ -6,6 +6,7 @@ import { fluteTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createFluteTypeSchema } from '../../validation/schemas/fluteType';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 
@@ -36,18 +37,17 @@ const CreateFluteTypeModal: React.FC<CreateFluteTypeModalProps> = ({
   } = useModalForm<CreateFluteTypeForm>({
     onSuccess,
     onClose,
+    schema: createFluteTypeSchema(t),
   });
 
-  const onSubmit = handleSubmit((data) => {
-    const formData = {
+  // No hand-rolled Number() block: the schema already emits numbers, and an
+  // empty numeric input arrives as `undefined` instead of NaN.
+  const onSubmit = handleSubmit((data) =>
+    fluteTypesApi.createFluteType({
       ...data,
-      fluteFactor: data.fluteFactor ? Number(data.fluteFactor) : undefined,
-      length: data.length ? Number(data.length) : undefined,
-      width: data.width ? Number(data.width) : undefined,
-      height: data.height ? Number(data.height) : undefined,
-    };
-    return fluteTypesApi.createFluteType({ ...formData, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) });
-  });
+      ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
+    })
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('fluteTypes.createTitle')}>
@@ -55,17 +55,7 @@ const CreateFluteTypeModal: React.FC<CreateFluteTypeModalProps> = ({
         <ErrorMessage message={error} />
 
         <Input
-          {...register('code', {
-            required: 'Code is required',
-            minLength: {
-              value: 1,
-              message: 'Code must be at least 1 character',
-            },
-            maxLength: {
-              value: 50,
-              message: 'Code must be less than 50 characters',
-            },
-          })}
+          {...register('code')}
           label={t('fluteTypes.code')}
           placeholder={t('fluteTypes.codePlaceholder')}
           error={errors.code?.message as string}
@@ -77,6 +67,7 @@ const CreateFluteTypeModal: React.FC<CreateFluteTypeModalProps> = ({
           </label>
           <textarea
             {...register('description')}
+            data-testid="fluteType-description"
             className="w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
             placeholder={t('fluteTypes.descriptionPlaceholder')}
             rows={3}

@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CreateProductForm, Customer, ProductType, BoxType, Corrugation, ProductionRoute } from '../../types';
-import { productsApi, customersApi, productTypesApi, boxTypesApi, corrugationsApi, productionRoutesApi } from '../../services/api';
+import { CreateProductForm, Customer, Corrugation, ProductionRoute, Model, FlapType, GlueType } from '../../types';
+import { productsApi, customersApi, corrugationsApi, productionRoutesApi, modelsApi, flapTypesApi, glueTypesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import { useModalForm } from '../../hooks/useModalForm';
+import { createProductSchema } from '../../validation/schemas/product';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
@@ -25,8 +26,9 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [productTypes, setProductTypes] = useState<ProductType[]>([]);
-  const [boxTypes, setBoxTypes] = useState<BoxType[]>([]);
+  const [models, setModels] = useState<Model[]>([]);
+  const [flapTypes, setFlapTypes] = useState<FlapType[]>([]);
+  const [glueTypes, setGlueTypes] = useState<GlueType[]>([]);
   // Simple = product + its first part inline (ProductoSimpleForm; the live
   // customer's universal case). Compuesto = product only, parts added on edit.
   const [mode, setMode] = useState<'simple' | 'composite'>('simple');
@@ -52,6 +54,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   } = useModalForm<CreateProductForm>({
     onSuccess,
     onClose,
+    schema: createProductSchema(t),
   });
 
   useEffect(() => {
@@ -64,18 +67,20 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const fetchDropdownData = async () => {
     try {
       const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      const [customersRes, productTypesRes, boxTypesRes, corrugationsRes, routesRes] = await Promise.all([
+      const [customersRes, corrugationsRes, routesRes, modelsRes, flapTypesRes, glueTypesRes] = await Promise.all([
         customersApi.getCustomers({ limit: 100, ...companyFilter }),
-        productTypesApi.getProductTypes({ limit: 100, ...companyFilter }),
-        boxTypesApi.getBoxTypes({ limit: 100, ...companyFilter }),
         corrugationsApi.getCorrugations({ limit: 100, ...companyFilter }),
         productionRoutesApi.getRoutes({ limit: 100, isGlobal: true, ...companyFilter }),
+        modelsApi.getModels({ limit: 100, ...companyFilter }),
+        flapTypesApi.getFlapTypes({ limit: 100, ...companyFilter }),
+        glueTypesApi.getGlueTypes({ limit: 100, ...companyFilter }),
       ]);
       setCustomers(customersRes.data || []);
-      setProductTypes(productTypesRes.data || []);
-      setBoxTypes(boxTypesRes.data || []);
       setCorrugations(corrugationsRes.data || []);
       setGlobalRoutes(routesRes.data || []);
+      setModels(modelsRes.data || []);
+      setFlapTypes(flapTypesRes.data || []);
+      setGlueTypes(glueTypesRes.data || []);
     } catch (error) {
       logger.error('Error fetching dropdown data:', error);
     }
@@ -124,9 +129,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
             {t('products.code')} *
           </label>
           <Input
-            {...register('code', {
-              required: t('products.validation.codeRequired'),
-            })}
+            {...register('code')}
             placeholder={t('products.codePlaceholder')}
             error={errors.code?.message}
           />
@@ -138,6 +141,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
           </label>
           <Input
             {...register('clientCode')}
+            error={errors.clientCode?.message as string}
             placeholder={t('products.clientCodePlaceholder')}
           />
         </div>
@@ -147,9 +151,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
             {t('products.customer')} *
           </label>
           <select
-            {...register('customerId', {
-              required: t('products.validation.customerRequired'),
-            })}
+            {...register('customerId')}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           >
             <option value="">{t('products.selectCustomer')}</option>
@@ -174,6 +176,9 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
             rows={3}
             className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
           />
+          {errors.description && (
+            <p className="mt-1 text-sm text-red-600">{errors.description.message as string}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -183,7 +188,8 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
             </label>
             <Input
               type="number"
-              {...register('revision', { valueAsNumber: true })}
+              {...register('revision')}
+              error={errors.revision?.message as string}
               placeholder={t('products.revisionPlaceholder')}
               defaultValue={0}
             />
@@ -201,40 +207,6 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
           </div>
         </div>
 
-        <div>
-          <label className="gd-label">
-            {t('products.productType')}
-          </label>
-          <select
-            {...register('productTypeId')}
-            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="">{t('products.selectProductType')}</option>
-            {productTypes.map((pt) => (
-              <option key={pt.uuid} value={pt.uuid}>
-                {pt.code} - {pt.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label className="gd-label">
-            {t('products.boxType')}
-          </label>
-          <select
-            {...register('boxTypeId')}
-            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="">{t('products.selectBoxType')}</option>
-            {boxTypes.map((bt) => (
-              <option key={bt.uuid} value={bt.uuid}>
-                {bt.code} - {bt.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
         {mode === 'simple' && (
           <div className="rounded-md border border-secondary-200 bg-secondary-50 p-4 space-y-4">
             <h3 className="text-sm font-semibold text-secondary-900">
@@ -246,9 +218,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 {t('products.initialPart.corrugation')} *
               </label>
               <select
-                {...register('initialPart.corrugationUuid', {
-                  required: mode === 'simple' ? t('products.initialPart.validation.corrugationRequired') : false,
-                })}
+                {...register('initialPart.corrugationUuid')}
                 className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
                 <option value="">{t('products.initialPart.selectCorrugation')}</option>
@@ -258,10 +228,77 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
                   </option>
                 ))}
               </select>
+              {errors.initialPart?.corrugationUuid && (
+                <p className="mt-1 text-sm text-red-600">{errors.initialPart?.corrugationUuid.message as string}</p>
+              )}
               {(errors as any).initialPart?.corrugationUuid && (
                 <p className="mt-1 text-sm text-red-600">
                   {(errors as any).initialPart.corrugationUuid.message}
                 </p>
+              )}
+            </div>
+
+            {/* Optional part references (nullable FKs on `parts`). */}
+            <div>
+              <label className="gd-label">
+                {t('products.initialPart.model')}
+              </label>
+              <select
+                {...register('initialPart.modelUuid')}
+                data-testid="initial-part-model"
+                className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">{t('products.initialPart.selectModel')}</option>
+                {models.map((mo) => (
+                  <option key={mo.uuid} value={mo.uuid}>
+                    {[mo.code, mo.description].filter(Boolean).join(' - ')}
+                  </option>
+                ))}
+              </select>
+              {errors.initialPart?.modelUuid && (
+                <p className="mt-1 text-sm text-red-600">{errors.initialPart?.modelUuid.message as string}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="gd-label">
+                {t('products.initialPart.flapType')}
+              </label>
+              <select
+                {...register('initialPart.flapTypeUuid')}
+                data-testid="initial-part-flap-type"
+                className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">{t('products.initialPart.selectFlapType')}</option>
+                {flapTypes.map((ft) => (
+                  <option key={ft.uuid} value={ft.uuid}>
+                    {ft.code}{ft.description ? ` - ${ft.description}` : ''}
+                  </option>
+                ))}
+              </select>
+              {errors.initialPart?.flapTypeUuid && (
+                <p className="mt-1 text-sm text-red-600">{errors.initialPart?.flapTypeUuid.message as string}</p>
+              )}
+            </div>
+
+            <div>
+              <label className="gd-label">
+                {t('products.initialPart.glueType')}
+              </label>
+              <select
+                {...register('initialPart.glueTypeUuid')}
+                data-testid="initial-part-glue-type"
+                className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+              >
+                <option value="">{t('products.initialPart.selectGlueType')}</option>
+                {glueTypes.map((gt) => (
+                  <option key={gt.uuid} value={gt.uuid}>
+                    {gt.code}{gt.description ? ` - ${gt.description}` : ''}
+                  </option>
+                ))}
+              </select>
+              {errors.initialPart?.glueTypeUuid && (
+                <p className="mt-1 text-sm text-red-600">{errors.initialPart?.glueTypeUuid.message as string}</p>
               )}
             </div>
 
@@ -273,11 +310,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 <Input
                   type="number"
                   step="any"
-                  {...register('initialPart.sheetLength', {
-                    valueAsNumber: true,
-                    required: mode === 'simple' ? t('products.initialPart.validation.sheetDimsRequired') : false,
-                    min: { value: 0.001, message: t('products.initialPart.validation.sheetDimsRequired') },
-                  })}
+                  {...register('initialPart.sheetLength')}
                   error={(errors as any).initialPart?.sheetLength?.message}
                 />
               </div>
@@ -288,11 +321,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 <Input
                   type="number"
                   step="any"
-                  {...register('initialPart.sheetWidth', {
-                    valueAsNumber: true,
-                    required: mode === 'simple' ? t('products.initialPart.validation.sheetDimsRequired') : false,
-                    min: { value: 0.001, message: t('products.initialPart.validation.sheetDimsRequired') },
-                  })}
+                  {...register('initialPart.sheetWidth')}
                   error={(errors as any).initialPart?.sheetWidth?.message}
                 />
               </div>
@@ -326,6 +355,9 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
                   </option>
                 ))}
               </select>
+              {errors.initialPart?.productionRouteUuid && (
+                <p className="mt-1 text-sm text-red-600">{errors.initialPart?.productionRouteUuid.message as string}</p>
+              )}
               <p className="mt-1 text-xs text-secondary-500">{t('products.initialPart.rutaPropiaHint')}</p>
             </div>
           </div>
