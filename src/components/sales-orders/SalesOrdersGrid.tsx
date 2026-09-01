@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Check, Edit, ListOrdered, Trash2 } from 'lucide-react';
@@ -92,6 +92,29 @@ const SalesOrdersGrid: React.FC = () => {
   );
 
   const list = useEntityList<SalesOrder>({ fetchFn: fetchSalesOrders });
+
+  /**
+   * Scope changes only — the same effect every other list screen carries.
+   * `fetchFn` is not one of `useEntityList`'s auto-fetch deps, so switching
+   * company rebuilt the request but never fired it and the grid kept showing
+   * the previous company's pedidos.
+   *
+   * The ref guard skips the mount run: `useEntityList` already fetches on
+   * mount, and firing again here would break the one-action / one-request rule
+   * (AC-36). Filter changes are deliberately NOT handled here either — they go
+   * through `applyFilters`, which resets to page 1 and refetches on its own,
+   * and a second request from here would carry the stale page number.
+   */
+  const fetchedCompanyId = useRef(effectiveCompanyId);
+  useEffect(() => {
+    if (fetchedCompanyId.current === effectiveCompanyId) return;
+    fetchedCompanyId.current = effectiveCompanyId;
+    // Patched rows are keyed by uuid and belong to the company we are leaving.
+    setRowOverrides({});
+    setActionError(null);
+    list.refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
 
   /** One state write plus one mirrored setFilters ⇒ exactly one request. */
   const applyFilters = (next: SalesOrderListFilters) => {

@@ -58,9 +58,12 @@ jest.mock('../../components/layout/Layout', () => ({
   default: ({ children }: any) => <div data-testid="layout">{children}</div>,
 }));
 
+/** The company the switcher currently points at; `undefined` = not a superAdmin. */
+let mockCompanyId: string | undefined;
+
 jest.mock('../../hooks/useEffectiveCompany', () => ({
   __esModule: true,
-  default: () => ({ effectiveCompanyId: undefined }),
+  default: () => ({ effectiveCompanyId: mockCompanyId }),
 }));
 
 jest.mock('../../hooks/usePermissions', () => ({
@@ -118,6 +121,7 @@ const lastParams = () => paramsOf(mockGetSalesOrders.mock.calls.length - 1);
 beforeEach(() => {
   jest.clearAllMocks();
   mockHas = () => true;
+  mockCompanyId = undefined;
   // The server decides what comes back; the mock mirrors the flags it is sent.
   mockGetSalesOrders.mockImplementation(async (params: any) =>
     page(params?.fulfilled === 'true' ? [fulfilledOrder] : [openOrder]),
@@ -137,9 +141,10 @@ beforeEach(() => {
 });
 
 const renderGrid = async () => {
-  render(<SalesOrders />);
+  const view = render(<SalesOrders />);
   await waitFor(() => expect(mockGetSalesOrders).toHaveBeenCalled());
   await screen.findByTestId('sales-orders-grid');
+  return view;
 };
 
 // ── AC-30 ────────────────────────────────────────────────────────────────────
@@ -449,5 +454,34 @@ describe('one action, one request (AC-36)', () => {
 
     expect(await screen.findByText('00000002')).toBeInTheDocument();
     expect(screen.getByText('00000001')).toBeInTheDocument();
+  });
+});
+
+// ── company scope ────────────────────────────────────────────────────────────
+describe('the company selector', () => {
+  it('reloads the list for the newly selected company', async () => {
+    mockCompanyId = 'company-a';
+    const { rerender } = await renderGrid();
+    expect(mockGetSalesOrders).toHaveBeenCalledTimes(1);
+    expect(lastParams().companyId).toBe('company-a');
+
+    mockCompanyId = 'company-b';
+    rerender(<SalesOrders />);
+
+    await waitFor(() => expect(lastParams().companyId).toBe('company-b'));
+    // One switch ⇒ one request, and no straggler behind it (AC-36).
+    expect(mockGetSalesOrders).toHaveBeenCalledTimes(2);
+    await new Promise((resolve) => setTimeout(resolve, 30));
+    expect(mockGetSalesOrders).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not refetch when the selection is unchanged', async () => {
+    mockCompanyId = 'company-a';
+    const { rerender } = await renderGrid();
+
+    rerender(<SalesOrders />);
+    await new Promise((resolve) => setTimeout(resolve, 30));
+
+    expect(mockGetSalesOrders).toHaveBeenCalledTimes(1);
   });
 });
