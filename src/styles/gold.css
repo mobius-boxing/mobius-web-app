@@ -694,8 +694,25 @@ body::after {
 
 /* ── Tables ──────────────────────────────────────────────────────────────── */
 /* WHY: headers were 12px uppercase body-font grey — the same voice as the
-   data underneath. Mono headers separate label from value at a glance. */
-.gd-table thead th {
+   data underneath. Mono headers separate label from value at a glance.
+
+   DIRECT-CHILD selectors, deliberately. These were descendant selectors
+   (`.gd-table tbody td`), which matched the cells of any table NESTED inside a
+   list table too: the audit page renders a `campo · antes · después` diff in an
+   expanded row, and its cells were picking up this rule's `1rem 1.5rem`, so the
+   values sat ~10px below their labels and 24px to the right of them, and the
+   same diff rendered 49px tall on the page against 33px in the drawer. The
+   drawer escaped by rendering through a portal (see EntityHistoryDrawer.tsx);
+   an inline expanded row cannot, and any future nested table would have hit it
+   again.
+
+   Safe to narrow: `.gd-table` has exactly ONE markup producer in this app,
+   `components/ui/Table.tsx:69`, which always authors
+   `<table class="gd-table"> > <thead>/<tbody> > <tr> > <th>/<td>` explicitly in
+   JSX — React builds that tree verbatim, so no implicit `<tbody>` is inserted
+   and every cell these rules matched before still matches now. Nested tables,
+   which are the only thing that stops matching, are exactly the bug. */
+.gd-table > thead > tr > th {
   font-family: var(--font-mono);
   font-size: 0.625rem;
   font-weight: 500;
@@ -707,22 +724,22 @@ body::after {
   white-space: nowrap;
 }
 
-.gd-table tbody td {
+.gd-table > tbody > tr > td {
   padding: 1rem 1.5rem;
   font-size: 0.875rem;
   color: oklch(var(--n-800));
   border-bottom: 1px solid oklch(var(--n-950) / 0.045);
 }
 
-.gd-table tbody tr {
+.gd-table > tbody > tr {
   transition: background-color 0.25s var(--ease-snap);
 }
 
-.gd-table tbody tr:hover {
+.gd-table > tbody > tr:hover {
   background: oklch(var(--p-500) / 0.04);
 }
 
-.gd-table tbody tr:last-child td { border-bottom: none; }
+.gd-table > tbody > tr:last-child > td { border-bottom: none; }
 
 .gd-table-empty {
   padding: 4.5rem 1.5rem !important;
@@ -1098,7 +1115,7 @@ body::after {
   .gd-sidebar,
   .gd-sidebar *,
   .gd-b,
-  .gd-table tbody tr {
+  .gd-table > tbody > tr {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }

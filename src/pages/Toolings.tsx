@@ -14,6 +14,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateToolingModal from '../components/modals/CreateToolingModal';
 import EditToolingModal from '../components/modals/EditToolingModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Toolings: React.FC = () => {
   const { t } = useTranslation();
@@ -139,6 +140,7 @@ const Toolings: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('toolings', t),
     {
       key: 'actions',
       header: t('toolings.columns.actions'),

@@ -15,6 +15,7 @@ import CreateColorTypeModal from '../components/modals/CreateColorTypeModal';
 import EditColorTypeModal from '../components/modals/EditColorTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const ColorTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -110,6 +111,7 @@ const ColorTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('color_types', t),
     {
       key: 'actions',
       header: t('colorTypes.columns.actions'),

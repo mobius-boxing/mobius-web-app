@@ -15,6 +15,7 @@ import CreateComplementModal from '../components/modals/CreateComplementModal';
 import EditComplementModal from '../components/modals/EditComplementModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Complements: React.FC = () => {
   const { t } = useTranslation();
@@ -110,6 +111,7 @@ const Complements: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('complements', t),
     {
       key: 'actions',
       header: t('complements.columns.actions'),

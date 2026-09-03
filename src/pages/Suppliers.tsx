@@ -15,6 +15,7 @@ import CreateSupplierModal from '../components/modals/CreateSupplierModal';
 import EditSupplierModal from '../components/modals/EditSupplierModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Suppliers: React.FC = () => {
   const { t } = useTranslation();
@@ -143,6 +144,7 @@ const Suppliers: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('suppliers', t),
     {
       key: 'actions',
       header: t('suppliers.columns.actions'),

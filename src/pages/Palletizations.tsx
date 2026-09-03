@@ -15,6 +15,7 @@ import CreatePalletizationModal from '../components/modals/CreatePalletizationMo
 import EditPalletizationModal from '../components/modals/EditPalletizationModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Palletizations: React.FC = () => {
   const { t } = useTranslation();
@@ -93,6 +94,7 @@ const Palletizations: React.FC = () => {
         <span className="text-sm text-secondary-500">{p.palletType?.code || '-'}</span>
       ),
     },
+    historyColumn('palletizations', t),
     {
       key: 'actions',
       header: t('palletizations.columns.actions'),

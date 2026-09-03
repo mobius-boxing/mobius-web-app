@@ -15,6 +15,7 @@ import CreateSheetStockModal from '../components/modals/CreateSheetStockModal';
 import EditSheetStockModal from '../components/modals/EditSheetStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const SheetStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -137,6 +138,7 @@ const SheetStockPage: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('sheet_stock', t),
     {
       key: 'actions',
       header: t('sheetStock.columns.actions'),

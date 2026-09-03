@@ -15,6 +15,7 @@ import CreatePaperStockModal from '../components/modals/CreatePaperStockModal';
 import EditPaperStockModal from '../components/modals/EditPaperStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const PaperStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -140,6 +141,7 @@ const PaperStockPage: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('paper_stock', t),
     {
       key: 'actions',
       header: t('paperStock.columns.actions'),

@@ -15,6 +15,7 @@ import CreateDeliveryZoneModal from '../components/modals/CreateDeliveryZoneModa
 import EditDeliveryZoneModal from '../components/modals/EditDeliveryZoneModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const DeliveryZones: React.FC = () => {
   const { t } = useTranslation();
@@ -95,6 +96,7 @@ const DeliveryZones: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('delivery_zones', t),
     {
       key: 'actions',
       header: t('deliveryZones.columns.actions'),

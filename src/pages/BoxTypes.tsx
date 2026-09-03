@@ -15,6 +15,7 @@ import CreateBoxTypeModal from '../components/modals/CreateBoxTypeModal';
 import EditBoxTypeModal from '../components/modals/EditBoxTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const BoxTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -121,6 +122,7 @@ const BoxTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('box_types', t),
     {
       key: 'actions',
       header: t('boxTypes.columns.actions'),

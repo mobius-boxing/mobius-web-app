@@ -14,6 +14,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateConsumableSupplyModal from '../components/modals/CreateConsumableSupplyModal';
 import EditConsumableSupplyModal from '../components/modals/EditConsumableSupplyModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const ConsumableSupplies: React.FC = () => {
   const { t } = useTranslation();
@@ -139,6 +140,7 @@ const ConsumableSupplies: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('consumable_supplies', t),
     {
       key: 'actions',
       header: t('consumableSupplies.columns.actions'),

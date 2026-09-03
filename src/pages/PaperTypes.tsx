@@ -15,6 +15,7 @@ import CreatePaperTypeModal from '../components/modals/CreatePaperTypeModal';
 import EditPaperTypeModal from '../components/modals/EditPaperTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const PaperTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -117,6 +118,7 @@ const PaperTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('paper_types', t),
     {
       key: 'actions',
       header: t('paperTypes.columns.actions'),

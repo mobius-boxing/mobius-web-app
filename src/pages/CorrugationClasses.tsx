@@ -14,6 +14,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateCorrugationClassModal from '../components/modals/CreateCorrugationClassModal';
 import EditCorrugationClassModal from '../components/modals/EditCorrugationClassModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const CorrugationClasses: React.FC = () => {
   const { t } = useTranslation();
@@ -118,6 +119,7 @@ const CorrugationClasses: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('corrugation_classes', t),
     {
       key: 'actions',
       header: t('corrugationClasses.columns.actions'),

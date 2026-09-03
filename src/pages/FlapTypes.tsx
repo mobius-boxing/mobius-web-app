@@ -15,6 +15,7 @@ import CreateFlapTypeModal from '../components/modals/CreateFlapTypeModal';
 import EditFlapTypeModal from '../components/modals/EditFlapTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const FlapTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -110,6 +111,7 @@ const FlapTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('flap_types', t),
     {
       key: 'actions',
       header: t('flapTypes.columns.actions'),

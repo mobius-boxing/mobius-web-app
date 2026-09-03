@@ -14,6 +14,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateConsumableTypeModal from '../components/modals/CreateConsumableTypeModal';
 import EditConsumableTypeModal from '../components/modals/EditConsumableTypeModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const ConsumableTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -122,6 +123,7 @@ const ConsumableTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('consumable_types', t),
     {
       key: 'actions',
       header: t('consumableTypes.columns.actions'),

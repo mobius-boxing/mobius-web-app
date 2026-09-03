@@ -15,6 +15,7 @@ import CreatePaperSheetModal from '../components/modals/CreatePaperSheetModal';
 import EditPaperSheetModal from '../components/modals/EditPaperSheetModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const PaperSheets: React.FC = () => {
   const { t } = useTranslation();
@@ -148,6 +149,7 @@ const PaperSheets: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('paper_sheets', t),
     {
       key: 'actions',
       header: t('paperSheets.columns.actions'),

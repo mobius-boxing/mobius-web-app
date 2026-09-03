@@ -15,6 +15,7 @@ import CreateFluteTypeModal from '../components/modals/CreateFluteTypeModal';
 import EditFluteTypeModal from '../components/modals/EditFluteTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const FluteTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -126,6 +127,7 @@ const FluteTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('flute_types', t),
     {
       key: 'actions',
       header: t('fluteTypes.columns.actions'),

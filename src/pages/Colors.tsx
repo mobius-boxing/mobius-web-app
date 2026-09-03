@@ -15,6 +15,7 @@ import CreateColorModal from '../components/modals/CreateColorModal';
 import EditColorModal from '../components/modals/EditColorModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Colors: React.FC = () => {
   const { t } = useTranslation();
@@ -119,6 +120,7 @@ const Colors: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('colors', t),
     {
       key: 'actions',
       header: t('colors.columns.actions'),

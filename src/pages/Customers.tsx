@@ -15,6 +15,7 @@ import CreateCustomerModal from '../components/modals/CreateCustomerModal';
 import EditCustomerModal from '../components/modals/EditCustomerModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Customers: React.FC = () => {
   const { t } = useTranslation();
@@ -144,6 +145,7 @@ const Customers: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('customers', t),
     {
       key: 'actions',
       header: t('customers.columns.actions'),

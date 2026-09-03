@@ -15,6 +15,7 @@ import CreateProductTypeModal from '../components/modals/CreateProductTypeModal'
 import EditProductTypeModal from '../components/modals/EditProductTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const ProductTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -121,6 +122,7 @@ const ProductTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('product_types', t),
     {
       key: 'actions',
       header: t('productTypes.columns.actions'),

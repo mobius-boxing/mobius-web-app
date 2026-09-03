@@ -15,6 +15,7 @@ import CreatePaperSupplyModal from '../components/modals/CreatePaperSupplyModal'
 import EditPaperSupplyModal from '../components/modals/EditPaperSupplyModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const PaperSupplies: React.FC = () => {
   const { t } = useTranslation();
@@ -157,6 +158,7 @@ const PaperSupplies: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('paper_supplies', t),
     {
       key: 'actions',
       header: t('paperSupplies.columns.actions'),

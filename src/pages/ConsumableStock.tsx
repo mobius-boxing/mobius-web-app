@@ -15,6 +15,7 @@ import CreateConsumableStockModal from '../components/modals/CreateConsumableSto
 import EditConsumableStockModal from '../components/modals/EditConsumableStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const ConsumableStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -137,6 +138,7 @@ const ConsumableStockPage: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('consumable_stock', t),
     {
       key: 'actions',
       header: t('consumableStock.columns.actions'),

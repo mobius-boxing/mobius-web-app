@@ -14,6 +14,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateCorrugationModal from '../components/modals/CreateCorrugationModal';
 import EditCorrugationModal from '../components/modals/EditCorrugationModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Corrugations: React.FC = () => {
   const { t } = useTranslation();
@@ -145,6 +146,7 @@ const Corrugations: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('corrugations', t),
     {
       key: 'actions',
       header: t('corrugations.columns.actions'),

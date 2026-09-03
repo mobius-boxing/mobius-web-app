@@ -15,6 +15,7 @@ import CreateStrappingTypeModal from '../components/modals/CreateStrappingTypeMo
 import EditStrappingTypeModal from '../components/modals/EditStrappingTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const StrappingTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -110,6 +111,7 @@ const StrappingTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('strapping_types', t),
     {
       key: 'actions',
       header: t('strappingTypes.columns.actions'),

@@ -17,6 +17,7 @@ import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { formatBusinessDate } from '../../utils/dates';
 import { logger } from '../../utils/logger';
 import { formatMoney } from '../../utils/money';
+import { historyColumn } from '../audit/historyColumn';
 
 /**
  * The mount-time filter state, and what `Limpiar` restores
@@ -308,6 +309,7 @@ const SalesOrdersGrid: React.FC = () => {
           },
         ]
       : []),
+    historyColumn('sales_orders', t),
     {
       key: 'actions',
       header: t('salesOrders.columns.actions'),

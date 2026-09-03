@@ -15,6 +15,7 @@ import CreateGlueTypeModal from '../components/modals/CreateGlueTypeModal';
 import EditGlueTypeModal from '../components/modals/EditGlueTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const GlueTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -110,6 +111,7 @@ const GlueTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('glue_types', t),
     {
       key: 'actions',
       header: t('glueTypes.columns.actions'),

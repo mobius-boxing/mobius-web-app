@@ -15,6 +15,7 @@ import CreateCustomerCategoryModal from '../components/modals/CreateCustomerCate
 import EditCustomerCategoryModal from '../components/modals/EditCustomerCategoryModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const CustomerCategories: React.FC = () => {
   const { t } = useTranslation();
@@ -108,6 +109,7 @@ const CustomerCategories: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('customer_categories', t),
     {
       key: 'actions',
       header: t('customerCategories.columns.actions'),

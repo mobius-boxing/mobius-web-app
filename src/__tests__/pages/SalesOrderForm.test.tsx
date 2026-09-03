@@ -28,6 +28,7 @@ const mockGetSalesOrder = jest.fn();
 const mockCreateSalesOrder = jest.fn();
 const mockUpdateSalesOrder = jest.fn();
 const mockNavigate = jest.fn();
+const mockGetHistory = jest.fn();
 
 // `mock`-prefixed so the jest.mock factory below may reference it.
 let mockRouteParams: { uuid?: string } = {};
@@ -82,6 +83,13 @@ jest.mock('../../services/api', () => ({
     createSalesOrder: (...args: any[]) => mockCreateSalesOrder(...args),
     updateSalesOrder: (...args: any[]) => mockUpdateSalesOrder(...args),
   },
+}));
+
+jest.mock('../../services/audit', () => ({
+  __esModule: true,
+  AUDIT_DEFAULT_LIMIT: 20,
+  getHistory: (...args: any[]) => mockGetHistory(...args),
+  isAuditNotFound: (error: any) => error?.notFound === true,
 }));
 
 jest.mock('react-router-dom', () => ({
@@ -704,5 +712,79 @@ describe('SalesOrderForm amount formatting (Trello #39)', () => {
 
     await waitFor(() => expect(mockCreateSalesOrder).toHaveBeenCalled());
     expect(mockCreateSalesOrder.mock.calls[0][0].price).toBe(220);
+  });
+});
+
+/**
+ * AC-13 — the Historial tab. The panel is `useEntityHistory`-driven, so the
+ * failure mode is silent: a panel mounted on the wrong branch, or fed a
+ * customer/línea uuid instead of the pedido's own, renders an empty history
+ * that reads exactly like "this order was never touched". Both halves are
+ * asserted here — the call that must happen, with the pedido's uuid, and the
+ * call that must NOT happen while the tab is unselected.
+ */
+describe('SalesOrderForm Historial tab (AC-13)', () => {
+  beforeEach(() => {
+    mockRouteParams = { uuid: ORDER_UUID };
+    mockGetHistory.mockResolvedValue({
+      data: [],
+      total: 0,
+      page: 1,
+      limit: 20,
+      totalPages: 0,
+    });
+    mockGetSalesOrder.mockResolvedValue({
+      uuid: ORDER_UUID,
+      number: '00000007',
+      quantity: 100,
+      status: 'pending',
+      customer: { uuid: CUSTOMER_A, name: 'Cliente A' },
+      product: { uuid: PRODUCT_A1, code: 'P-A1' },
+      createdAt: '2026-08-20T00:00:00.000Z',
+    });
+  });
+
+  it('issues no history request while the tab is not selected', async () => {
+    render(<SalesOrderForm />);
+
+    await waitFor(() => expect(mockGetSalesOrder).toHaveBeenCalled());
+    await screen.findByTestId('sales-order-tab-history');
+    // The form is fully loaded and the tab is there to be clicked: any request
+    // observed here is one nobody asked for, on every pedido opened.
+    expect(mockGetHistory).not.toHaveBeenCalled();
+  });
+
+  it('fetches the pedido’s own history once the tab is selected', async () => {
+    render(<SalesOrderForm />);
+
+    fireEvent.click(await screen.findByTestId('sales-order-tab-history'));
+
+    await waitFor(() => expect(mockGetHistory).toHaveBeenCalledTimes(1));
+    // `sales_orders` is the audited table name (audit-coverage.ts), and the
+    // uuid is the route param — never the cliente's or the producto's.
+    expect(mockGetHistory).toHaveBeenCalledWith('sales_orders', ORDER_UUID, 1, 20);
+    expect(mockGetHistory.mock.calls[0][1]).not.toBe(CUSTOMER_A);
+    expect(mockGetHistory.mock.calls[0][1]).not.toBe(PRODUCT_A1);
+  });
+
+  it('hides the editable body while the Historial tab is open', async () => {
+    render(<SalesOrderForm />);
+    await screen.findByTestId('customer-select');
+
+    fireEvent.click(screen.getByTestId('sales-order-tab-history'));
+
+    expect(screen.queryByTestId('customer-select')).toBeNull();
+
+    fireEvent.click(screen.getByTestId('sales-order-tab-details'));
+    expect(screen.getByTestId('customer-select')).toBeInTheDocument();
+  });
+
+  it('offers no Historial tab on a pedido that does not exist yet', async () => {
+    mockRouteParams = {};
+    render(<SalesOrderForm />);
+
+    await screen.findByTestId('customer-select');
+    expect(screen.queryByTestId('sales-order-tab-history')).toBeNull();
+    expect(mockGetHistory).not.toHaveBeenCalled();
   });
 });

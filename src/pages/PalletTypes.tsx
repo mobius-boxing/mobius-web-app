@@ -15,6 +15,7 @@ import CreatePalletTypeModal from '../components/modals/CreatePalletTypeModal';
 import EditPalletTypeModal from '../components/modals/EditPalletTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const PalletTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -91,6 +92,7 @@ const PalletTypes: React.FC = () => {
         <span className="text-sm text-secondary-500">{pt.weight != null ? `${pt.weight} kg` : '-'}</span>
       ),
     },
+    historyColumn('pallet_types', t),
     {
       key: 'actions',
       header: t('palletTypes.columns.actions'),

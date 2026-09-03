@@ -17,6 +17,7 @@ import EditRoleModal from '../components/modals/EditRoleModal';
 import RolePermissionsModal from '../components/modals/RolePermissionsModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Roles: React.FC = () => {
   const { t } = useTranslation();
@@ -123,6 +124,7 @@ const Roles: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('roles', t),
     {
       key: 'actions',
       header: t('roles.columns.actions'),

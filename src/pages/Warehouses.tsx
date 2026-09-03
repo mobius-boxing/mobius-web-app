@@ -17,6 +17,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import WarehouseGridEditorModal from '../components/modals/WarehouseGridEditorModal';
 import WarehouseStockViewModal from '../components/modals/WarehouseStockViewModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Warehouses: React.FC = () => {
   const { t } = useTranslation();
@@ -121,6 +122,7 @@ const Warehouses: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('warehouses', t),
     {
       key: 'actions',
       header: t('warehouses.columns.actions'),

@@ -15,6 +15,7 @@ import CreateFscTypeModal from '../components/modals/CreateFscTypeModal';
 import EditFscTypeModal from '../components/modals/EditFscTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const FscTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -110,6 +111,7 @@ const FscTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('fsc_types', t),
     {
       key: 'actions',
       header: t('fscTypes.columns.actions'),

@@ -15,6 +15,7 @@ import CreateManufacturerModal from '../components/modals/CreateManufacturerModa
 import EditManufacturerModal from '../components/modals/EditManufacturerModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Manufacturers: React.FC = () => {
   const { t } = useTranslation();
@@ -110,6 +111,7 @@ const Manufacturers: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('manufacturers', t),
     {
       key: 'actions',
       header: t('manufacturers.columns.actions'),

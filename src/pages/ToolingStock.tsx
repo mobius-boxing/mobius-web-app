@@ -15,6 +15,7 @@ import CreateToolingStockModal from '../components/modals/CreateToolingStockModa
 import EditToolingStockModal from '../components/modals/EditToolingStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const ToolingStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -137,6 +138,7 @@ const ToolingStockPage: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('tooling_stock', t),
     {
       key: 'actions',
       header: t('toolingStock.columns.actions'),

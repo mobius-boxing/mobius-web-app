@@ -14,6 +14,7 @@ import { useConfirmModal } from '../../hooks/useConfirmModal';
 import { usePermissions } from '../../hooks/usePermissions';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { logger } from '../../utils/logger';
+import { historyColumn } from '../audit/historyColumn';
 
 interface Props {
   /** When set: the embedded product-detail grid (create enabled). */
@@ -161,6 +162,7 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false, onPartsChang
         </span>
       ),
     },
+    historyColumn('parts', t),
     {
       key: 'actions',
       header: t('parts.columns.actions'),

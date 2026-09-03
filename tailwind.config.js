@@ -86,6 +86,9 @@ module.exports = {
         'scale-in': 'scaleIn 0.18s cubic-bezier(0.22, 1, 0.36, 1)',
         'slide-up': 'slideUp 0.24s cubic-bezier(0.22, 1, 0.36, 1)',
         'slide-in': 'slideIn 0.24s cubic-bezier(0.22, 1, 0.36, 1)',
+        // The only X translation in the file: side sheets enter from the edge
+        // they are anchored to, so the motion says where the panel came from.
+        'slide-in-right': 'slideInRight 0.18s cubic-bezier(0.22, 1, 0.36, 1)',
       },
       keyframes: {
         fadeIn: {
@@ -103,6 +106,10 @@ module.exports = {
         slideIn: {
           '0%': { transform: 'translateY(-10px)', opacity: '0' },
           '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        slideInRight: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
         },
       },
     },

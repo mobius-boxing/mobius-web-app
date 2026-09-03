@@ -25,6 +25,7 @@ import {
   Factory,
   Route,
   Cog,
+  ScrollText,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -565,6 +566,23 @@ const Sidebar: React.FC = () => {
           } as NavItem,
         ]
       : []),
+    // Auditoría — visible with the audit.read permission (or its read-only
+    // variant); legacy admins pass via the transition fallback. The route in
+    // App.tsx is gated on the very same code, so link and page agree (L-011).
+    ...(has('audit.read', { allowReadOnly: true })
+      ? [
+          {
+            id: 'audit-logs',
+            label: t('nav.audit'),
+            path: '/audit-logs',
+            icon: 'ScrollText',
+            // The has('audit.read') check above is the real gate — include
+            // 'member' so an RBAC-granted non-admin isn't filtered out by the
+            // legacy role filter below.
+            roles: ['member', 'admin', 'superAdmin'],
+          } as NavItem,
+        ]
+      : []),
   ];
 
   const getIcon = (iconName: string, className: string = "h-5 w-5") => {
@@ -592,6 +610,7 @@ const Sidebar: React.FC = () => {
       Factory,
       Route,
       Cog,
+      ScrollText,
     };
     const IconComponent = icons[iconName as keyof typeof icons];
     return IconComponent ? <IconComponent className={className} /> : null;

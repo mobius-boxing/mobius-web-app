@@ -19,6 +19,16 @@ interface TableProps<T = any> {
   sortBy?: string | null;
   sortOrder?: 'asc' | 'desc';
   onSort?: (sortBy: string, sortOrder: 'asc' | 'desc') => void;
+  /**
+   * Optional detail region for one row, rendered as a full-width `<tr>`
+   * directly beneath it. Return a falsy value (the default) and the table is
+   * exactly what it was: purely additive, no existing call site changes.
+   *
+   * Every `<td>` here is `whitespace-nowrap`, so a wide detail — a diff table,
+   * a note — cannot live inside a data cell without being squeezed into one
+   * column's width. It has to be its own spanning row.
+   */
+  renderExpanded?: (row: T, index: number) => ReactNode;
 }
 
 function Table<T = any>({
@@ -30,6 +40,7 @@ function Table<T = any>({
   sortBy,
   sortOrder,
   onSort,
+  renderExpanded,
 }: TableProps<T>) {
   const handleSort = (column: Column<T>) => {
     if (!column.sortable || !onSort) return;
@@ -101,27 +112,38 @@ function Table<T = any>({
               </td>
             </tr>
           ) : (
-            data.map((row, rowIndex) => (
-              <tr
-                key={rowIndex}
-                
-              >
-                {columns.map((column) => {
-                  const value = (row as any)[column.key];
-                  return (
-                    <td
-                      key={column.key}
-                      className={cn(
-                        'whitespace-nowrap',
-                        column.className
-                      )}
-                    >
-                      {column.render ? column.render(value, row) : value}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))
+            data.map((row, rowIndex) => {
+              const expanded = renderExpanded?.(row, rowIndex);
+
+              return (
+                <React.Fragment key={rowIndex}>
+                  <tr>
+                    {columns.map((column) => {
+                      const value = (row as any)[column.key];
+                      return (
+                        <td
+                          key={column.key}
+                          className={cn(
+                            'whitespace-nowrap',
+                            column.className
+                          )}
+                        >
+                          {column.render ? column.render(value, row) : value}
+                        </td>
+                      );
+                    })}
+                  </tr>
+
+                  {expanded ? (
+                    <tr>
+                      <td colSpan={columns.length} className="align-top">
+                        {expanded}
+                      </td>
+                    </tr>
+                  ) : null}
+                </React.Fragment>
+              );
+            })
           )}
         </tbody>
       </table>

@@ -15,6 +15,7 @@ import CreateTraceTypeModal from '../components/modals/CreateTraceTypeModal';
 import EditTraceTypeModal from '../components/modals/EditTraceTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const TraceTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -110,6 +111,7 @@ const TraceTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('trace_types', t),
     {
       key: 'actions',
       header: t('traceTypes.columns.actions'),

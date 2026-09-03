@@ -50,6 +50,7 @@ import Roles from './pages/Roles';
 import StrappingTypes from './pages/StrappingTypes';
 import Complements from './pages/Complements';
 import TraceTypes from './pages/TraceTypes';
+import AuditLogs from './pages/AuditLogs';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -480,6 +481,18 @@ function App() {
               element={
                 <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
                   <TraceTypes />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Auditoría. Gated on the permission rather than on a role, so
+                this route and the sidebar entry that points at it ask exactly
+                the same question (L-011). */}
+            <Route
+              path="/audit-logs"
+              element={
+                <ProtectedRoute requiredPermission="audit.read">
+                  <AuditLogs />
                 </ProtectedRoute>
               }
             />

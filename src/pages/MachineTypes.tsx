@@ -15,6 +15,7 @@ import CreateMachineTypeModal from '../components/modals/CreateMachineTypeModal'
 import EditMachineTypeModal from '../components/modals/EditMachineTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const MachineTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -84,6 +85,7 @@ const MachineTypes: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('machine_types', t),
     {
       key: 'actions',
       header: t('machineTypes.columns.actions'),

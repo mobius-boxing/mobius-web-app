@@ -14,6 +14,7 @@ import { useConfirmModal } from '../hooks/useConfirmModal';
 import RouteFormModal from '../components/modals/RouteFormModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const ProductionRoutes: React.FC = () => {
   const { t } = useTranslation();
@@ -104,6 +105,7 @@ const ProductionRoutes: React.FC = () => {
         <span className="text-sm text-secondary-500">{r.stageCount ?? 0}</span>
       ),
     },
+    historyColumn('production_routes', t),
     {
       key: 'actions',
       header: t('productionRoutes.columns.actions'),

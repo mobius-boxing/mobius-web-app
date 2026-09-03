@@ -28,6 +28,7 @@ import Layout from '../components/layout/Layout';
 import SalesOrderApprovalControl from '../components/sales-orders/SalesOrderApprovalControl';
 import SalesOrderLifecycleControl from '../components/sales-orders/SalesOrderLifecycleControl';
 import SalesOrderProductionOrders from '../components/production-orders/SalesOrderProductionOrders';
+import EntityHistoryPanel from '../components/audit/EntityHistoryPanel';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
@@ -42,6 +43,18 @@ const DROPDOWN_LIMIT = 100;
  * offers the two the API accepts.
  */
 type OrderType = 'product' | 'part';
+
+/**
+ * The two tabs of the edit form. The history tab reuses `audit.title`
+ * ("Historial") — the same label the drawer carries on every list page, so the
+ * one reading surface is called the same thing everywhere.
+ */
+const SALES_ORDER_TABS = [
+  { key: 'details', labelKey: 'salesOrders.tabs.details' },
+  { key: 'history', labelKey: 'audit.title' },
+] as const;
+
+type SalesOrderTab = (typeof SALES_ORDER_TABS)[number]['key'];
 
 interface SalesOrderFormValues {
   customerUuid: string;
@@ -126,6 +139,7 @@ const SalesOrderForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<SalesOrderTab>('details');
 
   const {
     register,
@@ -492,327 +506,358 @@ const SalesOrderForm: React.FC = () => {
           )}
         </div>
 
-        {/* Aprobaciones — edit mode only; the order must exist to be approved. */}
-        {isEdit && order && (
-          <SalesOrderApprovalControl order={order} onChanged={setOrder} />
-        )}
-
-        {/* Cumplimiento y anulación — the two pair machines the approvals
-            block above deliberately does not own. */}
-        {isEdit && order && (
-          <SalesOrderLifecycleControl order={order} onChanged={setOrder} />
-        )}
-
-        {isEdit && order && <SalesOrderProductionOrders salesOrderUuid={order.uuid} commerciallyApproved={!!order.commerciallyApproved} financiallyApproved={!!order.financiallyApproved} savedAt={order.updatedAt} />}
-
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200 grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* 0. Tipo de pedido — the "Agregar" dropdown's two supported buttons
-              (PedidosForm.cs:500-524). Create only: the subtype is immutable. */}
-          {!isEdit && (
-            <div className="md:col-span-2">
-              <label className={labelClass} htmlFor="orderType">
-                {t('salesOrders.fields.orderType')}
-              </label>
-              <select
-                id="orderType"
-                name="orderType"
-                className={selectClass}
-                data-testid="order-type-select"
-                value={orderType}
-                onChange={(event) => changeOrderType(event.target.value as OrderType)}
+        {/* Historial (AC-13) — edit mode only: a new order has no uuid and so
+            no history. The panel is mounted ONLY while its tab is selected, so
+            opening a pedido issues no history request. */}
+        {isEdit && (
+          <div className="flex flex-wrap gap-1 border-b border-secondary-200">
+            {SALES_ORDER_TABS.map((tab) => (
+              <button
+                key={tab.key}
+                type="button"
+                className={`px-3 py-2 text-sm ${
+                  activeTab === tab.key
+                    ? 'border-b-2 border-primary-600 font-medium text-primary-700'
+                    : 'text-secondary-500'
+                }`}
+                onClick={() => setActiveTab(tab.key)}
+                data-testid={`sales-order-tab-${tab.key}`}
               >
-                <option value="product">{t('salesOrders.orderTypes.product')}</option>
-                <option value="part">{t('salesOrders.orderTypes.part')}</option>
-              </select>
-            </div>
-          )}
-
-          {/* 1. Cliente — chosen first on the producto path; DERIVED and
-              read-only on the parte path (PedidoDeParteForm.cs:142-153). */}
-          {isPartOrder && !isEdit ? (
-            <div>
-              <span className={labelClass}>{t('salesOrders.fields.customer')}</span>
-              <p className="text-sm text-secondary-900" data-testid="derived-customer">
-                {selectedPart?.product?.customer?.name ?? '-'}
-              </p>
-            </div>
-          ) : (
-          <div>
-            <label className={labelClass} htmlFor="customerUuid">
-              {t('salesOrders.fields.customer')}
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <select
-              id="customerUuid"
-              className={selectClass}
-              data-testid="customer-select"
-              disabled={isEdit || loading}
-              {...register('customerUuid')}
-            >
-              <option value="">{t('salesOrders.placeholders.customer')}</option>
-              {customers.map((customer) => (
-                <option key={customer.uuid} value={customer.uuid}>
-                  {customer.name}
-                </option>
-              ))}
-            </select>
-            {errors.customerUuid && (
-              <p className="mt-1.5 text-sm text-red-600">{errors.customerUuid.message}</p>
-            )}
+                {t(tab.labelKey)}
+              </button>
+            ))}
           </div>
-          )}
+        )}
 
-          {/* 2. Producto — disabled until a cliente is chosen (D-1) — or the
-              parte lookup, over every parte of the company, with the producto
-              it derives shown underneath. */}
-          {isPartOrder ? (
-            isEdit ? (
+        {activeTab === 'history' && (
+          <EntityHistoryPanel entityKey="sales_orders" uuid={uuid} />
+        )}
+
+        {activeTab === 'details' && (
+          <>
+            {/* Aprobaciones — edit mode only; the order must exist to be approved. */}
+            {isEdit && order && (
+              <SalesOrderApprovalControl order={order} onChanged={setOrder} />
+            )}
+
+            {/* Cumplimiento y anulación — the two pair machines the approvals
+                block above deliberately does not own. */}
+            {isEdit && order && (
+              <SalesOrderLifecycleControl order={order} onChanged={setOrder} />
+            )}
+
+            {isEdit && order && <SalesOrderProductionOrders salesOrderUuid={order.uuid} commerciallyApproved={!!order.commerciallyApproved} financiallyApproved={!!order.financiallyApproved} savedAt={order.updatedAt} />}
+
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200 grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 0. Tipo de pedido — the "Agregar" dropdown's two supported buttons
+                  (PedidosForm.cs:500-524). Create only: the subtype is immutable. */}
+              {!isEdit && (
+                <div className="md:col-span-2">
+                  <label className={labelClass} htmlFor="orderType">
+                    {t('salesOrders.fields.orderType')}
+                  </label>
+                  <select
+                    id="orderType"
+                    name="orderType"
+                    className={selectClass}
+                    data-testid="order-type-select"
+                    value={orderType}
+                    onChange={(event) => changeOrderType(event.target.value as OrderType)}
+                  >
+                    <option value="product">{t('salesOrders.orderTypes.product')}</option>
+                    <option value="part">{t('salesOrders.orderTypes.part')}</option>
+                  </select>
+                </div>
+              )}
+
+              {/* 1. Cliente — chosen first on the producto path; DERIVED and
+                  read-only on the parte path (PedidoDeParteForm.cs:142-153). */}
+              {isPartOrder && !isEdit ? (
+                <div>
+                  <span className={labelClass}>{t('salesOrders.fields.customer')}</span>
+                  <p className="text-sm text-secondary-900" data-testid="derived-customer">
+                    {selectedPart?.product?.customer?.name ?? '-'}
+                  </p>
+                </div>
+              ) : (
               <div>
-                <span className={labelClass}>{t('salesOrders.fields.part')}</span>
-                <p className="text-sm text-secondary-900" data-testid="order-item-description">
-                  {order?.itemDescription || '-'}
-                </p>
-              </div>
-            ) : (
-              <div>
-                <label className={labelClass} htmlFor="partUuid">
-                  {t('salesOrders.fields.part')}
+                <label className={labelClass} htmlFor="customerUuid">
+                  {t('salesOrders.fields.customer')}
                   <span className="text-red-500 ml-1">*</span>
                 </label>
                 <select
-                  id="partUuid"
+                  id="customerUuid"
                   className={selectClass}
-                  data-testid="part-select"
-                  disabled={loading}
-                  {...register('partUuid')}
+                  data-testid="customer-select"
+                  disabled={isEdit || loading}
+                  {...register('customerUuid')}
                 >
-                  <option value="">{t('salesOrders.placeholders.part')}</option>
-                  {parts.map((part) => (
-                    <option key={part.uuid} value={part.uuid}>
-                      {part.code}
-                      {part.description ? ` — ${part.description}` : ''}
+                  <option value="">{t('salesOrders.placeholders.customer')}</option>
+                  {customers.map((customer) => (
+                    <option key={customer.uuid} value={customer.uuid}>
+                      {customer.name}
                     </option>
                   ))}
                 </select>
-                {errors.partUuid && (
-                  <p className="mt-1.5 text-sm text-red-600">{errors.partUuid.message}</p>
+                {errors.customerUuid && (
+                  <p className="mt-1.5 text-sm text-red-600">{errors.customerUuid.message}</p>
                 )}
-                <p className="mt-1.5 text-sm text-secondary-600" data-testid="derived-product">
-                  {t('salesOrders.fields.product')}:{' '}
-                  {selectedPart?.product
-                    ? [selectedPart.product.code, selectedPart.product.description]
-                        .filter(Boolean)
-                        .join(' — ')
-                    : '-'}
+              </div>
+              )}
+
+              {/* 2. Producto — disabled until a cliente is chosen (D-1) — or the
+                  parte lookup, over every parte of the company, with the producto
+                  it derives shown underneath. */}
+              {isPartOrder ? (
+                isEdit ? (
+                  <div>
+                    <span className={labelClass}>{t('salesOrders.fields.part')}</span>
+                    <p className="text-sm text-secondary-900" data-testid="order-item-description">
+                      {order?.itemDescription || '-'}
+                    </p>
+                  </div>
+                ) : (
+                  <div>
+                    <label className={labelClass} htmlFor="partUuid">
+                      {t('salesOrders.fields.part')}
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <select
+                      id="partUuid"
+                      className={selectClass}
+                      data-testid="part-select"
+                      disabled={loading}
+                      {...register('partUuid')}
+                    >
+                      <option value="">{t('salesOrders.placeholders.part')}</option>
+                      {parts.map((part) => (
+                        <option key={part.uuid} value={part.uuid}>
+                          {part.code}
+                          {part.description ? ` — ${part.description}` : ''}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.partUuid && (
+                      <p className="mt-1.5 text-sm text-red-600">{errors.partUuid.message}</p>
+                    )}
+                    <p className="mt-1.5 text-sm text-secondary-600" data-testid="derived-product">
+                      {t('salesOrders.fields.product')}:{' '}
+                      {selectedPart?.product
+                        ? [selectedPart.product.code, selectedPart.product.description]
+                            .filter(Boolean)
+                            .join(' — ')
+                        : '-'}
+                    </p>
+                  </div>
+                )
+              ) : (
+              <div>
+                <label className={labelClass} htmlFor="productUuid">
+                  {t('salesOrders.fields.product')}
+                  <span className="text-red-500 ml-1">*</span>
+                </label>
+                <select
+                  id="productUuid"
+                  className={selectClass}
+                  data-testid="product-select"
+                  disabled={isEdit || !customerUuid || loading}
+                  {...register('productUuid')}
+                >
+                  <option value="">
+                    {customerUuid
+                      ? t('salesOrders.placeholders.product')
+                      : t('salesOrders.placeholders.productNeedsCustomer')}
+                  </option>
+                  {products.map((product) => (
+                    <option key={product.uuid} value={product.uuid}>
+                      {product.code}
+                      {product.description ? ` — ${product.description}` : ''}
+                    </option>
+                  ))}
+                </select>
+                {errors.productUuid && (
+                  <p className="mt-1.5 text-sm text-red-600">{errors.productUuid.message}</p>
+                )}
+              </div>
+              )}
+
+              {/* 3. Cantidad */}
+              <Input
+                id="quantity"
+                type="number"
+                step="any"
+                label={t('salesOrders.fields.quantity')}
+                required
+                data-testid="quantity-input"
+                error={errors.quantity?.message}
+                {...register('quantity')}
+              />
+
+              {/* 4. Lugar de entrega */}
+              <div>
+                <label className={labelClass} htmlFor="deliveryLocationUuid">
+                  {t('salesOrders.fields.deliveryLocation')}
+                </label>
+                <select
+                  id="deliveryLocationUuid"
+                  className={selectClass}
+                  data-testid="delivery-location-select"
+                  disabled={!customerUuid}
+                  {...register('deliveryLocationUuid')}
+                >
+                  <option value="">{t('salesOrders.placeholders.deliveryLocation')}</option>
+                  {deliveryLocations.map((location) => (
+                    <option key={location.uuid} value={location.uuid}>
+                      {location.address}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 5. Vendedor — empty means "the cliente's vendedor" (D-7). */}
+              <div>
+                <label className={labelClass} htmlFor="salesUserUuid">
+                  {t('salesOrders.fields.salesUser')}
+                </label>
+                <select
+                  id="salesUserUuid"
+                  className={selectClass}
+                  data-testid="sales-user-select"
+                  {...register('salesUserUuid')}
+                >
+                  <option value="">{t('salesOrders.placeholders.salesUser')}</option>
+                  {users.map((user) => (
+                    <option key={user.uuid} value={user.uuid}>
+                      {userLabel(user)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* 6. Fecha de entrega */}
+              <Input
+                id="deliveryDate"
+                type="date"
+                label={t('salesOrders.fields.deliveryDate')}
+                data-testid="delivery-date-input"
+                {...register('deliveryDate')}
+              />
+
+              {/* 7. Orden de compra / código proveedor */}
+              <Input
+                id="purchaseOrder"
+                type="text"
+                label={t('salesOrders.fields.purchaseOrder')}
+                data-testid="purchase-order-input"
+                {...register('purchaseOrder')}
+              />
+              <Input
+                id="supplierCode"
+                type="text"
+                label={t('salesOrders.fields.supplierCode')}
+                data-testid="supplier-code-input"
+                {...register('supplierCode')}
+              />
+
+              {/* 8. Precio unitario + total + pagado */}
+              <Input
+                id="price"
+                type="number"
+                step="any"
+                label={t('salesOrders.fields.price')}
+                readOnly={!canEditPrices}
+                data-testid="price-input"
+                {...register('price')}
+              />
+              <div>
+                <span className={labelClass}>{t('salesOrders.fields.priceTotal')}</span>
+                <p className="text-sm text-secondary-900 py-2" data-testid="price-total">
+                  {formatMoney(total)}
                 </p>
               </div>
-            )
-          ) : (
-          <div>
-            <label className={labelClass} htmlFor="productUuid">
-              {t('salesOrders.fields.product')}
-              <span className="text-red-500 ml-1">*</span>
-            </label>
-            <select
-              id="productUuid"
-              className={selectClass}
-              data-testid="product-select"
-              disabled={isEdit || !customerUuid || loading}
-              {...register('productUuid')}
-            >
-              <option value="">
-                {customerUuid
-                  ? t('salesOrders.placeholders.product')
-                  : t('salesOrders.placeholders.productNeedsCustomer')}
-              </option>
-              {products.map((product) => (
-                <option key={product.uuid} value={product.uuid}>
-                  {product.code}
-                  {product.description ? ` — ${product.description}` : ''}
-                </option>
-              ))}
-            </select>
-            {errors.productUuid && (
-              <p className="mt-1.5 text-sm text-red-600">{errors.productUuid.message}</p>
-            )}
-          </div>
-          )}
+              <Input
+                id="paid"
+                type="number"
+                step="any"
+                label={t('salesOrders.fields.paid')}
+                readOnly={!canEditPrices}
+                data-testid="paid-input"
+                {...register('paid')}
+              />
 
-          {/* 3. Cantidad */}
-          <Input
-            id="quantity"
-            type="number"
-            step="any"
-            label={t('salesOrders.fields.quantity')}
-            required
-            data-testid="quantity-input"
-            error={errors.quantity?.message}
-            {...register('quantity')}
-          />
+              {/* 9. Sector ventas — permission-gated (EdicionDatosPedido.cs:159-160) */}
+              {canViewSalesSector && (
+                <Input
+                  id="salesSector"
+                  type="text"
+                  label={t('salesOrders.fields.salesSector')}
+                  data-testid="sales-sector-input"
+                  {...register('salesSector')}
+                />
+              )}
 
-          {/* 4. Lugar de entrega */}
-          <div>
-            <label className={labelClass} htmlFor="deliveryLocationUuid">
-              {t('salesOrders.fields.deliveryLocation')}
-            </label>
-            <select
-              id="deliveryLocationUuid"
-              className={selectClass}
-              data-testid="delivery-location-select"
-              disabled={!customerUuid}
-              {...register('deliveryLocationUuid')}
-            >
-              <option value="">{t('salesOrders.placeholders.deliveryLocation')}</option>
-              {deliveryLocations.map((location) => (
-                <option key={location.uuid} value={location.uuid}>
-                  {location.address}
-                </option>
-              ))}
-            </select>
-          </div>
+              {/* 10. Facturación */}
+              <label className="flex items-center gap-2 text-sm text-secondary-700">
+                <input
+                  id="needsAdvanceInvoice"
+                  type="checkbox"
+                  data-testid="needs-advance-invoice-input"
+                  {...register('needsAdvanceInvoice')}
+                />
+                {t('salesOrders.fields.needsAdvanceInvoice')}
+              </label>
+              <label className="flex items-center gap-2 text-sm text-secondary-700">
+                <input
+                  id="invoiceSent"
+                  type="checkbox"
+                  data-testid="invoice-sent-input"
+                  {...register('invoiceSent')}
+                />
+                {t('salesOrders.fields.invoiceSent')}
+              </label>
+            </div>
 
-          {/* 5. Vendedor — empty means "the cliente's vendedor" (D-7). */}
-          <div>
-            <label className={labelClass} htmlFor="salesUserUuid">
-              {t('salesOrders.fields.salesUser')}
-            </label>
-            <select
-              id="salesUserUuid"
-              className={selectClass}
-              data-testid="sales-user-select"
-              {...register('salesUserUuid')}
-            >
-              <option value="">{t('salesOrders.placeholders.salesUser')}</option>
-              {users.map((user) => (
-                <option key={user.uuid} value={user.uuid}>
-                  {userLabel(user)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* 6. Fecha de entrega */}
-          <Input
-            id="deliveryDate"
-            type="date"
-            label={t('salesOrders.fields.deliveryDate')}
-            data-testid="delivery-date-input"
-            {...register('deliveryDate')}
-          />
-
-          {/* 7. Orden de compra / código proveedor */}
-          <Input
-            id="purchaseOrder"
-            type="text"
-            label={t('salesOrders.fields.purchaseOrder')}
-            data-testid="purchase-order-input"
-            {...register('purchaseOrder')}
-          />
-          <Input
-            id="supplierCode"
-            type="text"
-            label={t('salesOrders.fields.supplierCode')}
-            data-testid="supplier-code-input"
-            {...register('supplierCode')}
-          />
-
-          {/* 8. Precio unitario + total + pagado */}
-          <Input
-            id="price"
-            type="number"
-            step="any"
-            label={t('salesOrders.fields.price')}
-            readOnly={!canEditPrices}
-            data-testid="price-input"
-            {...register('price')}
-          />
-          <div>
-            <span className={labelClass}>{t('salesOrders.fields.priceTotal')}</span>
-            <p className="text-sm text-secondary-900 py-2" data-testid="price-total">
-              {formatMoney(total)}
-            </p>
-          </div>
-          <Input
-            id="paid"
-            type="number"
-            step="any"
-            label={t('salesOrders.fields.paid')}
-            readOnly={!canEditPrices}
-            data-testid="paid-input"
-            {...register('paid')}
-          />
-
-          {/* 9. Sector ventas — permission-gated (EdicionDatosPedido.cs:159-160) */}
-          {canViewSalesSector && (
-            <Input
-              id="salesSector"
-              type="text"
-              label={t('salesOrders.fields.salesSector')}
-              data-testid="sales-sector-input"
-              {...register('salesSector')}
-            />
-          )}
-
-          {/* 10. Facturación */}
-          <label className="flex items-center gap-2 text-sm text-secondary-700">
-            <input
-              id="needsAdvanceInvoice"
-              type="checkbox"
-              data-testid="needs-advance-invoice-input"
-              {...register('needsAdvanceInvoice')}
-            />
-            {t('salesOrders.fields.needsAdvanceInvoice')}
-          </label>
-          <label className="flex items-center gap-2 text-sm text-secondary-700">
-            <input
-              id="invoiceSent"
-              type="checkbox"
-              data-testid="invoice-sent-input"
-              {...register('invoiceSent')}
-            />
-            {t('salesOrders.fields.invoiceSent')}
-          </label>
-        </div>
-
-        {/* 11. Observaciones — persisted on order_data */}
-        <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label className={labelClass} htmlFor="notes">
-              {t('salesOrders.fields.notes')}
-            </label>
-            <textarea
-              id="notes"
-              className={selectClass}
-              rows={3}
-              data-testid="notes-input"
-              {...register('notes')}
-            />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="conversionNotes">
-              {t('salesOrders.fields.conversionNotes')}
-            </label>
-            <textarea
-              id="conversionNotes"
-              className={selectClass}
-              rows={3}
-              data-testid="conversion-notes-input"
-              {...register('conversionNotes')}
-            />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="dispatchNotes">
-              {t('salesOrders.fields.dispatchNotes')}
-            </label>
-            <textarea
-              id="dispatchNotes"
-              className={selectClass}
-              rows={3}
-              data-testid="dispatch-notes-input"
-              {...register('dispatchNotes')}
-            />
-          </div>
-        </div>
+            {/* 11. Observaciones — persisted on order_data */}
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className={labelClass} htmlFor="notes">
+                  {t('salesOrders.fields.notes')}
+                </label>
+                <textarea
+                  id="notes"
+                  className={selectClass}
+                  rows={3}
+                  data-testid="notes-input"
+                  {...register('notes')}
+                />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="conversionNotes">
+                  {t('salesOrders.fields.conversionNotes')}
+                </label>
+                <textarea
+                  id="conversionNotes"
+                  className={selectClass}
+                  rows={3}
+                  data-testid="conversion-notes-input"
+                  {...register('conversionNotes')}
+                />
+              </div>
+              <div>
+                <label className={labelClass} htmlFor="dispatchNotes">
+                  {t('salesOrders.fields.dispatchNotes')}
+                </label>
+                <textarea
+                  id="dispatchNotes"
+                  className={selectClass}
+                  rows={3}
+                  data-testid="dispatch-notes-input"
+                  {...register('dispatchNotes')}
+                />
+              </div>
+            </div>
+          </>
+        )}
       </form>
     </Layout>
   );

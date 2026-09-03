@@ -15,6 +15,7 @@ import ModelFormModal from '../components/modals/ModelFormModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const Models: React.FC = () => {
   const { t } = useTranslation();
@@ -93,6 +94,7 @@ const Models: React.FC = () => {
         <span className="text-sm text-secondary-500">{m.complement?.code || '-'}</span>
       ),
     },
+    historyColumn('models', t),
     {
       key: 'actions',
       header: t('models.columns.actions'),

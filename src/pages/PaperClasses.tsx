@@ -15,6 +15,7 @@ import CreatePaperClassModal from '../components/modals/CreatePaperClassModal';
 import EditPaperClassModal from '../components/modals/EditPaperClassModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
+import { historyColumn } from '../components/audit/historyColumn';
 
 const PaperClasses: React.FC = () => {
   const { t } = useTranslation();
@@ -117,6 +118,7 @@ const PaperClasses: React.FC = () => {
         </span>
       ),
     },
+    historyColumn('paper_classes', t),
     {
       key: 'actions',
       header: t('paperClasses.columns.actions'),
