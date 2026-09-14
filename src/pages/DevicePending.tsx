@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { ShieldCheck, RefreshCw, LogOut } from 'lucide-react';
+import { ShieldCheck, RefreshCw, LogOut, Send } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/ui/Button';
@@ -13,9 +13,25 @@ import Button from '../components/ui/Button';
  */
 const DevicePending: React.FC = () => {
   const { t } = useTranslation();
-  const { device, deviceBlocked, refreshDevice, logout } = useAuth();
+  const { user, device, deviceBlocked, refreshDevice, requestDevice, logout } = useAuth();
   const location = useLocation();
   const [checking, setChecking] = useState(false);
+  const [requesting, setRequesting] = useState(false);
+
+  // `device === null` means this browser has no row yet — a member whose
+  // mobius_session outlived a deploy, who will never log in again on their own
+  // (gate amendment 3, D-230). Registers it once per mount; a failed attempt
+  // leaves the ref set, so only the button below retries after that.
+  const requestedRef = useRef(false);
+  const needsRequest = deviceBlocked && user?.role === 'member' && device === null;
+
+  useEffect(() => {
+    if (!needsRequest || requestedRef.current) return;
+    requestedRef.current = true;
+    requestDevice().catch(() => {
+      // The "Solicitar aprobación" button stays on screen for exactly this case.
+    });
+  }, [needsRequest, requestDevice]);
 
   if (!deviceBlocked) {
     // Approval resumes the journey the gate interrupted (ProtectedRoute forwards it
@@ -34,6 +50,20 @@ const DevicePending: React.FC = () => {
     }
   };
 
+  // Same call for both cases it covers: a null device (retry after the automatic
+  // call above failed) and a revoked one (the revoked -> pending re-request, case 1
+  // of the registration procedure — no re-login needed for either).
+  const requestApproval = async () => {
+    setRequesting(true);
+    try {
+      await requestDevice();
+    } catch {
+      // Stays on this screen; the button remains available to try again.
+    } finally {
+      setRequesting(false);
+    }
+  };
+
   const body = () => {
     if (device?.status === 'revoked') {
       return (
@@ -44,8 +74,9 @@ const DevicePending: React.FC = () => {
       );
     }
 
-    // `device: null` for a member means the API has no row for this browser — the
-    // same situation as a 403 DEVICE_UNKNOWN, and only a fresh login mints one.
+    // `device: null` for a member means the API has no row for this browser yet;
+    // `needsRequest` above is already registering one, so the copy here reads the
+    // same as the normal wait rather than telling the member to do anything.
     if (!device) {
       return (
         <>
@@ -64,6 +95,8 @@ const DevicePending: React.FC = () => {
     );
   };
 
+  const showRequestButton = !device || device.status === 'revoked';
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-secondary-50 px-4">
       <div className="w-full max-w-md rounded-lg border border-secondary-200 bg-white p-8 text-center">
@@ -73,6 +106,17 @@ const DevicePending: React.FC = () => {
         <div className="mt-4">{body()}</div>
 
         <div className="mt-8 flex flex-col gap-3">
+          {showRequestButton && (
+            <Button
+              onClick={requestApproval}
+              loading={requesting}
+              data-testid="device-request-approval"
+              className="flex items-center justify-center"
+            >
+              <Send className="mr-2 h-4 w-4" />
+              {t('devices.waiting.requestApproval')}
+            </Button>
+          )}
           <Button
             onClick={checkNow}
             loading={checking}

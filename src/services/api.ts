@@ -243,6 +243,18 @@ export const authApi = {
     return response.data.data ?? null;
   },
 
+  /**
+   * Registers this browser for the already-signed-in caller (gate amendment 3):
+   * the authenticated twin of the login-time device registration, for a member
+   * whose session outlived a deploy and so never logs in again to mint one.
+   * `data` is null for an admin/superAdmin (I-18); `data.token` is present only
+   * when a fresh row was minted, exactly like login's case 3.
+   */
+  requestDevice: async (): Promise<DeviceSession | null> => {
+    const response: AxiosResponse<ApiResponse<DeviceSession | null>> = await api.post('/api/auth/device');
+    return response.data.data ?? null;
+  },
+
   changePassword: async (data: ChangePasswordForm): Promise<void> => {
     await api.put('/api/auth/password', {
       currentPassword: data.currentPassword,
