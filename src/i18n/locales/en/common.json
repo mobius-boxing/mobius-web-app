@@ -3038,14 +3038,15 @@
   "devices": {
     "waiting": {
       "title": "Waiting for this device to be approved",
-      "instructions": "An administrator of your company has to approve this browser from Devices before you can sign in.",
+      "instructions": "An administrator of your company has to approve this browser before you can sign in.",
       "help": "This screen refreshes itself: as soon as you are approved, you go straight in.",
       "checkNow": "Check now",
       "signOut": "Sign out",
       "revokedTitle": "Device revoked",
-      "revokedMessage": "An administrator revoked this device. Sign out and sign in again to request it once more.",
+      "revokedMessage": "An administrator revoked this device. You can request approval again.",
       "unknownTitle": "Device not registered",
-      "unknownMessage": "This browser is not registered for your account. Sign out and sign in again to request approval."
+      "unknownMessage": "We're requesting approval for this device. If it takes a while, you can try again.",
+      "requestApproval": "Request approval"
     }
   }
 }

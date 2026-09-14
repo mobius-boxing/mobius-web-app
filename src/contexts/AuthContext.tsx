@@ -14,6 +14,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   updateUser: (user: AuthUser) => void;
   refreshDevice: () => Promise<void>;
+  requestDevice: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -93,6 +94,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setDevice(await authApi.getDevice());
   }, []);
 
+  const requestDevice = useCallback(async () => {
+    const response = await authApi.requestDevice();
+    // Same rule as login: the raw secret goes to the cookie and nowhere else.
+    if (response?.token) {
+      setDeviceToken(response.token);
+    }
+    setDevice(response ? { ...response, token: undefined } : null);
+  }, []);
+
   useEffect(() => {
     setDeviceRejectionHandler((status: DeviceStatus) => {
       // A 403 carries the status and nothing else; the rest of the row keeps coming
@@ -103,8 +113,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   useEffect(() => {
-    // `device === null` is the unresolved case (no row for this browser): nothing
-    // but a fresh login can change it, so polling it would never end.
+    // `device === null` is the unresolved case (no row for this browser yet): the
+    // waiting screen's mount effect registers one via `requestDevice` (gate
+    // amendment 3) before there is anything to poll; polling before that would
+    // just read `data: null` back forever.
     if (!deviceBlocked || device === null) return;
 
     const poll = () => {
@@ -162,6 +174,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     updateUser,
     refreshDevice,
+    requestDevice,
   };
 
   return (

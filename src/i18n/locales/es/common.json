@@ -3038,14 +3038,15 @@
   "devices": {
     "waiting": {
       "title": "Esperando la aprobación de este dispositivo",
-      "instructions": "Un administrador de tu empresa tiene que aprobar este navegador desde Dispositivos antes de que puedas entrar.",
+      "instructions": "Un administrador de tu empresa tiene que aprobar este navegador antes de que puedas entrar.",
       "help": "Esta pantalla se actualiza sola: en cuanto te aprueben, entrás directo.",
       "checkNow": "Comprobar ahora",
       "signOut": "Cerrar sesión",
       "revokedTitle": "Dispositivo revocado",
-      "revokedMessage": "Un administrador revocó este dispositivo. Cerrá sesión y volvé a iniciarla para solicitarlo de nuevo.",
+      "revokedMessage": "Un administrador revocó este dispositivo. Podés solicitar la aprobación nuevamente.",
       "unknownTitle": "Dispositivo no registrado",
-      "unknownMessage": "Este navegador no está registrado en tu cuenta. Cerrá sesión y volvé a iniciarla para solicitar la aprobación."
+      "unknownMessage": "Estamos solicitando la aprobación de este dispositivo. Si tarda, podés intentarlo de nuevo.",
+      "requestApproval": "Solicitar aprobación"
     }
   }
 }
