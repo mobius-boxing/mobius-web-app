@@ -1,5 +1,11 @@
 import axios, { AxiosResponse } from 'axios';
-import { getToken, clearToken, clearSelectedCompany } from '../utils/session';
+import {
+  getToken,
+  clearToken,
+  clearSelectedCompany,
+  getSelectedCompanyUuid,
+} from '../utils/session';
+import { withSelectedCompany } from './companyScope';
 import {
   ApiResponse,
   PaginatedResponse,
@@ -135,7 +141,7 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
-  return config;
+  return withSelectedCompany(config, getSelectedCompanyUuid());
 });
 
 // A 401 from these endpoints is an expected response the calling component renders inline

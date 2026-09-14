@@ -50,3 +50,12 @@ export const clearSelectedCompany = (): boolean => {
     return false;
   }
 };
+
+/** The company switcher's stored choice; null when none is stored or storage is unavailable. */
+export const getSelectedCompanyUuid = (): string | null => {
+  try {
+    return localStorage.getItem(COMPANY_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+};
