@@ -4,6 +4,7 @@ import { cn } from '../../utils/cn';
 import { useColumnPreferences } from '../../hooks/useColumnPreferences';
 import { useDragReorder } from '../../hooks/useDragReorder';
 import { useElementWidth } from '../../hooks/useElementWidth';
+import { useWheelHorizontalScroll } from '../../hooks/useWheelHorizontalScroll';
 import CardList from './CardList';
 import { ColumnChooserButton } from './ColumnChooser';
 
@@ -83,6 +84,10 @@ function Table<T = any>({
   const width = useElementWidth(wrapperRef);
   const showCards = listId !== undefined && width !== null && width < CARD_BREAKPOINT_PX;
 
+  // A callback ref, not useRef: the scroller unmounts while loading and in card
+  // mode, and the wheel listener has to re-attach each time it comes back.
+  const scrollerRef = useWheelHorizontalScroll<HTMLDivElement>();
+
   const handleSort = (column: Column<T>) => {
     if (dnd.wasDragged()) return;
     if (!column.sortable || !onSort) return;
@@ -130,7 +135,7 @@ function Table<T = any>({
               twoUp={width !== null && width >= CARD_TWO_UP_PX}
             />
           ) : (
-            <div className="overflow-x-auto">
+            <div ref={scrollerRef} className="overflow-x-auto">
               <table className="gd-table min-w-full">
                 <thead>
                   <tr className="border-b border-secondary-200">
