@@ -18,12 +18,14 @@ interface ProtectedRouteProps {
   requiredPermission?: string;
 }
 
+export const DEVICE_PENDING_PATH = '/device-pending';
+
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requiredRoles,
   requiredPermission,
 }) => {
-  const { isAuthenticated, isLoading, user } = useAuth();
+  const { isAuthenticated, isLoading, user, deviceBlocked } = useAuth();
   const { has } = usePermissions();
   const location = useLocation();
 
@@ -51,6 +53,15 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // A member on a browser the company has not approved can reach nothing but the
+  // waiting screen, which is itself behind this guard — hence the path check: the
+  // alternative, leaving /device-pending unprotected, would render it to anonymous
+  // visitors. Before the role/permission gates, because "your browser is not
+  // approved" is the accurate answer even on a page the member could not see anyway.
+  if (deviceBlocked && location.pathname !== DEVICE_PENDING_PATH) {
+    return <Navigate to={DEVICE_PENDING_PATH} state={{ from: location }} replace />;
   }
 
   if (requiredRoles && user) {

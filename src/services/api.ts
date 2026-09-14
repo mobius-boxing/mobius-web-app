@@ -4,6 +4,7 @@ import {
   clearToken,
   clearSelectedCompany,
   getSelectedCompanyUuid,
+  getDeviceToken,
 } from '../utils/session';
 import { withSelectedCompany } from './companyScope';
 import {
@@ -11,6 +12,10 @@ import {
   PaginatedResponse,
   LoginCredentials,
   LoginResponse,
+  DeviceSession,
+  DeviceStatus,
+  UserDevice,
+  AuthUser,
   User,
   Company,
   Invitation,
@@ -141,8 +146,28 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
+  // Sent on unauthenticated calls too: POST /auth/login reads it to recognise a
+  // browser that already has a device row instead of minting a second one.
+  const deviceToken = getDeviceToken();
+  if (deviceToken) {
+    config.headers['X-Device-Token'] = deviceToken;
+  }
   return withSelectedCompany(config, getSelectedCompanyUuid());
 });
+
+/**
+ * A member's device was rejected by the API (403 DEVICE_PENDING / DEVICE_REVOKED).
+ * AuthContext registers the handler; this module cannot import it (AuthContext
+ * imports this one), and the session-expiry branch's hard redirect is wrong here
+ * — the session is valid, only this browser is not approved yet.
+ */
+let deviceRejectionHandler: ((status: DeviceStatus) => void) | null = null;
+
+export const setDeviceRejectionHandler = (
+  handler: ((status: DeviceStatus) => void) | null
+): void => {
+  deviceRejectionHandler = handler;
+};
 
 // A 401 from these endpoints is an expected response the calling component renders inline
 // (bad credentials, wrong current password, invalid/expired reset token), NOT a stale
@@ -177,6 +202,22 @@ api.interceptors.response.use(
     ) {
       window.location.reload();
     }
+    // The device gate. DEVICE_UNKNOWN means the API has no row for this browser
+    // (the cookie was never issued, or was issued to a user that no longer has
+    // it), and the only way back is a fresh login, which mints a device: treat
+    // it exactly like an expired session. PENDING/REVOKED are the opposite — the
+    // session is good and must survive, so the waiting screen can poll.
+    if (error.response?.status === 403) {
+      const code = error.response?.data?.code;
+      if (code === 'DEVICE_UNKNOWN') {
+        clearToken();
+        window.location.href = '/login';
+      } else if (code === 'DEVICE_PENDING') {
+        deviceRejectionHandler?.('pending');
+      } else if (code === 'DEVICE_REVOKED') {
+        deviceRejectionHandler?.('revoked');
+      }
+    }
     return Promise.reject(error);
   }
 );
@@ -192,9 +233,15 @@ export const authApi = {
     clearToken();
   },
 
-  getCurrentUser: async (): Promise<User> => {
-    const response: AxiosResponse<ApiResponse<User>> = await api.get('/api/auth/me');
+  getCurrentUser: async (): Promise<AuthUser> => {
+    const response: AxiosResponse<ApiResponse<AuthUser>> = await api.get('/api/auth/me');
     return response.data.data!;
+  },
+
+  /** The waiting screen's poll. `data` is null for an admin or an unresolved device. */
+  getDevice: async (): Promise<DeviceSession | null> => {
+    const response: AxiosResponse<ApiResponse<DeviceSession | null>> = await api.get('/api/auth/device');
+    return response.data.data ?? null;
   },
 
   changePassword: async (data: ChangePasswordForm): Promise<void> => {
@@ -2227,5 +2274,37 @@ export const productionOrdersApi = {
   ): Promise<ProductionOrder> => {
     const response = await api.post(`/api/production-orders/${uuid}/${machine}`);
     return response.data.data;
+  },
+};
+
+export const devicesApi = {
+  getDevices: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<UserDevice>> => {
+    const response = await api.get('/api/devices', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  approve: async (uuid: string): Promise<UserDevice> => {
+    const response: AxiosResponse<ApiResponse<UserDevice>> = await api.patch(`/api/devices/${uuid}/approve`);
+    return response.data.data!;
+  },
+
+  revoke: async (uuid: string): Promise<UserDevice> => {
+    const response: AxiosResponse<ApiResponse<UserDevice>> = await api.patch(`/api/devices/${uuid}/revoke`);
+    return response.data.data!;
   },
 };

@@ -27,6 +27,7 @@ import {
   Cog,
   ScrollText,
   X,
+  Smartphone,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -595,6 +596,23 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
           } as NavItem,
         ]
       : []),
+    // Dispositivos — the device-approval queue. `devices.approve` is an RW-only
+    // catalogue code (no read-only twin), so there is no allowReadOnly here:
+    // approving and revoking is all this page does.
+    ...(has('devices.approve')
+      ? [
+          {
+            id: 'devices',
+            label: t('nav.devices'),
+            path: '/devices',
+            icon: 'Smartphone',
+            // The has('devices.approve') check above is the real gate — include
+            // 'member' so an RBAC-granted non-admin isn't filtered out by the
+            // legacy role filter below.
+            roles: ['member', 'admin', 'superAdmin'],
+          } as NavItem,
+        ]
+      : []),
   ];
 
   const getIcon = (iconName: string, className: string = "h-5 w-5") => {
@@ -623,6 +641,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
       Route,
       Cog,
       ScrollText,
+      Smartphone,
     };
     const IconComponent = icons[iconName as keyof typeof icons];
     return IconComponent ? <IconComponent className={className} /> : null;

@@ -14,6 +14,9 @@ const COOKIE_NAME = 'mobius_session';
 const COOKIE_DOMAIN = process.env.REACT_APP_COOKIE_DOMAIN; // ".mobiusboxing.com" in prod; unset locally
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days; the server still enforces JWT expiry
 
+export const DEVICE_COOKIE_NAME = 'mobius_device';
+const DEVICE_MAX_AGE_SECONDS = 31536000; // 365 days
+
 const buildCookie = (nameValue: string, maxAge: number): string => {
   const parts = [nameValue, 'path=/', `max-age=${maxAge}`, 'samesite=lax'];
   if (COOKIE_DOMAIN) parts.push(`domain=${COOKIE_DOMAIN}`);
@@ -32,6 +35,20 @@ export const setToken = (token: string): void => {
 
 export const clearToken = (): void => {
   document.cookie = buildCookie(`${COOKIE_NAME}=`, 0);
+};
+
+// The device secret rides the same parent-domain cookie as the session (so one
+// approval covers every Mobius origin) but has a life of its own: it identifies
+// the BROWSER, not the session, and an approved browser must stay approved
+// across logouts and across whoever logs in next. There is deliberately no
+// clearDeviceToken — logging out clears mobius_session only.
+export const getDeviceToken = (): string | null => {
+  const match = document.cookie.match(new RegExp('(?:^|; )' + DEVICE_COOKIE_NAME + '=([^;]*)'));
+  return match ? decodeURIComponent(match[1]) : null;
+};
+
+export const setDeviceToken = (token: string): void => {
+  document.cookie = buildCookie(`${DEVICE_COOKIE_NAME}=${encodeURIComponent(token)}`, DEVICE_MAX_AGE_SECONDS);
 };
 
 // The superAdmin company switcher's choice. It lives here rather than in

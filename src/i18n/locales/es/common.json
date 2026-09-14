@@ -67,7 +67,8 @@
     "productionOrders": "Órdenes de Producción",
     "audit": "Auditoría",
     "openMenu": "Abrir menú",
-    "closeMenu": "Cerrar menú"
+    "closeMenu": "Cerrar menú",
+    "devices": "Dispositivos"
   },
   "roles": {
     "title": "Perfiles y Permisos",
@@ -348,6 +349,7 @@
       "tooling_types": "Tipo de insumo",
       "toolings": "Insumo",
       "trace_types": "Tipo de traza",
+      "user_devices": "Dispositivos",
       "warehouse_locations": "Ubicación de depósito"
     },
     "fields": {
@@ -3033,5 +3035,56 @@
     "sortAscending": "Ascendente",
     "sortDescending": "Descendente",
     "dragToReorder": "Arrastrar para reordenar {{label}}"
+  },
+  "devices": {
+    "title": "Dispositivos",
+    "subtitle": "Aprobá los navegadores desde los que tu equipo entra a Mobius.",
+    "searchPlaceholder": "Buscar por nombre o correo...",
+    "loading": "Cargando dispositivos...",
+    "empty": "No hay dispositivos para estos filtros.",
+    "unknownUserAgent": "Navegador desconocido",
+    "filters": {
+      "statusAll": "Todos los estados"
+    },
+    "status": {
+      "pending": "Pendiente",
+      "approved": "Aprobado",
+      "revoked": "Revocado"
+    },
+    "columns": {
+      "user": "Usuario",
+      "device": "Dispositivo",
+      "requestedAt": "Solicitado",
+      "status": "Estado",
+      "approvedBy": "Aprobado por",
+      "actions": "Acciones"
+    },
+    "approve": {
+      "action": "Aprobar dispositivo",
+      "confirmTitle": "Aprobar dispositivo",
+      "confirmMessage": "{{email}} podrá usar Mobius desde {{device}} (solicitado {{requestedAt}}). Confirmá solo si reconocés el equipo y la solicitud.",
+      "submit": "Aprobar",
+      "error": "No se pudo aprobar el dispositivo.",
+      "alreadyApproved": "Este dispositivo ya estaba aprobado. Se actualizó la lista."
+    },
+    "revoke": {
+      "action": "Revocar dispositivo",
+      "confirmTitle": "Revocar dispositivo",
+      "confirmMessage": "{{email}} no podrá usar Mobius desde {{device}} (solicitado {{requestedAt}}) hasta que lo solicite otra vez y lo apruebes.",
+      "submit": "Revocar",
+      "error": "No se pudo revocar el dispositivo.",
+      "alreadyRevoked": "Este dispositivo ya estaba revocado. Se actualizó la lista."
+    },
+    "waiting": {
+      "title": "Esperando la aprobación de este dispositivo",
+      "instructions": "Un administrador de tu empresa tiene que aprobar este navegador desde Dispositivos antes de que puedas entrar.",
+      "help": "Esta pantalla se actualiza sola: en cuanto te aprueben, entrás directo.",
+      "checkNow": "Comprobar ahora",
+      "signOut": "Cerrar sesión",
+      "revokedTitle": "Dispositivo revocado",
+      "revokedMessage": "Un administrador revocó este dispositivo. Cerrá sesión y volvé a iniciarla para solicitarlo de nuevo.",
+      "unknownTitle": "Dispositivo no registrado",
+      "unknownMessage": "Este navegador no está registrado en tu cuenta. Cerrá sesión y volvé a iniciarla para solicitar la aprobación."
+    }
   }
 }

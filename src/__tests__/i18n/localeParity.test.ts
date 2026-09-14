@@ -59,7 +59,7 @@ describe('i18n locale parity', () => {
   });
 
   it('labels every audited table, in both languages', () => {
-    // The API audits 74 tables and returns `entityName` as the raw table name;
+    // The API audits 75 tables and returns `entityName` as the raw table name;
     // labelling is entirely the SPA's job. Parity alone would not catch this:
     // a table added to the API with no key here appears in the Auditoría filter
     // and in every history headline as `audit.entities.paper_class_papers`,
@@ -67,7 +67,7 @@ describe('i18n locale parity', () => {
     //
     // If this count changes, the API's audited-table set changed. Add the
     // label — do not just bump the number.
-    const AUDITED_TABLES = 74;
+    const AUDITED_TABLES = 75;
 
     expect(Object.keys(es.audit.entities)).toHaveLength(AUDITED_TABLES);
     expect(Object.keys(en.audit.entities)).toHaveLength(AUDITED_TABLES);

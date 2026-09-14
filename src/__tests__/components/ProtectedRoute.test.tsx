@@ -11,8 +11,8 @@ jest.mock('../../contexts/AuthContext', () => ({
 
 const mockNavigate = jest.fn();
 jest.mock('react-router-dom', () => ({
-  Navigate: ({ to }: { to: string }) => {
-    mockNavigate(to);
+  Navigate: ({ to, state }: { to: string; state?: unknown }) => {
+    mockNavigate(to, state);
     return <div data-testid="navigate-to">{to}</div>;
   },
   useLocation: () => ({ pathname: '/protected' }),
@@ -154,6 +154,66 @@ describe('ProtectedRoute', () => {
       );
 
       expect(screen.getByText('Protected Content')).toBeInTheDocument();
+    });
+  });
+
+  describe('Device Gate', () => {
+    it('should redirect a device-blocked member to the waiting screen, carrying the original destination', () => {
+      mockUseAuth.mockReturnValue({
+        isAuthenticated: true,
+        isLoading: false,
+        user: { role: 'member' },
+        deviceBlocked: true,
+      });
+
+      render(
+        <ProtectedRoute>
+          <ProtectedContent />
+        </ProtectedRoute>
+      );
+
+      expect(screen.getByTestId('navigate-to')).toHaveTextContent('/device-pending');
+      expect(mockNavigate).toHaveBeenCalledWith('/device-pending', { from: { pathname: '/protected' } });
+      expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+    });
+
+    it('should gate on the device before the role and permission gates', () => {
+      // "Your browser is not approved" is the accurate answer even on a page this
+      // member could not see anyway — and the waiting screen is where they can act.
+      mockUseAuth.mockReturnValue({
+        isAuthenticated: true,
+        isLoading: false,
+        user: { role: 'member' },
+        deviceBlocked: true,
+      });
+
+      render(
+        <ProtectedRoute requiredRoles={['admin', 'superAdmin']} requiredPermission="devices.approve">
+          <ProtectedContent />
+        </ProtectedRoute>
+      );
+
+      expect(screen.getByTestId('navigate-to')).toHaveTextContent('/device-pending');
+      expect(screen.queryByText('Access Denied')).not.toBeInTheDocument();
+    });
+
+    it('should never redirect an admin, who has no device row at all', () => {
+      mockUseAuth.mockReturnValue({
+        isAuthenticated: true,
+        isLoading: false,
+        user: { role: 'admin' },
+        device: null,
+        deviceBlocked: false,
+      });
+
+      render(
+        <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+          <ProtectedContent />
+        </ProtectedRoute>
+      );
+
+      expect(screen.getByText('Protected Content')).toBeInTheDocument();
+      expect(screen.queryByTestId('navigate-to')).not.toBeInTheDocument();
     });
   });
 

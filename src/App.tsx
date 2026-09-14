@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { CompanyProvider } from './contexts/CompanyContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute, { DEVICE_PENDING_PATH } from './components/ProtectedRoute';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CustomerCategories from './pages/CustomerCategories';
@@ -51,6 +51,8 @@ import StrappingTypes from './pages/StrappingTypes';
 import Complements from './pages/Complements';
 import TraceTypes from './pages/TraceTypes';
 import AuditLogs from './pages/AuditLogs';
+import Devices from './pages/Devices';
+import DevicePending from './pages/DevicePending';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -493,6 +495,28 @@ function App() {
               element={
                 <ProtectedRoute requiredPermission="audit.read">
                   <AuditLogs />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Dispositivos. Gated on the permission, like /audit-logs, so this
+                route and its sidebar entry ask the same question (L-011). */}
+            <Route
+              path="/devices"
+              element={
+                <ProtectedRoute requiredPermission="devices.approve">
+                  <Devices />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* The waiting screen a device-blocked member is sent to. Authenticated
+                but permission-free: it is the one page such a member may render. */}
+            <Route
+              path={DEVICE_PENDING_PATH}
+              element={
+                <ProtectedRoute>
+                  <DevicePending />
                 </ProtectedRoute>
               }
             />

@@ -52,11 +52,52 @@ export interface AuthUser {
   companyName?: string;
   /** RBAC permission codes granted via the user's role (empty when no role assigned). */
   permissions?: string[];
+  /** This browser's device approval, as reported by `GET /auth/me`. Always null for admin/superAdmin. */
+  device?: DeviceSession | null;
 }
 
 export interface LoginResponse {
   token: string;
   user: AuthUser;
+  device: DeviceSession | null;
+}
+
+export type DeviceStatus = 'pending' | 'approved' | 'revoked';
+
+/**
+ * What a user learns about their own device. `token` is the raw device secret
+ * and arrives exactly once, in the login/accept-invitation response that issued
+ * it.
+ */
+export interface DeviceSession {
+  uuid: string;
+  status: DeviceStatus;
+  requestedAt: string;
+  approvedAt: string | null;
+  revokedAt: string | null;
+  token?: string;
+}
+
+export interface UserRef {
+  uuid: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface UserDevice {
+  uuid: string;
+  status: DeviceStatus;
+  userAgent: string | null;
+  requestIp: string | null;
+  requestedAt: string;
+  approvedAt: string | null;
+  revokedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user: UserRef;
+  approvedBy: UserRef | null;
+  revokedBy: UserRef | null;
 }
 
 export interface ApiResponse<T = any> {
