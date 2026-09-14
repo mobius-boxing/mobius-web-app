@@ -123,6 +123,8 @@ const Devices: React.FC = () => {
     {
       key: 'user',
       header: t('devices.columns.user'),
+      hideable: false,
+      card: 'title' as const,
       render: (_: unknown, device: UserDevice) => (
         <div>
           <div className="font-medium text-secondary-900">
@@ -176,6 +178,8 @@ const Devices: React.FC = () => {
     {
       key: 'actions',
       header: t('devices.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (_: unknown, device: UserDevice) => (
         <div className="flex items-center space-x-2">
           {/* Approve from pending or revoked (D-149: an admin who revoked the wrong
@@ -215,7 +219,7 @@ const Devices: React.FC = () => {
         </div>
 
         <div className="flex flex-col gap-4 rounded-lg border border-secondary-200 bg-white p-4 sm:flex-row">
-          <div className="max-w-md flex-1">
+          <div className="w-full sm:flex-1 sm:max-w-md">
             <SearchInput
               value={search}
               onChange={setSearch}
@@ -256,6 +260,7 @@ const Devices: React.FC = () => {
                 sortBy={sortBy}
                 sortOrder={sortOrder}
                 onSort={setSort}
+                listId="devices"
               />
               <Pagination {...paginationProps} />
             </>
