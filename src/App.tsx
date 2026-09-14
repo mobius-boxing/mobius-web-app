@@ -51,7 +51,6 @@ import StrappingTypes from './pages/StrappingTypes';
 import Complements from './pages/Complements';
 import TraceTypes from './pages/TraceTypes';
 import AuditLogs from './pages/AuditLogs';
-import Devices from './pages/Devices';
 import DevicePending from './pages/DevicePending';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ForgotPassword from './pages/ForgotPassword';
@@ -495,17 +494,6 @@ function App() {
               element={
                 <ProtectedRoute requiredPermission="audit.read">
                   <AuditLogs />
-                </ProtectedRoute>
-              }
-            />
-
-            {/* Dispositivos. Gated on the permission, like /audit-logs, so this
-                route and its sidebar entry ask the same question (L-011). */}
-            <Route
-              path="/devices"
-              element={
-                <ProtectedRoute requiredPermission="devices.approve">
-                  <Devices />
                 </ProtectedRoute>
               }
             />

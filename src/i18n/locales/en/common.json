@@ -67,8 +67,7 @@
     "productionOrders": "Production Orders",
     "audit": "Audit Log",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu",
-    "devices": "Devices"
+    "closeMenu": "Close menu"
   },
   "roles": {
     "title": "Roles & Permissions",
@@ -3037,44 +3036,6 @@
     "dragToReorder": "Drag to reorder {{label}}"
   },
   "devices": {
-    "title": "Devices",
-    "subtitle": "Approve the browsers your team signs in to Mobius from.",
-    "searchPlaceholder": "Search by name or email...",
-    "loading": "Loading devices...",
-    "empty": "No devices match these filters.",
-    "unknownUserAgent": "Unknown browser",
-    "filters": {
-      "statusAll": "All statuses"
-    },
-    "status": {
-      "pending": "Pending",
-      "approved": "Approved",
-      "revoked": "Revoked"
-    },
-    "columns": {
-      "user": "User",
-      "device": "Device",
-      "requestedAt": "Requested",
-      "status": "Status",
-      "approvedBy": "Approved by",
-      "actions": "Actions"
-    },
-    "approve": {
-      "action": "Approve device",
-      "confirmTitle": "Approve device",
-      "confirmMessage": "{{email}} will be able to use Mobius from {{device}} (requested {{requestedAt}}). Confirm only if you recognise the machine and the request.",
-      "submit": "Approve",
-      "error": "The device could not be approved.",
-      "alreadyApproved": "This device was already approved. The list has been refreshed."
-    },
-    "revoke": {
-      "action": "Revoke device",
-      "confirmTitle": "Revoke device",
-      "confirmMessage": "{{email}} will not be able to use Mobius from {{device}} (requested {{requestedAt}}) until they request it again and you approve it.",
-      "submit": "Revoke",
-      "error": "The device could not be revoked.",
-      "alreadyRevoked": "This device was already revoked. The list has been refreshed."
-    },
     "waiting": {
       "title": "Waiting for this device to be approved",
       "instructions": "An administrator of your company has to approve this browser from Devices before you can sign in.",

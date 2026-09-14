@@ -78,28 +78,6 @@ export interface DeviceSession {
   token?: string;
 }
 
-export interface UserRef {
-  uuid: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-}
-
-export interface UserDevice {
-  uuid: string;
-  status: DeviceStatus;
-  userAgent: string | null;
-  requestIp: string | null;
-  requestedAt: string;
-  approvedAt: string | null;
-  revokedAt: string | null;
-  createdAt: string;
-  updatedAt: string;
-  user: UserRef;
-  approvedBy: UserRef | null;
-  revokedBy: UserRef | null;
-}
-
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;

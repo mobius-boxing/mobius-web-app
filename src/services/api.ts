@@ -14,7 +14,6 @@ import {
   LoginResponse,
   DeviceSession,
   DeviceStatus,
-  UserDevice,
   AuthUser,
   User,
   Company,
@@ -2274,37 +2273,5 @@ export const productionOrdersApi = {
   ): Promise<ProductionOrder> => {
     const response = await api.post(`/api/production-orders/${uuid}/${machine}`);
     return response.data.data;
-  },
-};
-
-export const devicesApi = {
-  getDevices: async (params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    status?: string;
-    sortBy?: string;
-    sortOrder?: 'asc' | 'desc';
-    companyId?: string;
-  } = {}): Promise<PaginatedResponse<UserDevice>> => {
-    const response = await api.get('/api/devices', { params });
-    const backendData = response.data;
-    return {
-      data: backendData.data,
-      total: backendData.totalCount,
-      page: backendData.page,
-      limit: backendData.limit,
-      totalPages: backendData.totalPages,
-    };
-  },
-
-  approve: async (uuid: string): Promise<UserDevice> => {
-    const response: AxiosResponse<ApiResponse<UserDevice>> = await api.patch(`/api/devices/${uuid}/approve`);
-    return response.data.data!;
-  },
-
-  revoke: async (uuid: string): Promise<UserDevice> => {
-    const response: AxiosResponse<ApiResponse<UserDevice>> = await api.patch(`/api/devices/${uuid}/revoke`);
-    return response.data.data!;
   },
 };
