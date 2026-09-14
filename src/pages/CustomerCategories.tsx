@@ -87,6 +87,8 @@ const CustomerCategories: React.FC = () => {
     {
       key: 'name',
       header: t('customerCategories.columns.categoryName'),
+      hideable: false,
+      card: 'title' as const,
       render: (value: any, category: CustomerCategory) => (
         <div className="flex items-center">
           <div className="flex-shrink-0 h-10 w-10">
@@ -113,6 +115,8 @@ const CustomerCategories: React.FC = () => {
     {
       key: 'actions',
       header: t('customerCategories.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (value: any, category: CustomerCategory) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -140,7 +144,7 @@ const CustomerCategories: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('customerCategories.title')}</h1>
             <p className="text-secondary-600">{t('customerCategories.subtitle')}</p>
@@ -155,8 +159,8 @@ const CustomerCategories: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 max-w-md">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-full sm:flex-1 sm:max-w-md">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -168,7 +172,7 @@ const CustomerCategories: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
                 {t('customerCategories.allCategories')} ({categories.length})
               </h2>
@@ -200,6 +204,7 @@ const CustomerCategories: React.FC = () => {
                   columns={columns}
                   data={categories}
                   loading={loading}
+                  listId="customer-categories"
                 />
                 <Pagination {...paginationProps} />
               </>

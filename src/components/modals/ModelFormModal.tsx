@@ -287,7 +287,7 @@ const ModelFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, model }) 
 
         {section(
           'data',
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-secondary-700">
                 {t('models.fields.code')}

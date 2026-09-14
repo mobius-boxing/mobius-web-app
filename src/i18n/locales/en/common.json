@@ -65,7 +65,9 @@
     "models": "Models",
     "salesOrders": "Sales Orders",
     "productionOrders": "Production Orders",
-    "audit": "Audit Log"
+    "audit": "Audit Log",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu"
   },
   "roles": {
     "title": "Roles & Permissions",
@@ -191,7 +193,8 @@
   "pagination": {
     "showing": "Showing {{start}} to {{end}} of {{total}}",
     "previous": "Previous page",
-    "next": "Next page"
+    "next": "Next page",
+    "pageOf": "{{page}} / {{totalPages}}"
   },
   "confirmModal": {
     "defaultTitle": "Confirm Action",
@@ -2470,7 +2473,8 @@
       "corrugation": "Corrugation",
       "approvals": "Approvals",
       "actions": "Actions",
-      "approvalsTitle": "Dimensions / Technical / Final"
+      "approvalsTitle": "Dimensions / Technical / Final",
+      "select": "Selection"
     },
     "filters": {
       "allStates": "All states",
@@ -3012,5 +3016,21 @@
       "error": "The audit log could not be exported."
     },
     "childOf": "{{kind}} · in {{parent}}"
+  },
+  "table": {
+    "columns": "Columns",
+    "columnsTitle": "Configure columns",
+    "columnsHint": "Changes are saved in this browser. On narrow screens, title and action columns stay at the top and bottom of each card.",
+    "resetColumns": "Reset to default",
+    "moveUp": "Move {{label}} up",
+    "moveDown": "Move {{label}} down",
+    "showColumn": "Show {{label}}",
+    "alwaysVisible": "Always visible",
+    "pinned": "Fixed position",
+    "notSaved": "Changes can't be saved in this browser and will be lost on reload.",
+    "sortBy": "Sort by",
+    "sortNone": "Default order",
+    "sortAscending": "Ascending",
+    "sortDescending": "Descending"
   }
 }

@@ -9,6 +9,7 @@ const mockGetCompanies = jest.fn();
 const mockDeleteUser = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
+  useAuthUser: () => null,
   useAuth: () => ({
     user: mockUser,
     isAuthenticated: !!mockUser,

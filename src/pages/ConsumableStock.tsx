@@ -87,6 +87,8 @@ const ConsumableStockPage: React.FC = () => {
     {
       key: 'consumableSupply',
       header: t('consumableStock.columns.consumableSupply'),
+      hideable: false,
+      card: 'title' as const,
       render: (value: any, stock: ConsumableStock) => (
         <span className="text-sm font-medium text-secondary-900">
           {stock.consumableSupply?.name || 'N/A'}
@@ -142,6 +144,8 @@ const ConsumableStockPage: React.FC = () => {
     {
       key: 'actions',
       header: t('consumableStock.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (value: any, stock: ConsumableStock) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -169,7 +173,7 @@ const ConsumableStockPage: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('consumableStock.title')}</h1>
             <p className="text-secondary-600">{t('consumableStock.subtitle')}</p>
@@ -184,8 +188,8 @@ const ConsumableStockPage: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 max-w-md">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-full sm:flex-1 sm:max-w-md">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -229,6 +233,7 @@ const ConsumableStockPage: React.FC = () => {
                   columns={columns}
                   data={consumableStock}
                   loading={loading}
+                  listId="consumable-stock"
                 />
                 <Pagination {...paginationProps} />
               </>

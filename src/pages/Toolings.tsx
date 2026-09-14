@@ -88,6 +88,8 @@ const Toolings: React.FC = () => {
     {
       key: 'name',
       header: t('toolings.columns.name'),
+      hideable: false,
+      card: 'title' as const,
       render: (value: any, tooling: Tooling) => (
         <div className="flex items-center">
           <div className="flex-shrink-0 h-10 w-10">
@@ -144,6 +146,8 @@ const Toolings: React.FC = () => {
     {
       key: 'actions',
       header: t('toolings.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (value: any, tooling: Tooling) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -171,7 +175,7 @@ const Toolings: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('toolings.title')}</h1>
             <p className="text-secondary-600">{t('toolings.subtitle')}</p>
@@ -186,8 +190,8 @@ const Toolings: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 max-w-md">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-full sm:flex-1 sm:max-w-md">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -231,6 +235,7 @@ const Toolings: React.FC = () => {
                   columns={columns}
                   data={toolings}
                   loading={loading}
+                  listId="toolings"
                 />
                 <Pagination {...paginationProps} />
               </>

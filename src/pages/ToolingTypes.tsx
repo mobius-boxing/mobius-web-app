@@ -88,6 +88,8 @@ const ToolingTypes: React.FC = () => {
     {
       key: 'code',
       header: t('toolingTypes.columns.code'),
+      hideable: false,
+      card: 'title' as const,
       render: (value: any, toolingType: ToolingType) => (
         <div className="flex items-center">
           <div className="flex-shrink-0 h-10 w-10">
@@ -136,6 +138,8 @@ const ToolingTypes: React.FC = () => {
     {
       key: 'actions',
       header: t('toolingTypes.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (value: any, toolingType: ToolingType) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -163,7 +167,7 @@ const ToolingTypes: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('toolingTypes.title')}</h1>
             <p className="text-secondary-600">{t('toolingTypes.subtitle')}</p>
@@ -178,8 +182,8 @@ const ToolingTypes: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 max-w-md">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-full sm:flex-1 sm:max-w-md">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -223,6 +227,7 @@ const ToolingTypes: React.FC = () => {
                   columns={columns}
                   data={toolingTypes}
                   loading={loading}
+                  listId="tooling-types"
                 />
                 <Pagination {...paginationProps} />
               </>

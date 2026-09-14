@@ -23,6 +23,7 @@ const mockDeleteCompany = jest.fn();
 const mockUpdateCompanyStatus = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
+  useAuthUser: () => null,
   useAuth: () => ({
     user: mockUser,
     isAuthenticated: true,

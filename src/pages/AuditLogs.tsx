@@ -277,6 +277,8 @@ const AuditLogs: React.FC = () => {
       {
         key: 'occurredAt',
         header: t('auditLogs.columns.occurredAt'),
+        hideable: false,
+        card: 'title' as const,
         render: (_value: unknown, row: AuditRowView) => {
           const open = expanded === row.uuid;
           return (
@@ -553,6 +555,7 @@ const AuditLogs: React.FC = () => {
               data={rows}
               loading={loading}
               emptyMessage={t('auditLogs.empty')}
+              listId="audit-logs"
               renderExpanded={(row: AuditRowView) =>
                 expanded === row.uuid ? (
                   <div

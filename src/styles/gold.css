@@ -748,6 +748,99 @@ body::after {
   color: oklch(var(--n-500));
 }
 
+/* ── Table tools + cards (configurable columns) ─────────────────────────── */
+/* The tools row sits above both the table and the card list — same
+   right-aligned slot in either mode, so the column chooser never moves when
+   the layout crosses the card breakpoint. */
+.gd-table-tools {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 0.25rem 0.75rem;
+}
+
+/* `< md` renderer for `.gd-table` (Table.tsx / CardList.tsx). Deliberately its
+   own class, not a `.gd-table` variant: gd-table's direct-child selectors
+   above must not reach into a card's own `dt`/`dd`/`td`-free markup. */
+.gd-cards {
+  display: grid;
+  /* `minmax(0, 1fr)`, not `1fr`: a grid track's automatic minimum is its
+     content's min-content width, so a title/action cell with a nowrap badge
+     or button row would otherwise grow the card (and the page) past the
+     viewport at 390px instead of wrapping inside it. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.75rem;
+  /* Table always sits inside a padded page card; matching Pagination's px-1
+     keeps cards, tools button and pager on one edge instead of a double inset. */
+  padding: 0 0.25rem 0.5rem;
+  list-style: none;
+}
+
+.gd-cards-2up {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gd-card {
+  min-width: 0;
+  border: 1px solid var(--gd-hairline);
+  border-radius: 1.125rem;
+  padding: 1rem 1.125rem;
+  background: oklch(var(--white));
+  box-shadow: var(--gd-elev-rest);
+}
+
+.gd-card__head {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: oklch(var(--n-800));
+  margin-bottom: 0.625rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.gd-card__fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: baseline;
+  gap: 0.375rem 0.75rem;
+  margin: 0;
+}
+
+.gd-card__fields dt {
+  font-family: var(--font-mono);
+  font-size: 0.625rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: oklch(var(--n-500));
+  white-space: nowrap;
+}
+
+.gd-card__fields dd {
+  margin: 0;
+  font-size: 0.875rem;
+  color: oklch(var(--n-800));
+  /* Unlike `.gd-table td`, a card value has no column width to be squeezed
+     into — it wraps instead of forcing the card wider than its grid cell. */
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.gd-card__expanded {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gd-hairline);
+}
+
+.gd-card__actions {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--gd-hairline);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
 /* ── Badges ──────────────────────────────────────────────────────────────── */
 /* WHY: bg-purple-100/bg-blue-100/bg-green-100/bg-red-100 pills — the same
    pastel-chip crime removed from the dashboard, still live on Users,

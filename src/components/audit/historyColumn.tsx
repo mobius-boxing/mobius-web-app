@@ -1,4 +1,5 @@
 import React from 'react';
+import type { Column } from '../ui/Table';
 import { Translate } from './diff';
 import HistoryButton from './HistoryButton';
 
@@ -22,14 +23,6 @@ import HistoryButton from './HistoryButton';
  * `entityKey` is the snake_case **table** name (`sales_orders`), never the page
  * name and never a label: it is what the API keys its ledger by.
  */
-
-/** The shape `components/ui/Table.tsx` consumes (its `Column` is not exported). */
-export interface HistoryColumn<T = any> {
-  key: string;
-  header: string;
-  className?: string;
-  render: (value: any, row: T) => React.ReactNode;
-}
 
 /**
  * Rows the pages hand us. `uuid` is the only field this column needs; the rest
@@ -68,11 +61,12 @@ const recordLabelOf = (row: HistoryRow | null | undefined): string | undefined =
 export function historyColumn<T extends HistoryRow = any>(
   entityKey: string,
   t: Translate
-): HistoryColumn<T> {
+): Column<T> {
   return {
     key: 'history',
     header: t('audit.title'),
     className: 'w-16',
+    card: 'actions',
     render: (_value: any, row: T) => (
       <HistoryButton
         entityKey={entityKey}

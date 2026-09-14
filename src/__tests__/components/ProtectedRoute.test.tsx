@@ -5,6 +5,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 const mockUseAuth = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
+  useAuthUser: () => null,
   useAuth: () => mockUseAuth(),
 }));
 

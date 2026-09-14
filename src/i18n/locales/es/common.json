@@ -65,7 +65,9 @@
     "models": "Modelos",
     "salesOrders": "Pedidos",
     "productionOrders": "Órdenes de Producción",
-    "audit": "Auditoría"
+    "audit": "Auditoría",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú"
   },
   "roles": {
     "title": "Perfiles y Permisos",
@@ -191,7 +193,8 @@
   "pagination": {
     "showing": "Mostrando {{start}} a {{end}} de {{total}}",
     "previous": "Página anterior",
-    "next": "Página siguiente"
+    "next": "Página siguiente",
+    "pageOf": "{{page}} / {{totalPages}}"
   },
   "confirmModal": {
     "defaultTitle": "Confirmar Acción",
@@ -2470,7 +2473,8 @@
       "corrugation": "Corrugado",
       "approvals": "Aprobaciones",
       "actions": "Acciones",
-      "approvalsTitle": "Medidas / Técnica / Final"
+      "approvalsTitle": "Medidas / Técnica / Final",
+      "select": "Selección"
     },
     "filters": {
       "allStates": "Todos los estados",
@@ -3012,5 +3016,21 @@
       "error": "No se pudo exportar el registro de auditoría."
     },
     "childOf": "{{kind}} · en {{parent}}"
+  },
+  "table": {
+    "columns": "Columnas",
+    "columnsTitle": "Configurar columnas",
+    "columnsHint": "Los cambios se guardan en este navegador. En pantallas angostas, las columnas de título y de acciones quedan arriba y abajo de cada tarjeta.",
+    "resetColumns": "Restablecer valores predeterminados",
+    "moveUp": "Mover {{label}} hacia arriba",
+    "moveDown": "Mover {{label}} hacia abajo",
+    "showColumn": "Mostrar {{label}}",
+    "alwaysVisible": "Siempre visible",
+    "pinned": "Posición fija",
+    "notSaved": "Los cambios no se pueden guardar en este navegador y se perderán al recargar.",
+    "sortBy": "Ordenar por",
+    "sortNone": "Orden predeterminado",
+    "sortAscending": "Ascendente",
+    "sortDescending": "Descendente"
   }
 }

@@ -28,7 +28,7 @@ const Pagination: React.FC<PaginationProps> = ({
   const end = Math.min(page * limit, total);
 
   return (
-    <div className="flex items-center justify-between gap-4 px-1 py-3 mt-2 border-t border-secondary-100">
+    <div className="flex flex-wrap items-center justify-between gap-2 px-1 py-3 mt-2 border-t border-secondary-100">
       <div className="flex items-center gap-2 text-sm text-secondary-500">
         <span>{t('pagination.showing', { start, end, total })}</span>
         {onLimitChange && (
@@ -56,35 +56,41 @@ const Pagination: React.FC<PaginationProps> = ({
           <ChevronLeft className="h-4 w-4" />
         </button>
 
-        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-          let pageNum: number;
-          if (totalPages <= 5) {
-            pageNum = i + 1;
-          } else if (page <= 3) {
-            pageNum = i + 1;
-          } else if (page >= totalPages - 2) {
-            pageNum = totalPages - 4 + i;
-          } else {
-            pageNum = page - 2 + i;
-          }
+        <div className="hidden items-center gap-1 sm:flex">
+          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+            let pageNum: number;
+            if (totalPages <= 5) {
+              pageNum = i + 1;
+            } else if (page <= 3) {
+              pageNum = i + 1;
+            } else if (page >= totalPages - 2) {
+              pageNum = totalPages - 4 + i;
+            } else {
+              pageNum = page - 2 + i;
+            }
 
-          const isActive = pageNum === page;
-          return (
-            <button
-              key={pageNum}
-              onClick={() => onPageChange(pageNum)}
-              aria-current={isActive ? 'page' : undefined}
-              className={cn(
-                'min-w-[2rem] px-2.5 py-1.5 rounded-md text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary-600 text-white'
-                  : 'text-secondary-600 hover:bg-secondary-100 hover:text-secondary-900'
-              )}
-            >
-              {pageNum}
-            </button>
-          );
-        })}
+            const isActive = pageNum === page;
+            return (
+              <button
+                key={pageNum}
+                onClick={() => onPageChange(pageNum)}
+                aria-current={isActive ? 'page' : undefined}
+                className={cn(
+                  'min-w-[2rem] px-2.5 py-1.5 rounded-md text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary-600 text-white'
+                    : 'text-secondary-600 hover:bg-secondary-100 hover:text-secondary-900'
+                )}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
+        </div>
+
+        <span className="px-1 text-sm text-secondary-600 sm:hidden">
+          {t('pagination.pageOf', { page, totalPages })}
+        </span>
 
         <button
           onClick={() => onPageChange(page + 1)}

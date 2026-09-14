@@ -92,6 +92,8 @@ const Roles: React.FC = () => {
     {
       key: 'name',
       header: t('roles.columns.name'),
+      hideable: false,
+      card: 'title' as const,
       render: (value: any, role: Role) => (
         <div className="flex items-center space-x-2">
           <span className="text-sm font-medium text-secondary-900">
@@ -128,6 +130,8 @@ const Roles: React.FC = () => {
     {
       key: 'actions',
       header: t('roles.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (value: any, role: Role) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -172,7 +176,7 @@ const Roles: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">
               {t('roles.title')}
@@ -191,8 +195,8 @@ const Roles: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 max-w-md">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-full sm:flex-1 sm:max-w-md">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -204,7 +208,7 @@ const Roles: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
               <h2 className="text-lg font-medium text-secondary-900">
                 {t('roles.allRoles')} ({roles.length})
               </h2>
@@ -228,7 +232,7 @@ const Roles: React.FC = () => {
               </div>
             ) : (
               <>
-                <Table columns={columns} data={roles} loading={loading} />
+                <Table columns={columns} data={roles} loading={loading} listId="roles" />
                 <Pagination {...paginationProps} />
               </>
             )}

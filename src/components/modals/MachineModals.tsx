@@ -30,7 +30,7 @@ const MachineFields: React.FC<{
   const { t } = useTranslation();
   return (
     <>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="gd-label">
             {t('machines.code')}
@@ -63,7 +63,7 @@ const MachineFields: React.FC<{
         </label>
         <Input {...register('description')} error={errors.description?.message as string} />
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label className="gd-label">
             {t('machines.setupTime')}
@@ -83,7 +83,7 @@ const MachineFields: React.FC<{
           <Input type="number" step="any" {...register('sheetWidthMax')} error={errors.sheetWidthMax?.message as string} />
         </div>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="gd-label">
             {t('machines.sourceWarehouse')}

@@ -34,6 +34,7 @@ const mockGetHistory = jest.fn();
 let mockRouteParams: { uuid?: string } = {};
 
 jest.mock('../../contexts/AuthContext', () => ({
+  useAuthUser: () => null,
   useAuth: () => ({
     user: { uuid: 'user-1', role: 'admin', permissions: [] },
     isAuthenticated: true,

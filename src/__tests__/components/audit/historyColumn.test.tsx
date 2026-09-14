@@ -85,8 +85,10 @@ describe('historyColumn', () => {
     expect(column.header).toBe(es.audit.title);
     expect(typeof column.className).toBe('string');
     expect(typeof column.render).toBe('function');
+    expect(column.card).toBe('actions');
     // One expression, one array element: the page keeps no state (AC-7).
     expect(Object.keys(column).sort()).toEqual([
+      'card',
       'className',
       'header',
       'key',

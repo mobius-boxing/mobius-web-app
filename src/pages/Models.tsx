@@ -69,6 +69,8 @@ const Models: React.FC = () => {
     {
       key: 'code',
       header: t('models.columns.code'),
+      hideable: false,
+      card: 'title' as const,
       render: (_: any, m: Model) => (
         <span className="text-sm font-medium text-secondary-900">{m.code || 'N/A'}</span>
       ),
@@ -98,6 +100,8 @@ const Models: React.FC = () => {
     {
       key: 'actions',
       header: t('models.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (_: any, m: Model) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -127,7 +131,7 @@ const Models: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('models.title')}</h1>
             <p className="text-secondary-600">{t('models.subtitle')}</p>
@@ -145,7 +149,7 @@ const Models: React.FC = () => {
         <ErrorMessage message={actionError} />
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex-1 max-w-md">
+          <div className="w-full sm:flex-1 sm:max-w-md">
             <SearchInput value={search} onChange={setSearch} placeholder={t('models.searchPlaceholder')} />
           </div>
         </div>
@@ -166,7 +170,7 @@ const Models: React.FC = () => {
               </div>
             ) : (
               <>
-                <Table columns={columns} data={models} loading={loading} />
+                <Table columns={columns} data={models} loading={loading} listId="models" />
                 <Pagination {...paginationProps} />
               </>
             )}

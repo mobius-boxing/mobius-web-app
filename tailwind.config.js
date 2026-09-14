@@ -89,6 +89,8 @@ module.exports = {
         // The only X translation in the file: side sheets enter from the edge
         // they are anchored to, so the motion says where the panel came from.
         'slide-in-right': 'slideInRight 0.18s cubic-bezier(0.22, 1, 0.36, 1)',
+        // The nav drawer is anchored left, so it enters from the left.
+        'slide-in-left': 'slideInLeft 0.18s cubic-bezier(0.22, 1, 0.36, 1)',
       },
       keyframes: {
         fadeIn: {
@@ -109,6 +111,10 @@ module.exports = {
         },
         slideInRight: {
           '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0)' },
+        },
+        slideInLeft: {
+          '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(0)' },
         },
       },

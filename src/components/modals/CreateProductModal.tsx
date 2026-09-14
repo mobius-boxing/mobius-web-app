@@ -181,7 +181,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="gd-label">
               {t('products.revision')}
@@ -302,7 +302,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="gd-label">
                   {t('products.initialPart.sheetLength')} *
@@ -327,7 +327,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {(['boxLength', 'boxWidth', 'boxHeight'] as const).map((f) => (
                 // flex-col + flex-1 label: inputs stay bottom-aligned even when
                 // one label wraps to more lines than its siblings.

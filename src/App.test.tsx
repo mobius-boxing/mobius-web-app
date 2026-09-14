@@ -25,6 +25,7 @@ jest.mock('react-router-dom', () => ({
 }));
 
 jest.mock('./contexts/AuthContext', () => ({
+  useAuthUser: () => null,
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useAuth: () => ({
     isAuthenticated: false,

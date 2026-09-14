@@ -87,6 +87,8 @@ const PaperSheets: React.FC = () => {
     {
       key: 'code',
       header: t('paperSheets.columns.code'),
+      hideable: false,
+      card: 'title' as const,
       render: (value: any, paperSheet: PaperSheet) => (
         <span className="text-sm font-medium text-secondary-900">
           {paperSheet.code || 'N/A'}
@@ -153,6 +155,8 @@ const PaperSheets: React.FC = () => {
     {
       key: 'actions',
       header: t('paperSheets.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (value: any, paperSheet: PaperSheet) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -180,7 +184,7 @@ const PaperSheets: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('paperSheets.title')}</h1>
             <p className="text-secondary-600">{t('paperSheets.subtitle')}</p>
@@ -195,8 +199,8 @@ const PaperSheets: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 max-w-md">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-full sm:flex-1 sm:max-w-md">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -240,6 +244,7 @@ const PaperSheets: React.FC = () => {
                   columns={columns}
                   data={paperSheets}
                   loading={loading}
+                  listId="paper-sheets"
                 />
                 <Pagination {...paginationProps} />
               </>

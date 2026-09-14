@@ -23,6 +23,9 @@ export const useAuth = () => {
   return context;
 };
 
+/** Unlike useAuth, never throws: shared UI such as Table renders outside an AuthProvider in tests. */
+export const useAuthUser = (): AuthUser | null => useContext(AuthContext)?.user ?? null;
+
 interface AuthProviderProps {
   children: ReactNode;
 }

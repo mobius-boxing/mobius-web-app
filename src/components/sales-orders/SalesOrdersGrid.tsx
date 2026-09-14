@@ -172,6 +172,8 @@ const SalesOrdersGrid: React.FC = () => {
       key: 'number',
       header: t('salesOrders.columns.number'),
       sortable: true,
+      hideable: false,
+      card: 'title' as const,
       render: (_: unknown, order: SalesOrder) => (
         <Link
           to={`/sales-orders/${order.uuid}`}
@@ -313,6 +315,8 @@ const SalesOrdersGrid: React.FC = () => {
     {
       key: 'actions',
       header: t('salesOrders.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (_: unknown, order: SalesOrder) => (
         <div className="flex items-center space-x-2">
           {/* Cumplir / Anular without opening the form — the fulfillment
@@ -392,7 +396,7 @@ const SalesOrdersGrid: React.FC = () => {
 
       <div className="rounded-lg border border-secondary-200 bg-white shadow-sm">
         <div className="p-6">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <h2 className="text-lg font-medium text-secondary-900">
               {t('salesOrders.allOrders')} ({list.pagination.total})
             </h2>
@@ -429,6 +433,7 @@ const SalesOrdersGrid: React.FC = () => {
                     order,
                   )
                 }
+                listId="sales-orders"
               />
               <Pagination {...list.paginationProps} />
             </>

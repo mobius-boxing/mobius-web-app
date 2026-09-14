@@ -149,6 +149,8 @@ const ProductionOrdersGrid: React.FC<Props> = ({
       key: 'number',
       header: t('productionOrders.columns.number'),
       sortable: true,
+      hideable: false,
+      card: 'title' as const,
       render: (_: any, o: ProductionOrder) => (
         <button
           type="button"
@@ -237,6 +239,8 @@ const ProductionOrdersGrid: React.FC<Props> = ({
     {
       key: 'actions',
       header: t('productionOrders.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (_: any, o: ProductionOrder) => (
         <Button
           variant="ghost"
@@ -306,6 +310,7 @@ const ProductionOrdersGrid: React.FC<Props> = ({
         sortBy={sortBy}
         sortOrder={sortOrder}
         onSort={setSort}
+        listId={salesOrderUuid ? 'production-orders-in-sales-order' : 'production-orders'}
       />
       <Pagination {...paginationProps} />
 

@@ -358,7 +358,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
 
       {tab === 0 && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {field('code', <input className="input-field w-full bg-secondary-50" value={current?.code ?? t('parts.form.autoCode')} disabled />)}
             {field('clientCode', textInput('clientCode'))}
           </div>
@@ -372,7 +372,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
           ) : (
             <p className="text-sm text-secondary-500">{t('parts.form.approvalsAfterSave')}</p>
           )}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {field('dataSheetFile', <FileRefUploader value={form.dataSheetFileUuid ?? null} onChange={(u) => set('dataSheetFileUuid', u)} />)}
             {field('sketchFile', <FileRefUploader value={form.sketchFileUuid ?? null} onChange={(u) => set('sketchFileUuid', u)} />)}
             {field('blueprintFile', <FileRefUploader value={form.blueprintFileUuid ?? null} onChange={(u) => set('blueprintFileUuid', u)} />)}
@@ -385,7 +385,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
         <div className="space-y-4">
           {field('corrugation', select('corrugationUuid', 'corrugation'))}
           {field('model', select('modelUuid', 'model'))}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {field('boxLength', numInput('boxLength', true))}
             {field('boxWidth', numInput('boxWidth', true))}
             {field('boxHeight', numInput('boxHeight', true))}
@@ -402,16 +402,16 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
             {field('grammage', numInput('grammage', true))}
             {field('boxSurface', numInput('boxSurface', true))}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {field('boxWeight', <input className="input-field w-full bg-secondary-50" value={form.boxWeight ?? ''} disabled title={t('parts.form.weightComputed') ?? ''} />)}
             {field('preferredWidth', numInput('preferredWidth'))}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {field('corrugationScoreLines', textInput('corrugationScoreLines', '[0-9., ;]*'))}
             {field('printScoreLines', textInput('printScoreLines', '[0-9., ;]*'))}
           </div>
           {check('symmetricScoreLines')}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {field('colorCount', numInput('colorCount'))}
             {field('printSides', numInput('printSides'))}
             {field('inks', textInput('inks'))}
@@ -432,7 +432,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
       )}
 
       {tab === 3 && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {field('lengthUpperTolerance', numInput('lengthUpperTolerance'))}
           {field('lengthLowerTolerance', numInput('lengthLowerTolerance'))}
           {field('widthUpperTolerance', numInput('widthUpperTolerance'))}
@@ -445,7 +445,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
           {field('cobbTest', numInput('cobbTest'))}
           {field('ect', numInput('ect'))}
           {field('associatedQuantity', numInput('associatedQuantity'))}
-          <div className="col-span-3 grid grid-cols-2 gap-2">
+          <div className="sm:col-span-3 grid grid-cols-1 sm:grid-cols-2 gap-2">
             {check('allowsRotation')}
             {check('allowsPartialRotation')}
             {check('mandatoryRotation')}
@@ -463,7 +463,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
       {tab === 4 && (
         <div className="space-y-4">
           {field('palletization', select('palletizationUuid', 'palletization'))}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {field('labelsPerPallet', numInput('labelsPerPallet'))}
             {field('labelText', textInput('labelText'))}
           </div>
@@ -474,7 +474,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
 
       {tab === 5 && (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {check('printCode')}
             {check('printDate')}
             {check('printRecyclable')}
@@ -483,7 +483,7 @@ const PartFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, productUui
             {check('printNationalIndustry')}
             {check('printExport')}
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {field('foodSafetyNumber', textInput('foodSafetyNumber'))}
             {field('blueprintRef', textInput('blueprintRef'))}
           </div>

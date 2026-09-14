@@ -87,6 +87,8 @@ const SalesOrderProductionOrders: React.FC = () => {
     {
       key: 'number',
       header: t('salesOrders.associatedOrders.columns.number'),
+      hideable: false,
+      card: 'title' as const,
       render: (_: unknown, row: SalesOrderProductionOrder) => (
         <span className="text-sm font-medium text-secondary-900">
           {row.number}
@@ -168,7 +170,7 @@ const SalesOrderProductionOrders: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6" data-testid="sales-order-production-orders">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">
               {t('salesOrders.associatedOrders.title', {
@@ -214,7 +216,7 @@ const SalesOrderProductionOrders: React.FC = () => {
                 </div>
               ) : (
                 <>
-                  <Table columns={columns} data={rows} />
+                  <Table columns={columns} data={rows} listId="sales-order-production-orders" />
                   <Pagination
                     page={page}
                     totalPages={totalPages}

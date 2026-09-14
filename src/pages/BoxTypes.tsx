@@ -96,6 +96,8 @@ const BoxTypes: React.FC = () => {
       key: 'code',
       header: t('boxTypes.columns.code'),
       sortable: true,
+      hideable: false,
+      card: 'title' as const,
       render: (value: any, item: BoxType) => (
         <span className="text-sm font-medium text-secondary-900">
           {item.code || 'N/A'}
@@ -126,6 +128,8 @@ const BoxTypes: React.FC = () => {
     {
       key: 'actions',
       header: t('boxTypes.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (value: any, item: BoxType) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -155,7 +159,7 @@ const BoxTypes: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('boxTypes.title')}</h1>
             <p className="text-secondary-600">{t('boxTypes.subtitle')}</p>
@@ -170,8 +174,8 @@ const BoxTypes: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 max-w-md">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-full sm:flex-1 sm:max-w-md">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -218,6 +222,7 @@ const BoxTypes: React.FC = () => {
                   sortBy={sortBy}
                   sortOrder={sortOrder}
                   onSort={handleSort}
+                  listId="box-types"
                 />
                 <Pagination {...paginationProps} />
               </>

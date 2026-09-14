@@ -62,6 +62,8 @@ const Palletizations: React.FC = () => {
     {
       key: 'code',
       header: t('palletizations.columns.code'),
+      hideable: false,
+      card: 'title' as const,
       render: (_: any, p: Palletization) => (
         <span className="text-sm font-medium text-secondary-900">{p.code || 'N/A'}</span>
       ),
@@ -98,6 +100,8 @@ const Palletizations: React.FC = () => {
     {
       key: 'actions',
       header: t('palletizations.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (_: any, p: Palletization) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -127,7 +131,7 @@ const Palletizations: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('palletizations.title')}</h1>
             <p className="text-secondary-600">{t('palletizations.subtitle')}</p>
@@ -139,7 +143,7 @@ const Palletizations: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex-1 max-w-md">
+          <div className="w-full sm:flex-1 sm:max-w-md">
             <SearchInput value={search} onChange={setSearch} placeholder={t('palletizations.searchPlaceholder')} />
           </div>
         </div>
@@ -160,7 +164,7 @@ const Palletizations: React.FC = () => {
               </div>
             ) : (
               <>
-                <Table columns={columns} data={palletizations} loading={loading} />
+                <Table columns={columns} data={palletizations} loading={loading} listId="palletizations" />
                 <Pagination {...paginationProps} />
               </>
             )}

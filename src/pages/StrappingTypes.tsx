@@ -87,6 +87,8 @@ const StrappingTypes: React.FC = () => {
     {
       key: 'code',
       header: t('strappingTypes.columns.code'),
+      hideable: false,
+      card: 'title' as const,
       render: (value: any, strappingType: StrappingType) => (
         <span className="text-sm font-medium text-secondary-900">
           {strappingType.code || 'N/A'}
@@ -115,6 +117,8 @@ const StrappingTypes: React.FC = () => {
     {
       key: 'actions',
       header: t('strappingTypes.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (value: any, strappingType: StrappingType) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -144,7 +148,7 @@ const StrappingTypes: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('strappingTypes.title')}</h1>
             <p className="text-secondary-600">{t('strappingTypes.subtitle')}</p>
@@ -159,8 +163,8 @@ const StrappingTypes: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 max-w-md">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-full sm:flex-1 sm:max-w-md">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -204,6 +208,7 @@ const StrappingTypes: React.FC = () => {
                   columns={columns}
                   data={strappingTypes}
                   loading={loading}
+                  listId="strapping-types"
                 />
                 <Pagination {...paginationProps} />
               </>

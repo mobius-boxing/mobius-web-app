@@ -67,6 +67,8 @@ const PalletTypes: React.FC = () => {
     {
       key: 'code',
       header: t('palletTypes.columns.code'),
+      hideable: false,
+      card: 'title' as const,
       render: (_: any, pt: PalletType) => (
         <span className="text-sm font-medium text-secondary-900">{pt.code || 'N/A'}</span>
       ),
@@ -96,6 +98,8 @@ const PalletTypes: React.FC = () => {
     {
       key: 'actions',
       header: t('palletTypes.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (_: any, pt: PalletType) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -125,7 +129,7 @@ const PalletTypes: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('palletTypes.title')}</h1>
             <p className="text-secondary-600">{t('palletTypes.subtitle')}</p>
@@ -137,7 +141,7 @@ const PalletTypes: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex-1 max-w-md">
+          <div className="w-full sm:flex-1 sm:max-w-md">
             <SearchInput value={search} onChange={setSearch} placeholder={t('palletTypes.searchPlaceholder')} />
           </div>
         </div>
@@ -158,7 +162,7 @@ const PalletTypes: React.FC = () => {
               </div>
             ) : (
               <>
-                <Table columns={columns} data={palletTypes} loading={loading} />
+                <Table columns={columns} data={palletTypes} loading={loading} listId="pallet-types" />
                 <Pagination {...paginationProps} />
               </>
             )}

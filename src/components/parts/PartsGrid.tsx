@@ -120,6 +120,9 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false, onPartsChang
     {
       key: 'select',
       header: '',
+      pinned: true,
+      card: 'actions' as const,
+      label: t('parts.columns.select'),
       render: (_: any, p: Part) => (
         <input type="checkbox" checked={selected.has(p.uuid)} onChange={() => toggle(p.uuid)} />
       ),
@@ -127,6 +130,8 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false, onPartsChang
     {
       key: 'code',
       header: t('parts.columns.code'),
+      hideable: false,
+      card: 'title' as const,
       render: (_: any, p: Part) => (
         <span className="text-sm font-medium text-secondary-900">
           {p.code}
@@ -166,6 +171,8 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false, onPartsChang
     {
       key: 'actions',
       header: t('parts.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (_: any, p: Part) => (
         <div className="flex items-center space-x-2">
           <Button variant="ghost" size="sm" title={t('parts.editPart') ?? ''} onClick={() => { setEditing(p); setShowForm(true); }}>
@@ -234,7 +241,12 @@ const PartsGrid: React.FC<Props> = ({ productUuid, compact = false, onPartsChang
         </div>
       ) : (
         <>
-          <Table columns={columns} data={parts} loading={loading} />
+          <Table
+            columns={columns}
+            data={parts}
+            loading={loading}
+            listId={productUuid ? 'parts-in-product' : 'parts'}
+          />
           <Pagination {...paginationProps} />
         </>
       )}

@@ -121,6 +121,8 @@ const Users: React.FC = () => {
     {
       key: 'name',
       header: t('users.columns.name'),
+      hideable: false,
+      card: 'title' as const,
       render: (_: any, user: User) => (
         <div>
           <div className="font-medium text-secondary-900">
@@ -169,6 +171,8 @@ const Users: React.FC = () => {
     {
       key: 'actions',
       header: t('users.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (_: any, user: User) => (
         <div className="flex items-center space-x-2">
           <button
@@ -200,7 +204,7 @@ const Users: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex justify-between items-center">
+        <div className="flex flex-wrap justify-between items-center gap-3">
           <div>
             <h1 className="gd-page-title">{t('users.title')}</h1>
             <p className="text-secondary-600 mt-1">
@@ -214,7 +218,7 @@ const Users: React.FC = () => {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 bg-white p-4 rounded-lg border border-secondary-200">
-          <div className="flex-1 max-w-md">
+          <div className="w-full sm:flex-1 sm:max-w-md">
             <SearchInput
               value={search}
               onChange={setSearch}
@@ -267,6 +271,7 @@ const Users: React.FC = () => {
                 data={filteredUsers}
                 columns={columns}
                 emptyMessage={t('users.noUsers')}
+                listId="users"
               />
               <Pagination {...paginationProps} />
             </>

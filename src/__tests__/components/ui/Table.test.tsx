@@ -1,6 +1,51 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import Table from '../../../components/ui/Table';
+import type { Column } from '../../../components/ui/Table';
+
+let mockUser: { uuid: string } | null = { uuid: 'user-1' };
+jest.mock('../../../contexts/AuthContext', () => ({
+  useAuthUser: () => mockUser,
+}));
+
+jest.mock('react-i18next', () => {
+  const en = jest.requireActual('../../../i18n/locales/en/common.json');
+  const lookup = (key: string) =>
+    key.split('.').reduce<any>((acc, k) => (acc == null ? acc : acc[k]), en);
+  return {
+    useTranslation: () => ({
+      t: (key: string, opts?: any) => {
+        const value = lookup(key);
+        if (typeof value !== 'string') return opts?.defaultValue ?? key;
+        return value.replace(/\{\{(\w+)\}\}/g, (_m: string, name: string) =>
+          opts && opts[name] != null ? String(opts[name]) : ''
+        );
+      },
+    }),
+  };
+});
+
+/** A fake `ResizeObserver` that never fires again: enough to exercise the
+ * initial `getBoundingClientRect` measurement `useElementWidth` performs. */
+const mockContainerWidth = (width: number) => {
+  jest.spyOn(Element.prototype, 'getBoundingClientRect').mockReturnValue({
+    width,
+    height: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    x: 0,
+    y: 0,
+    toJSON: () => {},
+  } as DOMRect);
+  class FakeResizeObserver {
+    observe() {}
+    disconnect() {}
+    unobserve() {}
+  }
+  (global as any).ResizeObserver = FakeResizeObserver;
+};
 
 describe('Table', () => {
   const mockColumns = [
@@ -203,5 +248,155 @@ describe('Table', () => {
       const cells = screen.getAllByRole('cell');
       expect(cells.length).toBe(9); // 3 rows x 3 columns
     });
+  });
+});
+
+describe('Table with listId — column preferences', () => {
+  const listColumns: Column[] = [
+    { key: 'name', header: 'Name', hideable: false, card: 'title' },
+    { key: 'email', header: 'Email' },
+    { key: 'role', header: 'Role' },
+    {
+      key: 'actions',
+      header: '',
+      pinned: true,
+      card: 'actions',
+      label: 'Actions',
+      render: () => <button>Edit</button>,
+    },
+  ];
+  const listData = [{ name: 'John Doe', email: 'john@example.com', role: 'Admin' }];
+
+  beforeEach(() => {
+    mockUser = { uuid: 'user-1' };
+    window.localStorage.clear();
+    jest.restoreAllMocks();
+  });
+
+  const storedPrefs = () => {
+    const raw = window.localStorage.getItem('column_prefs:user-1:widgets');
+    return raw ? JSON.parse(raw) : null;
+  };
+
+  it('renders a Columns button only when listId is set', () => {
+    render(<Table columns={listColumns} data={listData} listId="widgets" />);
+    expect(screen.getByRole('button', { name: 'Columns' })).toBeInTheDocument();
+  });
+
+  it('toggles, moves and resets columns through the chooser, persisting to localStorage', () => {
+    render(<Table columns={listColumns} data={listData} listId="widgets" />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    expect(screen.getByText('Configure columns')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Show Email' }));
+    expect(screen.queryByText('john@example.com')).not.toBeInTheDocument();
+    expect(storedPrefs().hidden).toEqual(['email']);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Move Role up' }));
+    const order: string[] = storedPrefs().order;
+    expect(order.indexOf('role')).toBeLessThan(order.indexOf('email'));
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reset to default' }));
+    expect(storedPrefs()).toBeNull();
+    expect(screen.getByText('john@example.com')).toBeInTheDocument();
+  });
+
+  it('disables the checkbox for a non-hideable column, a pinned column and the last visible column', () => {
+    render(
+      <Table
+        columns={[{ key: 'only', header: 'Only' }]}
+        data={[{ only: 'x' }]}
+        listId="one-column"
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    expect(screen.getByRole('checkbox', { name: 'Show Only' })).toBeDisabled();
+  });
+
+  it('disables move buttons for a pinned column', () => {
+    render(<Table columns={listColumns} data={listData} listId="widgets" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    expect(screen.getByRole('button', { name: 'Move Actions up' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Move Actions down' })).toBeDisabled();
+  });
+
+  it("shows table.notSaved when storage refuses the write", () => {
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+      throw new Error('QuotaExceededError');
+    });
+    render(<Table columns={listColumns} data={listData} listId="widgets" />);
+    fireEvent.click(screen.getByRole('button', { name: 'Columns' }));
+    fireEvent.click(screen.getByRole('checkbox', { name: 'Show Email' }));
+    expect(
+      screen.getByText("Changes can't be saved in this browser and will be lost on reload.")
+    ).toBeInTheDocument();
+  });
+
+  it("uses the current render's column objects, never a cached copy (C-1)", () => {
+    const { rerender } = render(
+      <Table
+        listId="stale-closure"
+        columns={[{ key: 'name', header: 'Name', render: () => 'first' }]}
+        data={[{ name: 'x' }]}
+      />
+    );
+    expect(screen.getByText('first')).toBeInTheDocument();
+
+    rerender(
+      <Table
+        listId="stale-closure"
+        columns={[{ key: 'name', header: 'Name', render: () => 'second' }]}
+        data={[{ name: 'x' }]}
+      />
+    );
+    expect(screen.getByText('second')).toBeInTheDocument();
+    expect(screen.queryByText('first')).not.toBeInTheDocument();
+  });
+});
+
+describe('Table card view — container width', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+    delete (global as any).ResizeObserver;
+  });
+
+  const columns: Column[] = [
+    { key: 'name', header: 'Name', hideable: false, card: 'title' },
+    { key: 'email', header: 'Email' },
+  ];
+  const data = [{ name: 'John Doe', email: 'john@example.com' }];
+
+  it('renders cards below 768px of container width when listId is set', () => {
+    mockContainerWidth(390);
+    render(<Table columns={columns} data={data} listId="widgets" />);
+    expect(document.querySelector('ul.gd-cards')).toBeInTheDocument();
+    expect(document.querySelector('table')).not.toBeInTheDocument();
+  });
+
+  it('keeps the table at >=768px of container width', () => {
+    mockContainerWidth(1024);
+    render(<Table columns={columns} data={data} listId="widgets" />);
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(document.querySelector('ul.gd-cards')).not.toBeInTheDocument();
+  });
+
+  it('never renders cards or a Columns button without a listId, even at 390px', () => {
+    mockContainerWidth(390);
+    render(<Table columns={columns} data={data} />);
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(document.querySelector('ul.gd-cards')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Columns' })).not.toBeInTheDocument();
+  });
+
+  it('measures width while still loading, so cards appear as soon as data arrives (every list mounts with loading=true)', () => {
+    mockContainerWidth(390);
+    const { rerender } = render(<Table columns={columns} data={[]} listId="widgets" loading />);
+    expect(document.querySelector('ul.gd-cards')).not.toBeInTheDocument();
+    expect(document.querySelector('table')).not.toBeInTheDocument();
+
+    rerender(<Table columns={columns} data={data} listId="widgets" loading={false} />);
+    expect(document.querySelector('ul.gd-cards')).toBeInTheDocument();
+    expect(document.querySelector('table')).not.toBeInTheDocument();
   });
 });

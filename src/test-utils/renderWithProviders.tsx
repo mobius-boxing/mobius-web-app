@@ -49,6 +49,9 @@ export function authContextMock() {
       logout: async () => {},
       updateUser: () => {},
     }),
+    // Table -> useColumnPreferences calls this unconditionally (listId or not),
+    // so any suite that replaces this module wholesale needs it too.
+    useAuthUser: () => currentUser,
     AuthProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
   };
 }

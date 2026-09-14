@@ -7,6 +7,7 @@ const mockNavigate = jest.fn();
 let mockLocationState: any = null;
 
 jest.mock('../../contexts/AuthContext', () => ({
+  useAuthUser: () => null,
   useAuth: () => ({
     login: mockLogin,
   }),

@@ -6,6 +6,7 @@ const mockGetProductionOrders = jest.fn();
 const mockGetSalesOrders = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
+  useAuthUser: () => null,
   useAuth: () => ({
     user: { uuid: 'user-1', role: 'admin', permissions: [] },
     isAuthenticated: true,

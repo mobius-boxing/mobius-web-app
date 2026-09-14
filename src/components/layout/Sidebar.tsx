@@ -26,6 +26,7 @@ import {
   Route,
   Cog,
   ScrollText,
+  X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
@@ -34,6 +35,7 @@ import { NavItem } from '../../types';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 import CompanySwitcher from '../ui/CompanySwitcher';
 import { logger } from '../../utils/logger';
+import { cn } from '../../utils/cn';
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
 
@@ -56,7 +58,15 @@ let navScrollTop = 0;
  */
 let expandedItemIds: string[] = [];
 
-const Sidebar: React.FC = () => {
+export interface SidebarProps {
+  /** 'rail' (default, >= lg): today's collapsible sidebar. 'drawer' (< lg): always expanded, collapse toggle replaced by a close button, every NavLink click calls onNavigate. */
+  variant?: 'rail' | 'drawer';
+  onNavigate?: () => void;
+  /** Drawer variant only: focused when the drawer opens. */
+  closeButtonRef?: React.RefObject<HTMLButtonElement | null>;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeButtonRef }) => {
   const { user, logout } = useAuth();
   const { has } = usePermissions();
   const location = useLocation();
@@ -68,6 +78,8 @@ const Sidebar: React.FC = () => {
     const saved = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
     return saved === 'true';
   });
+  // The drawer is always expanded — no rail collapse there.
+  const collapsed = variant === 'drawer' ? false : isCollapsed;
 
   // Restore before paint so the rail never flashes at the top. Keyed on
   // `expandedItems` because the effect below re-expands the active item's
@@ -710,7 +722,7 @@ const Sidebar: React.FC = () => {
     const iconSize = depth === 0 ? 'h-5 w-5' : 'h-4 w-4';
     const textSize = depth === 0 ? '' : 'text-sm';
 
-    if (isCollapsed && depth === 0) {
+    if (collapsed && depth === 0) {
       // `aria-label` takes over the accessible name that `title` used to
       // provide: these controls are icon-only and the tooltip is presentational.
       const hoverProps = {
@@ -786,6 +798,7 @@ const Sidebar: React.FC = () => {
       <NavLink
         key={item.id}
         to={item.path!}
+        onClick={() => onNavigate?.()}
         className={`sidebar-item ${
           isActive ? 'sidebar-item-active' : 'sidebar-item-inactive'
         }`}
@@ -798,12 +811,13 @@ const Sidebar: React.FC = () => {
 
   return (
     <div
-      className={`gd-sidebar flex flex-col h-full transition-all duration-300 ${
-        isCollapsed ? 'w-16' : 'w-64'
-      }`}
+      className={cn(
+        'gd-sidebar flex h-full flex-col transition-all duration-300',
+        variant === 'drawer' ? 'w-full' : collapsed ? 'w-16' : 'w-64'
+      )}
     >
       <div className="flex items-center justify-between h-16 px-3 border-b border-secondary-200">
-        {!isCollapsed && (
+        {!collapsed && (
           <div className="flex items-center gap-2.5 pl-1">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white text-sm font-bold shadow-sm">
               M
@@ -813,30 +827,42 @@ const Sidebar: React.FC = () => {
             </span>
           </div>
         )}
-        <button
-          onClick={toggleCollapsed}
-          className="p-2 rounded-lg text-secondary-500 hover:bg-secondary-100 hover:text-secondary-800 transition-colors"
-          title={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
-        >
-          {isCollapsed ? (
-            <PanelLeft className="h-5 w-5" />
-          ) : (
-            <PanelLeftClose className="h-5 w-5" />
-          )}
-        </button>
+        {variant === 'drawer' ? (
+          <button
+            ref={closeButtonRef}
+            type="button"
+            onClick={() => onNavigate?.()}
+            aria-label={t('nav.closeMenu')}
+            className="p-2 rounded-lg text-secondary-500 hover:bg-secondary-100 hover:text-secondary-800 transition-colors"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        ) : (
+          <button
+            onClick={toggleCollapsed}
+            className="p-2 rounded-lg text-secondary-500 hover:bg-secondary-100 hover:text-secondary-800 transition-colors"
+            title={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
+          >
+            {isCollapsed ? (
+              <PanelLeft className="h-5 w-5" />
+            ) : (
+              <PanelLeftClose className="h-5 w-5" />
+            )}
+          </button>
+        )}
       </div>
 
-      <div className={`border-b border-secondary-200 ${isCollapsed ? 'p-2' : 'p-4'}`}>
-        <div className={`flex items-center ${isCollapsed ? 'justify-center' : 'space-x-3'}`}>
+      <div className={`border-b border-secondary-200 ${collapsed ? 'p-2' : 'p-4'}`}>
+        <div className={`flex items-center ${collapsed ? 'justify-center' : 'space-x-3'}`}>
           <div
             className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0"
-            title={isCollapsed ? `${user?.firstName} ${user?.lastName}` : undefined}
+            title={collapsed ? `${user?.firstName} ${user?.lastName}` : undefined}
           >
             <span className="text-sm font-medium text-primary-600">
               {user?.firstName?.[0]}{user?.lastName?.[0]}
             </span>
           </div>
-          {!isCollapsed && (
+          {!collapsed && (
             <div className="min-w-0">
               <p className="text-sm font-medium text-secondary-900 truncate">
                 {user?.firstName} {user?.lastName}
@@ -850,7 +876,7 @@ const Sidebar: React.FC = () => {
         </div>
       </div>
 
-      {user?.role === 'superAdmin' && !isCollapsed && (
+      {user?.role === 'superAdmin' && !collapsed && (
         <div className="px-4 py-2 border-b border-secondary-200">
           <CompanySwitcher />
         </div>
@@ -865,37 +891,37 @@ const Sidebar: React.FC = () => {
           setTip(null);
           setSubmenu(null);
         }}
-        className={`flex-1 py-4 space-y-1 overflow-y-auto ${isCollapsed ? 'px-2' : 'px-4'}`}
+        className={`flex-1 py-4 space-y-1 overflow-y-auto ${collapsed ? 'px-2' : 'px-4'}`}
       >
         {filteredNavigation.map((item) => renderNavItem(item, 0))}
       </nav>
 
-      {!isCollapsed && (
+      {!collapsed && (
         <div className="px-4 py-2 border-t border-secondary-200">
           <LanguageSwitcher />
         </div>
       )}
 
-      <div className={`border-t border-secondary-200 ${isCollapsed ? 'p-2' : 'p-4'}`}>
+      <div className={`border-t border-secondary-200 ${collapsed ? 'p-2' : 'p-4'}`}>
         <button
           onClick={handleLogout}
-          aria-label={isCollapsed ? t('nav.signOut') : undefined}
+          aria-label={collapsed ? t('nav.signOut') : undefined}
           onMouseEnter={
-            isCollapsed ? (e) => showTip(t('nav.signOut'), e.currentTarget) : undefined
+            collapsed ? (e) => showTip(t('nav.signOut'), e.currentTarget) : undefined
           }
-          onMouseLeave={isCollapsed ? hideTip : undefined}
+          onMouseLeave={collapsed ? hideTip : undefined}
           onFocus={
-            isCollapsed ? (e) => showTip(t('nav.signOut'), e.currentTarget) : undefined
+            collapsed ? (e) => showTip(t('nav.signOut'), e.currentTarget) : undefined
           }
-          onBlur={isCollapsed ? hideTip : undefined}
-          className={`sidebar-item sidebar-item-inactive w-full ${isCollapsed ? 'justify-center' : 'text-left'}`}
+          onBlur={collapsed ? hideTip : undefined}
+          className={`sidebar-item sidebar-item-inactive w-full ${collapsed ? 'justify-center' : 'text-left'}`}
         >
           <LogOut className="h-5 w-5" />
-          {!isCollapsed && <span className="ml-3">{t('nav.signOut')}</span>}
+          {!collapsed && <span className="ml-3">{t('nav.signOut')}</span>}
         </button>
       </div>
 
-      {isCollapsed && tip && (
+      {collapsed && tip && (
         <div
           role="tooltip"
           className="gd-sb-tip"
@@ -905,7 +931,7 @@ const Sidebar: React.FC = () => {
         </div>
       )}
 
-      {isCollapsed && submenu && (
+      {collapsed && submenu && (
         <div
           ref={submenuRef}
           role="menu"

@@ -87,6 +87,8 @@ const SheetStockPage: React.FC = () => {
     {
       key: 'paperSheet',
       header: t('sheetStock.columns.paperSheet'),
+      hideable: false,
+      card: 'title' as const,
       render: (value: any, stock: SheetStock) => (
         <span className="text-sm font-medium text-secondary-900">
           {stock.paperSheet?.code || 'N/A'}
@@ -142,6 +144,8 @@ const SheetStockPage: React.FC = () => {
     {
       key: 'actions',
       header: t('sheetStock.columns.actions'),
+      pinned: true,
+      card: 'actions' as const,
       render: (value: any, stock: SheetStock) => (
         <div className="flex items-center space-x-2">
           <Button
@@ -169,7 +173,7 @@ const SheetStockPage: React.FC = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="gd-page-title">{t('sheetStock.title')}</h1>
             <p className="text-secondary-600">{t('sheetStock.subtitle')}</p>
@@ -184,8 +188,8 @@ const SheetStockPage: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex items-center space-x-4">
-            <div className="flex-1 max-w-md">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="w-full sm:flex-1 sm:max-w-md">
               <SearchInput
                 value={search}
                 onChange={setSearch}
@@ -229,6 +233,7 @@ const SheetStockPage: React.FC = () => {
                   columns={columns}
                   data={sheetStock}
                   loading={loading}
+                  listId="sheet-stock"
                 />
                 <Pagination {...paginationProps} />
               </>

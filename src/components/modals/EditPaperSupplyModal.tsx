@@ -220,7 +220,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="gd-label">
               {t('paperSupplies.grammage')}
@@ -248,7 +248,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="gd-label">
               {t('paperSupplies.color')}
@@ -277,7 +277,7 @@ const EditPaperSupplyModal: React.FC<EditPaperSupplyModalProps> = ({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="gd-label">
               {t('paperSupplies.minimumStockWeightKg')}
