@@ -38,6 +38,7 @@ const baseProps = () => ({
   isPersisted: true,
   onToggle: jest.fn(),
   onMove: jest.fn(),
+  onMoveTo: jest.fn(),
   onReset: jest.fn(),
 });
 
@@ -123,5 +124,45 @@ describe('ColumnChooser', () => {
   it('renders nothing when closed', () => {
     render(<ColumnChooser {...baseProps()} isOpen={false} />);
     expect(screen.queryByText('Configure columns')).not.toBeInTheDocument();
+  });
+});
+
+describe('ColumnChooser — drag reorder', () => {
+  /** jsdom has no `PointerEvent`; `fireEvent.pointerDown(...)` silently drops `pointerId`/
+   * `clientX`/`clientY`, so the event is built by hand (see useDragReorder.test.tsx). */
+  const firePointer = (type: string, el: Element, pointerId = 1, x = 0, y = 0) => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, { pointerId, clientX: x, clientY: y });
+    fireEvent(el, event);
+  };
+
+  beforeEach(() => {
+    document.elementFromPoint = jest.fn();
+  });
+
+  afterEach(() => {
+    delete (document as any).elementFromPoint;
+  });
+
+  it('dragging row role onto row name calls onMoveTo(role, name)', () => {
+    const props = baseProps();
+    render(<ColumnChooser {...props} />);
+
+    const handle = screen.getByRole('button', { name: 'Drag to reorder role' });
+    const nameRow = screen.getByRole('checkbox', { name: 'Show name' }).closest('li')!;
+    (document.elementFromPoint as jest.Mock).mockReturnValue(nameRow);
+
+    firePointer('pointerdown', handle, 1, 0, 0);
+    firePointer('pointermove', handle, 1, 0, 20);
+    firePointer('pointerup', handle, 1, 0, 20);
+
+    expect(props.onMoveTo).toHaveBeenCalledWith('role', 'name');
+  });
+
+  it('gives pinned rows no active drag handle', () => {
+    render(<ColumnChooser {...baseProps()} />);
+    expect(
+      screen.queryByRole('button', { name: 'Drag to reorder actions' })
+    ).not.toBeInTheDocument();
   });
 });

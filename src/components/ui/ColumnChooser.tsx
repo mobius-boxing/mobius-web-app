@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { Columns3, ChevronUp, ChevronDown } from 'lucide-react';
+import { Columns3, ChevronUp, ChevronDown, GripVertical } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { cn } from '../../utils/cn';
+import { useDragReorder } from '../../hooks/useDragReorder';
 import Button from './Button';
 import Modal from './Modal';
 import type { ColumnState, UseColumnPreferencesResult } from '../../hooks/useColumnPreferences';
@@ -33,6 +35,7 @@ export function ColumnChooserButton<T>({ prefs }: ColumnChooserButtonProps<T>) {
         isPersisted={prefs.isPersisted}
         onToggle={prefs.setVisible}
         onMove={prefs.move}
+        onMoveTo={prefs.moveTo}
         onReset={prefs.reset}
       />
     </>
@@ -48,6 +51,7 @@ export interface ColumnChooserProps<T> {
   isPersisted: boolean;
   onToggle: (key: string, visible: boolean) => void;
   onMove: (key: string, direction: -1 | 1) => void;
+  onMoveTo: (key: string, targetKey: string) => void;
   onReset: () => void;
 }
 
@@ -60,10 +64,17 @@ export function ColumnChooser<T>({
   isPersisted,
   onToggle,
   onMove,
+  onMoveTo,
   onReset,
 }: ColumnChooserProps<T>) {
   const { t } = useTranslation();
   const visibleCount = states.filter((s) => s.visible).length;
+  const pinnedKeys = new Set(states.filter((s) => s.pinned).map((s) => s.column.key));
+  const dnd = useDragReorder({
+    onDrop: onMoveTo,
+    canDrag: (key) => !pinnedKeys.has(key),
+    canDrop: (key) => !pinnedKeys.has(key),
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={t('table.columnsTitle')} size="sm">
@@ -80,8 +91,37 @@ export function ColumnChooser<T>({
           const canMoveUp = !state.pinned && states.slice(0, index).some((s) => !s.pinned);
           const canMoveDown = !state.pinned && states.slice(index + 1).some((s) => !s.pinned);
 
+          const key = state.column.key;
+          const isDragging = dnd.draggingKey === key;
+          const isOver = dnd.overKey === key;
+
           return (
-            <li key={state.column.key} className="flex items-center gap-2 px-1 py-2">
+            <li
+              key={key}
+              {...(!state.pinned ? dnd.getTargetProps(key) : {})}
+              className={cn(
+                'flex items-center gap-2 px-1 py-2',
+                'gd-drag-row',
+                isDragging && 'gd-drag-row--dragging',
+                isOver && dnd.dropSide === 'before' && 'gd-drag-row--over-before',
+                isOver && dnd.dropSide === 'after' && 'gd-drag-row--over-after'
+              )}
+            >
+              {state.pinned ? (
+                <span className="p-1 text-secondary-300" aria-hidden="true">
+                  <GripVertical className="h-4 w-4" />
+                </span>
+              ) : (
+                <button
+                  type="button"
+                  aria-label={t('table.dragToReorder', { label })}
+                  title={t('table.dragToReorder', { label })}
+                  className="gd-drag-handle p-1 rounded-md text-secondary-400 hover:bg-secondary-100 hover:text-secondary-700 cursor-grab active:cursor-grabbing"
+                  {...dnd.getHandleProps(key)}
+                >
+                  <GripVertical className="h-4 w-4" />
+                </button>
+              )}
               <input
                 type="checkbox"
                 checked={state.visible}

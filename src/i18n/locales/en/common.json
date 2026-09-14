@@ -3031,6 +3031,7 @@
     "sortBy": "Sort by",
     "sortNone": "Default order",
     "sortAscending": "Ascending",
-    "sortDescending": "Descending"
+    "sortDescending": "Descending",
+    "dragToReorder": "Drag to reorder {{label}}"
   }
 }

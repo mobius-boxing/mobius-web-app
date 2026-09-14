@@ -1,7 +1,8 @@
 import React, { ReactNode, useRef } from 'react';
-import { ChevronUp, ChevronDown, ChevronsUpDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, ChevronsUpDown, GripVertical } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useColumnPreferences } from '../../hooks/useColumnPreferences';
+import { useDragReorder } from '../../hooks/useDragReorder';
 import { useElementWidth } from '../../hooks/useElementWidth';
 import CardList from './CardList';
 import { ColumnChooserButton } from './ColumnChooser';
@@ -71,12 +72,19 @@ function Table<T = any>({
 }: TableProps<T>) {
   const prefs = useColumnPreferences(listId, columns);
   const effectiveColumns = prefs.columns;
+  const pinnedKeys = new Set(effectiveColumns.filter((c) => c.pinned).map((c) => c.key));
+  const dnd = useDragReorder({
+    onDrop: prefs.moveTo,
+    canDrag: (key) => !pinnedKeys.has(key),
+    canDrop: (key) => !pinnedKeys.has(key),
+  });
 
   const wrapperRef = useRef<HTMLDivElement>(null);
   const width = useElementWidth(wrapperRef);
   const showCards = listId !== undefined && width !== null && width < CARD_BREAKPOINT_PX;
 
   const handleSort = (column: Column<T>) => {
+    if (dnd.wasDragged()) return;
     if (!column.sortable || !onSort) return;
     const newOrder =
       sortBy === column.key && sortOrder === 'asc' ? 'desc' : 'asc';
@@ -126,7 +134,9 @@ function Table<T = any>({
               <table className="gd-table min-w-full">
                 <thead>
                   <tr className="border-b border-secondary-200">
-                    {effectiveColumns.map((column) => (
+                    {effectiveColumns.map((column) => {
+                      const draggable = prefs.enabled && !column.pinned;
+                      return (
                       <th
                         key={column.key}
                         scope="col"
@@ -134,11 +144,21 @@ function Table<T = any>({
                           'text-left',
                           column.sortable && onSort &&
                             'cursor-pointer select-none transition-colors hover:text-secondary-700',
+                          draggable && 'gd-drag-th',
+                          draggable && dnd.draggingKey === column.key && 'gd-drag-th--dragging',
+                          draggable && dnd.overKey === column.key && dnd.dropSide === 'before' && 'gd-drag-th--over-before',
+                          draggable && dnd.overKey === column.key && dnd.dropSide === 'after' && 'gd-drag-th--over-after',
                           column.className
                         )}
                         onClick={() => handleSort(column)}
+                        {...(draggable
+                          ? { ...dnd.getTargetProps(column.key), ...dnd.getHandleProps(column.key) }
+                          : {})}
                       >
                         <div className="flex items-center gap-1.5">
+                          {draggable && (
+                            <GripVertical className="gd-drag-grip h-3.5 w-3.5 text-secondary-300" aria-hidden="true" />
+                          )}
                           <span>{column.header}</span>
                           {column.sortable && onSort && (
                             <span className="inline-flex">
@@ -155,7 +175,8 @@ function Table<T = any>({
                           )}
                         </div>
                       </th>
-                    ))}
+                      );
+                    })}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-secondary-100">

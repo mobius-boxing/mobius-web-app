@@ -841,6 +841,71 @@ body::after {
   gap: 0.5rem;
 }
 
+/* ── Column drag-reorder (dialog rows + table headers) ──────────────────── */
+/* Shared by ColumnChooser's `<li>` rows and Table's `<th>` cells: the dragged
+   item dims, and the side of the hovered target it will land on gets a 2px
+   accent line. `::after` (not a border/outline) so the indicator never
+   reflows layout — a `<th>`'s box-shadow would still affect column width via
+   its border-box, so it's inset instead of adding an outward line. */
+.gd-drag-row--dragging,
+.gd-drag-th--dragging {
+  opacity: 0.5;
+}
+
+.gd-drag-handle {
+  touch-action: none;
+}
+
+.gd-drag-row {
+  position: relative;
+}
+
+.gd-drag-row--over-before::after,
+.gd-drag-row--over-after::after {
+  content: '';
+  position: absolute;
+  left: 0.25rem;
+  right: 0.25rem;
+  height: 2px;
+  background: oklch(var(--p-500));
+  pointer-events: none;
+}
+
+.gd-drag-row--over-before::after { top: 0; }
+.gd-drag-row--over-after::after { bottom: 0; }
+
+.gd-drag-th {
+  position: relative;
+  cursor: grab;
+  user-select: none;
+}
+
+.gd-drag-th--dragging {
+  cursor: grabbing;
+}
+
+.gd-drag-th--over-before {
+  box-shadow: inset 2px 0 0 oklch(var(--p-500));
+}
+
+.gd-drag-th--over-after {
+  box-shadow: inset -2px 0 0 oklch(var(--p-500));
+}
+
+.gd-drag-grip {
+  opacity: 0;
+  transition: opacity 0.15s var(--ease-snap);
+}
+
+.gd-drag-th:hover .gd-drag-grip,
+.gd-drag-th:focus-within .gd-drag-grip {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gd-drag-grip { transition: none; }
+}
+
 /* ── Badges ──────────────────────────────────────────────────────────────── */
 /* WHY: bg-purple-100/bg-blue-100/bg-green-100/bg-red-100 pills — the same
    pastel-chip crime removed from the dashboard, still live on Users,

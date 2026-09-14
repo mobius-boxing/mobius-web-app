@@ -31,6 +31,8 @@ export interface UseColumnPreferencesResult<T> {
   isPersisted: boolean;
   setVisible: (key: string, visible: boolean) => void;
   move: (key: string, direction: -1 | 1) => void;
+  /** Drag and drop: puts `key` where `targetKey` sits among unpinned columns. No-op if either is pinned or unknown. */
+  moveTo: (key: string, targetKey: string) => void;
   reset: () => void;
 }
 
@@ -133,6 +135,23 @@ export function useColumnPreferences<T>(
     commit({ order: keys, hidden: Array.from(hidden) });
   };
 
+  const moveTo = (key: string, targetKey: string) => {
+    const { order, hidden } = effective();
+    // Reorder only the unpinned sequence and refill its slots, the way
+    // mergeColumns does: a plain splice would store a pinned key out of place
+    // whenever one sits between the dragged column and its target. Rendering
+    // would hide that (mergeColumns re-pins), but the stored order would not
+    // match the screen.
+    const movable = order.filter((c) => !c.pinned).map((c) => c.key);
+    const from = movable.indexOf(key);
+    const to = movable.indexOf(targetKey);
+    if (from === -1 || to === -1 || from === to) return;
+    movable.splice(to, 0, ...movable.splice(from, 1));
+    let next = 0;
+    const keys = order.map((c) => (c.pinned ? c.key : movable[next++]));
+    commit({ order: keys, hidden: Array.from(hidden) });
+  };
+
   const reset = () => commit(null);
 
   return {
@@ -143,6 +162,7 @@ export function useColumnPreferences<T>(
     isPersisted: enabled && Boolean(userUuid) && current.storageOk,
     setVisible,
     move,
+    moveTo,
     reset,
   };
 }

@@ -77,6 +77,50 @@ describe('useColumnPreferences', () => {
     expect(visible(result)).toEqual(['select', 'b', 'a']);
   });
 
+  describe('moveTo (drag and drop)', () => {
+    it('drops a column onto a later one, landing in its place, and persists', () => {
+      const { result } = renderHook(() => useColumnPreferences('users', code()));
+      act(() => result.current.moveTo('name', 'role'));
+      expect(visible(result)).toEqual(['email', 'role', 'name', 'actions']);
+      expect(stored('user-a', 'users').order).toEqual(['email', 'role', 'name', 'actions']);
+    });
+
+    it('drops a column onto an earlier one', () => {
+      const { result } = renderHook(() => useColumnPreferences('users', code()));
+      act(() => result.current.moveTo('role', 'name'));
+      expect(visible(result)).toEqual(['role', 'name', 'email', 'actions']);
+    });
+
+    it('never drags or drops onto a pinned column, and pinned columns keep their index', () => {
+      const columns = [col('select', { pinned: true }), col('a'), col('b'), col('c'), col('actions', { pinned: true })];
+      const { result } = renderHook(() => useColumnPreferences('parts', columns));
+      act(() => result.current.moveTo('actions', 'a'));
+      act(() => result.current.moveTo('a', 'select'));
+      act(() => result.current.moveTo('b', 'actions'));
+      expect(visible(result)).toEqual(['select', 'a', 'b', 'c', 'actions']);
+      expect(window.localStorage.length).toBe(0);
+      act(() => result.current.moveTo('c', 'a'));
+      expect(visible(result)).toEqual(['select', 'c', 'a', 'b', 'actions']);
+    });
+
+    it('stores the order the screen shows when a pinned column sits between source and target', () => {
+      const columns = [col('a'), col('mid', { pinned: true }), col('b')];
+      const { result } = renderHook(() => useColumnPreferences('x', columns));
+      act(() => result.current.moveTo('b', 'a'));
+      expect(visible(result)).toEqual(['b', 'mid', 'a']);
+      expect(stored('user-a', 'x').order).toEqual(['b', 'mid', 'a']);
+    });
+
+    it('keeps hidden columns in the order and ignores unknown keys', () => {
+      const { result } = renderHook(() => useColumnPreferences('users', code()));
+      act(() => result.current.setVisible('email', false));
+      act(() => result.current.moveTo('role', 'name'));
+      act(() => result.current.moveTo('ghost', 'name'));
+      expect(stored('user-a', 'users').order).toEqual(['role', 'name', 'email', 'actions']);
+      expect(visible(result)).toEqual(['role', 'name', 'actions']);
+    });
+  });
+
   it('never hides the last visible column', () => {
     const columns = [col('a'), col('b')];
     const { result } = renderHook(() => useColumnPreferences('x', columns));

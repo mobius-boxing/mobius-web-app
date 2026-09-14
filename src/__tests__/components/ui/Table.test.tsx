@@ -400,3 +400,86 @@ describe('Table card view — container width', () => {
     expect(document.querySelector('table')).not.toBeInTheDocument();
   });
 });
+
+describe('Table header drag reorder', () => {
+  const dragColumns: Column[] = [
+    { key: 'name', header: 'Name', hideable: false, sortable: true },
+    { key: 'email', header: 'Email' },
+    { key: 'role', header: 'Role' },
+    { key: 'actions', header: 'Actions', pinned: true },
+  ];
+  const dragData = [{ name: 'John Doe', email: 'john@example.com', role: 'Admin' }];
+
+  const storedOrder = (): string[] | null => {
+    const raw = window.localStorage.getItem('column_prefs:user-1:drag-widgets');
+    return raw ? JSON.parse(raw).order : null;
+  };
+
+  /** jsdom has no `PointerEvent`; `fireEvent.pointerDown(...)` silently drops `pointerId`/
+   * `clientX`/`clientY` (not recognized `EventInit` fields for the `Event` fallback it uses),
+   * so the event is built by hand — same workaround as useDragReorder.test.tsx. */
+  const firePointer = (type: string, el: Element, pointerId = 1, x = 0, y = 0) => {
+    const event = new Event(type, { bubbles: true, cancelable: true });
+    Object.assign(event, { pointerId, clientX: x, clientY: y });
+    fireEvent(el, event);
+  };
+
+  beforeEach(() => {
+    mockUser = { uuid: 'user-1' };
+    window.localStorage.clear();
+    jest.restoreAllMocks();
+    document.elementFromPoint = jest.fn();
+  });
+
+  afterEach(() => {
+    delete (document as any).elementFromPoint;
+  });
+
+  it('reorders on drag and persists the new order', () => {
+    render(<Table columns={dragColumns} data={dragData} listId="drag-widgets" />);
+
+    const nameHeader = screen.getByText('Name').closest('th')!;
+    const roleHeader = screen.getByText('Role').closest('th')!;
+    (document.elementFromPoint as jest.Mock).mockReturnValue(roleHeader);
+
+    firePointer('pointerdown', nameHeader, 1, 0, 0);
+    firePointer('pointermove', nameHeader, 1, 20, 0);
+    firePointer('pointerup', nameHeader, 1, 20, 0);
+
+    expect(storedOrder()).toEqual(['email', 'role', 'name', 'actions']);
+  });
+
+  it('never makes the pinned header a drag surface or drop target', () => {
+    render(<Table columns={dragColumns} data={dragData} listId="drag-widgets" />);
+
+    const actionsHeader = screen.getByText('Actions').closest('th')!;
+    expect(actionsHeader).not.toHaveAttribute('data-drag-key');
+  });
+
+  it('a click without movement still sorts', () => {
+    const onSort = jest.fn();
+    render(
+      <Table columns={dragColumns} data={dragData} listId="drag-widgets" onSort={onSort} sortOrder="asc" />
+    );
+    fireEvent.click(screen.getByText('Name').closest('th')!);
+    expect(onSort).toHaveBeenCalledWith('name', 'asc');
+  });
+
+  it('a drag does not sort', () => {
+    const onSort = jest.fn();
+    render(
+      <Table columns={dragColumns} data={dragData} listId="drag-widgets" onSort={onSort} sortOrder="asc" />
+    );
+
+    const nameHeader = screen.getByText('Name').closest('th')!;
+    const roleHeader = screen.getByText('Role').closest('th')!;
+    (document.elementFromPoint as jest.Mock).mockReturnValue(roleHeader);
+
+    firePointer('pointerdown', nameHeader, 1, 0, 0);
+    firePointer('pointermove', nameHeader, 1, 20, 0);
+    firePointer('pointerup', nameHeader, 1, 20, 0);
+    fireEvent.click(nameHeader);
+
+    expect(onSort).not.toHaveBeenCalled();
+  });
+});
