@@ -2,6 +2,7 @@ import React from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import Layout from '../../../components/layout/Layout';
 import { LG_UP } from '../../../hooks/useMediaQuery';
+import { ADMIN_PERMISSION_CODES } from '../../../test-utils/api.mock';
 
 const mockUser = {
   id: 'user-1',
@@ -14,6 +15,7 @@ const mockUser = {
   companyName: 'Acme',
   isActive: true,
   emailVerified: true,
+  permissions: ADMIN_PERMISSION_CODES,
 };
 
 // The manual react-router-dom mock's `useLocation` is a bare `jest.fn()`,

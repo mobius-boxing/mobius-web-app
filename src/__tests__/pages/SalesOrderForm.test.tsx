@@ -36,7 +36,7 @@ let mockRouteParams: { uuid?: string } = {};
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthUser: () => null,
   useAuth: () => ({
-    user: { uuid: 'user-1', role: 'admin', permissions: [] },
+    user: { uuid: 'user-1', role: 'admin', permissions: ['orders.edit-prices', 'orders.view-sales-sector'] },
     isAuthenticated: true,
     isLoading: false,
   }),

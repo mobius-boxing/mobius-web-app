@@ -1,3 +1,67 @@
+/**
+ * Every RW code the backfilled `Admin` role actually carries (mirrors
+ * mobius-api's `RbacService.seedCompanyRbac`, which grants an Admin role
+ * every non-readonly permission). The default mocked admin needs this full
+ * set, not just the odd code a single suite happens to touch, or it stops
+ * behaving like the admin it claims to be.
+ */
+export const ADMIN_PERMISSION_CODES = [
+  'audit.export',
+  'audit.read',
+  'box-types.edit',
+  'color-types.edit',
+  'colors.edit',
+  'complements.edit',
+  'consumable-stock.edit',
+  'consumable-supplies.edit',
+  'consumable-types.edit',
+  'corrugated.classes',
+  'corrugated.edit',
+  'customer-categories.edit',
+  'customers.edit',
+  'delivery-zones.edit',
+  'finished-goods.edit',
+  'flap-types.edit',
+  'flute-types.edit',
+  'fsc-types.edit',
+  'glue-types.edit',
+  'machines.edit',
+  'manufacturers.edit',
+  'models.edit',
+  'orders.delete',
+  'orders.edit',
+  'orders.edit-prices',
+  'orders.manual-fulfillment',
+  'orders.view-sales-sector',
+  'palletizing.edit',
+  'paper-stock.edit',
+  'paper-types.edit',
+  'paper.classes',
+  'papers.edit',
+  'parts.approve.bulk',
+  'parts.edit',
+  'prices.visible',
+  'product-types.edit',
+  'production-orders.edit',
+  'production-orders.generate',
+  'products.approve.technical',
+  'products.delete',
+  'products.edit',
+  'roles.edit',
+  'routes.delete',
+  'routes.edit',
+  'score-types.edit',
+  'sheet-stock.edit',
+  'strapping-types.edit',
+  'suppliers.edit',
+  'supplies.edit',
+  'tooling-stock.edit',
+  'tooling-types.edit',
+  'tooling.edit',
+  'users.edit',
+  'warehouses.edit',
+];
+
 export const createMockUser = (overrides: Partial<any> = {}) => ({
   id: 'user-1',
   uuid: 'user-uuid-1',
@@ -27,6 +91,7 @@ export const createMockAuthUser = (overrides: Partial<any> = {}) => ({
   roleName: null,
   companyId: 'company-uuid-1',
   companyName: 'Test Company',
+  permissions: ADMIN_PERMISSION_CODES,
   ...overrides,
 });
 

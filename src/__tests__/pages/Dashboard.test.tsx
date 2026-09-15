@@ -226,6 +226,7 @@ describe('Dashboard Page', () => {
         role: 'admin',
         companyId: 'company-uuid-1',
         companyName: 'Test Company',
+        permissions: ['users.edit'],
       };
 
       mockGetUserStats.mockResolvedValue(mockUserStats);

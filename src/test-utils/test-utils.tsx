@@ -4,6 +4,7 @@ import { BrowserRouter, MemoryRouter } from 'react-router-dom';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
+import { ADMIN_PERMISSION_CODES } from './api.mock';
 
 const testI18n = i18n.createInstance();
 testI18n.use(initReactI18next).init({
@@ -104,6 +105,7 @@ export const mockUser = {
   companyName: 'Test Company',
   isActive: true,
   emailVerified: true,
+  permissions: ADMIN_PERMISSION_CODES,
 };
 
 export const createMockAuthContext = (overrides: Partial<MockAuthContextValue> = {}): MockAuthContextValue => ({
