@@ -46,7 +46,6 @@ import Machines from './pages/Machines';
 import MachineTypes from './pages/MachineTypes';
 import PalletTypes from './pages/PalletTypes';
 import Palletizations from './pages/Palletizations';
-import Roles from './pages/Roles';
 import StrappingTypes from './pages/StrappingTypes';
 import Complements from './pages/Complements';
 import TraceTypes from './pages/TraceTypes';
@@ -81,7 +80,7 @@ function App() {
             <Route
               path="/customer-categories"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="customer-categories.edit">
                   <CustomerCategories />
                 </ProtectedRoute>
               }
@@ -90,7 +89,7 @@ function App() {
             <Route
               path="/customers"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="customers.edit">
                   <Customers />
                 </ProtectedRoute>
               }
@@ -99,7 +98,7 @@ function App() {
             <Route
               path="/paper-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="paper-types.edit">
                   <PaperTypes />
                 </ProtectedRoute>
               }
@@ -108,7 +107,7 @@ function App() {
             <Route
               path="/flute-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="flute-types.edit">
                   <FluteTypes />
                 </ProtectedRoute>
               }
@@ -117,7 +116,7 @@ function App() {
             <Route
               path="/flap-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="flap-types.edit">
                   <FlapTypes />
                 </ProtectedRoute>
               }
@@ -126,7 +125,7 @@ function App() {
             <Route
               path="/product-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="product-types.edit">
                   <ProductTypes />
                 </ProtectedRoute>
               }
@@ -135,7 +134,7 @@ function App() {
             <Route
               path="/box-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="box-types.edit">
                   <BoxTypes />
                 </ProtectedRoute>
               }
@@ -144,7 +143,7 @@ function App() {
             <Route
               path="/paper-classes"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="paper.classes">
                   <PaperClasses />
                 </ProtectedRoute>
               }
@@ -153,7 +152,7 @@ function App() {
             <Route
               path="/products"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="products.edit">
                   <Products />
                 </ProtectedRoute>
               }
@@ -162,7 +161,7 @@ function App() {
             <Route
               path="/manufacturers"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="manufacturers.edit">
                   <Manufacturers />
                 </ProtectedRoute>
               }
@@ -171,7 +170,7 @@ function App() {
             <Route
               path="/suppliers"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="suppliers.edit">
                   <Suppliers />
                 </ProtectedRoute>
               }
@@ -180,7 +179,7 @@ function App() {
             <Route
               path="/warehouses"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="warehouses.edit">
                   <Warehouses />
                 </ProtectedRoute>
               }
@@ -189,7 +188,7 @@ function App() {
             <Route
               path="/supplies"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="supplies.edit">
                   <PaperSupplies />
                 </ProtectedRoute>
               }
@@ -198,7 +197,7 @@ function App() {
             <Route
               path="/paper-sheets"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="papers.edit">
                   <PaperSheets />
                 </ProtectedRoute>
               }
@@ -207,7 +206,7 @@ function App() {
             <Route
               path="/corrugation-classes"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="corrugated.classes">
                   <CorrugationClasses />
                 </ProtectedRoute>
               }
@@ -216,7 +215,7 @@ function App() {
             <Route
               path="/corrugations"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="corrugated.edit">
                   <Corrugations />
                 </ProtectedRoute>
               }
@@ -224,7 +223,7 @@ function App() {
             <Route
               path="/parts"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="parts.edit">
                   <Parts />
                 </ProtectedRoute>
               }
@@ -232,7 +231,7 @@ function App() {
             <Route
               path="/models"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="models.edit">
                   <Models />
                 </ProtectedRoute>
               }
@@ -240,7 +239,7 @@ function App() {
             <Route
               path="/production-orders"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="production-orders.edit">
                   <ProductionOrders />
                 </ProtectedRoute>
               }
@@ -250,7 +249,7 @@ function App() {
             <Route
               path="/sales-orders"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="orders.edit">
                   <SalesOrders />
                 </ProtectedRoute>
               }
@@ -258,7 +257,7 @@ function App() {
             <Route
               path="/sales-orders/new"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="orders.edit">
                   <SalesOrderForm />
                 </ProtectedRoute>
               }
@@ -268,7 +267,7 @@ function App() {
             <Route
               path="/sales-orders/:uuid/production-orders"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="orders.edit">
                   <SalesOrderProductionOrders />
                 </ProtectedRoute>
               }
@@ -276,7 +275,7 @@ function App() {
             <Route
               path="/sales-orders/:uuid"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="orders.edit">
                   <SalesOrderForm />
                 </ProtectedRoute>
               }
@@ -285,7 +284,7 @@ function App() {
             <Route
               path="/paper-stock"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="paper-stock.edit">
                   <PaperStock />
                 </ProtectedRoute>
               }
@@ -294,7 +293,7 @@ function App() {
             <Route
               path="/sheet-stock"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="sheet-stock.edit">
                   <SheetStock />
                 </ProtectedRoute>
               }
@@ -303,7 +302,7 @@ function App() {
             <Route
               path="/tooling-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="tooling-types.edit">
                   <ToolingTypes />
                 </ProtectedRoute>
               }
@@ -312,7 +311,7 @@ function App() {
             <Route
               path="/toolings"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="tooling.edit">
                   <Toolings />
                 </ProtectedRoute>
               }
@@ -321,7 +320,7 @@ function App() {
             <Route
               path="/consumable-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="consumable-types.edit">
                   <ConsumableTypes />
                 </ProtectedRoute>
               }
@@ -330,7 +329,7 @@ function App() {
             <Route
               path="/consumable-supplies"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="consumable-supplies.edit">
                   <ConsumableSupplies />
                 </ProtectedRoute>
               }
@@ -339,7 +338,7 @@ function App() {
             <Route
               path="/tooling-stock"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="tooling-stock.edit">
                   <ToolingStock />
                 </ProtectedRoute>
               }
@@ -348,7 +347,7 @@ function App() {
             <Route
               path="/consumable-stock"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="consumable-stock.edit">
                   <ConsumableStock />
                 </ProtectedRoute>
               }
@@ -357,7 +356,7 @@ function App() {
             <Route
               path="/glue-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="glue-types.edit">
                   <GlueTypes />
                 </ProtectedRoute>
               }
@@ -366,7 +365,7 @@ function App() {
             <Route
               path="/colors"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="colors.edit">
                   <Colors />
                 </ProtectedRoute>
               }
@@ -375,7 +374,7 @@ function App() {
             <Route
               path="/color-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="color-types.edit">
                   <ColorTypes />
                 </ProtectedRoute>
               }
@@ -384,7 +383,7 @@ function App() {
             <Route
               path="/fsc-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="fsc-types.edit">
                   <FscTypes />
                 </ProtectedRoute>
               }
@@ -393,16 +392,16 @@ function App() {
             <Route
               path="/delivery-zones"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="delivery-zones.edit">
                   <DeliveryZones />
                 </ProtectedRoute>
               }
             />
 
-                        <Route
+            <Route
               path="/production-routes"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="routes.edit">
                   <ProductionRoutes />
                 </ProtectedRoute>
               }
@@ -410,7 +409,7 @@ function App() {
             <Route
               path="/machines"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="machines.edit">
                   <Machines />
                 </ProtectedRoute>
               }
@@ -418,7 +417,7 @@ function App() {
             <Route
               path="/machine-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="machines.edit">
                   <MachineTypes />
                 </ProtectedRoute>
               }
@@ -426,7 +425,7 @@ function App() {
             <Route
               path="/finished-goods"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="finished-goods.edit">
                   <FinishedGoods />
                 </ProtectedRoute>
               }
@@ -435,7 +434,7 @@ function App() {
             <Route
               path="/pallet-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="palletizing.edit">
                   <PalletTypes />
                 </ProtectedRoute>
               }
@@ -444,17 +443,8 @@ function App() {
             <Route
               path="/palletizations"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="palletizing.edit">
                   <Palletizations />
-                </ProtectedRoute>
-              }
-            />
-
-            <Route
-              path="/roles"
-              element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
-                  <Roles />
                 </ProtectedRoute>
               }
             />
@@ -462,7 +452,7 @@ function App() {
             <Route
               path="/strapping-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="strapping-types.edit">
                   <StrappingTypes />
                 </ProtectedRoute>
               }
@@ -471,7 +461,7 @@ function App() {
             <Route
               path="/complements"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="complements.edit">
                   <Complements />
                 </ProtectedRoute>
               }
@@ -480,7 +470,7 @@ function App() {
             <Route
               path="/trace-types"
               element={
-                <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+                <ProtectedRoute requiredPermission="score-types.edit">
                   <TraceTypes />
                 </ProtectedRoute>
               }

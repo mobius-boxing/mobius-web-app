@@ -10,6 +10,7 @@ import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { usePermissions } from '../hooks/usePermissions';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateConsumableTypeModal from '../components/modals/CreateConsumableTypeModal';
 import EditConsumableTypeModal from '../components/modals/EditConsumableTypeModal';
@@ -18,6 +19,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const ConsumableTypes: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('consumable-types.edit');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -133,23 +136,27 @@ const ConsumableTypes: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, consumableType: ConsumableType) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(consumableType)}
-            disabled={!consumableType}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDeleteClick(consumableType)}
-            disabled={!consumableType}
-            className="text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEdit(consumableType)}
+              disabled={!consumableType}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDeleteClick(consumableType)}
+              disabled={!consumableType}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -163,13 +170,15 @@ const ConsumableTypes: React.FC = () => {
             <h1 className="gd-page-title">{t('consumableTypes.title')}</h1>
             <p className="text-secondary-600">{t('consumableTypes.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('consumableTypes.addType')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('consumableTypes.addType')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
@@ -203,7 +212,7 @@ const ConsumableTypes: React.FC = () => {
                 <p className="gd-page-sub">
                   {search ? t('consumableTypes.empty.description') : t('consumableTypes.empty.noData')}
                 </p>
-                {!search && (
+                {!search && canEdit && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />

@@ -11,6 +11,7 @@ import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
+import { usePermissions } from '../hooks/usePermissions';
 import CreateFlapTypeModal from '../components/modals/CreateFlapTypeModal';
 import EditFlapTypeModal from '../components/modals/EditFlapTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -19,6 +20,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const FlapTypes: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('flap-types.edit');
   const { effectiveCompanyId } = useEffectiveCompany();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -121,25 +124,29 @@ const FlapTypes: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, flapType: FlapType) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(flapType)}
-            disabled={actionLoading === flapType?.uuid || !flapType}
-            title={t('flapTypes.editFlapType')}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(flapType?.uuid)}
-            disabled={actionLoading === flapType?.uuid || !flapType}
-            className="text-red-600 hover:text-red-700"
-            title={t('flapTypes.deleteFlapType')}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEdit(flapType)}
+              disabled={actionLoading === flapType?.uuid || !flapType}
+              title={t('flapTypes.editFlapType')}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(flapType?.uuid)}
+              disabled={actionLoading === flapType?.uuid || !flapType}
+              className="text-red-600 hover:text-red-700"
+              title={t('flapTypes.deleteFlapType')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -153,13 +160,15 @@ const FlapTypes: React.FC = () => {
             <h1 className="gd-page-title">{t('flapTypes.title')}</h1>
             <p className="text-secondary-600">{t('flapTypes.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('flapTypes.addFlapType')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('flapTypes.addFlapType')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
@@ -193,7 +202,7 @@ const FlapTypes: React.FC = () => {
                 <p className="gd-page-sub">
                   {search ? t('flapTypes.empty.description') : t('flapTypes.empty.noData')}
                 </p>
-                {!search && (
+                {!search && canEdit && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />

@@ -28,9 +28,7 @@ const B2_ENTITIES = [
 ];
 
 /**
- * B3's 3 entities. `role` was moved to B7 by the sign-off (10 of its 62 live
- * rows carry a `profileType` neither the dropdown nor the server allows), so it
- * is deliberately NOT listed here — this is an explicit list, never a glob.
+ * B3's 3 entities.
  */
 const B3_ENTITIES = ['ConsumableType', 'ToolingType', 'Warehouse'];
 
@@ -84,15 +82,10 @@ const MIGRATED_FILES = [
     `src/components/modals/Create${entity}Modal.tsx`,
     `src/components/modals/Edit${entity}Modal.tsx`,
   ]),
-  // B6 — users and auth. Not Create/Edit pairs, so listed individually; the
-  // three auth PAGES use `useForm` + `zodResolver` directly rather than
-  // `useModalForm`, so they are checked by the separate assertion below.
-  'src/components/modals/EditUserModal.tsx',
-  'src/components/modals/InviteUserModal.tsx',
   // B7 — the entities earlier batches deferred here, plus the two shared field
   // components that own Customer's and Palletization's inputs (the modals
   // themselves register nothing, so sweeping only modals would pass vacuously).
-  ...['Company', 'PaperClass', 'Palletization', 'Role'].flatMap((entity) => [
+  ...['Company', 'PaperClass', 'Palletization'].flatMap((entity) => [
     `src/components/modals/Create${entity}Modal.tsx`,
     `src/components/modals/Edit${entity}Modal.tsx`,
   ]),

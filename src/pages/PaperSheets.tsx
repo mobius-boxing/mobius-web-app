@@ -10,6 +10,7 @@ import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperSheetModal from '../components/modals/CreatePaperSheetModal';
 import EditPaperSheetModal from '../components/modals/EditPaperSheetModal';
@@ -19,6 +20,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const PaperSheets: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('papers.edit');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedPaperSheet, setSelectedPaperSheet] = useState<PaperSheet | null>(null);
@@ -159,23 +162,27 @@ const PaperSheets: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, paperSheet: PaperSheet) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(paperSheet)}
-            disabled={actionLoading === paperSheet?.uuid || !paperSheet}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(paperSheet?.uuid)}
-            disabled={actionLoading === paperSheet?.uuid || !paperSheet}
-            className="text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEdit(paperSheet)}
+              disabled={actionLoading === paperSheet?.uuid || !paperSheet}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(paperSheet?.uuid)}
+              disabled={actionLoading === paperSheet?.uuid || !paperSheet}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -189,13 +196,15 @@ const PaperSheets: React.FC = () => {
             <h1 className="gd-page-title">{t('paperSheets.title')}</h1>
             <p className="text-secondary-600">{t('paperSheets.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('paperSheets.addPaperSheet')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('paperSheets.addPaperSheet')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
@@ -229,7 +238,7 @@ const PaperSheets: React.FC = () => {
                 <p className="gd-page-sub">
                   {search ? t('paperSheets.empty.description') : t('paperSheets.empty.noData')}
                 </p>
-                {!search && (
+                {!search && canEdit && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />

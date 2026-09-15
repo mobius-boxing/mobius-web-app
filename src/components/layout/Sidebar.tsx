@@ -19,7 +19,6 @@ import {
   Database,
   PanelLeftClose,
   PanelLeft,
-  ShieldCheck,
   MapPin,
   Boxes,
   Factory,
@@ -195,406 +194,89 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
   };
 
   const navigationItems: NavItem[] = [
-    // Pedidos — the vendedor's daily entry point, so it leads the sidebar.
+    { id: 'sales-orders', label: t('nav.salesOrders'), path: '/sales-orders', icon: 'FileText', permission: 'orders.edit', allowReadOnly: true },
+    { id: 'production-orders', label: t('nav.productionOrders'), path: '/production-orders', icon: 'Factory', permission: 'production-orders.edit', allowReadOnly: true },
     {
-      id: 'sales-orders',
-      label: t('nav.salesOrders'),
-      path: '/sales-orders',
-      icon: 'FileText',
-      roles: ['admin', 'superAdmin'],
-    },
-    {
-      id: 'production-orders',
-      label: t('nav.productionOrders'),
-      path: '/production-orders',
-      icon: 'Factory',
-      roles: ['admin', 'superAdmin'],
-    },
-    {
-      id: 'masters',
-      label: t('nav.masters'),
-      icon: 'Database',
-      roles: ['admin', 'superAdmin'],
-      children: [
+      id: 'masters', label: t('nav.masters'), icon: 'Database', children: [
+        { id: 'customers', label: t('nav.customers'), path: '/customers', icon: 'UserCircle', permission: 'customers.edit', allowReadOnly: true },
+        { id: 'customer-categories', label: t('nav.customerCategories'), path: '/customer-categories', icon: 'Tag', permission: 'customer-categories.edit', allowReadOnly: true },
+        { id: 'delivery-zones', label: t('nav.deliveryZones'), path: '/delivery-zones', icon: 'MapPin', permission: 'delivery-zones.edit', allowReadOnly: true },
+        { id: 'products', label: t('nav.products'), path: '/products', icon: 'Package', permission: 'products.edit', allowReadOnly: true },
+        { id: 'warehouses', label: t('nav.warehouses'), path: '/warehouses', icon: 'Warehouse', permission: 'warehouses.edit', allowReadOnly: true },
         {
-          id: 'customers',
-          label: t('nav.customers'),
-          path: '/customers',
-          icon: 'UserCircle',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'customer-categories',
-          label: t('nav.customerCategories'),
-          path: '/customer-categories',
-          icon: 'Tag',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'delivery-zones',
-          label: t('nav.deliveryZones'),
-          path: '/delivery-zones',
-          icon: 'MapPin',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'products',
-          label: t('nav.products'),
-          path: '/products',
-          icon: 'Package',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'warehouses',
-          label: t('nav.warehouses'),
-          path: '/warehouses',
-          icon: 'Warehouse',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'materials',
-          label: t('nav.materials'),
-          icon: 'Box',
-          roles: ['admin', 'superAdmin'],
-          children: [
-            {
-              id: 'paper-types',
-              label: t('nav.paperTypes'),
-              path: '/paper-types',
-              icon: 'FileText',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'flute-types',
-              label: t('nav.fluteTypes'),
-              path: '/flute-types',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'paper-classes',
-              label: t('nav.paperClasses'),
-              path: '/paper-classes',
-              icon: 'BookOpen',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'corrugation-classes',
-              label: t('nav.corrugationClasses'),
-              path: '/corrugation-classes',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'corrugations',
-              label: t('nav.corrugations'),
-              path: '/corrugations',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'parts',
-              label: t('nav.parts'),
-              path: '/parts',
-              icon: 'Package',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'models',
-              label: t('nav.models'),
-              path: '/models',
-              icon: 'Box',
-              roles: ['admin', 'superAdmin'],
-            },
+          id: 'materials', label: t('nav.materials'), icon: 'Box', children: [
+            { id: 'paper-types', label: t('nav.paperTypes'), path: '/paper-types', icon: 'FileText', permission: 'paper-types.edit', allowReadOnly: true },
+            { id: 'flute-types', label: t('nav.fluteTypes'), path: '/flute-types', icon: 'Layers', permission: 'flute-types.edit', allowReadOnly: true },
+            { id: 'paper-classes', label: t('nav.paperClasses'), path: '/paper-classes', icon: 'BookOpen', permission: 'paper.classes', allowReadOnly: true },
+            { id: 'corrugation-classes', label: t('nav.corrugationClasses'), path: '/corrugation-classes', icon: 'Layers', permission: 'corrugated.classes', allowReadOnly: true },
+            { id: 'corrugations', label: t('nav.corrugations'), path: '/corrugations', icon: 'Layers', permission: 'corrugated.edit', allowReadOnly: true },
+            { id: 'parts', label: t('nav.parts'), path: '/parts', icon: 'Package', permission: 'parts.edit', allowReadOnly: true },
+            { id: 'models', label: t('nav.models'), path: '/models', icon: 'Box', permission: 'models.edit', allowReadOnly: true },
           ],
         },
         {
-          id: 'others',
-          label: t('nav.others'),
-          icon: 'Box',
-          roles: ['admin', 'superAdmin'],
-          children: [
-            {
-              id: 'manufacturers',
-              label: t('nav.manufacturers'),
-              path: '/manufacturers',
-              icon: 'Wrench',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'suppliers',
-              label: t('nav.suppliers'),
-              path: '/suppliers',
-              icon: 'Truck',
-              roles: ['admin', 'superAdmin'],
-            },
+          id: 'others', label: t('nav.others'), icon: 'Box', children: [
+            { id: 'manufacturers', label: t('nav.manufacturers'), path: '/manufacturers', icon: 'Wrench', permission: 'manufacturers.edit', allowReadOnly: true },
+            { id: 'suppliers', label: t('nav.suppliers'), path: '/suppliers', icon: 'Truck', permission: 'suppliers.edit', allowReadOnly: true },
           ],
         },
         {
-          id: 'production',
-          label: t('nav.production'),
-          icon: 'Factory',
-          roles: ['admin', 'superAdmin'],
-          children: [
-            {
-              id: 'production-routes',
-              label: t('nav.productionRoutes'),
-              path: '/production-routes',
-              icon: 'Route',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'machines',
-              label: t('nav.machines'),
-              path: '/machines',
-              icon: 'Factory',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'machine-types',
-              label: t('nav.machineTypes'),
-              path: '/machine-types',
-              icon: 'Cog',
-              roles: ['admin', 'superAdmin'],
-            },
+          id: 'production-masters', label: t('nav.production'), icon: 'Factory', children: [
+            { id: 'production-routes', label: t('nav.productionRoutes'), path: '/production-routes', icon: 'Route', permission: 'routes.edit', allowReadOnly: true },
+            { id: 'machines', label: t('nav.machines'), path: '/machines', icon: 'Factory', permission: 'machines.edit', allowReadOnly: true },
+            { id: 'machine-types', label: t('nav.machineTypes'), path: '/machine-types', icon: 'Cog', permission: 'machines.edit', allowReadOnly: true },
           ],
         },
         {
-          id: 'supplies',
-          label: t('nav.supplies'),
-          icon: 'Package',
-          roles: ['admin', 'superAdmin'],
-          children: [
-            {
-              id: 'paper-supplies',
-              label: t('nav.paperSupplies'),
-              path: '/supplies',
-              icon: 'Package',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'paper-sheets',
-              label: t('nav.paperSheets'),
-              path: '/paper-sheets',
-              icon: 'FileText',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'toolings',
-              label: t('nav.toolings'),
-              path: '/toolings',
-              icon: 'Wrench',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'consumable-supplies',
-              label: t('nav.consumableSupplies'),
-              path: '/consumable-supplies',
-              icon: 'Package',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'finished-goods',
-              label: t('nav.finishedGoods'),
-              path: '/finished-goods',
-              icon: 'Package',
-              roles: ['admin', 'superAdmin'],
-            },
+          id: 'supplies', label: t('nav.supplies'), icon: 'Package', children: [
+            { id: 'paper-supplies', label: t('nav.paperSupplies'), path: '/supplies', icon: 'Package', permission: 'supplies.edit', allowReadOnly: true },
+            { id: 'paper-sheets', label: t('nav.paperSheets'), path: '/paper-sheets', icon: 'FileText', permission: 'papers.edit', allowReadOnly: true },
+            { id: 'toolings', label: t('nav.toolings'), path: '/toolings', icon: 'Wrench', permission: 'tooling.edit', allowReadOnly: true },
+            { id: 'consumable-supplies', label: t('nav.consumableSupplies'), path: '/consumable-supplies', icon: 'Package', permission: 'consumable-supplies.edit', allowReadOnly: true },
+            { id: 'finished-goods', label: t('nav.finishedGoods'), path: '/finished-goods', icon: 'Package', permission: 'finished-goods.edit', allowReadOnly: true },
           ],
         },
+        { id: 'palletizations', label: t('nav.palletizations'), path: '/palletizations', icon: 'Boxes', permission: 'palletizing.edit', allowReadOnly: true },
+        { id: 'pallet-types', label: t('nav.palletTypes'), path: '/pallet-types', icon: 'Layers', permission: 'palletizing.edit', allowReadOnly: true },
+        { id: 'tooling-types', label: t('nav.toolingTypes'), path: '/tooling-types', icon: 'Wrench', permission: 'tooling-types.edit', allowReadOnly: true },
+        { id: 'consumable-types', label: t('nav.consumableTypes'), path: '/consumable-types', icon: 'Package', permission: 'consumable-types.edit', allowReadOnly: true },
         {
-          id: 'palletizations',
-          label: t('nav.palletizations'),
-          path: '/palletizations',
-          icon: 'Boxes',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'pallet-types',
-          label: t('nav.palletTypes'),
-          path: '/pallet-types',
-          icon: 'Layers',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'tooling-types',
-          label: t('nav.toolingTypes'),
-          path: '/tooling-types',
-          icon: 'Wrench',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'consumable-types',
-          label: t('nav.consumableTypes'),
-          path: '/consumable-types',
-          icon: 'Package',
-          roles: ['admin', 'superAdmin'],
-        },
-        {
-          id: 'product-specifications',
-          label: t('nav.productSpecifications'),
-          icon: 'Layers',
-          roles: ['admin', 'superAdmin'],
-          children: [
-            {
-              id: 'flap-types',
-              label: t('nav.flapTypes'),
-              path: '/flap-types',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'product-types',
-              label: t('nav.productTypes'),
-              path: '/product-types',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'box-types',
-              label: t('nav.boxTypes'),
-              path: '/box-types',
-              icon: 'Box',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'glue-types',
-              label: t('nav.glueTypes'),
-              path: '/glue-types',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'colors',
-              label: t('nav.colors'),
-              path: '/colors',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'color-types',
-              label: t('nav.colorTypes'),
-              path: '/color-types',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'fsc-types',
-              label: t('nav.fscTypes'),
-              path: '/fsc-types',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'strapping-types',
-              label: t('nav.strappingTypes'),
-              path: '/strapping-types',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'complements',
-              label: t('nav.complements'),
-              path: '/complements',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'trace-types',
-              label: t('nav.traceTypes'),
-              path: '/trace-types',
-              icon: 'Layers',
-              roles: ['admin', 'superAdmin'],
-            },
+          id: 'product-specifications', label: t('nav.productSpecifications'), icon: 'Layers', children: [
+            { id: 'flap-types', label: t('nav.flapTypes'), path: '/flap-types', icon: 'Layers', permission: 'flap-types.edit', allowReadOnly: true },
+            { id: 'product-types', label: t('nav.productTypes'), path: '/product-types', icon: 'Layers', permission: 'product-types.edit', allowReadOnly: true },
+            { id: 'box-types', label: t('nav.boxTypes'), path: '/box-types', icon: 'Box', permission: 'box-types.edit', allowReadOnly: true },
+            { id: 'glue-types', label: t('nav.glueTypes'), path: '/glue-types', icon: 'Layers', permission: 'glue-types.edit', allowReadOnly: true },
+            { id: 'colors', label: t('nav.colors'), path: '/colors', icon: 'Layers', permission: 'colors.edit', allowReadOnly: true },
+            { id: 'color-types', label: t('nav.colorTypes'), path: '/color-types', icon: 'Layers', permission: 'color-types.edit', allowReadOnly: true },
+            { id: 'fsc-types', label: t('nav.fscTypes'), path: '/fsc-types', icon: 'Layers', permission: 'fsc-types.edit', allowReadOnly: true },
+            { id: 'strapping-types', label: t('nav.strappingTypes'), path: '/strapping-types', icon: 'Layers', permission: 'strapping-types.edit', allowReadOnly: true },
+            { id: 'complements', label: t('nav.complements'), path: '/complements', icon: 'Layers', permission: 'complements.edit', allowReadOnly: true },
+            { id: 'trace-types', label: t('nav.traceTypes'), path: '/trace-types', icon: 'Layers', permission: 'score-types.edit', allowReadOnly: true },
           ],
         },
       ],
     },
     {
-      id: 'production',
-      label: t('nav.production'),
-      icon: 'Package',
-      roles: ['admin', 'superAdmin'],
-      children: [
+      id: 'production', label: t('nav.production'), icon: 'Package', children: [
         {
-          id: 'stock',
-          label: t('nav.stock'),
-          icon: 'Warehouse',
-          roles: ['admin', 'superAdmin'],
-          children: [
-            {
-              id: 'paper-stock',
-              label: t('nav.paperStock'),
-              path: '/paper-stock',
-              icon: 'Package',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'sheet-stock',
-              label: t('nav.sheetStock'),
-              path: '/sheet-stock',
-              icon: 'FileText',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'tooling-stock',
-              label: t('nav.toolingStock'),
-              path: '/tooling-stock',
-              icon: 'Wrench',
-              roles: ['admin', 'superAdmin'],
-            },
-            {
-              id: 'consumable-stock',
-              label: t('nav.consumableStock'),
-              path: '/consumable-stock',
-              icon: 'Package',
-              roles: ['admin', 'superAdmin'],
-            },
+          id: 'stock', label: t('nav.stock'), icon: 'Warehouse', children: [
+            { id: 'paper-stock', label: t('nav.paperStock'), path: '/paper-stock', icon: 'Package', permission: 'paper-stock.edit', allowReadOnly: true },
+            { id: 'sheet-stock', label: t('nav.sheetStock'), path: '/sheet-stock', icon: 'FileText', permission: 'sheet-stock.edit', allowReadOnly: true },
+            { id: 'tooling-stock', label: t('nav.toolingStock'), path: '/tooling-stock', icon: 'Wrench', permission: 'tooling-stock.edit', allowReadOnly: true },
+            { id: 'consumable-stock', label: t('nav.consumableStock'), path: '/consumable-stock', icon: 'Package', permission: 'consumable-stock.edit', allowReadOnly: true },
           ],
         },
       ],
     },
-    // RBAC administration — visible with the roles.edit permission (or its
-    // read-only variant); legacy admins pass via the transition fallback.
-    ...(has('roles.edit', { allowReadOnly: true })
-      ? [
-          {
-            id: 'administration',
-            label: t('nav.administration'),
-            icon: 'ShieldCheck',
-            // The has('roles.edit') check above is the real gate — include
-            // 'member' so an RBAC-granted non-admin isn't filtered out by the
-            // legacy role filter below.
-            roles: ['member', 'admin', 'superAdmin'],
-            children: [
-              {
-                id: 'roles',
-                label: t('nav.roles'),
-                path: '/roles',
-                icon: 'ShieldCheck',
-                roles: ['member', 'admin', 'superAdmin'],
-              },
-            ],
-          } as NavItem,
-        ]
-      : []),
-    // Auditoría — visible with the audit.read permission (or its read-only
-    // variant); legacy admins pass via the transition fallback. The route in
-    // App.tsx is gated on the very same code, so link and page agree (L-011).
-    ...(has('audit.read', { allowReadOnly: true })
-      ? [
-          {
-            id: 'audit-logs',
-            label: t('nav.audit'),
-            path: '/audit-logs',
-            icon: 'ScrollText',
-            // The has('audit.read') check above is the real gate — include
-            // 'member' so an RBAC-granted non-admin isn't filtered out by the
-            // legacy role filter below.
-            roles: ['member', 'admin', 'superAdmin'],
-          } as NavItem,
-        ]
-      : []),
+    {
+      id: 'users-and-roles',
+      label: t('nav.usersAndRoles'),
+      externalUrl: process.env.REACT_APP_BACKOFFICE_URL || 'http://localhost:3002',
+      icon: 'UserCircle',
+      permission: ['users.edit', 'roles.edit'],
+      allowReadOnly: true,
+    },
+    { id: 'audit-logs', label: t('nav.audit'), path: '/audit-logs', icon: 'ScrollText', permission: 'audit.read', allowReadOnly: true },
   ];
 
   const getIcon = (iconName: string, className: string = "h-5 w-5") => {
@@ -616,7 +298,6 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
       Database,
       PanelLeftClose,
       PanelLeft,
-      ShieldCheck,
       MapPin,
       Boxes,
       Factory,
@@ -676,9 +357,19 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.pathname]);
 
-  const filteredNavigation = navigationItems.filter((item) =>
-    user ? item.roles.includes(user.role) : false
-  );
+  /** A leaf with no `permission` (e.g. Dashboard) is visible to any signed-in user. */
+  const isLeafVisible = (item: NavItem): boolean => {
+    if (!user) return false;
+    if (!item.permission) return true;
+    const codes = Array.isArray(item.permission) ? item.permission : [item.permission];
+    return codes.some((code) => has(code, { allowReadOnly: item.allowReadOnly }));
+  };
+
+  /** A group is visible only while it still has at least one visible descendant. */
+  const isNavItemVisible = (item: NavItem): boolean =>
+    item.children ? item.children.some(isNavItemVisible) : isLeafVisible(item);
+
+  const filteredNavigation = navigationItems.filter(isNavItemVisible);
 
   const handleLogout = async () => {
     try {
@@ -690,7 +381,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
 
   const renderSubmenuItems = (items: NavItem[]): React.ReactNode =>
     items
-      .filter((child) => (user ? child.roles.includes(user.role) : false))
+      .filter(isNavItemVisible)
       .map((child) => {
         if (child.children && child.children.length > 0) {
           return (
@@ -698,6 +389,20 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
               <span className="gd-sb-menu__grouplabel">{child.label}</span>
               {renderSubmenuItems(child.children)}
             </div>
+          );
+        }
+        if (child.externalUrl) {
+          return (
+            <a
+              key={child.id}
+              href={child.externalUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="gd-sb-menu__link"
+              onClick={() => setSubmenu(null)}
+            >
+              {child.label}
+            </a>
           );
         }
         if (!child.path) return null; // neither a link nor a group: nothing to show
@@ -753,6 +458,21 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
           </div>
         );
       }
+      if (item.externalUrl) {
+        return (
+          <a
+            key={item.id}
+            href={item.externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={item.label}
+            {...hoverProps}
+            className="sidebar-item sidebar-item-inactive justify-center"
+          >
+            {getIcon(item.icon, iconSize)}
+          </a>
+        );
+      }
       return (
         <NavLink
           key={item.id}
@@ -786,11 +506,26 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
           {isExpanded && item.children && (
             <div className="ml-[1.375rem] space-y-1 border-l border-secondary-200 pl-3">
               {item.children
-                .filter((child) => user ? child.roles.includes(user.role) : false)
+                .filter(isNavItemVisible)
                 .map((child) => renderNavItem(child, depth + 1))}
             </div>
           )}
         </div>
+      );
+    }
+
+    if (item.externalUrl) {
+      return (
+        <a
+          key={item.id}
+          href={item.externalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="sidebar-item sidebar-item-inactive"
+        >
+          {getIcon(item.icon, iconSize)}
+          <span className={`ml-3 ${textSize}`}>{item.label}</span>
+        </a>
       );
     }
 
@@ -868,7 +603,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
                 {user?.firstName} {user?.lastName}
               </p>
               <p className="text-xs text-secondary-500 capitalize truncate">
-                {user?.role}
+                {user?.roleName ?? t(`roleNames.${user?.role}`, { defaultValue: user?.role })}
                 {user?.companyName && ` • ${user.companyName}`}
               </p>
             </div>

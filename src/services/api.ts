@@ -19,9 +19,6 @@ import {
   Company,
   Invitation,
   CreateCompanyForm,
-  InviteUserForm,
-  InviteUserRequest,
-  UpdateUserRequest,
   AcceptInvitationForm,
   ChangePasswordForm,
   UserStats,
@@ -98,9 +95,6 @@ import {
   CreateComplementForm,
   TraceType,
   CreateTraceTypeForm,
-  Role,
-  CreateRoleForm,
-  Permission,
   FileRecord,
   PalletType,
   CreatePalletTypeForm,
@@ -310,34 +304,6 @@ export const usersApi = {
     return response.data.data!;
   },
 
-  inviteUser: async (data: InviteUserForm): Promise<any> => {
-    const response: AxiosResponse<ApiResponse> = await api.post('/api/users/invite', data);
-    return response.data.data;
-  },
-
-  updateUser: async (id: string, data: UpdateUserRequest): Promise<User> => {
-    const response: AxiosResponse<ApiResponse<User>> = await api.put(`/api/users/${id}`, data);
-    return response.data.data!;
-  },
-
-  updateUserRole: async (id: string, role: 'member' | 'admin'): Promise<User> => {
-    const response: AxiosResponse<ApiResponse<User>> = await api.put(`/api/users/${id}/role`, { role });
-    return response.data.data!;
-  },
-
-  updateUserStatus: async (id: string, isActive: boolean): Promise<User> => {
-    const response: AxiosResponse<ApiResponse<User>> = await api.put(`/api/users/${id}/status`, { isActive });
-    return response.data.data!;
-  },
-
-  deleteUser: async (id: string): Promise<void> => {
-    await api.delete(`/api/users/${id}`);
-  },
-
-  removeUser: async (id: string): Promise<void> => {
-    await api.delete(`/api/users/${id}`);
-  },
-
   getUserStats: async (companyId?: string): Promise<UserStats> => {
     const params = companyId ? { companyId } : {};
     const response: AxiosResponse<ApiResponse<UserStats>> = await api.get('/api/users/stats', { params });
@@ -411,59 +377,12 @@ export const companiesApi = {
 };
 
 export const invitationsApi = {
-  getInvitations: async (params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    isUsed?: boolean;
-    includeExpired?: boolean;
-    companyId?: string;
-  } = {}): Promise<PaginatedResponse<Invitation>> => {
-    const response = await api.get('/api/invitations', { params });
-    const backendData = response.data;
-    return {
-      data: backendData.data,
-      total: backendData.totalCount,
-      page: backendData.page,
-      limit: backendData.limit,
-      totalPages: backendData.totalPages,
-    };
-  },
-
-  createInvitation: async (data: InviteUserRequest): Promise<Invitation> => {
-    const response: AxiosResponse<ApiResponse<Invitation>> = await api.post('/api/users/invite', data);
-    return response.data.data!;
-  },
-
-  getInvitationByToken: async (token: string): Promise<Invitation> => {
-    const response: AxiosResponse<ApiResponse<Invitation>> = await api.get(`/api/invitations/${token}`);
-    return response.data.data!;
-  },
-
-  resendInvitation: async (id: string): Promise<any> => {
-    const response: AxiosResponse<ApiResponse> = await api.post(`/api/invitations/${id}/resend`);
-    return response.data.data;
-  },
-
-  cancelInvitation: async (id: string): Promise<void> => {
-    await api.delete(`/api/invitations/${id}`);
-  },
-
   getInvitationStats: async (companyId?: string): Promise<InvitationStats> => {
     const params = companyId ? { companyId } : {};
     const response: AxiosResponse<ApiResponse<InvitationStats>> = await api.get('/api/invitations/stats', { params });
     return response.data.data!;
   },
 
-  checkPendingInvitation: async (email: string): Promise<any> => {
-    const response: AxiosResponse<ApiResponse> = await api.get(`/api/invitations/check/${email}`);
-    return response.data.data;
-  },
-
-  cleanupExpired: async (): Promise<any> => {
-    const response: AxiosResponse<ApiResponse> = await api.post('/api/invitations/cleanup');
-    return response.data.data;
-  },
 };
 
 export const customerCategoriesApi = {
@@ -1694,89 +1613,6 @@ export const traceTypesApi = {
 
   deleteTraceType: async (id: string): Promise<void> => {
     await api.delete(`/api/trace-type/${id}`);
-  },
-};
-
-// ── RBAC (module 02) ──────────────────────────────────────────────────────────
-
-export const rolesApi = {
-  getRoles: async (params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    companyId?: string;
-  } = {}): Promise<PaginatedResponse<Role>> => {
-    const response = await api.get('/api/roles', { params });
-    const backendData = response.data;
-    return {
-      data: backendData.data,
-      total: backendData.totalCount,
-      page: backendData.page,
-      limit: backendData.limit,
-      totalPages: backendData.totalPages,
-    };
-  },
-
-  getRole: async (uuid: string): Promise<Role> => {
-    const response: AxiosResponse<ApiResponse<Role>> = await api.get(`/api/roles/${uuid}`);
-    return response.data.data!;
-  },
-
-  createRole: async (data: CreateRoleForm): Promise<Role> => {
-    const response: AxiosResponse<ApiResponse<Role>> = await api.post('/api/roles', data);
-    return response.data.data!;
-  },
-
-  updateRole: async (uuid: string, data: Partial<CreateRoleForm>): Promise<Role> => {
-    const response: AxiosResponse<ApiResponse<Role>> = await api.put(`/api/roles/${uuid}`, data);
-    return response.data.data!;
-  },
-
-  deleteRole: async (uuid: string): Promise<void> => {
-    await api.delete(`/api/roles/${uuid}`);
-  },
-
-  setRolePermissions: async (uuid: string, codes: string[]): Promise<string[]> => {
-    const response: AxiosResponse<ApiResponse<{ codes: string[] }>> = await api.put(
-      `/api/roles/${uuid}/permissions`,
-      { codes }
-    );
-    return response.data.data!.codes;
-  },
-
-  assignRole: async (userUuid: string, roleUuid: string | null): Promise<void> => {
-    await api.put('/api/roles/assign', { userUuid, roleUuid });
-  },
-};
-
-export const permissionsApi = {
-  getPermissions: async (params: {
-    page?: number;
-    limit?: number;
-    search?: string;
-    companyId?: string;
-  } = {}): Promise<PaginatedResponse<Permission>> => {
-    // The catalogue is ~277 rows but the API caps limit at 100 —
-    // page through until totalPages so the matrix gets the full set.
-    const pageSize = 100;
-    const first = await api.get('/api/permissions', {
-      params: { ...params, limit: pageSize, page: 1 },
-    });
-    const all: Permission[] = [...first.data.data];
-    const totalPages: number = first.data.totalPages ?? 1;
-    for (let p = 2; p <= totalPages; p++) {
-      const next = await api.get('/api/permissions', {
-        params: { ...params, limit: pageSize, page: p },
-      });
-      all.push(...next.data.data);
-    }
-    return {
-      data: all,
-      total: first.data.totalCount,
-      page: 1,
-      limit: all.length,
-      totalPages: 1,
-    };
   },
 };
 

@@ -53,7 +53,6 @@ jest.mock('./i18n/config', () => ({}));
 jest.mock('./pages/Login', () => () => <div data-testid="login-page">Login</div>);
 jest.mock('./pages/Dashboard', () => () => <div data-testid="dashboard-page">Dashboard</div>);
 jest.mock('./pages/Companies', () => () => <div data-testid="companies-page">Companies</div>);
-jest.mock('./pages/Users', () => () => <div data-testid="users-page">Users</div>);
 jest.mock('./pages/ResetPassword', () => () => <div data-testid="reset-password-page">Reset Password</div>);
 jest.mock('./pages/ForgotPassword', () => () => <div data-testid="forgot-password-page">Forgot Password</div>);
 jest.mock('./pages/AcceptInvitation', () => () => <div data-testid="accept-invitation-page">Accept Invitation</div>);

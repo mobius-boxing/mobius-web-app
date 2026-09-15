@@ -10,6 +10,7 @@ import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePalletizationModal from '../components/modals/CreatePalletizationModal';
 import EditPalletizationModal from '../components/modals/EditPalletizationModal';
@@ -19,6 +20,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const Palletizations: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('palletizing.edit');
   const { effectiveCompanyId } = useEffectiveCompany();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -104,25 +107,29 @@ const Palletizations: React.FC = () => {
       card: 'actions' as const,
       render: (_: any, p: Palletization) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => { setSelected(p); setShowEditModal(true); }}
-            disabled={actionLoading === p?.uuid || !p}
-            title={t('palletizations.editPalletization')}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(p?.uuid)}
-            disabled={actionLoading === p?.uuid || !p}
-            className="text-red-600 hover:text-red-700"
-            title={t('palletizations.deletePalletization')}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setSelected(p); setShowEditModal(true); }}
+              disabled={actionLoading === p?.uuid || !p}
+              title={t('palletizations.editPalletization')}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(p?.uuid)}
+              disabled={actionLoading === p?.uuid || !p}
+              className="text-red-600 hover:text-red-700"
+              title={t('palletizations.deletePalletization')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -136,10 +143,12 @@ const Palletizations: React.FC = () => {
             <h1 className="gd-page-title">{t('palletizations.title')}</h1>
             <p className="text-secondary-600">{t('palletizations.subtitle')}</p>
           </div>
-          <Button onClick={() => setShowCreateModal(true)} className="inline-flex items-center">
-            <Plus className="h-4 w-4 mr-2" />
-            {t('palletizations.addPalletization')}
-          </Button>
+          {canEdit && (
+            <Button onClick={() => setShowCreateModal(true)} className="inline-flex items-center">
+              <Plus className="h-4 w-4 mr-2" />
+              {t('palletizations.addPalletization')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">

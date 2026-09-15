@@ -5,16 +5,7 @@ import { usePermissions } from '../hooks/usePermissions';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRoles?: string[];
-  /**
-   * An RBAC catalogue code (`audit.read`). When present the route is gated on
-   * `usePermissions().has(code, { allowReadOnly: true })` — the same check the
-   * matching sidebar entry makes, so a nav link and its route can never
-   * disagree about who may see the page (L-011).
-   *
-   * Optional and additive: every existing call site gates on `requiredRoles`
-   * alone and is unaffected. The two may be combined, and then both must pass.
-   */
+  /** An RBAC catalogue code that permits this read surface. */
   requiredPermission?: string;
 }
 
@@ -22,10 +13,9 @@ export const DEVICE_PENDING_PATH = '/device-pending';
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
-  requiredRoles,
   requiredPermission,
 }) => {
-  const { isAuthenticated, isLoading, user, deviceBlocked } = useAuth();
+  const { isAuthenticated, isLoading, deviceBlocked } = useAuth();
   const { has } = usePermissions();
   const location = useLocation();
 
@@ -62,13 +52,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // approved" is the accurate answer even on a page the member could not see anyway.
   if (deviceBlocked && location.pathname !== DEVICE_PENDING_PATH) {
     return <Navigate to={DEVICE_PENDING_PATH} state={{ from: location }} replace />;
-  }
-
-  if (requiredRoles && user) {
-    const hasRequiredRole = requiredRoles.includes(user.role);
-    if (!hasRequiredRole) {
-      return accessDenied;
-    }
   }
 
   // Read-only variants pass: these are reading surfaces, and a user granted

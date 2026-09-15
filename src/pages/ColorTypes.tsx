@@ -11,6 +11,7 @@ import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
+import { usePermissions } from '../hooks/usePermissions';
 import CreateColorTypeModal from '../components/modals/CreateColorTypeModal';
 import EditColorTypeModal from '../components/modals/EditColorTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -19,6 +20,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const ColorTypes: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('color-types.edit');
   const { effectiveCompanyId } = useEffectiveCompany();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -121,25 +124,29 @@ const ColorTypes: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, colorType: ColorType) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(colorType)}
-            disabled={actionLoading === colorType?.uuid || !colorType}
-            title={t('colorTypes.editColorType')}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(colorType?.uuid)}
-            disabled={actionLoading === colorType?.uuid || !colorType}
-            className="text-red-600 hover:text-red-700"
-            title={t('colorTypes.deleteColorType')}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEdit(colorType)}
+              disabled={actionLoading === colorType?.uuid || !colorType}
+              title={t('colorTypes.editColorType')}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(colorType?.uuid)}
+              disabled={actionLoading === colorType?.uuid || !colorType}
+              className="text-red-600 hover:text-red-700"
+              title={t('colorTypes.deleteColorType')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -153,13 +160,15 @@ const ColorTypes: React.FC = () => {
             <h1 className="gd-page-title">{t('colorTypes.title')}</h1>
             <p className="text-secondary-600">{t('colorTypes.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('colorTypes.addColorType')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('colorTypes.addColorType')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
@@ -193,7 +202,7 @@ const ColorTypes: React.FC = () => {
                 <p className="gd-page-sub">
                   {search ? t('colorTypes.empty.description') : t('colorTypes.empty.noData')}
                 </p>
-                {!search && (
+                {!search && canEdit && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />

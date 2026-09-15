@@ -5,6 +5,8 @@ export interface User {
   firstName?: string;
   lastName?: string;
   role: 'member' | 'admin' | 'superAdmin';
+  roleUuid: string | null;
+  roleName: string | null;
   companyId?: string;
   companyName?: string;
   isActive: boolean;
@@ -50,6 +52,10 @@ export interface AuthUser {
   role: 'member' | 'admin' | 'superAdmin';
   companyId?: string;
   companyName?: string;
+  /** Assigned role identity returned by `/api/auth/me`; null for superAdmins and legacy users. */
+  roleUuid: string | null;
+  /** Assigned role name returned by `/api/auth/me`; null while the API has no role assignment. */
+  roleName: string | null;
   /** RBAC permission codes granted via the user's role (empty when no role assigned). */
   permissions?: string[];
   /** This browser's device approval, as reported by `GET /auth/me`. Always null for admin/superAdmin. */
@@ -145,8 +151,11 @@ export interface NavItem {
   id: string;
   label: string;
   path?: string;
+  externalUrl?: string;
   icon: string;
-  roles: string[];
+  permission?: string | string[];
+  allowReadOnly?: boolean;
+  roles?: string[];
   children?: NavItem[];
 }
 

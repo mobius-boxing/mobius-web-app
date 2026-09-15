@@ -10,6 +10,7 @@ import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import ModelFormModal from '../components/modals/ModelFormModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -19,6 +20,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const Models: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('models.edit');
   const { effectiveCompanyId } = useEffectiveCompany();
   const [showFormModal, setShowFormModal] = useState(false);
   const [selected, setSelected] = useState<Model | null>(null);
@@ -51,7 +54,7 @@ const Models: React.FC = () => {
           await modelsApi.deleteModel(uuid);
           await refresh();
         } catch (error: any) {
-          // D-8: a model referenced by parts answers 409 with the count and the
+          // A model referenced by parts answers 409 with the count and the
           // part codes. That message is the whole point of the pre-check — the
           // row simply staying put tells the user nothing.
           logger.error('Error deleting model:', error);
@@ -104,25 +107,29 @@ const Models: React.FC = () => {
       card: 'actions' as const,
       render: (_: any, m: Model) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => { setSelected(m); setShowFormModal(true); }}
-            disabled={actionLoading === m?.uuid || !m}
-            title={t('models.editModel')}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(m?.uuid)}
-            disabled={actionLoading === m?.uuid || !m}
-            className="text-red-600 hover:text-red-700"
-            title={t('models.deleteModel')}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setSelected(m); setShowFormModal(true); }}
+              disabled={actionLoading === m?.uuid || !m}
+              title={t('models.editModel')}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(m?.uuid)}
+              disabled={actionLoading === m?.uuid || !m}
+              className="text-red-600 hover:text-red-700"
+              title={t('models.deleteModel')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -136,14 +143,16 @@ const Models: React.FC = () => {
             <h1 className="gd-page-title">{t('models.title')}</h1>
             <p className="text-secondary-600">{t('models.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => { setSelected(null); setShowFormModal(true); }}
-            className="inline-flex items-center"
-            data-testid="model-add"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('models.addModel')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => { setSelected(null); setShowFormModal(true); }}
+              className="inline-flex items-center"
+              data-testid="model-add"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('models.addModel')}
+            </Button>
+          )}
         </div>
 
         <ErrorMessage message={actionError} />

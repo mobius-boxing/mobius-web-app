@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { usePermissions } from '../hooks/usePermissions';
 import { Plus } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
@@ -14,6 +15,8 @@ import SalesOrdersGrid from '../components/sales-orders/SalesOrdersGrid';
  */
 const SalesOrders: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('orders.edit');
   const navigate = useNavigate();
 
   return (
@@ -26,14 +29,16 @@ const SalesOrders: React.FC = () => {
             </h1>
             <p className="text-secondary-600">{t('salesOrders.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => navigate('/sales-orders/new')}
-            className="inline-flex items-center"
-            data-testid="add-sales-order-btn"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            {t('salesOrders.addOrder')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => navigate('/sales-orders/new')}
+              className="inline-flex items-center"
+              data-testid="add-sales-order-btn"
+            >
+              <Plus className="mr-2 h-4 w-4" />
+              {t('salesOrders.addOrder')}
+            </Button>
+          )}
         </div>
 
         <SalesOrdersGrid />

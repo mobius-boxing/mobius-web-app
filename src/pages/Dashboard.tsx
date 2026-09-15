@@ -3,6 +3,7 @@ import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import { Users, Building, Mail, Activity } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
+import { usePermissions } from '../hooks/usePermissions';
 import { UserStats, CompanyStats, InvitationStats } from '../types';
 import { usersApi, companiesApi, invitationsApi } from '../services/api';
 import Card from '../components/ui/Card';
@@ -64,6 +65,8 @@ const Dashboard: React.FC = () => {
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
   const { user } = useAuth();
+  const { has } = usePermissions();
+  const canReadUsers = has('users.edit', { allowReadOnly: true });
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [companyStats, setCompanyStats] = useState<CompanyStats | null>(null);
   const [invitationStats, setInvitationStats] = useState<InvitationStats | null>(null);
@@ -85,7 +88,7 @@ const Dashboard: React.FC = () => {
           setUserStats(userStatsData);
           setCompanyStats(companyStatsData);
           setInvitationStats(invitationStatsData);
-        } else if (user?.role === 'admin') {
+        } else if (user && canReadUsers) {
           const [userStatsData, invitationStatsData] = await Promise.all([
             usersApi.getUserStats(user.companyId),
             invitationsApi.getInvitationStats(user.companyId),
@@ -103,7 +106,7 @@ const Dashboard: React.FC = () => {
     if (user) {
       fetchStats();
     }
-  }, [user, effectiveCompanyId]);
+  }, [user, effectiveCompanyId, canReadUsers]);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -137,11 +140,11 @@ const Dashboard: React.FC = () => {
           <p className="text-sm text-secondary-500 mt-1">
             {user?.companyName
               ? t('dashboard.welcomeForCompany', {
-                  role: t(`roleNames.${user?.role}`, { defaultValue: user?.role }),
+                  role: user?.roleName ?? t(`roleNames.${user?.role}`, { defaultValue: user?.role }),
                   company: user.companyName,
                 })
               : t('dashboard.welcome', {
-                  role: t(`roleNames.${user?.role}`, { defaultValue: user?.role }),
+                  role: user?.roleName ?? t(`roleNames.${user?.role}`, { defaultValue: user?.role }),
                 })}
           </p>
         </div>
@@ -160,7 +163,7 @@ const Dashboard: React.FC = () => {
                 </p>
                 <p className="text-sm">
                   <span className="font-medium">{t('dashboard.member.role')}</span>{' '}
-                  {t(`roleNames.${user.role}`, { defaultValue: user.role })}
+                  {user.roleName ?? t(`roleNames.${user.role}`, { defaultValue: user.role })}
                 </p>
                 <p className="text-sm">
                   <span className="font-medium">{t('dashboard.member.company')}</span> {user.companyName}
@@ -170,7 +173,7 @@ const Dashboard: React.FC = () => {
           </div>
         )}
 
-        {user?.role === 'admin' && userStats && invitationStats && (
+        {user?.role !== 'superAdmin' && canReadUsers && userStats && invitationStats && (
           <>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <StatCard

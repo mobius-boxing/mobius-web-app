@@ -49,8 +49,6 @@
     "signOut": "Cerrar Sesión",
     "collapseSidebar": "Contraer barra lateral",
     "expandSidebar": "Expandir barra lateral",
-    "administration": "Administración",
-    "roles": "Perfiles y Permisos",
     "colors": "Colores",
     "colorTypes": "Tipos de Color",
     "fscTypes": "Tipos de FSC",
@@ -67,70 +65,8 @@
     "productionOrders": "Órdenes de Producción",
     "audit": "Auditoría",
     "openMenu": "Abrir menú",
-    "closeMenu": "Cerrar menú"
-  },
-  "roles": {
-    "title": "Perfiles y Permisos",
-    "subtitle": "Gestionar perfiles de usuario y su grilla de permisos",
-    "addRole": "Agregar Perfil",
-    "allRoles": "Todos los Perfiles",
-    "searchPlaceholder": "Buscar perfiles...",
-    "name": "Nombre",
-    "namePlaceholder": "Ingrese el nombre del perfil",
-    "profileType": "Tipo de Perfil",
-    "hasAccessToAllMachines": "Tiene acceso a todas las máquinas",
-    "protected": "Protegido",
-    "createTitle": "Crear Perfil",
-    "editTitle": "Editar Perfil",
-    "editRole": "Editar Perfil",
-    "editPermissions": "Editar Permisos",
-    "deleteRole": "Eliminar Perfil",
-    "createButton": "Crear Perfil",
-    "updateButton": "Actualizar Perfil",
-    "deleteConfirm": "¿Está seguro de que desea eliminar el perfil \"{{name}}\"?",
-    "columns": {
-      "name": "Nombre",
-      "profileType": "Tipo de Perfil",
-      "created": "Creado",
-      "actions": "Acciones"
-    },
-    "empty": {
-      "title": "No se encontraron perfiles",
-      "description": "Intente ajustar su búsqueda",
-      "noData": "No hay perfiles disponibles"
-    },
-    "validation": {
-      "nameRequired": "El nombre es obligatorio"
-    },
-    "profileTypes": {
-      "general": "General",
-      "director": "Director",
-      "productionManager": "Responsable de Producción",
-      "qualityManager": "Responsable de Calidad",
-      "salesperson": "Vendedor"
-    },
-    "states": {
-      "none": "Sin acceso",
-      "readOnly": "Sólo lectura",
-      "full": "Completo"
-    },
-    "areas": {
-      "masters": "Maestros",
-      "operations": "Operaciones",
-      "queries": "Consultas y Reportes",
-      "actions": "Acciones",
-      "sales-plus": "Ventas / PLUS",
-      "maintenance": "Mantenimiento"
-    },
-    "permissionsModal": {
-      "title": "Permisos — {{name}}",
-      "protectedNote": "Este es el perfil Admin protegido: siempre posee todos los permisos y no puede editarse.",
-      "deprecated": "obsoleto",
-      "save": "Guardar Permisos",
-      "saving": "Guardando...",
-      "loadFailed": "No se pudo cargar el catálogo de permisos.",
-      "saveFailed": "No se pudieron guardar los permisos. Intente nuevamente."
-    }
+    "closeMenu": "Cerrar menú",
+    "usersAndRoles": "Usuarios y roles"
   },
   "fileUploader": {
     "choose": "Elegir archivo...",

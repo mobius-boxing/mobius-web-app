@@ -11,6 +11,7 @@ import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
+import { usePermissions } from '../hooks/usePermissions';
 import CreateManufacturerModal from '../components/modals/CreateManufacturerModal';
 import EditManufacturerModal from '../components/modals/EditManufacturerModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -19,6 +20,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const Manufacturers: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('manufacturers.edit');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedManufacturer, setSelectedManufacturer] = useState<Manufacturer | null>(null);
@@ -121,23 +124,27 @@ const Manufacturers: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, manufacturer: Manufacturer) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(manufacturer)}
-            disabled={actionLoading === manufacturer?.uuid || !manufacturer}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(manufacturer?.uuid)}
-            disabled={actionLoading === manufacturer?.uuid || !manufacturer}
-            className="text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEdit(manufacturer)}
+              disabled={actionLoading === manufacturer?.uuid || !manufacturer}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(manufacturer?.uuid)}
+              disabled={actionLoading === manufacturer?.uuid || !manufacturer}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -151,13 +158,15 @@ const Manufacturers: React.FC = () => {
             <h1 className="gd-page-title">{t('manufacturers.title')}</h1>
             <p className="text-secondary-600">{t('manufacturers.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('manufacturers.addManufacturer')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('manufacturers.addManufacturer')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
@@ -191,7 +200,7 @@ const Manufacturers: React.FC = () => {
                 <p className="gd-page-sub">
                   {search ? t('manufacturers.empty.description') : t('manufacturers.empty.noData')}
                 </p>
-                {!search && (
+                {!search && canEdit && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />

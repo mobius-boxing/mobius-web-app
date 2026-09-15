@@ -49,8 +49,6 @@
     "signOut": "Sign Out",
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
-    "administration": "Administration",
-    "roles": "Roles & Permissions",
     "colors": "Colors",
     "colorTypes": "Color Types",
     "fscTypes": "FSC Types",
@@ -67,70 +65,8 @@
     "productionOrders": "Production Orders",
     "audit": "Audit Log",
     "openMenu": "Open menu",
-    "closeMenu": "Close menu"
-  },
-  "roles": {
-    "title": "Roles & Permissions",
-    "subtitle": "Manage user roles and their permission grid",
-    "addRole": "Add Role",
-    "allRoles": "All Roles",
-    "searchPlaceholder": "Search roles...",
-    "name": "Name",
-    "namePlaceholder": "Enter role name",
-    "profileType": "Profile Type",
-    "hasAccessToAllMachines": "Has access to all machines",
-    "protected": "Protected",
-    "createTitle": "Create Role",
-    "editTitle": "Edit Role",
-    "editRole": "Edit Role",
-    "editPermissions": "Edit Permissions",
-    "deleteRole": "Delete Role",
-    "createButton": "Create Role",
-    "updateButton": "Update Role",
-    "deleteConfirm": "Are you sure you want to delete the role \"{{name}}\"?",
-    "columns": {
-      "name": "Name",
-      "profileType": "Profile Type",
-      "created": "Created",
-      "actions": "Actions"
-    },
-    "empty": {
-      "title": "No roles found",
-      "description": "Try adjusting your search criteria",
-      "noData": "No roles available"
-    },
-    "validation": {
-      "nameRequired": "Name is required"
-    },
-    "profileTypes": {
-      "general": "General",
-      "director": "Director",
-      "productionManager": "Production Manager",
-      "qualityManager": "Quality Manager",
-      "salesperson": "Salesperson"
-    },
-    "states": {
-      "none": "None",
-      "readOnly": "Read-only",
-      "full": "Full"
-    },
-    "areas": {
-      "masters": "Master Data",
-      "operations": "Operations",
-      "queries": "Queries & Reports",
-      "actions": "Actions",
-      "sales-plus": "Sales / PLUS",
-      "maintenance": "Maintenance"
-    },
-    "permissionsModal": {
-      "title": "Permissions — {{name}}",
-      "protectedNote": "This is the protected Admin role: it always holds every permission and cannot be edited.",
-      "deprecated": "deprecated",
-      "save": "Save Permissions",
-      "saving": "Saving...",
-      "loadFailed": "Failed to load the permission catalogue.",
-      "saveFailed": "Failed to save permissions. Please try again."
-    }
+    "closeMenu": "Close menu",
+    "usersAndRoles": "Users & roles"
   },
   "fileUploader": {
     "choose": "Choose file...",

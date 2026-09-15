@@ -49,6 +49,11 @@ jest.mock('../../hooks/useEffectiveCompany', () => ({
   default: () => ({ effectiveCompanyId: undefined }),
 }));
 
+jest.mock('../../hooks/usePermissions', () => ({
+  __esModule: true,
+  usePermissions: () => ({ has: () => true }),
+}));
+
 const MODEL = {
   uuid: 'model-1',
   code: 'M-1',

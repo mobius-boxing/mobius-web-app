@@ -10,6 +10,7 @@ import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { usePermissions } from '../hooks/usePermissions';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateToolingTypeModal from '../components/modals/CreateToolingTypeModal';
 import EditToolingTypeModal from '../components/modals/EditToolingTypeModal';
@@ -18,6 +19,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const ToolingTypes: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('tooling-types.edit');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -142,23 +145,27 @@ const ToolingTypes: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, toolingType: ToolingType) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(toolingType)}
-            disabled={!toolingType}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDeleteClick(toolingType)}
-            disabled={!toolingType}
-            className="text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEdit(toolingType)}
+              disabled={!toolingType}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDeleteClick(toolingType)}
+              disabled={!toolingType}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -172,13 +179,15 @@ const ToolingTypes: React.FC = () => {
             <h1 className="gd-page-title">{t('toolingTypes.title')}</h1>
             <p className="text-secondary-600">{t('toolingTypes.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('toolingTypes.addType')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('toolingTypes.addType')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
@@ -212,7 +221,7 @@ const ToolingTypes: React.FC = () => {
                 <p className="gd-page-sub">
                   {search ? t('toolingTypes.empty.description') : t('toolingTypes.empty.noData')}
                 </p>
-                {!search && (
+                {!search && canEdit && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />

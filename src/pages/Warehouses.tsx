@@ -10,6 +10,7 @@ import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateWarehouseModal from '../components/modals/CreateWarehouseModal';
 import EditWarehouseModal from '../components/modals/EditWarehouseModal';
@@ -21,6 +22,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const Warehouses: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('warehouses.edit');
   const { effectiveCompanyId } = useEffectiveCompany();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -141,34 +144,40 @@ const Warehouses: React.FC = () => {
           >
             <Package className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleOpenGridEditor(warehouse)}
-            disabled={actionLoading === warehouse?.uuid || !warehouse}
-            title={t('warehouses.editGrid')}
-          >
-            <Grid className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(warehouse)}
-            disabled={actionLoading === warehouse?.uuid || !warehouse}
-            title={t('warehouses.editWarehouse')}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(warehouse?.uuid)}
-            disabled={actionLoading === warehouse?.uuid || !warehouse}
-            className="text-red-600 hover:text-red-700"
-            title={t('warehouses.deleteWarehouse')}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleOpenGridEditor(warehouse)}
+              disabled={actionLoading === warehouse?.uuid || !warehouse}
+              title={t('warehouses.editGrid')}
+            >
+              <Grid className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEdit(warehouse)}
+              disabled={actionLoading === warehouse?.uuid || !warehouse}
+              title={t('warehouses.editWarehouse')}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(warehouse?.uuid)}
+              disabled={actionLoading === warehouse?.uuid || !warehouse}
+              className="text-red-600 hover:text-red-700"
+              title={t('warehouses.deleteWarehouse')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -182,13 +191,15 @@ const Warehouses: React.FC = () => {
             <h1 className="gd-page-title">{t('warehouses.title')}</h1>
             <p className="text-secondary-600">{t('warehouses.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('warehouses.addWarehouse')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('warehouses.addWarehouse')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
@@ -222,7 +233,7 @@ const Warehouses: React.FC = () => {
                 <p className="gd-page-sub">
                   {search ? t('warehouses.empty.description') : t('warehouses.empty.noData')}
                 </p>
-                {!search && (
+                {!search && canEdit && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />

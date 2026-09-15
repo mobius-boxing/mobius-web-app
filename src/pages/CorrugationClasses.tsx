@@ -10,6 +10,7 @@ import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { usePermissions } from '../hooks/usePermissions';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateCorrugationClassModal from '../components/modals/CreateCorrugationClassModal';
 import EditCorrugationClassModal from '../components/modals/EditCorrugationClassModal';
@@ -18,6 +19,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const CorrugationClasses: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('corrugated.classes');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -129,23 +132,27 @@ const CorrugationClasses: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, corrugationClass: CorrugationClass) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(corrugationClass)}
-            disabled={!corrugationClass}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDeleteClick(corrugationClass)}
-            disabled={!corrugationClass}
-            className="text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEdit(corrugationClass)}
+              disabled={!corrugationClass}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDeleteClick(corrugationClass)}
+              disabled={!corrugationClass}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -159,13 +166,15 @@ const CorrugationClasses: React.FC = () => {
             <h1 className="gd-page-title">{t('corrugationClasses.title')}</h1>
             <p className="text-secondary-600">{t('corrugationClasses.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('corrugationClasses.addClass')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('corrugationClasses.addClass')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
@@ -199,7 +208,7 @@ const CorrugationClasses: React.FC = () => {
                 <p className="gd-page-sub">
                   {search ? t('corrugationClasses.empty.description') : t('corrugationClasses.empty.noData')}
                 </p>
-                {!search && (
+                {!search && canEdit && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />

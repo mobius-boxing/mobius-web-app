@@ -10,6 +10,7 @@ import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
+import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePalletTypeModal from '../components/modals/CreatePalletTypeModal';
 import EditPalletTypeModal from '../components/modals/EditPalletTypeModal';
@@ -19,6 +20,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const PalletTypes: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('palletizing.edit');
   const { effectiveCompanyId } = useEffectiveCompany();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -102,25 +105,29 @@ const PalletTypes: React.FC = () => {
       card: 'actions' as const,
       render: (_: any, pt: PalletType) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => { setSelected(pt); setShowEditModal(true); }}
-            disabled={actionLoading === pt?.uuid || !pt}
-            title={t('palletTypes.editPalletType')}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(pt?.uuid)}
-            disabled={actionLoading === pt?.uuid || !pt}
-            className="text-red-600 hover:text-red-700"
-            title={t('palletTypes.deletePalletType')}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setSelected(pt); setShowEditModal(true); }}
+              disabled={actionLoading === pt?.uuid || !pt}
+              title={t('palletTypes.editPalletType')}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(pt?.uuid)}
+              disabled={actionLoading === pt?.uuid || !pt}
+              className="text-red-600 hover:text-red-700"
+              title={t('palletTypes.deletePalletType')}
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -134,10 +141,12 @@ const PalletTypes: React.FC = () => {
             <h1 className="gd-page-title">{t('palletTypes.title')}</h1>
             <p className="text-secondary-600">{t('palletTypes.subtitle')}</p>
           </div>
-          <Button onClick={() => setShowCreateModal(true)} className="inline-flex items-center">
-            <Plus className="h-4 w-4 mr-2" />
-            {t('palletTypes.addPalletType')}
-          </Button>
+          {canEdit && (
+            <Button onClick={() => setShowCreateModal(true)} className="inline-flex items-center">
+              <Plus className="h-4 w-4 mr-2" />
+              {t('palletTypes.addPalletType')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">

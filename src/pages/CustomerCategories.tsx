@@ -11,6 +11,7 @@ import Pagination from '../components/ui/Pagination';
 import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
+import { usePermissions } from '../hooks/usePermissions';
 import CreateCustomerCategoryModal from '../components/modals/CreateCustomerCategoryModal';
 import EditCustomerCategoryModal from '../components/modals/EditCustomerCategoryModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -19,6 +20,8 @@ import { historyColumn } from '../components/audit/historyColumn';
 
 const CustomerCategories: React.FC = () => {
   const { t } = useTranslation();
+  const { has } = usePermissions();
+  const canEdit = has('customer-categories.edit');
   const { effectiveCompanyId } = useEffectiveCompany();
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -119,23 +122,27 @@ const CustomerCategories: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, category: CustomerCategory) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleEdit(category)}
-            disabled={actionLoading === category?.uuid || !category}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => handleDelete(category)}
-            disabled={actionLoading === category?.uuid || !category}
-            className="text-red-600 hover:text-red-700"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleEdit(category)}
+              disabled={actionLoading === category?.uuid || !category}
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          )}
+          {canEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleDelete(category)}
+              disabled={actionLoading === category?.uuid || !category}
+              className="text-red-600 hover:text-red-700"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       ),
     },
@@ -149,13 +156,15 @@ const CustomerCategories: React.FC = () => {
             <h1 className="gd-page-title">{t('customerCategories.title')}</h1>
             <p className="text-secondary-600">{t('customerCategories.subtitle')}</p>
           </div>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            className="inline-flex items-center"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('customerCategories.addCategory')}
-          </Button>
+          {canEdit && (
+            <Button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-flex items-center"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              {t('customerCategories.addCategory')}
+            </Button>
+          )}
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
@@ -189,7 +198,7 @@ const CustomerCategories: React.FC = () => {
                 <p className="gd-page-sub">
                   {search ? t('customerCategories.empty.description') : t('customerCategories.empty.noData')}
                 </p>
-                {!search && (
+                {!search && canEdit && (
                   <div className="mt-6">
                     <Button onClick={() => setShowCreateModal(true)}>
                       <Plus className="h-4 w-4 mr-2" />

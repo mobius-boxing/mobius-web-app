@@ -3,10 +3,15 @@ import { render, screen, cleanup } from '@testing-library/react';
 import ProtectedRoute from '../../components/ProtectedRoute';
 
 const mockUseAuth = jest.fn();
+const mockHasPermission = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () => ({
   useAuthUser: () => null,
   useAuth: () => mockUseAuth(),
+}));
+
+jest.mock('../../hooks/usePermissions', () => ({
+  usePermissions: () => ({ has: mockHasPermission }),
 }));
 
 const mockNavigate = jest.fn();
@@ -23,6 +28,7 @@ describe('ProtectedRoute', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockHasPermission.mockReturnValue(false);
     cleanup();
   });
 
@@ -87,16 +93,17 @@ describe('ProtectedRoute', () => {
     });
   });
 
-  describe('Role-Based Access', () => {
-    it('should render children when user has required role', () => {
+  describe('Permission-Based Access', () => {
+    it('should render children when user has the required permission', () => {
       mockUseAuth.mockReturnValue({
         isAuthenticated: true,
         isLoading: false,
-        user: { role: 'admin' },
+        user: { role: 'member' },
       });
+      mockHasPermission.mockReturnValue(true);
 
       render(
-        <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+        <ProtectedRoute requiredPermission="customers.edit">
           <ProtectedContent />
         </ProtectedRoute>
       );
@@ -104,23 +111,7 @@ describe('ProtectedRoute', () => {
       expect(screen.getByText('Protected Content')).toBeInTheDocument();
     });
 
-    it('should render children when user has superAdmin role', () => {
-      mockUseAuth.mockReturnValue({
-        isAuthenticated: true,
-        isLoading: false,
-        user: { role: 'superAdmin' },
-      });
-
-      render(
-        <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
-          <ProtectedContent />
-        </ProtectedRoute>
-      );
-
-      expect(screen.getByText('Protected Content')).toBeInTheDocument();
-    });
-
-    it('should show access denied when user lacks required role', () => {
+    it('should show access denied when user lacks the required permission', () => {
       mockUseAuth.mockReturnValue({
         isAuthenticated: true,
         isLoading: false,
@@ -128,7 +119,7 @@ describe('ProtectedRoute', () => {
       });
 
       render(
-        <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+        <ProtectedRoute requiredPermission="customers.edit">
           <ProtectedContent />
         </ProtectedRoute>
       );
@@ -177,7 +168,7 @@ describe('ProtectedRoute', () => {
       expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     });
 
-    it('should gate on the device before the role and permission gates', () => {
+    it('should gate on the device before the permission gate', () => {
       // "Your browser is not approved" is the accurate answer even on a page this
       // member could not see anyway — and the waiting screen is where they can act.
       mockUseAuth.mockReturnValue({
@@ -188,7 +179,7 @@ describe('ProtectedRoute', () => {
       });
 
       render(
-        <ProtectedRoute requiredRoles={['admin', 'superAdmin']} requiredPermission="devices.approve">
+        <ProtectedRoute requiredPermission="devices.approve">
           <ProtectedContent />
         </ProtectedRoute>
       );
@@ -197,17 +188,17 @@ describe('ProtectedRoute', () => {
       expect(screen.queryByText('Access Denied')).not.toBeInTheDocument();
     });
 
-    it('should never redirect an admin, who has no device row at all', () => {
+    it('should never redirect an approved user with no device row', () => {
       mockUseAuth.mockReturnValue({
         isAuthenticated: true,
         isLoading: false,
-        user: { role: 'admin' },
+        user: { role: 'member' },
         device: null,
         deviceBlocked: false,
       });
 
       render(
-        <ProtectedRoute requiredRoles={['admin', 'superAdmin']}>
+        <ProtectedRoute>
           <ProtectedContent />
         </ProtectedRoute>
       );
@@ -218,7 +209,7 @@ describe('ProtectedRoute', () => {
   });
 
   describe('Edge Cases', () => {
-    it('should render children when user is null (role check skipped)', () => {
+    it('should deny a permission-gated route without a user', () => {
       mockUseAuth.mockReturnValue({
         isAuthenticated: true, // Somehow authenticated but no user
         isLoading: false,
@@ -226,23 +217,23 @@ describe('ProtectedRoute', () => {
       });
 
       render(
-        <ProtectedRoute requiredRoles={['admin']}>
+        <ProtectedRoute requiredPermission="customers.edit">
           <ProtectedContent />
         </ProtectedRoute>
       );
 
-      expect(screen.getByText('Protected Content')).toBeInTheDocument();
+      expect(screen.getByText('Access Denied')).toBeInTheDocument();
     });
 
-    it('should show access denied when user has undefined role', () => {
+    it('should show access denied when user has no permission', () => {
       mockUseAuth.mockReturnValue({
         isAuthenticated: true,
         isLoading: false,
-        user: { email: 'test@test.com', role: undefined }, // Undefined role
+        user: { email: 'test@test.com', role: undefined },
       });
 
       render(
-        <ProtectedRoute requiredRoles={['admin']}>
+        <ProtectedRoute requiredPermission="customers.edit">
           <ProtectedContent />
         </ProtectedRoute>
       );
