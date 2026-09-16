@@ -15,9 +15,9 @@ const Button: React.FC<ButtonProps> = ({
   loading = false,
   className,
   disabled,
-  // HTML buttons default to type="submit" inside forms; a plain <Button> in a
-  // modal form (e.g. PartsGrid's "Agregar Parte" inside EditProductModal)
-  // would submit-and-close it. Submit buttons must opt in via type="submit".
+  // HTML buttons default to type="submit" inside forms; a plain <Button> for
+  // a non-save action nested in a modal form would submit-and-close it.
+  // Submit buttons must opt in via type="submit".
   type = 'button',
   ...props
 }) => {

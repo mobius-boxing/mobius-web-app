@@ -19,7 +19,6 @@ const mockGetSalesOrders = jest.fn();
 const mockDeleteSalesOrder = jest.fn();
 const mockGetCustomers = jest.fn();
 const mockGetProducts = jest.fn();
-const mockGetParts = jest.fn();
 const mockGetPaperSheets = jest.fn();
 const mockNavigate = jest.fn();
 let mockHas: (code: string) => boolean = () => true;
@@ -33,7 +32,6 @@ jest.mock('../../services/api', () => ({
   },
   customersApi: { getCustomers: (...args: any[]) => mockGetCustomers(...args) },
   productsApi: { getProducts: (...args: any[]) => mockGetProducts(...args) },
-  partsApi: { getParts: (...args: any[]) => mockGetParts(...args) },
   paperSheetsApi: {
     getPaperSheets: (...args: any[]) => mockGetPaperSheets(...args),
   },
@@ -71,7 +69,6 @@ jest.mock('../../hooks/usePermissions', () => ({
 }));
 
 const PRODUCT_UUID = 'prod-uuid-1';
-const PART_UUID = 'part-uuid-1';
 const SHEET_UUID = 'sheet-uuid-1';
 
 const openOrder = {
@@ -100,7 +97,7 @@ const fulfilledOrder = {
   ...openOrder,
   uuid: 'so-2',
   number: '00000002',
-  itemDescription: 'Parte: PT-1 - Tapa - Revisión: 1',
+  itemDescription: 'Producto: P-2 - Tapa - Revisión: 1',
   fulfilledAt: '2026-03-05T00:00:00.000Z',
   fulfilled: true,
   price: 99,
@@ -131,9 +128,6 @@ beforeEach(() => {
   );
   mockGetProducts.mockResolvedValue(
     page([{ uuid: PRODUCT_UUID, code: 'P-1', description: 'Caja' }]),
-  );
-  mockGetParts.mockResolvedValue(
-    page([{ uuid: PART_UUID, code: 'PT-1', description: 'Tapa' }]),
   );
   mockGetPaperSheets.mockResolvedValue(
     page([{ uuid: SHEET_UUID, code: 'PL-1', name: 'Plancha B' }]),
@@ -177,9 +171,9 @@ describe('default visibility (AC-30)', () => {
 });
 
 // ── AC-31 ────────────────────────────────────────────────────────────────────
-describe('the exclusive producto/parte/plancha trio (AC-31)', () => {
+describe('the exclusive producto/plancha pair (AC-31)', () => {
   const chooseType = async (
-    type: 'product' | 'part' | 'sheet',
+    type: 'product' | 'sheet',
     uuid: string,
   ) => {
     fireEvent.click(screen.getByTestId(`filter-type-${type}`));
@@ -191,15 +185,11 @@ describe('the exclusive producto/parte/plancha trio (AC-31)', () => {
     });
   };
 
-  it('never sends two of the three, in any ordering', async () => {
+  it('never sends both, in any ordering', async () => {
     await renderGrid();
-
-    await chooseType('part', PART_UUID);
-    await waitFor(() => expect(lastParams().partUuid).toBe(PART_UUID));
 
     await chooseType('product', PRODUCT_UUID);
     await waitFor(() => expect(lastParams().productUuid).toBe(PRODUCT_UUID));
-    expect(lastParams().partUuid).toBeUndefined();
     expect(lastParams().sheetSupplyUuid).toBeUndefined();
 
     await chooseType('sheet', SHEET_UUID);
@@ -207,10 +197,9 @@ describe('the exclusive producto/parte/plancha trio (AC-31)', () => {
       expect(lastParams().sheetSupplyUuid).toBe(SHEET_UUID),
     );
     expect(lastParams().productUuid).toBeUndefined();
-    expect(lastParams().partUuid).toBeUndefined();
 
     for (const call of mockGetSalesOrders.mock.calls) {
-      const sent = ['productUuid', 'partUuid', 'sheetSupplyUuid'].filter(
+      const sent = ['productUuid', 'sheetSupplyUuid'].filter(
         (key) => call[0][key],
       );
       expect(sent.length).toBeLessThanOrEqual(1);
@@ -221,7 +210,7 @@ describe('the exclusive producto/parte/plancha trio (AC-31)', () => {
     await renderGrid();
 
     expect(screen.getByTestId('filter-item')).toBeDisabled();
-    fireEvent.click(screen.getByTestId('filter-type-part'));
+    fireEvent.click(screen.getByTestId('filter-type-product'));
     await waitFor(() =>
       expect(screen.getByTestId('filter-item')).not.toBeDisabled(),
     );
@@ -241,7 +230,7 @@ describe('Limpiar (AC-32)', () => {
     fireEvent.change(screen.getByTestId('filter-delivery-from'), {
       target: { value: '2026-03-01' },
     });
-    fireEvent.click(screen.getByTestId('filter-type-part'));
+    fireEvent.click(screen.getByTestId('filter-type-product'));
     await waitFor(() => expect(lastParams().number).toBe('0042'));
 
     fireEvent.click(screen.getByTestId('filter-clear'));

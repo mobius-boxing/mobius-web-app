@@ -52,6 +52,8 @@ import {
   CreateFinishedGoodForm,
   Product,
   CreateProductForm,
+  ProductCalculateRequest,
+  ProductCalculateResult,
   Manufacturer,
   CreateManufacturerForm,
   Supplier,
@@ -104,14 +106,11 @@ import {
   Machine,
   CreateMachineForm,
   ProductionRoute,
-  Part,
-  PartFormPayload,
   SalesOrder,
   SalesOrderApprovalMachine,
   SalesOrderFormPayload,
   SalesOrderListFilters,
   SalesOrderProductionOrder,
-  PartApprovalMachine,
   RouteStage,
   CreatePalletizationForm,
   Model,
@@ -769,8 +768,15 @@ export const corrugationsApi = {
 };
 
 export const productsApi = {
-  setApproval: async (uuid: string, action: 'approve' | 'cancel', cascade = false): Promise<Product> => {
-    const response: AxiosResponse<ApiResponse<Product>> = await api.patch(`/api/product/${uuid}/approval`, { action, cascade });
+  /** `cascade` no longer exists (D-18 removed the parts machine) — never sent. */
+  setApproval: async (uuid: string, action: 'approve' | 'cancel'): Promise<Product> => {
+    const response: AxiosResponse<ApiResponse<Product>> = await api.patch(`/api/product/${uuid}/approval`, { action });
+    return response.data.data!;
+  },
+
+  /** Stateless internal↔external / surface / weight cascade (D-11). */
+  calculate: async (data: ProductCalculateRequest): Promise<ProductCalculateResult> => {
+    const response: AxiosResponse<ApiResponse<ProductCalculateResult>> = await api.post('/api/product/calculate', data);
     return response.data.data!;
   },
 
@@ -1935,50 +1941,6 @@ export const productionRoutesApi = {
   },
 };
 
-// ── Parts (module 07) ────────────────────────────────────────────────────────
-export const partsApi = {
-  getParts: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<Part>> => {
-    const response = await api.get('/api/parts', { params });
-    const d = response.data;
-    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
-  },
-  getPartsForProduct: async (productUuid: string, params: Record<string, unknown> = {}): Promise<PaginatedResponse<Part>> => {
-    const response = await api.get(`/api/product/${productUuid}/parts`, { params });
-    const d = response.data;
-    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
-  },
-  getPart: async (uuid: string): Promise<Part> => {
-    const response = await api.get(`/api/parts/${uuid}`);
-    return response.data.data;
-  },
-  createPart: async (data: PartFormPayload): Promise<Part> => {
-    const response = await api.post('/api/parts', data);
-    return response.data.data;
-  },
-  updatePart: async (uuid: string, data: PartFormPayload): Promise<Part> => {
-    const response = await api.put(`/api/parts/${uuid}`, data);
-    return response.data.data;
-  },
-  deletePart: async (uuid: string): Promise<void> => {
-    await api.delete(`/api/parts/${uuid}`);
-  },
-  cascade: async (uuid: string, field: string, value: number | null): Promise<Part> => {
-    const response = await api.patch(`/api/parts/${uuid}/cascade`, { field, value });
-    return response.data.data;
-  },
-  setApproval: async (uuid: string, machine: PartApprovalMachine, action: 'approve' | 'cancel'): Promise<Part> => {
-    const response = await api.patch(`/api/parts/${uuid}/approval/${machine}`, { action });
-    return response.data.data;
-  },
-  bulkApprove: async (uuids: string[]): Promise<number> => {
-    const response = await api.post('/api/parts/bulk-approve', { uuids });
-    return response.data.data.updated;
-  },
-  bulkUnapprove: async (uuids: string[]): Promise<number> => {
-    const response = await api.post('/api/parts/bulk-unapprove', { uuids });
-    return response.data.data.updated;
-  },
-};
 
 /** Pedidos — module 18 sub-area D. `number` is assigned by the API on create. */
 export const salesOrdersApi = {

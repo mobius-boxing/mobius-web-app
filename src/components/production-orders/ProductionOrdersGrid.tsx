@@ -189,7 +189,7 @@ const ProductionOrdersGrid: React.FC<Props> = ({
       key: 'description',
       header: t('productionOrders.columns.description'),
       render: (_: any, o: ProductionOrder) => (
-        <span className="text-sm text-secondary-600">{o.part?.description ?? '-'}</span>
+        <span className="text-sm text-secondary-600">{o.product?.description ?? '-'}</span>
       ),
     },
     {

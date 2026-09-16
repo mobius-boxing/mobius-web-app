@@ -5,18 +5,16 @@ import Button from '../ui/Button';
 import { SalesOrderListFilters } from '../../types';
 import {
   customersApi,
-  partsApi,
   paperSheetsApi,
   productsApi,
 } from '../../services/api';
 import { logger } from '../../utils/logger';
 
-/** The exclusive `radioTipoPedido` trio (PedidosForm.cs:258-260). */
-type ItemType = '' | 'product' | 'part' | 'sheet';
+/** The exclusive `radioTipoPedido` pair (PedidosForm.cs:258-260; 'parte' removed). */
+type ItemType = '' | 'product' | 'sheet';
 
 const ITEM_TYPES: Array<{ value: Exclude<ItemType, ''>; labelKey: string }> = [
   { value: 'product', labelKey: 'salesOrders.filters.product' },
-  { value: 'part', labelKey: 'salesOrders.filters.part' },
   { value: 'sheet', labelKey: 'salesOrders.filters.sheet' },
 ];
 
@@ -133,18 +131,6 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
           }
           return;
         }
-        if (itemType === 'part') {
-          const page = await partsApi.getParts({ limit: 100, ...scope });
-          if (!cancelled) {
-            setItemOptions(
-              page.data.map((part) => ({
-                uuid: part.uuid,
-                label: `${part.code ?? ''} - ${part.description ?? ''}`.trim(),
-              })),
-            );
-          }
-          return;
-        }
         const page = await paperSheetsApi.getPaperSheets({
           limit: 100,
           ...scope,
@@ -182,25 +168,22 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
     [onChange, value],
   );
 
-  /** Selecting a type clears the other two uuids — at most one is ever sent. */
+  /** Selecting a type clears the other uuid — at most one is ever sent. */
   const selectItemType = (next: ItemType) => {
     setItemType(next);
     emit({
       productUuid: undefined,
-      partUuid: undefined,
       sheetSupplyUuid: undefined,
     });
   };
 
-  /** null with no radio selected — never a silent fallback to one of the three. */
+  /** null with no radio selected — never a silent fallback to one of the two. */
   const itemUuidKey: keyof SalesOrderListFilters | null =
     itemType === 'product'
       ? 'productUuid'
-      : itemType === 'part'
-        ? 'partUuid'
-        : itemType === 'sheet'
-          ? 'sheetSupplyUuid'
-          : null;
+      : itemType === 'sheet'
+        ? 'sheetSupplyUuid'
+        : null;
 
   const handleClear = () => {
     setItemType('');
@@ -269,7 +252,7 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
         </label>
       </div>
 
-      {/* Row 2 — the exclusive producto / parte / plancha trio */}
+      {/* Row 2 — the exclusive producto / plancha pair */}
       <div className="flex flex-wrap items-end gap-4">
         <div className="flex items-center gap-3">
           {ITEM_TYPES.map((option) => (

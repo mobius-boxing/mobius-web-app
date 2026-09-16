@@ -52,24 +52,13 @@ jest.mock('../../components/layout/Layout', () => ({
   default: ({ children }: any) => <div data-testid="layout">{children}</div>,
 }));
 
-jest.mock('../../components/modals/CreateProductModal', () => ({
+jest.mock('../../components/products/ProductFormModal', () => ({
   __esModule: true,
-  default: ({ isOpen, onClose, onSuccess }: any) =>
+  default: ({ mode, isOpen, onClose, onSuccess }: any) =>
     isOpen ? (
-      <div data-testid="create-modal">
+      <div data-testid={mode === 'create' ? 'create-modal' : 'edit-modal'}>
         <button onClick={onClose}>Close</button>
-        <button onClick={onSuccess}>Create</button>
-      </div>
-    ) : null,
-}));
-
-jest.mock('../../components/modals/EditProductModal', () => ({
-  __esModule: true,
-  default: ({ isOpen, onClose, onSuccess }: any) =>
-    isOpen ? (
-      <div data-testid="edit-modal">
-        <button onClick={onClose}>Close</button>
-        <button onClick={onSuccess}>Save</button>
+        <button onClick={onSuccess}>{mode === 'create' ? 'Create' : 'Save'}</button>
       </div>
     ) : null,
 }));

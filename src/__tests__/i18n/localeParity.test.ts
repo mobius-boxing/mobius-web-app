@@ -66,8 +66,10 @@ describe('i18n locale parity', () => {
     // in both languages equally, with every existing test green.
     //
     // If this count changes, the API's audited-table set changed. Add the
-    // label — do not just bump the number.
-    const AUDITED_TABLES = 75;
+    // label — do not just bump the number. Exception here: `parts` and
+    // `part_approval_events` are RETIRED tables (remove-composite-products,
+    // model.md I-1) — two labels removed, not a label forgotten.
+    const AUDITED_TABLES = 73;
 
     expect(Object.keys(es.audit.entities)).toHaveLength(AUDITED_TABLES);
     expect(Object.keys(en.audit.entities)).toHaveLength(AUDITED_TABLES);

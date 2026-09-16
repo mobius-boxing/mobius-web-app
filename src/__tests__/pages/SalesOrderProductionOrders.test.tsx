@@ -42,7 +42,7 @@ jest.mock('../../components/layout/Layout', () => ({
 const COLUMN_KEYS = [
   'number',
   'customer',
-  'part',
+  'product',
   'description',
   'quantity',
   'orderDate',
@@ -58,7 +58,7 @@ const row = {
   orderDate: '2026-03-01T00:00:00.000Z',
   deliveryDate: '2026-03-20T00:00:00.000Z',
   quantity: 500,
-  part: { uuid: 'pa-1', code: 'PT-1', description: 'Tapa reforzada' },
+  product: { uuid: 'pr-1', code: 'PT-1', description: 'Tapa reforzada' },
   customer: { uuid: 'cu-1', name: 'Cliente Uno' },
   schedulingApprovedAt: '2026-03-02T00:00:00.000Z',
   completedAt: null,

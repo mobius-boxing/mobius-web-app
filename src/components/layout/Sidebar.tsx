@@ -210,7 +210,6 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
             { id: 'paper-classes', label: t('nav.paperClasses'), path: '/paper-classes', icon: 'BookOpen', permission: 'paper.classes', allowReadOnly: true },
             { id: 'corrugation-classes', label: t('nav.corrugationClasses'), path: '/corrugation-classes', icon: 'Layers', permission: 'corrugated.classes', allowReadOnly: true },
             { id: 'corrugations', label: t('nav.corrugations'), path: '/corrugations', icon: 'Layers', permission: 'corrugated.edit', allowReadOnly: true },
-            { id: 'parts', label: t('nav.parts'), path: '/parts', icon: 'Package', permission: 'parts.edit', allowReadOnly: true },
             { id: 'models', label: t('nav.models'), path: '/models', icon: 'Box', permission: 'models.edit', allowReadOnly: true },
           ],
         },

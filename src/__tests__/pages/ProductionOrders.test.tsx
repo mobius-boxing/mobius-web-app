@@ -59,8 +59,7 @@ const orders = [
     completedAt: null,
     salesOrder: { uuid: 'so-1', number: '00014091' },
     customer: { uuid: 'cu-1', name: 'Cliente Uno' },
-    product: { uuid: 'pr-1', code: 'PRD-1' },
-    part: { uuid: 'pa-1', description: 'parte uno' },
+    product: { uuid: 'pr-1', code: 'PRD-1', description: 'producto uno' },
   },
   {
     uuid: 'op-2',
@@ -72,8 +71,7 @@ const orders = [
     completedAt: '2026-08-21T00:00:00.000Z',
     salesOrder: { uuid: 'so-1', number: '00014091' },
     customer: { uuid: 'cu-1', name: 'Cliente Uno' },
-    product: { uuid: 'pr-1', code: 'PRD-1' },
-    part: { uuid: 'pa-1', description: 'parte uno' },
+    product: { uuid: 'pr-1', code: 'PRD-1', description: 'producto uno' },
   },
 ];
 

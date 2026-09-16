@@ -480,21 +480,43 @@ export interface CreateFinishedGoodForm {
   minimumStock?: number;
 }
 
+export const PRODUCT_APPROVAL_STATUSES = ['pending', 'approved', 'cancelled'] as const;
+export type ProductApprovalStatus = (typeof PRODUCT_APPROVAL_STATUSES)[number];
+
+/** Nested reference shapes the way `GET /product/:uuid` embeds them. */
+export interface ProductCorrugationRef {
+  uuid: string;
+  code?: string;
+  theoreticalGrammage?: number | null;
+}
+export interface ProductRouteRef {
+  uuid: string;
+  name?: string;
+  isGlobal?: boolean;
+}
+export interface ProductCodedRef {
+  uuid: string;
+  code?: string | null;
+  name?: string | null;
+}
+export interface ProductModelRef {
+  uuid: string;
+  code?: string | null;
+  description?: string;
+}
+
+/**
+ * 1:1 projection of `GET /product/:uuid` `data` (model.md §API contracts).
+ * `parts` folded onto `products` (D-1): every production-recipe column that
+ * used to live on a part is now a scalar or nested ref here.
+ */
 export interface Product {
-  id: string;
   uuid: string;
   code: string;
-  clientCode?: string;
-  description?: string;
-  customerId: string;
-  customerName?: string; // Deprecated: use customer.name instead
-  customer?: Customer;
-  revision?: number;
-  vip?: boolean;
-  productTypeId?: string;
-  boxTypeId?: string;
-  productType?: ProductType;
-  boxType?: BoxType;
+  clientCode?: string | null;
+  description?: string | null;
+  revision: number;
+  vip: boolean;
   technicalSheetFileUuid?: string | null;
   blueprintFileUuid?: string | null;
   sketchFileUuid?: string | null;
@@ -503,45 +525,207 @@ export interface Product {
   productApprovalBy?: string | null;
   productCancellationAt?: string | null;
   productCancellationBy?: string | null;
+  approvalStatus: ProductApprovalStatus;
+
+  boxLength?: number | null;
+  boxWidth?: number | null;
+  boxHeight?: number | null;
+  externalLength?: number | null;
+  externalWidth?: number | null;
+  externalHeight?: number | null;
+  sheetLength?: number | null;
+  sheetWidth?: number | null;
+  additionalSheetLength?: number | null;
+  preferredWidth?: number | null;
+  flap?: number | null;
+  lowerFlap?: number | null;
+  upperFlap?: number | null;
+  flapOverlap?: number | null;
+  corrugationScoreLines?: string | null;
+  printScoreLines?: string | null;
+  symmetricScoreLines: boolean;
+  colorCount?: number | null;
+  printSides?: number | null;
+  inks?: string | null;
+  labelsPerPallet?: number | null;
+  labelText?: string | null;
+  printCode: boolean;
+  printDate: boolean;
+  printRecyclable: boolean;
+  printWarranty: boolean;
+  printLogo: boolean;
+  printNationalIndustry: boolean;
+  printExport: boolean;
+  compressionTest?: number | null;
+  burstTest?: number | null;
+  cobbTest?: number | null;
+  ect?: number | null;
+  grammage?: number | null;
+  lengthUpperTolerance?: number | null;
+  lengthLowerTolerance?: number | null;
+  widthUpperTolerance?: number | null;
+  widthLowerTolerance?: number | null;
+  overrunPercentage?: number | null;
+  underrunPercentage?: number | null;
+  corrugationOverproduction?: number | null;
+  allowsRotation: boolean;
+  allowsPartialRotation: boolean;
+  mandatoryRotation: boolean;
+  boxSurface?: number | null;
+  boxWeight?: number | null;
+  averageWeight?: number | null;
+  allowsGluing: boolean;
+  claspClosure?: string | null;
+  associatedQuantity?: number | null;
+  foodSafetyNumber?: string | null;
+  blueprintRef?: string | null;
+  notes?: string | null;
+  quotingNotes?: string | null;
+  registeredAt?: string | null;
+  partLegacyId?: number | null;
+
+  /** Computed, never persisted (I-8). */
+  effectiveGrammage?: number | null;
+  sheetSurface?: number | null;
+
+  customer?: { uuid: string; name?: string | null; code?: string | null } | null;
+  productType?: ProductType | null;
+  boxType?: BoxType | null;
+  corrugation?: ProductCorrugationRef | null;
+  productionRoute?: ProductRouteRef | null;
+  palletization?: ProductCodedRef | null;
+  model?: ProductModelRef | null;
+  flapType?: ProductCodedRef | null;
+  glueType?: ProductCodedRef | null;
+  strappingType?: ProductCodedRef | null;
+  traceType?: ProductCodedRef | null;
+  complement?: ProductCodedRef | null;
+
   createdAt: string;
   updatedAt: string;
 }
 
 /**
- * Simple-product atomic create (module 06 ProductoSimpleForm): the first part
- * created together with the product. Code is server-derived ({producto}/1);
- * description defaults to the product's when omitted.
+ * `POST`/`PUT /product` flat body (model.md §API contracts): every key maps
+ * 1:1 to a `products` column of the same name. Read-only keys (`boxWeight`,
+ * `approvalStatus`, `effectiveGrammage`, `sheetSurface`, nested refs, …) are
+ * never part of this type — the form never round-trips them into a save.
  */
-export interface CreateProductInitialPart {
-  description?: string;
-  corrugationUuid: string;
-  productionRouteUuid?: string;
-  modelUuid?: string;
-  flapTypeUuid?: string;
-  glueTypeUuid?: string;
-  sheetLength?: number;
-  sheetWidth?: number;
-  boxLength?: number;
-  boxWidth?: number;
-  boxHeight?: number;
-}
-
 export interface CreateProductForm {
   code: string;
   clientCode?: string;
-  description?: string;
   customerId: string;
+  description?: string;
   revision?: number;
   vip?: boolean;
-  productTypeId?: string;
-  boxTypeId?: string;
+  productTypeId?: string | null;
+  boxTypeId?: string | null;
   technicalSheetFileUuid?: string | null;
   blueprintFileUuid?: string | null;
   sketchFileUuid?: string | null;
   imageFileUuid?: string | null;
-  initialPart?: CreateProductInitialPart;
   // superAdmin operating-as: resolved by the backend; ignored for regular users.
   companyId?: string;
+
+  corrugationUuid?: string | null;
+  modelUuid?: string | null;
+  productionRouteUuid?: string | null;
+  palletizationUuid?: string | null;
+  flapTypeUuid?: string | null;
+  glueTypeUuid?: string | null;
+  strappingTypeUuid?: string | null;
+  traceTypeUuid?: string | null;
+  complementUuid?: string | null;
+
+  externalLength?: number;
+  externalWidth?: number;
+  externalHeight?: number;
+  boxLength?: number;
+  boxWidth?: number;
+  boxHeight?: number;
+  sheetLength?: number;
+  sheetWidth?: number;
+  additionalSheetLength?: number;
+  preferredWidth?: number;
+  flap?: number;
+  lowerFlap?: number;
+  upperFlap?: number;
+  flapOverlap?: number;
+  corrugationScoreLines?: string;
+  printScoreLines?: string;
+  symmetricScoreLines?: boolean;
+  colorCount?: number;
+  printSides?: number;
+  inks?: string;
+  labelsPerPallet?: number;
+  labelText?: string;
+  printCode?: boolean;
+  printDate?: boolean;
+  printRecyclable?: boolean;
+  printWarranty?: boolean;
+  printLogo?: boolean;
+  printNationalIndustry?: boolean;
+  printExport?: boolean;
+  compressionTest?: number;
+  burstTest?: number;
+  cobbTest?: number;
+  ect?: number;
+  grammage?: number;
+  lengthUpperTolerance?: number;
+  lengthLowerTolerance?: number;
+  widthUpperTolerance?: number;
+  widthLowerTolerance?: number;
+  overrunPercentage?: number;
+  underrunPercentage?: number;
+  corrugationOverproduction?: number;
+  allowsRotation?: boolean;
+  allowsPartialRotation?: boolean;
+  mandatoryRotation?: boolean;
+  boxSurface?: number;
+  averageWeight?: number;
+  allowsGluing?: boolean;
+  claspClosure?: string;
+  associatedQuantity?: number;
+  foodSafetyNumber?: string;
+  blueprintRef?: string;
+  notes?: string;
+  quotingNotes?: string;
+  registeredAt?: string | null;
+}
+
+/** The 8 fields `POST /product/calculate` accepts (D-19, D-11). */
+export type ProductCalculateField =
+  | 'boxLength'
+  | 'boxWidth'
+  | 'boxHeight'
+  | 'externalLength'
+  | 'externalWidth'
+  | 'externalHeight'
+  | 'boxSurface'
+  | 'grammage';
+
+/** The 9 calculable keys the endpoint reads and returns (`ICalculableProduct`). */
+export interface ProductCalculableValues {
+  boxLength?: number | null;
+  boxWidth?: number | null;
+  boxHeight?: number | null;
+  externalLength?: number | null;
+  externalWidth?: number | null;
+  externalHeight?: number | null;
+  boxSurface?: number | null;
+  boxWeight?: number | null;
+  grammage?: number | null;
+}
+
+export interface ProductCalculateRequest {
+  corrugationUuid: string;
+  field: ProductCalculateField;
+  value: number | null;
+  values: ProductCalculableValues;
+}
+
+export interface ProductCalculateResult extends ProductCalculableValues {
+  effectiveGrammage?: number | null;
 }
 
 export interface Manufacturer {
@@ -1305,114 +1489,6 @@ export interface RouteProblem {
   stageNumber?: number;
 }
 
-// ── Parts (module 07) ────────────────────────────────────────────────────────
-export type PartApprovalMachine = 'dimensions' | 'technical' | 'sketch' | 'part';
-
-export interface Part {
-  uuid: string;
-  code?: string | null;
-  revision?: number;
-  clientCode?: string | null;
-  description?: string | null;
-  boxLength?: number | null;
-  boxWidth?: number | null;
-  boxHeight?: number | null;
-  externalLength?: number | null;
-  externalWidth?: number | null;
-  externalHeight?: number | null;
-  sheetLength?: number | null;
-  sheetWidth?: number | null;
-  additionalSheetLength?: number | null;
-  preferredWidth?: number | null;
-  flap?: number | null;
-  lowerFlap?: number | null;
-  upperFlap?: number | null;
-  flapOverlap?: number | null;
-  corrugationScoreLines?: string | null;
-  printScoreLines?: string | null;
-  symmetricScoreLines?: boolean;
-  colorCount?: number | null;
-  printSides?: number | null;
-  inks?: string | null;
-  labelsPerPallet?: number | null;
-  labelText?: string | null;
-  printCode?: boolean;
-  printDate?: boolean;
-  printRecyclable?: boolean;
-  printWarranty?: boolean;
-  printLogo?: boolean;
-  printNationalIndustry?: boolean;
-  printExport?: boolean;
-  compressionTest?: number | null;
-  burstTest?: number | null;
-  cobbTest?: number | null;
-  ect?: number | null;
-  grammage?: number | null;
-  lengthUpperTolerance?: number | null;
-  lengthLowerTolerance?: number | null;
-  widthUpperTolerance?: number | null;
-  widthLowerTolerance?: number | null;
-  overrunPercentage?: number | null;
-  underrunPercentage?: number | null;
-  corrugationOverproduction?: number | null;
-  allowsRotation?: boolean;
-  allowsPartialRotation?: boolean;
-  mandatoryRotation?: boolean;
-  boxSurface?: number | null;
-  boxWeight?: number | null;
-  averageWeight?: number | null;
-  allowsGluing?: boolean;
-  claspClosure?: string | null;
-  associatedQuantity?: number | null;
-  foodSafetyNumber?: string | null;
-  blueprintRef?: string | null;
-  notes?: string | null;
-  quotingNotes?: string | null;
-  dataSheetFileUuid?: string | null;
-  sketchFileUuid?: string | null;
-  blueprintFileUuid?: string | null;
-  imageFileUuid?: string | null;
-  effectiveGrammage?: number | null;
-  sheetSurface?: number | null;
-  longDescription?: string;
-  dimensionsApprovalAt?: string | null;
-  dimensionsApprovalBy?: string | null;
-  dimensionsCancelledAt?: string | null;
-  dimensionsCancelledBy?: string | null;
-  technicalApprovalAt?: string | null;
-  technicalApprovalBy?: string | null;
-  technicalCancelledAt?: string | null;
-  technicalCancelledBy?: string | null;
-  partApprovalAt?: string | null;
-  partApprovalBy?: string | null;
-  partCancelledAt?: string | null;
-  partCancelledBy?: string | null;
-  createdAt?: string;
-  product?: { uuid: string; code?: string; description?: string | null; customer?: { uuid: string; name?: string } | null } | null;
-  corrugation?: { uuid: string; code?: string; theoreticalGrammage?: number | null } | null;
-  productionRoute?: { uuid: string; name?: string; isGlobal?: boolean } | null;
-  palletization?: { uuid: string; code?: string | null; name?: string | null } | null;
-  flapType?: { uuid: string; code?: string } | null;
-  glueType?: { uuid: string; code?: string } | null;
-  strappingType?: { uuid: string; code?: string } | null;
-  traceType?: { uuid: string; code?: string } | null;
-  complement?: { uuid: string; code?: string } | null;
-  [key: string]: any;
-}
-
-export interface PartFormPayload {
-  productUuid?: string;
-  corrugationUuid?: string;
-  productionRouteUuid?: string;
-  palletizationUuid?: string;
-  flapTypeUuid?: string;
-  glueTypeUuid?: string;
-  strappingTypeUuid?: string;
-  traceTypeUuid?: string;
-  complementUuid?: string;
-  [key: string]: any;
-}
-
 /**
  * Pedido (module 18 sub-area D). Derived server-side, never stored: first
  * match wins in this order (see the API's sales-order.interfaces.ts).
@@ -1521,7 +1597,7 @@ export interface SalesOrderProductionOrder {
   orderDate?: string | null;
   deliveryDate?: string | null;
   quantity: number;
-  part?: { uuid: string; code?: string | null; description?: string | null } | null;
+  product?: { uuid: string; code?: string | null; description?: string | null } | null;
   customer?: { uuid: string; name?: string | null } | null;
   schedulingApprovedAt?: string | null;
   completedAt?: string | null;
@@ -1531,14 +1607,12 @@ export interface SalesOrderProductionOrder {
 /**
  * The pedido grid's filter bar, as the API receives it: flat `?field=value`,
  * booleans as the strings `'true'` / `'false'` (the API rejects anything else),
- * and AT MOST ONE of productUuid / partUuid / sheetSupplyUuid (the exclusive
- * radio trio).
+ * and AT MOST ONE of productUuid / sheetSupplyUuid (the exclusive radio pair).
  */
 export interface SalesOrderListFilters {
   number?: string;
   customerUuid?: string;
   productUuid?: string;
-  partUuid?: string;
   sheetSupplyUuid?: string;
   deliveryDateFrom?: string;
   deliveryDateTo?: string;
@@ -1571,8 +1645,6 @@ export type ProductionOrderListFilters = {
 export interface SalesOrderFormPayload {
   customerUuid?: string;
   productUuid?: string;
-  /** The parte path's discriminator; the API derives the cliente from it. */
-  partUuid?: string;
   quantity?: number;
   deliveryLocationUuid?: string | null;
   salesUserUuid?: string | null;
@@ -1659,7 +1731,6 @@ export interface ProductionOrder {
   createdByUser?: string | null;
   updatedAt?: string | null;
 
-  part?: ProductionOrderRef | null;
   product?: ProductionOrderRef | null;
   customer?: ProductionOrderRef | null;
   orderData?: ProductionOrderRef | null;
@@ -1677,7 +1748,7 @@ export interface ProductionOrder {
 
 /** What the manual create/edit path sends. `number` is server-generated. */
 export interface ProductionOrderFormPayload {
-  partUuid?: string;
+  productUuid?: string;
   salesOrderUuid?: string | null;
   orderDataUuid?: string | null;
   routeUuid?: string | null;

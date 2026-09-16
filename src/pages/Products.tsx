@@ -12,8 +12,7 @@ import { SearchInput } from '../components/ui/SearchInput';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
-import CreateProductModal from '../components/modals/CreateProductModal';
-import EditProductModal from '../components/modals/EditProductModal';
+import ProductFormModal from '../components/products/ProductFormModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
 import { historyColumn } from '../components/audit/historyColumn';
@@ -48,7 +47,7 @@ const Products: React.FC = () => {
     setSort,
   } = useEntityList<Product>({
     fetchFn: fetchProducts,
-    searchFields: ['code', 'clientCode', 'description', 'customerName'],
+    searchFields: ['code', 'clientCode', 'description'],
   });
 
   useEffect(() => {
@@ -123,7 +122,7 @@ const Products: React.FC = () => {
       header: t('products.columns.customer'),
       render: (value: any, product: Product) => (
         <span className="text-sm text-secondary-900">
-          {product.customer?.name || product.customerName || 'N/A'}
+          {product.customer?.name || 'N/A'}
         </span>
       ),
     },
@@ -283,13 +282,16 @@ const Products: React.FC = () => {
         </div>
       </div>
 
-      <CreateProductModal
+      <ProductFormModal
+        mode="create"
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         onSuccess={handleCreateSuccess}
+        product={null}
       />
 
-      <EditProductModal
+      <ProductFormModal
+        mode="edit"
         isOpen={showEditModal}
         onClose={() => {
           setShowEditModal(false);

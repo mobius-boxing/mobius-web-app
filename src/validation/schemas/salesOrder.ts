@@ -10,15 +10,15 @@ import { optionalText, Translate } from '../fields';
  *
  *   customerUuid  required, EXCEPT when editing (the control is disabled then,
  *                 and a required rule on a disabled input blocks the save)
- *   productUuid   required on the PRODUCTO path, except when editing
- *   partUuid      required on the PARTE path
+ *   productUuid   required, except when editing
  *   quantity      required, and strictly greater than zero
  *   deliveryDate  NO RULE — an untouched date is omitted from the payload
  *
- * Hence the two parameters: the shape genuinely differs by mode, and a single
- * fixed schema either blocks the parte path (no productUuid) or blocks editing
- * (disabled identity fields). Getting this wrong is not theoretical — the first
- * version of this file did exactly that and `SalesOrderForm.test.tsx` caught it.
+ * Hence the `isEdit` parameter: editing disables the identity selects, so a
+ * fixed schema either blocks editing or lets create through with no customer.
+ * Getting this wrong is not theoretical — the first version of this file did
+ * exactly that and `SalesOrderForm.test.tsx` caught it. The 'part' order type
+ * (and its `partUuid` rule) is gone (remove-composite-products).
  *
  * WHAT THIS CONVERSION ADDS, and all it adds: bounds the columns justify and
  * the form never had — text caps, and `numeric(18,4)` scale on the two money
@@ -112,13 +112,11 @@ const boundedAmountText = (t: Translate, label: string) =>
 export interface SalesOrderSchemaOptions {
   /** Identity selects are disabled while editing, so they carry no rule. */
   isEdit: boolean;
-  /** 'part' swaps the required productUuid for a required partUuid. */
-  orderType: 'product' | 'part';
 }
 
 export const salesOrderSchema = (
   t: Translate,
-  { isEdit, orderType }: SalesOrderSchemaOptions
+  { isEdit }: SalesOrderSchemaOptions
 ) => {
   const requiredRef = (message: string) =>
     z.string({ error: message }).trim().min(1, message);
@@ -128,14 +126,9 @@ export const salesOrderSchema = (
     customerUuid: isEdit
       ? optionalRef()
       : requiredRef(t('salesOrders.validation.customerRequired')),
-    productUuid:
-      isEdit || orderType === 'part'
-        ? optionalRef()
-        : requiredRef(t('salesOrders.validation.productRequired')),
-    partUuid:
-      orderType === 'part'
-        ? requiredRef(t('salesOrders.validation.partRequired'))
-        : optionalRef(),
+    productUuid: isEdit
+      ? optionalRef()
+      : requiredRef(t('salesOrders.validation.productRequired')),
     deliveryLocationUuid: optionalRef(),
     salesUserUuid: optionalRef(),
     /*

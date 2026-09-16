@@ -105,11 +105,11 @@ const SalesOrderProductionOrders: React.FC = () => {
       ),
     },
     {
-      key: 'part',
-      header: t('salesOrders.associatedOrders.columns.part'),
+      key: 'product',
+      header: t('salesOrders.associatedOrders.columns.product'),
       render: (_: unknown, row: SalesOrderProductionOrder) => (
         <span className="text-sm text-secondary-700">
-          {row.part?.code ?? '-'}
+          {row.product?.code ?? '-'}
         </span>
       ),
     },
@@ -118,7 +118,7 @@ const SalesOrderProductionOrders: React.FC = () => {
       header: t('salesOrders.associatedOrders.columns.description'),
       render: (_: unknown, row: SalesOrderProductionOrder) => (
         <span className="text-sm text-secondary-700">
-          {row.part?.description ?? '-'}
+          {row.product?.description ?? '-'}
         </span>
       ),
     },

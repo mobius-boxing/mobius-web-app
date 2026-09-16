@@ -54,9 +54,9 @@ const Models: React.FC = () => {
           await modelsApi.deleteModel(uuid);
           await refresh();
         } catch (error: any) {
-          // A model referenced by parts answers 409 with the count and the
-          // part codes. That message is the whole point of the pre-check — the
-          // row simply staying put tells the user nothing.
+          // A model referenced by products answers 409 with the count and the
+          // product codes. That message is the whole point of the pre-check —
+          // the row simply staying put tells the user nothing.
           logger.error('Error deleting model:', error);
           setActionError(
             error?.response?.data?.message ?? t('models.deleteError'),

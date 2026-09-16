@@ -8,7 +8,6 @@ import { ArrowLeft } from 'lucide-react';
 import {
   Customer,
   DeliveryLocationRecord,
-  Part,
   Product,
   SalesOrder,
   SalesOrderFormPayload,
@@ -17,7 +16,6 @@ import {
 import {
   customersApi,
   deliveryLocationsApi,
-  partsApi,
   productsApi,
   salesOrdersApi,
   usersApi,
@@ -38,13 +36,6 @@ import { formatMoney } from '../utils/money';
 const DROPDOWN_LIMIT = 100;
 
 /**
- * The pedido subtype. Procusto's "Agregar" dropdown has three buttons
- * (`PedidosForm.cs:500-524`); `PedidoDePlancha` is out of scope, so the form
- * offers the two the API accepts.
- */
-type OrderType = 'product' | 'part';
-
-/**
  * The two tabs of the edit form. The history tab reuses `audit.title`
  * ("Historial") — the same label the drawer carries on every list page, so the
  * one reading surface is called the same thing everywhere.
@@ -59,7 +50,6 @@ type SalesOrderTab = (typeof SALES_ORDER_TABS)[number]['key'];
 interface SalesOrderFormValues {
   customerUuid: string;
   productUuid: string;
-  partUuid: string;
   quantity: string;
   deliveryLocationUuid: string;
   salesUserUuid: string;
@@ -79,7 +69,6 @@ interface SalesOrderFormValues {
 const EMPTY_VALUES: SalesOrderFormValues = {
   customerUuid: '',
   productUuid: '',
-  partUuid: '',
   quantity: '',
   deliveryLocationUuid: '',
   salesUserUuid: '',
@@ -133,8 +122,6 @@ const SalesOrderForm: React.FC = () => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
-  const [parts, setParts] = useState<Part[]>([]);
-  const [orderType, setOrderType] = useState<OrderType>('product');
   const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocationRecord[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -146,27 +133,20 @@ const SalesOrderForm: React.FC = () => {
     handleSubmit,
     watch,
     setValue,
-    unregister,
     reset,
     formState: { errors, dirtyFields },
   } = useForm<SalesOrderFormValues>({
     defaultValues: EMPTY_VALUES,
-    // Rebuilt when the mode changes: the required fields differ between the
-    // producto and parte paths, and editing disables the identity selects.
+    // Rebuilt when the mode changes: editing disables the identity selects.
     resolver: zodResolver(
-      salesOrderSchema(t, { isEdit, orderType })
+      salesOrderSchema(t, { isEdit })
     ) as never,
     mode: 'onBlur',
   });
 
   const customerUuid = watch('customerUuid');
-  const partUuid = watch('partUuid');
   const quantity = watch('quantity');
   const price = watch('price');
-
-  /** Parte path: everything below the parte is derived, never chosen. */
-  const isPartOrder = orderType === 'part';
-  const selectedPart = parts.find((part) => part.uuid === partUuid) ?? null;
 
   /** The customer whose dependent lists are currently loaded. */
   const loadedForCustomer = useRef<string>('');
@@ -213,31 +193,6 @@ const SalesOrderForm: React.FC = () => {
     [companyParams],
   );
 
-  /**
-   * Parte path: the lookup spans EVERY parte of the company, not the partes of
-   * one producto (`PedidoDeParteForm.cs:79-80`, `UIFilterParte(null, ...)`).
-   */
-  useEffect(() => {
-    if (isEdit || !isPartOrder) return;
-    let cancelled = false;
-    const load = async () => {
-      try {
-        const partPage = await partsApi.getParts({
-          ...companyParams(),
-          limit: DROPDOWN_LIMIT,
-        });
-        if (!cancelled) setParts(partPage.data || []);
-      } catch (err: any) {
-        logger.error('Error loading parts dropdown:', err);
-        if (!cancelled) setParts([]);
-      }
-    };
-    load();
-    return () => {
-      cancelled = true;
-    };
-  }, [isEdit, isPartOrder, companyParams]);
-
   // Company-wide dropdowns (cliente + vendedor).
   useEffect(() => {
     let cancelled = false;
@@ -271,7 +226,6 @@ const SalesOrderForm: React.FC = () => {
         const loaded = await salesOrdersApi.getSalesOrder(uuid);
         if (cancelled) return;
         setOrder(loaded);
-        setOrderType(loaded.product ? 'product' : 'part');
         const customer = loaded.customer?.uuid ?? '';
         await loadCustomerScopedLists(customer);
         if (cancelled) return;
@@ -325,36 +279,6 @@ const SalesOrderForm: React.FC = () => {
     loadCustomerScopedLists(customerUuid);
   }, [customerUuid, loadCustomerScopedLists, setValue]);
 
-  /**
-   * `PedidoDeParteForm.cs:142-153`: choosing a parte fills the read-only
-   * cliente and producto boxes from `Parte.Producto.Cliente` / `Parte.Producto`.
-   * Writing the derived cliente into the form is also what refetches the
-   * cliente-scoped lugar-de-entrega list.
-   */
-  useEffect(() => {
-    if (!isPartOrder || isEdit) return;
-    const derived = selectedPart?.product?.customer?.uuid ?? '';
-    if (derived !== customerUuid) setValue('customerUuid', derived);
-  }, [isPartOrder, isEdit, selectedPart, customerUuid, setValue]);
-
-  /**
-   * Switching subtype starts a fresh pedido: the discriminator not in play is
-   * unregistered so its `required` rule cannot block a submit from a control
-   * the user can no longer see.
-   */
-  const changeOrderType = (next: OrderType) => {
-    setOrderType(next);
-    setValue('customerUuid', '');
-    if (next === 'part') {
-      setValue('productUuid', '');
-      unregister('productUuid');
-    } else {
-      setValue('partUuid', '');
-      unregister('partUuid');
-      setParts([]);
-    }
-  };
-
   const quantityNumber = Number(quantity);
   const priceNumber = Number(price);
   const total =
@@ -377,16 +301,9 @@ const SalesOrderForm: React.FC = () => {
     };
     if (!isEdit) {
       // Immutable on edit (PedidoDeProductoForm.cs:80) — the API 400s a change,
-      // so the form never re-sends them. Exactly one discriminator travels; on
-      // the parte path the cliente is derived by the API from
-      // parte -> producto -> cliente (PedidoDeParteMapper.cs:19), so it is not
-      // sent at all.
-      if (isPartOrder) {
-        payload.partUuid = values.partUuid;
-      } else {
-        payload.customerUuid = values.customerUuid;
-        payload.productUuid = values.productUuid;
-      }
+      // so the form never re-sends them.
+      payload.customerUuid = values.customerUuid;
+      payload.productUuid = values.productUuid;
     }
     // D-7: an ABSENT key is what makes the API fall back to the cliente's
     // vendedor (`customers.salesPersonId`); `null` means "explicitly nobody"
@@ -549,37 +466,7 @@ const SalesOrderForm: React.FC = () => {
             {isEdit && order && <SalesOrderProductionOrders salesOrderUuid={order.uuid} commerciallyApproved={!!order.commerciallyApproved} financiallyApproved={!!order.financiallyApproved} savedAt={order.updatedAt} />}
 
             <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200 grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* 0. Tipo de pedido — the "Agregar" dropdown's two supported buttons
-                  (PedidosForm.cs:500-524). Create only: the subtype is immutable. */}
-              {!isEdit && (
-                <div className="md:col-span-2">
-                  <label className={labelClass} htmlFor="orderType">
-                    {t('salesOrders.fields.orderType')}
-                  </label>
-                  <select
-                    id="orderType"
-                    name="orderType"
-                    className={selectClass}
-                    data-testid="order-type-select"
-                    value={orderType}
-                    onChange={(event) => changeOrderType(event.target.value as OrderType)}
-                  >
-                    <option value="product">{t('salesOrders.orderTypes.product')}</option>
-                    <option value="part">{t('salesOrders.orderTypes.part')}</option>
-                  </select>
-                </div>
-              )}
-
-              {/* 1. Cliente — chosen first on the producto path; DERIVED and
-                  read-only on the parte path (PedidoDeParteForm.cs:142-153). */}
-              {isPartOrder && !isEdit ? (
-                <div>
-                  <span className={labelClass}>{t('salesOrders.fields.customer')}</span>
-                  <p className="text-sm text-secondary-900" data-testid="derived-customer">
-                    {selectedPart?.product?.customer?.name ?? '-'}
-                  </p>
-                </div>
-              ) : (
+              {/* 1. Cliente — chosen first (D-1). */}
               <div>
                 <label className={labelClass} htmlFor="customerUuid">
                   {t('salesOrders.fields.customer')}
@@ -603,54 +490,8 @@ const SalesOrderForm: React.FC = () => {
                   <p className="mt-1.5 text-sm text-red-600">{errors.customerUuid.message}</p>
                 )}
               </div>
-              )}
 
-              {/* 2. Producto — disabled until a cliente is chosen (D-1) — or the
-                  parte lookup, over every parte of the company, with the producto
-                  it derives shown underneath. */}
-              {isPartOrder ? (
-                isEdit ? (
-                  <div>
-                    <span className={labelClass}>{t('salesOrders.fields.part')}</span>
-                    <p className="text-sm text-secondary-900" data-testid="order-item-description">
-                      {order?.itemDescription || '-'}
-                    </p>
-                  </div>
-                ) : (
-                  <div>
-                    <label className={labelClass} htmlFor="partUuid">
-                      {t('salesOrders.fields.part')}
-                      <span className="text-red-500 ml-1">*</span>
-                    </label>
-                    <select
-                      id="partUuid"
-                      className={selectClass}
-                      data-testid="part-select"
-                      disabled={loading}
-                      {...register('partUuid')}
-                    >
-                      <option value="">{t('salesOrders.placeholders.part')}</option>
-                      {parts.map((part) => (
-                        <option key={part.uuid} value={part.uuid}>
-                          {part.code}
-                          {part.description ? ` — ${part.description}` : ''}
-                        </option>
-                      ))}
-                    </select>
-                    {errors.partUuid && (
-                      <p className="mt-1.5 text-sm text-red-600">{errors.partUuid.message}</p>
-                    )}
-                    <p className="mt-1.5 text-sm text-secondary-600" data-testid="derived-product">
-                      {t('salesOrders.fields.product')}:{' '}
-                      {selectedPart?.product
-                        ? [selectedPart.product.code, selectedPart.product.description]
-                            .filter(Boolean)
-                            .join(' — ')
-                        : '-'}
-                    </p>
-                  </div>
-                )
-              ) : (
+              {/* 2. Producto — disabled until a cliente is chosen (D-1). */}
               <div>
                 <label className={labelClass} htmlFor="productUuid">
                   {t('salesOrders.fields.product')}
@@ -679,7 +520,6 @@ const SalesOrderForm: React.FC = () => {
                   <p className="mt-1.5 text-sm text-red-600">{errors.productUuid.message}</p>
                 )}
               </div>
-              )}
 
               {/* 3. Cantidad */}
               <Input

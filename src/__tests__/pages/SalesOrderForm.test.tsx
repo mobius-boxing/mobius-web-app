@@ -17,12 +17,9 @@ const CUSTOMER_B = 'cust-b-uuid';
 const PRODUCT_A1 = 'prod-a1-uuid';
 const PRODUCT_A2 = 'prod-a2-uuid';
 const PRODUCT_B1 = 'prod-b1-uuid';
-const PART_A1 = 'part-a1-uuid';
-const PART_B1 = 'part-b1-uuid';
 const ORDER_UUID = 'order-uuid';
 
 const mockGetProducts = jest.fn();
-const mockGetParts = jest.fn();
 const mockGetDeliveryLocations = jest.fn();
 const mockGetSalesOrder = jest.fn();
 const mockCreateSalesOrder = jest.fn();
@@ -75,7 +72,6 @@ jest.mock('../../services/api', () => ({
     }),
   },
   productsApi: { getProducts: (...args: any[]) => mockGetProducts(...args) },
-  partsApi: { getParts: (...args: any[]) => mockGetParts(...args) },
   deliveryLocationsApi: {
     getDeliveryLocations: (...args: any[]) => mockGetDeliveryLocations(...args),
   },
@@ -131,32 +127,6 @@ beforeEach(() => {
     ),
   );
   mockGetDeliveryLocations.mockImplementation(async () => page(100, []));
-  mockGetParts.mockImplementation(async () =>
-    page(100, [
-      {
-        uuid: PART_A1,
-        code: 'PT-A1',
-        description: 'parte A1',
-        product: {
-          uuid: PRODUCT_A1,
-          code: 'P-A1',
-          description: 'producto A1',
-          customer: { uuid: CUSTOMER_A, name: 'Cliente A' },
-        },
-      },
-      {
-        uuid: PART_B1,
-        code: 'PT-B1',
-        description: 'parte B1',
-        product: {
-          uuid: PRODUCT_B1,
-          code: 'P-B1',
-          description: 'producto B1',
-          customer: { uuid: CUSTOMER_B, name: 'Cliente B' },
-        },
-      },
-    ]),
-  );
 });
 
 const optionValues = (testId: string) =>
@@ -386,55 +356,47 @@ describe('SalesOrderForm create mode (AC-21)', () => {
 });
 
 /**
- * AC-8 — "alta de pedido de parte" (`PedidoDeParteForm.cs`). The parte lookup
- * spans every parte of the company, and cliente + producto are DERIVED from
- * it (`:142-153`), so the payload carries `partUuid` and no `productUuid`.
+ * AC-8 retirement (remove-composite-products): "alta de pedido de parte"
+ * (`PedidoDeParteForm.cs`) is gone — producto is the only manufacturable unit,
+ * so there is no subtype control, no parte lookup and no derived read-only
+ * identity fields any more. These pin the ABSENCE, not just the presence of
+ * the producto path (already covered by AC-21 above).
  */
-describe('SalesOrderForm parte path (AC-8)', () => {
-  const chooseParteMode = async () => {
+describe('SalesOrderForm parte path retired (former AC-8)', () => {
+  it('renders no order-type control — the parte subtype is gone', async () => {
+    render(<SalesOrderForm />);
     await screen.findByTestId('customer-select');
-    fireEvent.change(screen.getByTestId('order-type-select'), {
-      target: { value: 'part' },
-    });
-    await screen.findByTestId('part-select');
-  };
 
-  const selectPart = async (uuid: string) => {
-    await waitFor(() => expect(optionValues('part-select')).toContain(uuid));
-    fireEvent.change(screen.getByTestId('part-select'), {
-      target: { value: uuid },
-    });
-  };
-
-  it('swaps the producto picker for a parte picker over every parte', async () => {
-    render(<SalesOrderForm />);
-    await chooseParteMode();
-
-    await waitFor(() => expect(mockGetParts).toHaveBeenCalled());
-    expect(mockGetParts.mock.calls[0][0]).not.toHaveProperty('productUuid');
-    expect(optionValues('part-select')).toEqual(
-      expect.arrayContaining([PART_A1, PART_B1]),
-    );
-    expect(screen.queryByTestId('product-select')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('order-type-select')).not.toBeInTheDocument();
   });
 
-  it('shows the cliente and producto derived from the chosen parte, read-only', async () => {
+  it('renders no parte/part picker, even after choosing a cliente', async () => {
     render(<SalesOrderForm />);
-    await chooseParteMode();
-    await selectPart(PART_A1);
+    await screen.findByTestId('customer-select');
+    await selectCustomer(CUSTOMER_A);
 
-    await waitFor(() =>
-      expect(screen.getByTestId('derived-customer')).toHaveTextContent('Cliente A'),
-    );
-    expect(screen.getByTestId('derived-product')).toHaveTextContent('P-A1');
-    expect(screen.queryByTestId('customer-select')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('part-select')).not.toBeInTheDocument();
   });
 
-  it('submits partUuid and never productUuid or customerUuid (AC-8)', async () => {
-    mockCreateSalesOrder.mockResolvedValue({ uuid: ORDER_UUID, number: '00000009' });
+  it('never shows derived read-only cliente/producto text — both stay live selects', async () => {
     render(<SalesOrderForm />);
-    await chooseParteMode();
-    await selectPart(PART_A1);
+    await screen.findByTestId('customer-select');
+    await selectCustomer(CUSTOMER_A);
+    await selectProduct(PRODUCT_A1);
+
+    expect(screen.queryByTestId('derived-customer')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('derived-product')).not.toBeInTheDocument();
+    expect(screen.getByTestId('customer-select')).toBeInTheDocument();
+    expect(screen.getByTestId('product-select')).toBeInTheDocument();
+  });
+
+  it('the create payload never contains partUuid', async () => {
+    mockCreateSalesOrder.mockResolvedValue({ uuid: ORDER_UUID, number: '00000011' });
+    render(<SalesOrderForm />);
+    await screen.findByTestId('customer-select');
+
+    await selectCustomer(CUSTOMER_A);
+    await selectProduct(PRODUCT_A1);
     fireEvent.change(screen.getByTestId('quantity-input'), {
       target: { value: '300' },
     });
@@ -442,66 +404,63 @@ describe('SalesOrderForm parte path (AC-8)', () => {
 
     await waitFor(() => expect(mockCreateSalesOrder).toHaveBeenCalled());
     const payload = mockCreateSalesOrder.mock.calls[0][0];
-    expect(payload.partUuid).toBe(PART_A1);
-    expect(payload.quantity).toBe(300);
-    expect(payload).not.toHaveProperty('productUuid');
-    expect(payload).not.toHaveProperty('customerUuid');
+    expect(payload).not.toHaveProperty('partUuid');
+    expect(payload.productUuid).toBe(PRODUCT_A1);
+    expect(payload.customerUuid).toBe(CUSTOMER_A);
   });
 
-  it('refetches the lugar de entrega list for the DERIVED cliente', async () => {
+  it('blocks the submit until a producto is chosen (no parte fallback discriminator)', async () => {
     render(<SalesOrderForm />);
-    await chooseParteMode();
-    await selectPart(PART_B1);
-
-    await waitFor(() =>
-      expect(mockGetDeliveryLocations).toHaveBeenCalledWith(
-        expect.objectContaining({ customerUuid: CUSTOMER_B }),
-      ),
-    );
-  });
-
-  it('blocks the submit until a parte is chosen', async () => {
-    render(<SalesOrderForm />);
-    await chooseParteMode();
+    await screen.findByTestId('customer-select');
+    await selectCustomer(CUSTOMER_A);
     fireEvent.change(screen.getByTestId('quantity-input'), {
       target: { value: '300' },
     });
     fireEvent.submit(screen.getByTestId('sales-order-form'));
 
     expect(
-      await screen.findByText('salesOrders.validation.partRequired'),
+      await screen.findByText('salesOrders.validation.productRequired'),
     ).toBeInTheDocument();
     expect(mockCreateSalesOrder).not.toHaveBeenCalled();
   });
 
-  /**
-   * Switching back must not leave the parte's `required` rule armed on a
-   * control the user can no longer see — the submit would be blocked with no
-   * visible error.
-   */
-  it('goes back to the producto path with a clean payload', async () => {
-    mockCreateSalesOrder.mockResolvedValue({ uuid: ORDER_UUID, number: '00000010' });
+  it('refetches the lugar de entrega list again when the cliente changes after a producto was already chosen', async () => {
     render(<SalesOrderForm />);
-    await chooseParteMode();
-    await selectPart(PART_A1);
-
-    fireEvent.change(screen.getByTestId('order-type-select'), {
-      target: { value: 'product' },
-    });
-    await screen.findByTestId('product-select');
-
+    await screen.findByTestId('customer-select');
     await selectCustomer(CUSTOMER_A);
     await selectProduct(PRODUCT_A1);
-    fireEvent.change(screen.getByTestId('quantity-input'), {
-      target: { value: '100' },
-    });
-    fireEvent.submit(screen.getByTestId('sales-order-form'));
+    mockGetDeliveryLocations.mockClear();
 
-    await waitFor(() => expect(mockCreateSalesOrder).toHaveBeenCalled());
-    const payload = mockCreateSalesOrder.mock.calls[0][0];
-    expect(payload.productUuid).toBe(PRODUCT_A1);
-    expect(payload.customerUuid).toBe(CUSTOMER_A);
-    expect(payload).not.toHaveProperty('partUuid');
+    await selectCustomer(CUSTOMER_B);
+
+    await waitFor(() =>
+      expect(mockGetDeliveryLocations).toHaveBeenCalledWith(
+        expect.objectContaining({ customerUuid: CUSTOMER_B }),
+      ),
+    );
+    // The stale producto from cliente A must not survive the switch.
+    expect((screen.getByTestId('product-select') as HTMLSelectElement).value).toBe('');
+  });
+
+  it('edit mode never renders the old parte-only item-description testid', async () => {
+    mockRouteParams = { uuid: ORDER_UUID };
+    mockGetSalesOrder.mockResolvedValue({
+      uuid: ORDER_UUID,
+      number: '00000012',
+      quantity: 50,
+      customer: { uuid: CUSTOMER_A, name: 'Cliente A' },
+      product: { uuid: PRODUCT_A1, code: 'P-A1' },
+      createdAt: '2026-08-20T00:00:00.000Z',
+    });
+    render(<SalesOrderForm />);
+
+    await waitFor(() =>
+      expect((screen.getByTestId('product-select') as HTMLSelectElement).value).toBe(
+        PRODUCT_A1,
+      ),
+    );
+    expect(screen.queryByTestId('order-item-description')).not.toBeInTheDocument();
+    mockRouteParams = {};
   });
 });
 

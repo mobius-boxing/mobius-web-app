@@ -21,7 +21,6 @@ import PaperSupplies from './pages/PaperSupplies';
 import PaperSheets from './pages/PaperSheets';
 import CorrugationClasses from './pages/CorrugationClasses';
 import Corrugations from './pages/Corrugations';
-import Parts from './pages/Parts';
 import Models from './pages/Models';
 import ProductionOrders from './pages/ProductionOrders';
 import SalesOrders from './pages/SalesOrders';
@@ -217,14 +216,6 @@ function App() {
               element={
                 <ProtectedRoute requiredPermission="corrugated.edit">
                   <Corrugations />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/parts"
-              element={
-                <ProtectedRoute requiredPermission="parts.edit">
-                  <Parts />
                 </ProtectedRoute>
               }
             />

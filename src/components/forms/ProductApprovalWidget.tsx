@@ -27,16 +27,7 @@ const ProductApprovalWidget: React.FC<ProductApprovalWidgetProps> = ({ product, 
   const act = async (action: 'approve' | 'cancel') => {
     try {
       setBusy(true);
-      // 04-state-and-lifecycle: the confirm dialog drives the parts cascade —
-      // OK propagates to the parts' final machine, Cancel acts on the product only.
-      const cascade = window.confirm(
-        t(
-          action === 'approve'
-            ? 'products.approval.cascadeConfirmApprove'
-            : 'products.approval.cascadeConfirmCancel'
-        )
-      );
-      const updated = await productsApi.setApproval(product.uuid, action, cascade);
+      const updated = await productsApi.setApproval(product.uuid, action);
       onChanged(updated);
     } catch (err) {
       logger.error('Error setting product approval:', err);

@@ -92,9 +92,8 @@ const MIGRATED_FILES = [
   'src/components/modals/CreateCustomerModal.tsx',
   'src/components/modals/EditCustomerModal.tsx',
   'src/components/modals/MachineModals.tsx',
-  // B8
-  'src/components/modals/CreateProductModal.tsx',
-  'src/components/modals/EditProductModal.tsx',
+  // B8, superseded by remove-composite-products' single ProductFormModal
+  'src/components/products/ProductFormModal.tsx',
 ];
 
 /**
@@ -115,7 +114,6 @@ const PATTERN_B_FILES = [
   'src/components/modals/ModelFormModal.tsx',
   'src/components/modals/RouteFormModal.tsx',
   'src/components/modals/WarehouseGridEditorModal.tsx',
-  'src/components/modals/PartFormModal.tsx',
 ];
 
 /** B6's auth pages: same "no inline rules" invariant, different wiring. */
