@@ -1018,6 +1018,7 @@
       "outerDimsTitle": "1. Ingrese medidas exteriores (mm)",
       "innerDimsTitle": "2. Medidas interiores (calculadas)",
       "sheetDevelopmentTitle": "Desarrollo de plancha",
+      "calculatedSuffix": " (calculado)",
       "flapsTitle": "Aletas",
       "averageWeight": "Peso promedio",
       "effectiveGrammage": "Gramaje efectivo: {{value}} g/m²",

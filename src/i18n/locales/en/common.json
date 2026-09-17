@@ -1018,6 +1018,7 @@
       "outerDimsTitle": "1. Enter outer dimensions (mm)",
       "innerDimsTitle": "2. Inner dimensions (calculated)",
       "sheetDevelopmentTitle": "Sheet development",
+      "calculatedSuffix": " (calculated)",
       "flapsTitle": "Flaps",
       "averageWeight": "Average weight",
       "effectiveGrammage": "Effective grammage: {{value}} g/m²",

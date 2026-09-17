@@ -693,7 +693,11 @@ export interface CreateProductForm {
   registeredAt?: string | null;
 }
 
-/** The 8 fields `POST /product/calculate` accepts (D-19, D-11). */
+/**
+ * The fields `POST /product/calculate` accepts (D-19, D-11 + fefco-sheet-calculation):
+ * the 8 cascade fields plus the model-driven trio (`flap`/Chapetón,
+ * `mandatoryRotation`, `model` — the model select changed, `value` ignored).
+ */
 export type ProductCalculateField =
   | 'boxLength'
   | 'boxWidth'
@@ -702,9 +706,12 @@ export type ProductCalculateField =
   | 'externalWidth'
   | 'externalHeight'
   | 'boxSurface'
-  | 'grammage';
+  | 'grammage'
+  | 'flap'
+  | 'mandatoryRotation'
+  | 'model';
 
-/** The 9 calculable keys the endpoint reads and returns (`ICalculableProduct`). */
+/** The calculable keys the endpoint reads (`ICalculableProduct` context, `values`). */
 export interface ProductCalculableValues {
   boxLength?: number | null;
   boxWidth?: number | null;
@@ -715,17 +722,45 @@ export interface ProductCalculableValues {
   boxSurface?: number | null;
   boxWeight?: number | null;
   grammage?: number | null;
+  sheetLength?: number | null;
+  sheetWidth?: number | null;
+  additionalSheetLength?: number | null;
+  flap?: number | null;
+  lowerFlap?: number | null;
+  upperFlap?: number | null;
+  flapOverlap?: number | null;
+  corrugationScoreLines?: string | null;
+  printScoreLines?: string | null;
+  mandatoryRotation?: boolean;
 }
 
 export interface ProductCalculateRequest {
   corrugationUuid: string;
+  /** Company-scoped (404 for another tenant's); absent/null → flute-only cascade. */
+  modelUuid?: string | null;
   field: ProductCalculateField;
-  value: number | null;
+  value: number | boolean | null;
   values: ProductCalculableValues;
 }
 
-export interface ProductCalculateResult extends ProductCalculableValues {
+/** Exactly what the endpoint returns — today's 10 keys + the 6 sheet/flap/score-line additions. */
+export interface ProductCalculateResult {
+  boxLength?: number | null;
+  boxWidth?: number | null;
+  boxHeight?: number | null;
+  externalLength?: number | null;
+  externalWidth?: number | null;
+  externalHeight?: number | null;
+  boxSurface?: number | null;
+  boxWeight?: number | null;
+  grammage?: number | null;
   effectiveGrammage?: number | null;
+  sheetLength?: number | null;
+  sheetWidth?: number | null;
+  lowerFlap?: number | null;
+  upperFlap?: number | null;
+  corrugationScoreLines?: string | null;
+  printScoreLines?: string | null;
 }
 
 export interface Manufacturer {

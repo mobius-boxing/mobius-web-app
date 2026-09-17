@@ -6,7 +6,7 @@ import { CreateProductForm } from '../../types';
 import { ProductFormOptions } from './ProductFormModal';
 
 type OuterDimField = 'externalLength' | 'externalWidth' | 'externalHeight';
-type TriggerField = OuterDimField | 'boxSurface' | 'grammage';
+type TriggerField = OuterDimField | 'boxSurface' | 'grammage' | 'flap';
 
 interface Props {
   register: UseFormRegister<CreateProductForm>;
@@ -14,6 +14,7 @@ interface Props {
   watch: UseFormWatch<CreateProductForm>;
   options: ProductFormOptions;
   onOuterDimBlur: (field: TriggerField, value: number | null) => void;
+  onModelChange: () => void;
   calcError: string | null;
   calculating: boolean;
   effectiveGrammage: number | null;
@@ -47,6 +48,7 @@ const ProductProductionTab: React.FC<Props> = ({
   watch,
   options,
   onOuterDimBlur,
+  onModelChange,
   calcError,
   calculating,
   effectiveGrammage,
@@ -55,6 +57,12 @@ const ProductProductionTab: React.FC<Props> = ({
   const { t } = useTranslation();
 
   const triggerBlur = (field: TriggerField) => () => onOuterDimBlur(field, num(watch(field)));
+  // The 6 calculate-response fields (+ surface) a model's formulas can fill —
+  // labelled "(calculado)" once a model is selected (mockup "Desarrollo de
+  // Plancha (Calculado)"), but they stay editable inputs (D-2).
+  const hasModel = !!watch('modelUuid');
+  const calcLabel = (key: 'sheetLength' | 'sheetWidth' | 'lowerFlap' | 'upperFlap' | 'boxSurface' | 'corrugationScoreLines' | 'printScoreLines') =>
+    hasModel ? `${t(`products.fields.${key}`)}${t('products.fields.calculatedSuffix')}` : t(`products.fields.${key}`);
 
   return (
     <div className="space-y-4">
@@ -75,7 +83,10 @@ const ProductProductionTab: React.FC<Props> = ({
           </div>
           <div>
             <label className="gd-label">{t('products.fields.model')}</label>
-            <select className="input-field w-full" {...register('modelUuid')}>
+            <select
+              className="input-field w-full"
+              {...register('modelUuid', { onChange: () => onModelChange() })}
+            >
               <option value="">{t('products.fields.selectModel')}</option>
               {options.models.map((o) => (
                 <option key={o.uuid} value={o.uuid}>{o.label}</option>
@@ -120,18 +131,18 @@ const ProductProductionTab: React.FC<Props> = ({
             <h4 className="mb-2 text-xs font-semibold uppercase text-secondary-500">
               {t('products.fields.sheetDevelopmentTitle')}
             </h4>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <Input
                 type="number"
                 step="any"
-                label={t('products.fields.sheetLength')}
+                label={calcLabel('sheetLength')}
                 {...register('sheetLength')}
                 error={errors.sheetLength?.message}
               />
               <Input
                 type="number"
                 step="any"
-                label={t('products.fields.sheetWidth')}
+                label={calcLabel('sheetWidth')}
                 {...register('sheetWidth')}
                 error={errors.sheetWidth?.message}
               />
@@ -142,16 +153,22 @@ const ProductProductionTab: React.FC<Props> = ({
                 {...register('additionalSheetLength')}
                 error={errors.additionalSheetLength?.message}
               />
+              <Input
+                type="number"
+                step="any"
+                label={t('products.fields.flap')}
+                {...register('flap', { onBlur: triggerBlur('flap') })}
+                error={errors.flap?.message}
+              />
             </div>
           </div>
         </div>
 
         <div className="mt-4">
           <h4 className="mb-2 text-xs font-semibold uppercase text-secondary-500">{t('products.fields.flapsTitle')}</h4>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <Input type="number" step="any" label={t('products.fields.flap')} {...register('flap')} error={errors.flap?.message} />
-            <Input type="number" step="any" label={t('products.fields.lowerFlap')} {...register('lowerFlap')} error={errors.lowerFlap?.message} />
-            <Input type="number" step="any" label={t('products.fields.upperFlap')} {...register('upperFlap')} error={errors.upperFlap?.message} />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+            <Input type="number" step="any" label={calcLabel('lowerFlap')} {...register('lowerFlap')} error={errors.lowerFlap?.message} />
+            <Input type="number" step="any" label={calcLabel('upperFlap')} {...register('upperFlap')} error={errors.upperFlap?.message} />
             <Input type="number" step="any" label={t('products.fields.flapOverlap')} {...register('flapOverlap')} error={errors.flapOverlap?.message} />
           </div>
         </div>
@@ -168,7 +185,7 @@ const ProductProductionTab: React.FC<Props> = ({
         <Input
           type="number"
           step="any"
-          label={t('products.fields.boxSurface')}
+          label={calcLabel('boxSurface')}
           {...register('boxSurface', { onBlur: triggerBlur('boxSurface') })}
           error={errors.boxSurface?.message}
         />
@@ -181,8 +198,8 @@ const ProductProductionTab: React.FC<Props> = ({
       )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Input type="text" label={t('products.fields.corrugationScoreLines')} {...register('corrugationScoreLines')} />
-        <Input type="text" label={t('products.fields.printScoreLines')} {...register('printScoreLines')} />
+        <Input type="text" label={calcLabel('corrugationScoreLines')} {...register('corrugationScoreLines')} />
+        <Input type="text" label={calcLabel('printScoreLines')} {...register('printScoreLines')} />
       </div>
       <label className="flex items-center gap-2 text-sm text-secondary-700">
         <input type="checkbox" className="h-4 w-4 rounded border-secondary-300" {...register('symmetricScoreLines')} />

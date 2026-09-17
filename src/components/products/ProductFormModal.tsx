@@ -70,6 +70,7 @@ interface Props {
 
 type TabKey = 'general' | 'production' | 'route' | 'palletizing';
 
+/** Numeric context sent in `values` (the endpoint's full calculable snapshot). */
 const CALC_FIELDS = [
   'boxLength',
   'boxWidth',
@@ -79,8 +80,50 @@ const CALC_FIELDS = [
   'externalHeight',
   'boxSurface',
   'grammage',
+  'sheetLength',
+  'sheetWidth',
+  'additionalSheetLength',
+  'flap',
+  'lowerFlap',
+  'upperFlap',
+  'flapOverlap',
 ] as const;
 type CalcField = (typeof CALC_FIELDS)[number];
+
+/**
+ * The numeric subset the endpoint actually RETURNS (`ProductCalculateResult`)
+ * — `additionalSheetLength`/`flap`/`flapOverlap` are context-only inputs, so
+ * applying `result[key]` back for them would be indexing a key the response
+ * never carries (D-5).
+ */
+const CALC_RESULT_FIELDS = [
+  'boxLength',
+  'boxWidth',
+  'boxHeight',
+  'externalLength',
+  'externalWidth',
+  'externalHeight',
+  'boxSurface',
+  'grammage',
+  'sheetLength',
+  'sheetWidth',
+  'lowerFlap',
+  'upperFlap',
+] as const;
+
+/** Score-line context/result fields — text, not numbers (D-5). */
+const CALC_TEXT_FIELDS = ['corrugationScoreLines', 'printScoreLines'] as const;
+
+/** `field`s that trigger a calculate call (D-4: dimension/surface/grammage + model/flap/rotation). */
+type CalcTriggerField =
+  | 'boxSurface'
+  | 'grammage'
+  | 'externalLength'
+  | 'externalWidth'
+  | 'externalHeight'
+  | 'flap'
+  | 'mandatoryRotation'
+  | 'model';
 
 const toCalcNumber = (value: unknown): number | null => {
   if (value === null || value === undefined || value === '') return null;
@@ -360,6 +403,9 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
   const calcSeqRef = useRef(0);
   /** Last value each cascade field was calculated from — a blur without an edit recalculates nothing. */
   const calcBaselineRef = useRef<Partial<Record<CalcField, number | null>>>({});
+  /** Same changed-value guard for the two non-numeric triggers (D-4). */
+  const mandatoryRotationBaselineRef = useRef<boolean>(false);
+  const modelBaselineRef = useRef<string | null>(null);
   const pendingCalcRef = useRef<Promise<void> | null>(null);
 
   const {
@@ -394,6 +440,8 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
     calcBaselineRef.current = Object.fromEntries(
       CALC_FIELDS.map((key) => [key, toCalcNumber(initial[key])]),
     );
+    mandatoryRotationBaselineRef.current = initial.mandatoryRotation ?? false;
+    modelBaselineRef.current = initial.modelUuid ?? null;
     pendingCalcRef.current = null;
     setFileUuids(
       product
@@ -451,8 +499,15 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
   }, [errors]);
 
   const runCalculate = useCallback(
-    async (field: 'boxSurface' | 'grammage' | 'externalLength' | 'externalWidth' | 'externalHeight', value: number | null) => {
-      if (calcBaselineRef.current[field] === value) return;
+    async (field: CalcTriggerField, value: number | boolean | null) => {
+      const modelUuid = getValues('modelUuid') || null;
+      if (field === 'mandatoryRotation') {
+        if (mandatoryRotationBaselineRef.current === value) return;
+      } else if (field === 'model') {
+        if (modelBaselineRef.current === modelUuid) return;
+      } else if (calcBaselineRef.current[field] === value) {
+        return;
+      }
       const corrugationUuid = getValues('corrugationUuid');
       if (!corrugationUuid) {
         setCalcError(t('products.calculate.corrugationRequired'));
@@ -465,22 +520,34 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
         const values = getValues();
         const result = await productsApi.calculate({
           corrugationUuid,
+          modelUuid,
           field,
-          value,
+          value: field === 'model' ? null : value,
           values: {
             ...Object.fromEntries(CALC_FIELDS.map((key) => [key, toCalcNumber(values[key])])),
+            ...Object.fromEntries(CALC_TEXT_FIELDS.map((key) => [key, values[key] ?? null])),
+            mandatoryRotation: values.mandatoryRotation ?? false,
             boxWeight: null,
           },
         });
         if (seq !== calcSeqRef.current) return;
-        CALC_FIELDS.forEach((key) => {
+        CALC_RESULT_FIELDS.forEach((key) => {
           const next = result[key];
           if (next === undefined) return;
           setValue(key, next ?? undefined, { shouldDirty: true });
           calcBaselineRef.current[key] = next ?? null;
         });
+        // Not echoed back by the endpoint (D-5) — the guard tracks what was sent.
+        calcBaselineRef.current.flap = toCalcNumber(values.flap);
+        CALC_TEXT_FIELDS.forEach((key) => {
+          const next = result[key];
+          if (next === undefined) return;
+          setValue(key, next ?? undefined, { shouldDirty: true });
+        });
         setBoxWeight(result.boxWeight ?? null);
         setEffectiveGrammage(result.effectiveGrammage ?? null);
+        mandatoryRotationBaselineRef.current = values.mandatoryRotation ?? false;
+        modelBaselineRef.current = modelUuid;
       } catch (err: any) {
         if (seq !== calcSeqRef.current) return;
         logger.error('Product calculate failed:', err);
@@ -493,6 +560,34 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
     [getValues, setValue, t],
   );
 
+  const triggerCalculate = useCallback(
+    (field: CalcTriggerField, value: number | boolean | null) => {
+      const pending = runCalculate(field, value);
+      pendingCalcRef.current = pending;
+      pending.finally(() => {
+        if (pendingCalcRef.current === pending) pendingCalcRef.current = null;
+      });
+    },
+    [runCalculate],
+  );
+
+  /**
+   * The mandatory-rotation toggle lives on tab 4 (`ProductPalletizingTab`,
+   * out of this card's scope) — subscribed here instead of an onChange prop
+   * so this file stays the only one wiring the calculate triggers (D-4).
+   * Callback-style `watch` hands back the live, just-committed values on
+   * every change (including `reset()`'s), unlike `watch('mandatoryRotation')`
+   * as a hook return value, whose render-time closure goes stale the instant
+   * `reset()` fires. The same changed-value guard as every other trigger
+   * (inside `runCalculate`) is what keeps `reset()` itself a no-op here.
+   */
+  useEffect(() => {
+    const subscription = watch((values) => {
+      triggerCalculate('mandatoryRotation', values.mandatoryRotation ?? false);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, triggerCalculate]);
+
   const onSubmit = handleSubmit(async (submitted) => {
     // Clicking "Guardar" blurs the field being edited, which starts a
     // calculation; the save must carry its results, not the pre-blur values.
@@ -500,7 +595,11 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
     if (pendingCalcRef.current) {
       await pendingCalcRef.current;
       const latest = getValues();
-      data = { ...submitted, ...Object.fromEntries(CALC_FIELDS.map((key) => [key, latest[key]])) };
+      data = {
+        ...submitted,
+        ...Object.fromEntries(CALC_FIELDS.map((key) => [key, latest[key]])),
+        ...Object.fromEntries(CALC_TEXT_FIELDS.map((key) => [key, latest[key]])),
+      };
     }
     const payload: CreateProductForm = {
       ...normalizeRefs(data),
@@ -546,13 +645,8 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
           errors={errors}
           watch={watch}
           options={options}
-          onOuterDimBlur={(field, value) => {
-            const pending = runCalculate(field, value);
-            pendingCalcRef.current = pending;
-            pending.finally(() => {
-              if (pendingCalcRef.current === pending) pendingCalcRef.current = null;
-            });
-          }}
+          onOuterDimBlur={triggerCalculate}
+          onModelChange={() => triggerCalculate('model', null)}
           calcError={calcError}
           calculating={calculating}
           effectiveGrammage={effectiveGrammage}

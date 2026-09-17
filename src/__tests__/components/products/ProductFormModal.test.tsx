@@ -319,6 +319,157 @@ describe('ProductFormModal calculate only on edits, and save waits for it', () =
   });
 });
 
+describe('ProductFormModal fefco-sheet-calculation triggers (AC-6)', () => {
+  const setup = async () => {
+    const { container } = await renderModal();
+    await switchTab('production');
+    await waitFor(() =>
+      expect(container.querySelector('[name="corrugationUuid"] option[value="corr-1"]')).toBeInTheDocument(),
+    );
+    fireEvent.change(container.querySelector('[name="corrugationUuid"]')!, { target: { value: 'corr-1' } });
+    return container;
+  };
+
+  it('changing the model select calls calculate once with field: model, value: null and the modelUuid; results land in the inputs', async () => {
+    mockGetModels.mockResolvedValue(page([{ uuid: 'model-1', code: 'M-1', description: 'FEFCO 0201' }]));
+    const container = await setup();
+    await waitFor(() =>
+      expect(container.querySelector('[name="modelUuid"] option[value="model-1"]')).toBeInTheDocument(),
+    );
+
+    mockCalculate.mockResolvedValue({
+      sheetLength: 1860,
+      sheetWidth: 1120,
+      lowerFlap: 231,
+      upperFlap: 203,
+      corrugationScoreLines: '202; 305; 203',
+      printScoreLines: '30; 405; 505; 405; 505',
+      boxSurface: 1.3299,
+      boxWeight: 0.598,
+      effectiveGrammage: 450,
+    });
+
+    fireEvent.change(container.querySelector('[name="modelUuid"]')!, { target: { value: 'model-1' } });
+
+    await waitFor(() => expect(mockCalculate).toHaveBeenCalledTimes(1));
+    expect(mockCalculate.mock.calls[0][0]).toMatchObject({
+      corrugationUuid: 'corr-1',
+      modelUuid: 'model-1',
+      field: 'model',
+      value: null,
+    });
+
+    await waitFor(() =>
+      expect((container.querySelector('[name="sheetLength"]') as HTMLInputElement).value).toBe('1860'),
+    );
+    expect((container.querySelector('[name="sheetWidth"]') as HTMLInputElement).value).toBe('1120');
+    expect((container.querySelector('[name="lowerFlap"]') as HTMLInputElement).value).toBe('231');
+    expect((container.querySelector('[name="upperFlap"]') as HTMLInputElement).value).toBe('203');
+    expect((container.querySelector('[name="corrugationScoreLines"]') as HTMLInputElement).value).toBe(
+      '202; 305; 203',
+    );
+    expect((container.querySelector('[name="printScoreLines"]') as HTMLInputElement).value).toBe(
+      '30; 405; 505; 405; 505',
+    );
+  });
+
+  it('blurring Chapetón (flap) calls calculate once with field: flap', async () => {
+    const container = await setup();
+    mockCalculate.mockResolvedValue({ lowerFlap: 231, upperFlap: 203 });
+
+    const flapInput = container.querySelector('[name="flap"]') as HTMLInputElement;
+    fireEvent.change(flapInput, { target: { value: '35' } });
+    fireEvent.blur(flapInput);
+
+    await waitFor(() => expect(mockCalculate).toHaveBeenCalledTimes(1));
+    expect(mockCalculate.mock.calls[0][0]).toMatchObject({
+      corrugationUuid: 'corr-1',
+      field: 'flap',
+      value: 35,
+    });
+  });
+
+  it('toggling mandatory rotation calls calculate once with field: mandatoryRotation', async () => {
+    const container = await setup();
+    await switchTab('palletizing');
+    mockCalculate.mockResolvedValue({ sheetLength: 1120, sheetWidth: 1860 });
+
+    const rotationCheckbox = container.querySelector('[name="mandatoryRotation"]') as HTMLInputElement;
+    fireEvent.click(rotationCheckbox);
+
+    await waitFor(() => expect(mockCalculate).toHaveBeenCalledTimes(1));
+    expect(mockCalculate.mock.calls[0][0]).toMatchObject({
+      corrugationUuid: 'corr-1',
+      field: 'mandatoryRotation',
+      value: true,
+    });
+  });
+
+  it('does not call calculate for mandatoryRotation on open/reset of an already-rotated edit product (mutation-check, L-018)', async () => {
+    // mandatoryRotation: true + a real corrugationUuid — if the reset/`type`
+    // guard regressed, this is exactly the shape that would misfire.
+    const rotatedProduct: any = {
+      uuid: 'prod-8',
+      code: 'CAJA-08',
+      revision: 0,
+      vip: false,
+      symmetricScoreLines: false,
+      printCode: false,
+      printDate: false,
+      printRecyclable: false,
+      printWarranty: false,
+      printLogo: false,
+      printNationalIndustry: false,
+      printExport: false,
+      allowsRotation: true,
+      allowsPartialRotation: true,
+      mandatoryRotation: true,
+      allowsGluing: false,
+      approvalStatus: 'pending',
+      customer: { uuid: 'cust-1', name: 'Cliente Uno' },
+      corrugation: { uuid: 'corr-1', code: 'C-450' },
+    };
+
+    await renderModal({ mode: 'edit', product: rotatedProduct });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(mockCalculate).not.toHaveBeenCalled();
+  });
+
+  it('save carries the model-calculated sheet/flap/score-line values', async () => {
+    const container = await setup();
+    mockCalculate.mockResolvedValue({
+      sheetLength: 1860,
+      sheetWidth: 1120,
+      lowerFlap: 231,
+      upperFlap: 203,
+      corrugationScoreLines: '202; 305; 203',
+      printScoreLines: '30; 405; 505; 405; 505',
+    });
+    const flapInput = container.querySelector('[name="flap"]') as HTMLInputElement;
+    fireEvent.change(flapInput, { target: { value: '35' } });
+    fireEvent.blur(flapInput);
+    await waitFor(() => expect(mockCalculate).toHaveBeenCalledTimes(1));
+    await waitFor(() =>
+      expect((container.querySelector('[name="sheetLength"]') as HTMLInputElement).value).toBe('1860'),
+    );
+
+    await switchTab('general');
+    fireEvent.change(container.querySelector('[name="code"]')!, { target: { value: 'CAJA-02' } });
+    fireEvent.change(container.querySelector('[name="customerId"]')!, { target: { value: 'cust-1' } });
+    fireEvent.click(screen.getByText('products.saveButton'));
+
+    await waitFor(() => expect(mockCreateProduct).toHaveBeenCalledTimes(1));
+    const payload = mockCreateProduct.mock.calls[0][0];
+    expect(payload.sheetLength).toBe(1860);
+    expect(payload.sheetWidth).toBe(1120);
+    expect(payload.lowerFlap).toBe(231);
+    expect(payload.upperFlap).toBe(203);
+    expect(payload.corrugationScoreLines).toBe('202; 305; 203');
+    expect(payload.printScoreLines).toBe('30; 405; 505; 405; 505');
+  });
+});
+
 describe('ProductFormModal validation jumps to the offending tab (AC-14)', () => {
   it('switches to tab 2 when corrugationUuid is missing on submit', async () => {
     const { container } = await renderModal();
