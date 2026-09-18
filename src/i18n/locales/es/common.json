@@ -1048,7 +1048,15 @@
       "route": "3. Ruta de Producción & Insumos",
       "palletizing": "4. Palletizado & Obs."
     },
-    "saveButton": "Guardar Producto"
+    "saveButton": "Guardar Producto",
+    "filters": {
+      "customer": "Cliente",
+      "customerPlaceholder": "Buscar cliente…"
+    },
+    "selectCustomerPrompt": {
+      "title": "Seleccione un cliente",
+      "description": "Elija un cliente para ver sus productos"
+    }
   },
   "manufacturers": {
     "title": "Fabricantes",
@@ -2546,6 +2554,7 @@
     "filters": {
       "number": "Número",
       "customer": "Cliente",
+      "customerPlaceholder": "Buscar cliente…",
       "allCustomers": "Todos los clientes",
       "deliveryDateFrom": "F. entrega desde",
       "deliveryDateTo": "F. entrega hasta",
@@ -2877,5 +2886,12 @@
       "unknownMessage": "Estamos solicitando la aprobación de este dispositivo. Si tarda, podés intentarlo de nuevo.",
       "requestApproval": "Solicitar aprobación"
     }
+  },
+  "filters": {
+    "required": "Requerido",
+    "clear": "Limpiar filtros",
+    "noResults": "Sin resultados",
+    "loading": "Buscando…",
+    "searchPlaceholder": "Buscar…"
   }
 }

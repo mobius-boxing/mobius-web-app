@@ -1,6 +1,12 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { PaginatedResponse } from '../types';
 import { logger } from '../utils/logger';
+import {
+  FilterBarProps,
+  FilterDef,
+  requiredFiltersSatisfied,
+  toQueryParams,
+} from '../components/ui/filters/types';
 
 export interface FetchParams {
   page?: number;
@@ -17,6 +23,10 @@ export interface UseEntityListOptions<T> {
   autoFetch?: boolean;
   defaultFilters?: Record<string, unknown>;
   searchFields?: (keyof T)[];
+  /** Default true. false: no request is made, data/total reset to empty, loading stays false. */
+  enabled?: boolean;
+  /** Rendered by `filterBarProps`; a `required` def gates fetching until it has a value. */
+  filterDefs?: FilterDef[];
 }
 
 export interface PaginationState {
@@ -46,6 +56,9 @@ export interface UseEntityListReturn<T> {
   sortBy: string | null;
   sortOrder: 'asc' | 'desc';
   filters: Record<string, unknown>;
+  /** `enabled` (default true) AND every `required` filterDef has a value. */
+  filtersReady: boolean;
+  filterBarProps: FilterBarProps;
 
   fetch: (params?: FetchParams) => Promise<void>;
   refresh: () => Promise<void>;
@@ -54,6 +67,7 @@ export interface UseEntityListReturn<T> {
   setSearch: (search: string) => void;
   setSort: (sortBy: string | null, sortOrder?: 'asc' | 'desc') => void;
   setFilters: (filters: Record<string, unknown>) => void;
+  setFilter: (key: string, value: unknown) => void;
   clearFilters: () => void;
 }
 
@@ -66,6 +80,8 @@ export function useEntityList<T extends object>(
     autoFetch = true,
     defaultFilters = {},
     searchFields = [],
+    enabled = true,
+    filterDefs = [],
   } = options;
 
   const [data, setData] = useState<T[]>([]);
@@ -90,6 +106,23 @@ export function useEntityList<T extends object>(
     }, 300);
     return () => clearTimeout(handle);
   }, [search]);
+
+  const filtersReady = useMemo(
+    () => requiredFiltersSatisfied(filterDefs, filters),
+    [filterDefs, filters]
+  );
+  const effectiveEnabled = enabled && filtersReady;
+
+  // A required filter going from set to unset (cleared, or a company switch
+  // that wipes it) makes the previously typed search meaningless — it would
+  // silently apply to whatever gets picked next.
+  const wasReadyRef = useRef(filtersReady);
+  useEffect(() => {
+    if (wasReadyRef.current && !filtersReady) {
+      setSearchState('');
+    }
+    wasReadyRef.current = filtersReady;
+  }, [filtersReady]);
 
   const setPage = useCallback((next: number) => {
     setPageState(next);
@@ -119,8 +152,31 @@ export function useEntityList<T extends object>(
     setPageState(1);
   }, []);
 
+  const setFilter = useCallback((key: string, value: unknown) => {
+    setFiltersState((prev) => ({ ...prev, [key]: value }));
+    setPageState(1);
+  }, []);
+
+  // Every fetch takes a ticket; a response whose ticket is no longer current is
+  // dropped. Going disabled also takes a ticket, so a request still in flight
+  // when a required filter is cleared cannot repopulate the emptied list.
+  const requestSeqRef = useRef(0);
+
   const fetch = useCallback(
     async (customParams?: FetchParams) => {
+      if (!effectiveEnabled) {
+        requestSeqRef.current += 1;
+        setData([]);
+        setTotal(0);
+        setTotalPages(0);
+        setLoading(false);
+        setError(null);
+        return;
+      }
+
+      const seq = (requestSeqRef.current += 1);
+      const isCurrent = () => seq === requestSeqRef.current;
+
       setLoading(true);
       setError(null);
 
@@ -128,7 +184,7 @@ export function useEntityList<T extends object>(
         const params: FetchParams = {
           page,
           limit,
-          ...filters,
+          ...toQueryParams(filters),
           ...defaultFilters,
           ...customParams,
         };
@@ -138,6 +194,7 @@ export function useEntityList<T extends object>(
         if (sortBy) params.sortOrder = sortOrder;
 
         const response = await fetchFn(params);
+        if (!isCurrent()) return;
 
         setData(response.data || []);
         setTotal(response.total || 0);
@@ -148,6 +205,7 @@ export function useEntityList<T extends object>(
           setPageState(response.page);
         }
       } catch (err: unknown) {
+        if (!isCurrent()) return;
         logger.error('Fetch error:', err);
 
         let errorMessage = 'Failed to fetch data';
@@ -165,10 +223,10 @@ export function useEntityList<T extends object>(
         setError(errorMessage);
         setData([]);
       } finally {
-        setLoading(false);
+        if (isCurrent()) setLoading(false);
       }
     },
-    [fetchFn, page, limit, debouncedSearch, sortBy, sortOrder, filters, defaultFilters]
+    [fetchFn, page, limit, debouncedSearch, sortBy, sortOrder, filters, defaultFilters, effectiveEnabled]
   );
 
   const refresh = useCallback(() => fetch(), [fetch]);
@@ -208,7 +266,27 @@ export function useEntityList<T extends object>(
       fetch();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, limit, sortBy, sortOrder, JSON.stringify(filters), debouncedSearch]);
+  }, [page, limit, sortBy, sortOrder, JSON.stringify(filters), debouncedSearch, effectiveEnabled]);
+
+  const handleFilterBarChange = useCallback(
+    (key: string, value: unknown) => {
+      if (key === 'search') {
+        setSearch(typeof value === 'string' ? value : String(value ?? ''));
+      } else {
+        setFilter(key, value);
+      }
+    },
+    [setSearch, setFilter]
+  );
+
+  const filterBarProps: FilterBarProps = useMemo(
+    () => ({
+      defs: filterDefs,
+      values: { search, ...filters },
+      onChange: handleFilterBarChange,
+    }),
+    [filterDefs, search, filters, handleFilterBarChange]
+  );
 
   return {
     data,
@@ -228,6 +306,8 @@ export function useEntityList<T extends object>(
     sortBy,
     sortOrder,
     filters,
+    filtersReady,
+    filterBarProps,
     fetch,
     refresh,
     setPage,
@@ -235,6 +315,7 @@ export function useEntityList<T extends object>(
     setSearch,
     setSort,
     setFilters,
+    setFilter,
     clearFilters,
   };
 }

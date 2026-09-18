@@ -5,8 +5,8 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
 import Table from '../components/ui/Table';
+import { FilterBar, FilterDef } from '../components/ui/filters';
 import {
   Translate,
   changedKeysOf,
@@ -70,27 +70,6 @@ const SOURCES: AuditSourceValue[] = [
  */
 const FILTER_DEBOUNCE_MS = 300;
 
-/** What the filter bar holds. All strings: these are form values. */
-type DraftFilters = {
-  entityName: string;
-  operation: string;
-  source: string;
-  username: string;
-  from: string;
-  to: string;
-  changedKey: string;
-};
-
-const EMPTY_DRAFT: DraftFilters = {
-  entityName: '',
-  operation: '',
-  source: '',
-  username: '',
-  from: '',
-  to: '',
-  changedKey: '',
-};
-
 /**
  * `dd/MM/yyyy HH:mm`, 24-hour and zero-padded — the format
  * `SalesOrderApprovalControl`'s `fmt` established (divergence D-6) and the one
@@ -128,15 +107,23 @@ const formatInstant = (iso: string, withSeconds = false): string => {
 const endOfDay = (day: string): string =>
   /^\d{4}-\d{2}-\d{2}$/.test(day) ? `${day}T23:59:59.999` : day;
 
-const toQueryFilters = (draft: DraftFilters): AuditLogFilters => {
+/**
+ * `useEntityList`'s generic filter slot holds whatever `FilterBar` last put
+ * there — plain strings here, since none of these filters is an entity
+ * option. This is the one place their raw values become the typed,
+ * trimmed, day-bounded shape the API and the CSV export both expect.
+ */
+const toQueryFilters = (raw: Record<string, unknown>): AuditLogFilters => {
   const query: AuditLogFilters = {};
-  if (draft.entityName) query.entityName = draft.entityName;
-  if (draft.operation) query.operation = draft.operation as AuditOperation;
-  if (draft.source) query.source = draft.source as AuditSourceValue;
-  if (draft.username.trim()) query.username = draft.username.trim();
-  if (draft.from) query.from = draft.from;
-  if (draft.to) query.to = endOfDay(draft.to);
-  if (draft.changedKey.trim()) query.changedKey = draft.changedKey.trim();
+  const str = (key: string): string => (typeof raw[key] === 'string' ? (raw[key] as string) : '');
+
+  if (str('entityName')) query.entityName = str('entityName');
+  if (str('operation')) query.operation = str('operation') as AuditOperation;
+  if (str('source')) query.source = str('source') as AuditSourceValue;
+  if (str('username').trim()) query.username = str('username').trim();
+  if (str('from')) query.from = str('from');
+  if (str('to')) query.to = endOfDay(str('to'));
+  if (str('changedKey').trim()) query.changedKey = str('changedKey').trim();
   return query;
 };
 
@@ -152,7 +139,6 @@ const AuditLogs: React.FC = () => {
   const translate = t as Translate;
   const { has } = usePermissions();
 
-  const [draft, setDraft] = useState<DraftFilters>(EMPTY_DRAFT);
   const [entities, setEntities] = useState<AuditEntity[]>([]);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [windowState, setWindowState] = useState<WindowState>({
@@ -174,8 +160,15 @@ const AuditLogs: React.FC = () => {
    */
   const fetchLogs = useCallback(
     async (params: FetchParams): Promise<AuditLogListResult> => {
-      const query = params as AuditLogListParams;
-      const result = await listAuditLogs({ ...query, includeDiff: true });
+      const { page, limit, search: searchTerm, ...rawFilters } = params;
+      const query: AuditLogListParams = {
+        ...toQueryFilters(rawFilters),
+        page,
+        limit,
+        ...(searchTerm ? { search: searchTerm as string } : {}),
+        includeDiff: true,
+      };
+      const result = await listAuditLogs(query);
       setWindowState({
         appliedFrom: result.appliedFrom,
         dateFiltered: Boolean(query.from || query.to),
@@ -184,27 +177,6 @@ const AuditLogs: React.FC = () => {
     },
     []
   );
-
-  const {
-    data: rows,
-    loading,
-    error,
-    search,
-    setSearch,
-    setFilters,
-    paginationProps,
-  } = useEntityList<AuditRowView>({ fetchFn: fetchLogs });
-
-  // Debounced commit of the whole filter bar. A new-but-equal object is a
-  // no-op downstream: `useEntityList` refetches on the filters' JSON, not on
-  // their identity, so the mount pass costs nothing.
-  useEffect(() => {
-    const handle = setTimeout(() => {
-      setFilters(toQueryFilters(draft) as Record<string, unknown>);
-      setExpanded(null);
-    }, FILTER_DEBOUNCE_MS);
-    return () => clearTimeout(handle);
-  }, [draft, setFilters]);
 
   useEffect(() => {
     let live = true;
@@ -232,21 +204,100 @@ const AuditLogs: React.FC = () => {
     [entities, translate]
   );
 
-  const setField = useCallback(
-    (field: keyof DraftFilters, value: string) => {
-      setDraft((current) => ({ ...current, [field]: value }));
-    },
-    []
+  const filterDefs: FilterDef[] = useMemo(
+    () => [
+      {
+        kind: 'text',
+        key: 'search',
+        label: t('auditLogs.filters.search'),
+        placeholder: t('auditLogs.filters.searchPlaceholder'),
+        className: 'gd-filters-field',
+      },
+      {
+        kind: 'select',
+        key: 'entityName',
+        label: t('auditLogs.filters.entity'),
+        placeholder: t('auditLogs.filters.entityAll'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-entity',
+        options: entityOptions.map((option) => ({ value: option.key, label: option.label })),
+      },
+      {
+        kind: 'select',
+        key: 'operation',
+        label: t('auditLogs.filters.operation'),
+        placeholder: t('auditLogs.filters.operationAll'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-operation',
+        options: OPERATIONS.map((operation) => ({ value: operation, label: operationLabel(operation, translate) })),
+      },
+      {
+        kind: 'select',
+        key: 'source',
+        label: t('auditLogs.filters.source'),
+        placeholder: t('auditLogs.filters.sourceAll'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-source',
+        options: SOURCES.map((source) => ({ value: source, label: t(`auditLogs.source.${source}`) })),
+      },
+      {
+        kind: 'text',
+        key: 'username',
+        label: t('auditLogs.filters.username'),
+        placeholder: t('auditLogs.filters.usernamePlaceholder'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-username',
+        // A username is typed one letter at a time; without this every
+        // keystroke would be its own request (AC-12 D-14).
+        debounceMs: FILTER_DEBOUNCE_MS,
+      },
+      {
+        kind: 'text',
+        key: 'changedKey',
+        label: t('auditLogs.filters.changedKey'),
+        placeholder: t('auditLogs.filters.changedKeyPlaceholder'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-changed-key',
+      },
+      {
+        kind: 'date',
+        key: 'from',
+        label: t('auditLogs.filters.from'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-from',
+      },
+      {
+        kind: 'date',
+        key: 'to',
+        label: t('auditLogs.filters.to'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-to',
+      },
+    ],
+    [t, translate, entityOptions]
   );
 
-  const clearFilters = useCallback(() => {
-    setDraft(EMPTY_DRAFT);
-    setSearch('');
-  }, [setSearch]);
+  const {
+    data: rows,
+    loading,
+    error,
+    search,
+    filters,
+    filterBarProps,
+    clearFilters,
+    paginationProps,
+  } = useEntityList<AuditRowView>({ fetchFn: fetchLogs, filterDefs });
+
+  // A committed filter change closes any expanded row — the same thing the
+  // debounced draft-commit effect did before the fields moved to `FilterBar`.
+  useEffect(() => {
+    setExpanded(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(filters), search]);
 
   const activeCount =
-    Object.values(draft).filter((value) => value !== '').length +
-    (search ? 1 : 0);
+    Object.values(filters).filter((value) => value !== undefined && value !== '').length +
+    (search.trim() ? 1 : 0);
 
   const canExport = has('audit.export');
 
@@ -255,19 +306,19 @@ const AuditLogs: React.FC = () => {
     setExportError(null);
     setExportResult(null);
     try {
-      const filters = toQueryFilters(draft);
-      if (search.trim()) filters.search = search.trim();
+      const exportFilters = toQueryFilters(filters);
+      if (search.trim()) exportFilters.search = search.trim();
       // Through axios, never a hand-built anchor: the bearer token lives in
       // the `mobius_session` cookie and is attached by the shared instance's
       // request interceptor, so a plain download link would simply 401.
-      setExportResult(await exportAuditCsv(filters));
+      setExportResult(await exportAuditCsv(exportFilters));
     } catch (err: unknown) {
       logger.error('Audit CSV export failed:', err);
       setExportError(t('auditLogs.export.error'));
     } finally {
       setExporting(false);
     }
-  }, [draft, search, t]);
+  }, [filters, search, t]);
 
   const showWindowNotice =
     Boolean(windowState.appliedFrom) && !windowState.dateFiltered;
@@ -386,122 +437,7 @@ const AuditLogs: React.FC = () => {
             </Button>
           </div>
 
-          <div className="gd-filters-grid">
-            <label className="gd-filters-field">
-              <span className="gd-label">{t('auditLogs.filters.search')}</span>
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder={t('auditLogs.filters.searchPlaceholder')}
-              />
-            </label>
-
-            <label className="gd-filters-field">
-              <span className="gd-label">{t('auditLogs.filters.entity')}</span>
-              <select
-                name="entityName"
-                className="input-field"
-                data-testid="audit-filter-entity"
-                value={draft.entityName}
-                onChange={(event) => setField('entityName', event.target.value)}
-              >
-                <option value="">{t('auditLogs.filters.entityAll')}</option>
-                {entityOptions.map((option) => (
-                  <option key={option.key} value={option.key}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="gd-filters-field">
-              <span className="gd-label">{t('auditLogs.filters.operation')}</span>
-              <select
-                name="operation"
-                className="input-field"
-                data-testid="audit-filter-operation"
-                value={draft.operation}
-                onChange={(event) => setField('operation', event.target.value)}
-              >
-                <option value="">{t('auditLogs.filters.operationAll')}</option>
-                {OPERATIONS.map((operation) => (
-                  <option key={operation} value={operation}>
-                    {operationLabel(operation, translate)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="gd-filters-field">
-              <span className="gd-label">{t('auditLogs.filters.source')}</span>
-              <select
-                name="source"
-                className="input-field"
-                data-testid="audit-filter-source"
-                value={draft.source}
-                onChange={(event) => setField('source', event.target.value)}
-              >
-                <option value="">{t('auditLogs.filters.sourceAll')}</option>
-                {SOURCES.map((source) => (
-                  <option key={source} value={source}>
-                    {t(`auditLogs.source.${source}`)}
-                  </option>
-                ))}
-              </select>
-            </label>
-
-            <label className="gd-filters-field">
-              <span className="gd-label">{t('auditLogs.filters.username')}</span>
-              <input
-                name="username"
-                type="text"
-                className="input-field"
-                data-testid="audit-filter-username"
-                placeholder={t('auditLogs.filters.usernamePlaceholder')}
-                value={draft.username}
-                onChange={(event) => setField('username', event.target.value)}
-              />
-            </label>
-
-            <label className="gd-filters-field">
-              <span className="gd-label">{t('auditLogs.filters.changedKey')}</span>
-              <input
-                name="changedKey"
-                type="text"
-                className="input-field"
-                data-testid="audit-filter-changed-key"
-                placeholder={t('auditLogs.filters.changedKeyPlaceholder')}
-                value={draft.changedKey}
-                onChange={(event) => setField('changedKey', event.target.value)}
-              />
-            </label>
-
-            <label className="gd-filters-field">
-              <span className="gd-label">{t('auditLogs.filters.from')}</span>
-              <input
-                name="from"
-                type="date"
-                className="input-field"
-                data-testid="audit-filter-from"
-                aria-label={t('auditLogs.filters.from')}
-                value={draft.from}
-                onChange={(event) => setField('from', event.target.value)}
-              />
-            </label>
-
-            <label className="gd-filters-field">
-              <span className="gd-label">{t('auditLogs.filters.to')}</span>
-              <input
-                name="to"
-                type="date"
-                className="input-field"
-                data-testid="audit-filter-to"
-                aria-label={t('auditLogs.filters.to')}
-                value={draft.to}
-                onChange={(event) => setField('to', event.target.value)}
-              />
-            </label>
-          </div>
+          <FilterBar {...filterBarProps} className="gd-filters-grid" />
         </div>
 
         {exportError && <ErrorMessage message={exportError} />}

@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
+import { FilterBar, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -38,12 +38,13 @@ const ToolingStockPage: React.FC = () => {
     filteredData: toolingStock,
     loading,
     search,
-    setSearch,
+    filterBarProps,
     refresh,
     paginationProps,
   } = useEntityList<ToolingStock>({
     fetchFn: fetchToolingStock,
     searchFields: ['comments'],
+    filterDefs: [searchFilter(t('toolingStock.searchPlaceholder'))],
   });
 
   useEffect(() => {
@@ -199,11 +200,7 @@ const ToolingStockPage: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex flex-wrap items-center gap-3">
             <div className="w-full sm:flex-1 sm:max-w-md">
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder={t('toolingStock.searchPlaceholder')}
-              />
+              <FilterBar {...filterBarProps} />
             </div>
           </div>
         </div>

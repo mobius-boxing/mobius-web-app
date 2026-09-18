@@ -172,27 +172,44 @@ describe('default visibility (AC-30)', () => {
 
 // ── AC-31 ────────────────────────────────────────────────────────────────────
 describe('the exclusive producto/plancha pair (AC-31)', () => {
-  const chooseType = async (
-    type: 'product' | 'sheet',
-    uuid: string,
+  /**
+   * Producto is now a customer-scoped autocomplete (AC-12): a type
+   * alone is not enough to search it, so every case picks the customer
+   * first. `focus` alone loads the first page (`minChars` 0), which is why
+   * neither helper below types a search term.
+   */
+  const chooseCustomer = async (label = 'Cliente Uno') => {
+    fireEvent.focus(screen.getByTestId('filter-customer'));
+    fireEvent.mouseDown(await screen.findByRole('option', { name: label }));
+  };
+
+  const chooseEntityItem = async (
+    type: 'product',
+    label: string,
   ) => {
     fireEvent.click(screen.getByTestId(`filter-type-${type}`));
-    await waitFor(() =>
-      expect(screen.getByTestId('filter-item')).not.toBeDisabled(),
-    );
-    fireEvent.change(screen.getByTestId('filter-item'), {
-      target: { value: uuid },
-    });
+    const itemBox = await screen.findByTestId('filter-item');
+    await waitFor(() => expect(itemBox).not.toBeDisabled());
+    fireEvent.focus(itemBox);
+    fireEvent.mouseDown(await screen.findByRole('option', { name: label }));
   };
 
   it('never sends both, in any ordering', async () => {
     await renderGrid();
+    await chooseCustomer();
 
-    await chooseType('product', PRODUCT_UUID);
+    await chooseEntityItem('product', 'P-1 - Caja');
     await waitFor(() => expect(lastParams().productUuid).toBe(PRODUCT_UUID));
+    expect(mockGetProducts).toHaveBeenCalledWith(
+      expect.objectContaining({ customerUuid: 'cu-1', limit: 20 }),
+    );
     expect(lastParams().sheetSupplyUuid).toBeUndefined();
 
-    await chooseType('sheet', SHEET_UUID);
+    fireEvent.click(screen.getByTestId('filter-type-sheet'));
+    await screen.findByText('PL-1 - Plancha B');
+    fireEvent.change(screen.getByTestId('filter-item'), {
+      target: { value: SHEET_UUID },
+    });
     await waitFor(() =>
       expect(lastParams().sheetSupplyUuid).toBe(SHEET_UUID),
     );
@@ -214,6 +231,21 @@ describe('the exclusive producto/plancha pair (AC-31)', () => {
     await waitFor(() =>
       expect(screen.getByTestId('filter-item')).not.toBeDisabled(),
     );
+  });
+
+  it('clears producto when the customer changes', async () => {
+    await renderGrid();
+    await chooseCustomer();
+    await chooseEntityItem('product', 'P-1 - Caja');
+    await waitFor(() => expect(lastParams().productUuid).toBe(PRODUCT_UUID));
+
+    mockGetCustomers.mockResolvedValueOnce(
+      page([{ uuid: 'cu-2', name: 'Cliente Dos' }]),
+    );
+    await chooseCustomer('Cliente Dos');
+
+    await waitFor(() => expect(lastParams().productUuid).toBeUndefined());
+    expect(lastParams().customerUuid).toBe('cu-2');
   });
 });
 

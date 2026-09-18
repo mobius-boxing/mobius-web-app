@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
+import { FilterBar, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
@@ -38,12 +38,13 @@ const Complements: React.FC = () => {
     filteredData: complements,
     loading,
     search,
-    setSearch,
+    filterBarProps,
     refresh,
     paginationProps,
   } = useEntityList<Complement>({
     fetchFn: fetchComplements,
     searchFields: ['code', 'description'],
+    filterDefs: [searchFilter(t('complements.searchPlaceholder'))],
   });
 
   useEffect(() => {
@@ -174,11 +175,7 @@ const Complements: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex flex-wrap items-center gap-3">
             <div className="w-full sm:flex-1 sm:max-w-md">
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder={t('complements.searchPlaceholder')}
-              />
+              <FilterBar {...filterBarProps} />
             </div>
           </div>
         </div>

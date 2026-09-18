@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
+import { FilterBar, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -34,8 +34,11 @@ const Models: React.FC = () => {
     return modelsApi.getModels(fetchParams);
   }, [effectiveCompanyId]);
 
-  const { filteredData: models, loading, search, setSearch, refresh, paginationProps } =
-    useEntityList<Model>({ fetchFn: fetchModels, searchFields: ['code', 'description'] });
+  const { filteredData: models, loading,
+    search,
+    filterBarProps, refresh, paginationProps } =
+    useEntityList<Model>({ fetchFn: fetchModels, searchFields: ['code', 'description'],
+    filterDefs: [searchFilter(t('models.searchPlaceholder'))], });
 
   useEffect(() => {
     refresh();
@@ -159,7 +162,7 @@ const Models: React.FC = () => {
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="w-full sm:flex-1 sm:max-w-md">
-            <SearchInput value={search} onChange={setSearch} placeholder={t('models.searchPlaceholder')} />
+            <FilterBar {...filterBarProps} />
           </div>
         </div>
 

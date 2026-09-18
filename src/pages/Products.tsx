@@ -1,14 +1,14 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { Plus, Trash2, Edit, Package } from 'lucide-react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
+import { Plus, Trash2, Edit, Package, Users } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Product } from '../types';
-import { productsApi } from '../services/api';
+import { customersApi, productsApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
+import { FilterBar, FilterDef, FilterPromptState, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -34,11 +34,40 @@ const Products: React.FC = () => {
     return productsApi.getProducts(fetchParams);
   }, [effectiveCompanyId]);
 
+  const loadCustomerOptions = useCallback(
+    (search: string) =>
+      customersApi
+        .getCustomers({
+          search,
+          limit: 20,
+          ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
+        })
+        .then((res) => res.data.map((customer) => ({ value: customer.uuid, label: customer.name }))),
+    [effectiveCompanyId]
+  );
+
+  const filterDefs: FilterDef[] = useMemo(
+    () => [
+      searchFilter(t('products.searchPlaceholder')),
+      {
+        kind: 'entity',
+        key: 'customerUuid',
+        label: t('products.filters.customer'),
+        placeholder: t('products.filters.customerPlaceholder'),
+        required: true,
+        loadOptions: loadCustomerOptions,
+      },
+    ],
+    [t, loadCustomerOptions]
+  );
+
   const {
     data: products,
     loading,
     search,
-    setSearch,
+    filtersReady,
+    filterBarProps,
+    clearFilters,
     refresh,
     pagination,
     paginationProps,
@@ -48,10 +77,11 @@ const Products: React.FC = () => {
   } = useEntityList<Product>({
     fetchFn: fetchProducts,
     searchFields: ['code', 'clientCode', 'description'],
+    filterDefs,
   });
 
   useEffect(() => {
-    refresh();
+    clearFilters();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveCompanyId]);
 
@@ -225,15 +255,7 @@ const Products: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="w-full sm:flex-1 sm:max-w-md">
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder={t('products.searchPlaceholder')}
-              />
-            </div>
-          </div>
+          <FilterBar {...filterBarProps} />
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
@@ -244,11 +266,26 @@ const Products: React.FC = () => {
               </h2>
             </div>
 
-            {loading ? (
-              <div className="flex items-center justify-center h-32">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-              </div>
-            ) : products.length === 0 ? (
+            {!filtersReady ? (
+              <FilterPromptState
+                icon={Users}
+                title={t('products.selectCustomerPrompt.title')}
+                description={t('products.selectCustomerPrompt.description')}
+              />
+            ) : loading || products.length > 0 ? (
+              <>
+                <Table
+                  columns={columns}
+                  data={products}
+                  loading={loading}
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSort={handleSort}
+                  listId="products"
+                />
+                <Pagination {...paginationProps} />
+              </>
+            ) : (
               <div className="text-center py-12">
                 <Package className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('products.empty.title')}</h3>
@@ -264,19 +301,6 @@ const Products: React.FC = () => {
                   </div>
                 )}
               </div>
-            ) : (
-              <>
-                <Table
-                  columns={columns}
-                  data={products}
-                  loading={loading}
-                  sortBy={sortBy}
-                  sortOrder={sortOrder}
-                  onSort={handleSort}
-                  listId="products"
-                />
-                <Pagination {...paginationProps} />
-              </>
             )}
           </div>
         </div>

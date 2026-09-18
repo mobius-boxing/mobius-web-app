@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
+import { FilterBar, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -37,8 +37,10 @@ const MachineTypes: React.FC = () => {
     [effectiveCompanyId],
   );
 
-  const { filteredData: machineTypes, loading, search, setSearch, refresh, paginationProps } =
-    useEntityList<MachineType>({ fetchFn: fetchMachineTypes, searchFields: ['name', 'attribute'] });
+  const { filteredData: machineTypes, loading,
+    filterBarProps, refresh, paginationProps } =
+    useEntityList<MachineType>({ fetchFn: fetchMachineTypes, searchFields: ['name', 'attribute'],
+    filterDefs: [searchFilter(t('machineTypes.searchPlaceholder'))], });
 
   useEffect(() => {
     refresh();
@@ -147,7 +149,7 @@ const MachineTypes: React.FC = () => {
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="w-full sm:flex-1 sm:max-w-md">
-            <SearchInput value={search} onChange={setSearch} placeholder={t('machineTypes.searchPlaceholder')} />
+            <FilterBar {...filterBarProps} />
           </div>
         </div>
 

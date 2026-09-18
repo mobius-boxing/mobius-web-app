@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
+import { FilterBar, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -34,8 +34,11 @@ const PalletTypes: React.FC = () => {
     return palletTypesApi.getPalletTypes(fetchParams);
   }, [effectiveCompanyId]);
 
-  const { filteredData: palletTypes, loading, search, setSearch, refresh, paginationProps } =
-    useEntityList<PalletType>({ fetchFn: fetchPalletTypes, searchFields: ['code', 'description'] });
+  const { filteredData: palletTypes, loading,
+    search,
+    filterBarProps, refresh, paginationProps } =
+    useEntityList<PalletType>({ fetchFn: fetchPalletTypes, searchFields: ['code', 'description'],
+    filterDefs: [searchFilter(t('palletTypes.searchPlaceholder'))], });
 
   useEffect(() => {
     refresh();
@@ -151,7 +154,7 @@ const PalletTypes: React.FC = () => {
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="w-full sm:flex-1 sm:max-w-md">
-            <SearchInput value={search} onChange={setSearch} placeholder={t('palletTypes.searchPlaceholder')} />
+            <FilterBar {...filterBarProps} />
           </div>
         </div>
 

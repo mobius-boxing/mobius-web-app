@@ -9,6 +9,7 @@ interface SearchInputProps {
   className?: string;
   showClear?: boolean;
   disabled?: boolean;
+  'data-testid'?: string;
 }
 
 export const SearchInput: React.FC<SearchInputProps> = ({
@@ -18,6 +19,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   className = '',
   showClear = true,
   disabled = false,
+  'data-testid': testId,
 }) => {
   const { t } = useTranslation();
 
@@ -45,6 +47,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
 
       <input
         type="text"
+        data-testid={testId}
         value={value}
         onChange={handleChange}
         placeholder={placeholder || t('common.search')}

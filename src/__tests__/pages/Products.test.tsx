@@ -1,11 +1,12 @@
 import React from 'react';
-import { screen, fireEvent, waitFor } from '@testing-library/react';
+import { screen, fireEvent, waitFor, act } from '@testing-library/react';
 import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import Products from '../../pages/Products';
-import { createMockProduct, createMockPaginatedResponse } from '../../test-utils/api.mock';
+import { createMockProduct, createMockCustomer, createMockPaginatedResponse } from '../../test-utils/api.mock';
 
 const mockGetProducts = jest.fn();
 const mockDeleteProduct = jest.fn();
+const mockGetCustomers = jest.fn();
 
 jest.mock('../../contexts/AuthContext', () =>
   require('../../test-utils/renderWithProviders').authContextMock()
@@ -15,6 +16,9 @@ jest.mock('../../services/api', () => ({
   productsApi: {
     getProducts: (...args: any[]) => mockGetProducts(...args),
     deleteProduct: (...args: any[]) => mockDeleteProduct(...args),
+  },
+  customersApi: {
+    getCustomers: (...args: any[]) => mockGetCustomers(...args),
   },
 }));
 
@@ -32,6 +36,10 @@ jest.mock('react-i18next', () => ({
         'products.addProduct': 'Add Product',
         'products.allProducts': 'All Products',
         'products.searchPlaceholder': 'Search products...',
+        'products.filters.customer': 'Customer',
+        'products.filters.customerPlaceholder': 'Search customer...',
+        'products.selectCustomerPrompt.title': 'Select a customer',
+        'products.selectCustomerPrompt.description': 'Choose a customer to see their products',
         'products.columns.code': 'Code',
         'products.columns.clientCode': 'Client Code',
         'products.columns.description': 'Description',
@@ -41,6 +49,10 @@ jest.mock('react-i18next', () => ({
         'products.empty.title': 'No products found',
         'products.empty.description': 'No results match your search',
         'products.empty.noData': 'Get started by creating your first product',
+        'filters.required': 'Required',
+        'filters.noResults': 'No results',
+        'filters.loading': 'Searching...',
+        'common.clear': 'Clear',
       };
       return translations[key] || key;
     },
@@ -69,21 +81,34 @@ const mockProducts = [
   createMockProduct({ uuid: 'prod-3', code: 'PROD-003', clientCode: 'CC-003', description: 'Display Box' }),
 ];
 
+const mockCustomer = createMockCustomer({ uuid: 'cust-1', name: 'Acme Corp' });
+
+/** Types into the customer autocomplete, opens the dropdown and selects the first option. */
+async function selectCustomer(label = 'Acme Corp') {
+  const combobox = screen.getByRole('combobox');
+  fireEvent.focus(combobox);
+  await waitFor(() => expect(mockGetCustomers).toHaveBeenCalled());
+  await waitFor(() => expect(screen.getByRole('option', { name: label })).toBeInTheDocument());
+  fireEvent.mouseDown(screen.getByRole('option', { name: label }));
+}
+
 describe('Products Page', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockGetCustomers.mockResolvedValue(createMockPaginatedResponse([mockCustomer]));
     // Unlike its sibling pages, Products renders `data` (the server's answer)
     // instead of useEntityList's client-side `filteredData`, so search is a
     // round trip: the fake API has to honour the `search` param the page sends.
     mockGetProducts.mockImplementation((params: any = {}) => {
       const term = String(params.search ?? '').toLowerCase();
+      const byCustomer = params.customerUuid ? mockProducts : [];
       const matches = term
-        ? mockProducts.filter((product) =>
+        ? byCustomer.filter((product) =>
             [product.code, product.clientCode, product.description, product.customerName].some(
               (field) => String(field ?? '').toLowerCase().includes(term)
             )
           )
-        : mockProducts;
+        : byCustomer;
       return Promise.resolve(createMockPaginatedResponse(matches));
     });
   });
@@ -103,55 +128,114 @@ describe('Products Page', () => {
       });
     });
 
-    it('should render search input', async () => {
+    it('should render the customer filter, focused-able, with the search input disabled', async () => {
       render(<Products />);
       await waitFor(() => {
-        expect(screen.getByPlaceholderText('Search products...')).toBeInTheDocument();
+        expect(screen.getByRole('combobox')).toBeInTheDocument();
       });
+      expect(screen.getByPlaceholderText('Search products...')).toBeDisabled();
     });
   });
 
-  describe('Data Loading', () => {
-    it('should fetch data on mount', async () => {
+  describe('Prompt state (AC-1)', () => {
+    it('shows the prompt and makes no products request before a customer is chosen', async () => {
       render(<Products />);
       await waitFor(() => {
-        expect(mockGetProducts).toHaveBeenCalled();
+        expect(screen.getByText('Select a customer')).toBeInTheDocument();
       });
+      expect(mockGetProducts).not.toHaveBeenCalled();
     });
+  });
 
-    it('should display data in table', async () => {
+  describe('Selecting a customer (AC-2)', () => {
+    it('debounces the customer lookup, then fetches products for the chosen customer at page 1', async () => {
+      jest.useFakeTimers({ doNotFake: ['queueMicrotask'] });
       render(<Products />);
+
+      const combobox = screen.getByRole('combobox');
+      fireEvent.focus(combobox);
+      await act(async () => {
+        await Promise.resolve();
+      });
+      mockGetCustomers.mockClear();
+
+      fireEvent.change(combobox, { target: { value: 'Acme' } });
+      act(() => {
+        jest.advanceTimersByTime(300);
+      });
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(mockGetCustomers).toHaveBeenCalledWith(
+        expect.objectContaining({ search: 'Acme', limit: 20 })
+      );
+
+      await waitFor(() => expect(screen.getByRole('option', { name: 'Acme Corp' })).toBeInTheDocument());
+      fireEvent.mouseDown(screen.getByRole('option', { name: 'Acme Corp' }));
+      jest.useRealTimers();
+
+      await waitFor(() => expect(mockGetProducts).toHaveBeenCalledTimes(1));
+      expect(mockGetProducts).toHaveBeenCalledWith(
+        expect.objectContaining({ customerUuid: 'cust-1', page: 1 })
+      );
       await waitFor(() => {
         expect(screen.getByText('PROD-001')).toBeInTheDocument();
-        expect(screen.getByText('PROD-002')).toBeInTheDocument();
       });
     });
 
-    it('should show loading state', () => {
-      mockGetProducts.mockImplementation(() => new Promise(() => {}));
+    it('shows the table skeleton, not the old spinner, while products are pending', async () => {
       render(<Products />);
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      mockGetProducts.mockImplementation(() => new Promise(() => {}));
+
+      await selectCustomer();
+
+      await waitFor(() => {
+        expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
+      });
+      expect(document.querySelector('.animate-spin')).not.toBeInTheDocument();
     });
   });
 
-  describe('Search Functionality', () => {
-    it('should filter by code', async () => {
+  describe('Clearing the customer (AC-3)', () => {
+    it('returns to the prompt state with no extra request', async () => {
       render(<Products />);
+      await selectCustomer();
+      await waitFor(() => expect(screen.getByText('PROD-001')).toBeInTheDocument());
+
+      const callsAfterSelect = mockGetProducts.mock.calls.length;
+      fireEvent.click(screen.getByRole('button', { name: 'Clear' }));
+
+      await waitFor(() => {
+        expect(screen.getByText('Select a customer')).toBeInTheDocument();
+      });
+      expect(mockGetProducts).toHaveBeenCalledTimes(callsAfterSelect);
+    });
+  });
+
+  describe('Search Functionality (AC-5)', () => {
+    it('sends search together with customerUuid, filtering by code', async () => {
+      render(<Products />);
+      await selectCustomer();
       await waitFor(() => {
         expect(screen.getByText('PROD-001')).toBeInTheDocument();
       });
 
       const searchInput = screen.getByPlaceholderText('Search products...');
+      expect(searchInput).not.toBeDisabled();
       fireEvent.change(searchInput, { target: { value: 'PROD-001' } });
 
       await waitFor(() => {
         expect(screen.getByText('PROD-001')).toBeInTheDocument();
         expect(screen.queryByText('PROD-002')).not.toBeInTheDocument();
       });
+      expect(mockGetProducts).toHaveBeenLastCalledWith(
+        expect.objectContaining({ search: 'PROD-001', customerUuid: 'cust-1' })
+      );
     });
 
-    it('should filter by description', async () => {
+    it('filters by description', async () => {
       render(<Products />);
+      await selectCustomer();
       await waitFor(() => {
         expect(screen.getByText('PROD-001')).toBeInTheDocument();
       });
@@ -165,8 +249,9 @@ describe('Products Page', () => {
       });
     });
 
-    it('should filter by client code', async () => {
+    it('filters by client code', async () => {
       render(<Products />);
+      await selectCustomer();
       await waitFor(() => {
         expect(screen.getByText('PROD-001')).toBeInTheDocument();
       });
@@ -193,12 +278,10 @@ describe('Products Page', () => {
 
     it('should refresh data on create success', async () => {
       render(<Products />);
+      await selectCustomer();
       await waitFor(() => {
-        expect(screen.getByText('Add Product')).toBeInTheDocument();
+        expect(screen.getByText('PROD-001')).toBeInTheDocument();
       });
-      // The page fetches twice on mount (useEntityList's autoFetch plus the
-      // page's own effectiveCompanyId effect), so pin the delta — one extra
-      // request caused by the create — rather than a magic total.
       const callsBeforeCreate = mockGetProducts.mock.calls.length;
 
       fireEvent.click(screen.getByText('Add Product'));
@@ -210,9 +293,10 @@ describe('Products Page', () => {
   });
 
   describe('Empty State', () => {
-    it('should show empty message when no data', async () => {
+    it('shows the "no products found" state for a chosen customer with zero results', async () => {
       mockGetProducts.mockResolvedValue(createMockPaginatedResponse([]));
       render(<Products />);
+      await selectCustomer();
       await waitFor(() => {
         expect(screen.getByText('No products found')).toBeInTheDocument();
       });

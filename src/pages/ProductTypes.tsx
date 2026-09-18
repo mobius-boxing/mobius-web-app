@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
+import { FilterBar, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -38,7 +38,7 @@ const ProductTypes: React.FC = () => {
     data: items,
     loading,
     search,
-    setSearch,
+    filterBarProps,
     refresh,
     pagination,
     paginationProps,
@@ -48,6 +48,7 @@ const ProductTypes: React.FC = () => {
   } = useEntityList<ProductType>({
     fetchFn: fetchItems,
     searchFields: ['code', 'name'],
+    filterDefs: [searchFilter(t('productTypes.searchPlaceholder'))],
   });
 
   useEffect(() => {
@@ -185,11 +186,7 @@ const ProductTypes: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex flex-wrap items-center gap-3">
             <div className="w-full sm:flex-1 sm:max-w-md">
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder={t('productTypes.searchPlaceholder')}
-              />
+              <FilterBar {...filterBarProps} />
             </div>
           </div>
         </div>

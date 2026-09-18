@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
+import { FilterBar, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -37,12 +37,13 @@ const ConsumableTypes: React.FC = () => {
     filteredData: consumableTypes,
     loading,
     search,
-    setSearch,
+    filterBarProps,
     refresh,
     paginationProps,
   } = useEntityList<ConsumableType>({
     fetchFn: fetchConsumableTypes,
     searchFields: ['code', 'name'],
+    filterDefs: [searchFilter(t('consumableTypes.searchPlaceholder'))],
   });
 
   useEffect(() => {
@@ -184,11 +185,7 @@ const ConsumableTypes: React.FC = () => {
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="flex flex-wrap items-center gap-3">
             <div className="w-full sm:flex-1 sm:max-w-md">
-              <SearchInput
-                value={search}
-                onChange={setSearch}
-                placeholder={t('consumableTypes.searchPlaceholder')}
-              />
+              <FilterBar {...filterBarProps} />
             </div>
           </div>
         </div>

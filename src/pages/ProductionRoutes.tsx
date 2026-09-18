@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { SearchInput } from '../components/ui/SearchInput';
+import { FilterBar, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -36,8 +36,10 @@ const ProductionRoutes: React.FC = () => {
     [effectiveCompanyId],
   );
 
-  const { filteredData: routes, loading, search, setSearch, refresh, paginationProps } =
-    useEntityList<ProductionRoute>({ fetchFn: fetchRoutes, searchFields: ['name'] });
+  const { filteredData: routes, loading,
+    filterBarProps, refresh, paginationProps } =
+    useEntityList<ProductionRoute>({ fetchFn: fetchRoutes, searchFields: ['name'],
+    filterDefs: [searchFilter(t('productionRoutes.searchPlaceholder'))], });
 
   useEffect(() => {
     refresh();
@@ -185,7 +187,7 @@ const ProductionRoutes: React.FC = () => {
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <div className="w-full sm:flex-1 sm:max-w-md">
-            <SearchInput value={search} onChange={setSearch} placeholder={t('productionRoutes.searchPlaceholder')} />
+            <FilterBar {...filterBarProps} />
           </div>
         </div>
 

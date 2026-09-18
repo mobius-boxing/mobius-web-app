@@ -7,13 +7,10 @@ import Pagination from '../ui/Pagination';
 import ConfirmModal from '../ui/ConfirmModal';
 import Modal from '../ui/Modal';
 import GenerateOrdersDialog from './GenerateOrdersDialog';
-import ProductionOrdersFilterBar from './ProductionOrdersFilterBar';
+import { useProductionOrdersFilterDefs } from './ProductionOrdersFilterBar';
 import ProductionOrderLifecycleControl from './ProductionOrderLifecycleControl';
-import {
-  ProductionOrder,
-  ProductionOrderListFilters,
-  SalesOrder,
-} from '../../types';
+import { FilterBar } from '../ui/filters';
+import { ProductionOrder, SalesOrder } from '../../types';
 import { productionOrdersApi, salesOrdersApi } from '../../services/api';
 import { useEntityList } from '../../hooks/useEntityList';
 import { useConfirmModal } from '../../hooks/useConfirmModal';
@@ -78,21 +75,24 @@ const ProductionOrdersGrid: React.FC<Props> = ({
     [effectiveCompanyId, salesOrderUuid],
   );
 
+  const filterDefs = useProductionOrdersFilterDefs();
+
   const {
     filteredData: orders,
     loading,
     search,
-    setSearch,
     refresh,
     paginationProps,
     sortBy,
     sortOrder,
     setSort,
     filters,
-    setFilters,
+    filterBarProps,
+    clearFilters,
   } = useEntityList<ProductionOrder>({
     fetchFn: fetchOrders,
     searchFields: ['number'],
+    filterDefs,
   });
 
   // Scope changes only. Filter changes are deliberately NOT here: they go
@@ -104,11 +104,9 @@ const ProductionOrdersGrid: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveCompanyId, salesOrderUuid]);
 
-  /** `Limpiar` — drops the filters and the free-text search, back to page 1. */
-  const handleClearFilters = () => {
-    setSearch('');
-    setFilters({});
-  };
+  const activeFilterCount =
+    Object.values(filters).filter((value) => value !== undefined && value !== '').length +
+    (search.trim() ? 1 : 0);
 
   // UI §7: the standalone page offers generation on demand, so it needs a
   // pedido to act on. Embedded under a pedido this list is already scoped.
@@ -259,13 +257,21 @@ const ProductionOrdersGrid: React.FC<Props> = ({
   return (
     <div className="space-y-3" data-testid="production-orders-list">
       {!compact && (
-        <ProductionOrdersFilterBar
-          value={filters as ProductionOrderListFilters}
-          onChange={setFilters}
-          search={search}
-          onSearchChange={setSearch}
-          onClear={handleClearFilters}
-        />
+        <div className="gd-filters" data-testid="production-orders-filter-bar">
+          <div className="gd-filters-head">
+            <span className="gd-eyebrow">{t('productionOrders.filters.legend')}</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              disabled={activeFilterCount === 0}
+              data-testid="filter-clear"
+              onClick={clearFilters}
+            >
+              {t('productionOrders.filters.clear')}
+            </Button>
+          </div>
+          <FilterBar {...filterBarProps} className="gd-filters-grid" />
+        </div>
       )}
 
       {/* The generation action gets its own row — sharing one wrapping flex

@@ -2,12 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SearchInput } from '../ui/SearchInput';
 import Button from '../ui/Button';
+import { FilterBar, FilterDef, FilterOption } from '../ui/filters';
 import { SalesOrderListFilters } from '../../types';
-import {
-  customersApi,
-  paperSheetsApi,
-  productsApi,
-} from '../../services/api';
+import { customersApi, paperSheetsApi, productsApi } from '../../services/api';
 import { logger } from '../../utils/logger';
 
 /** The exclusive `radioTipoPedido` pair (PedidosForm.cs:258-260; 'parte' removed). */
@@ -65,12 +62,18 @@ interface Props {
  * The pedido filter bar (`PedidosForm.ActualizarGrilla`, PedidosForm.cs:252-273).
  *
  * Fully controlled and presentational: it owns no list state and issues no
- * list request. The only fetching it does is the four lookup option lists.
+ * list request beyond the entity lookups. State stays with the grid
+ * (`SalesOrderListFilters`, plain strings — the API contract), which is why
+ * cliente/producto each keep a LOCAL `FilterOption` cache here: it is
+ * what lets the autocomplete show a label without re-resolving the uuid.
  *
  * `Cumplidos` / `Anulados` SWITCH the list (checked ⇒ only fulfilled / only
  * voided); unchecked sends an explicit `false`, which is what makes the grid
  * hide fulfilled and voided pedidos by default — parity with
- * `PedidoRepository.cs:89-97`, not an "also include" toggle.
+ * `PedidoRepository.cs:89-97`, not an "also include" toggle. Neither fits a
+ * generic `FilterDef` kind, so — like the radio pair and the free plancha
+ * lookup, which the brief left unconverted — they stay bespoke, driven by
+ * the very same `emit`.
  */
 const SalesOrdersFilterBar: React.FC<Props> = ({
   value,
@@ -82,61 +85,87 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
 }) => {
   const { t } = useTranslation();
   const [itemType, setItemType] = useState<ItemType>('');
-  const [customers, setCustomers] = useState<Option[]>([]);
-  const [itemOptions, setItemOptions] = useState<Option[]>([]);
+  const [customerOption, setCustomerOption] = useState<FilterOption>();
+  const [productOption, setProductOption] = useState<FilterOption>();
+  const [sheetOptions, setSheetOptions] = useState<Option[]>([]);
 
+  // The plain-string uuid is the source of truth (it is what `value` carries
+  // and what `Limpiar` restores); the cached label follows it down rather
+  // than the other way around.
   useEffect(() => {
-    let cancelled = false;
-    const load = async () => {
-      try {
-        const page = await customersApi.getCustomers({
-          limit: 100,
-          ...(companyId ? { companyId } : {}),
-        });
-        if (cancelled) return;
-        setCustomers(
+    if (!value.customerUuid) setCustomerOption(undefined);
+  }, [value.customerUuid]);
+  useEffect(() => {
+    if (!value.productUuid) setProductOption(undefined);
+  }, [value.productUuid]);
+
+  const companyScope = useCallback(
+    () => (companyId ? { companyId } : {}),
+    [companyId],
+  );
+
+  const customerScope = useCallback(
+    () => (customerOption ? { customerUuid: customerOption.value } : {}),
+    [customerOption],
+  );
+
+  const loadCustomerOptions = useCallback(
+    (term: string) =>
+      customersApi
+        .getCustomers({ search: term, limit: 20, ...companyScope() })
+        .then((page) =>
           page.data.map((customer) => ({
-            uuid: customer.uuid,
+            value: customer.uuid,
             label: customer.name ?? customer.uuid,
           })),
-        );
-      } catch (error) {
-        logger.error('Error loading customers for the pedido filter:', error);
-      }
-    };
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [companyId]);
+        )
+        .catch((error) => {
+          logger.error('Error loading customers for the pedido filter:', error);
+          return [];
+        }),
+    [companyScope],
+  );
 
+  /**
+   * Producto narrows to the chosen cliente once there is one; with none
+   * picked it searches the whole company, so the list can still be filtered by
+   * item alone as it always could.
+   */
+  const loadProductOptions = useCallback(
+    (term: string) => {
+      return productsApi
+        .getProducts({ search: term, limit: 20, ...customerScope(), ...companyScope() })
+        .then((page) =>
+          page.data.map((product) => ({
+            value: product.uuid,
+            label: `${product.code} - ${product.description ?? ''}`.trim(),
+          })),
+        )
+        .catch((error) => {
+          logger.error('Error loading the pedido product lookup:', error);
+          return [];
+        });
+    },
+    [customerScope, companyScope],
+  );
+
+  // The plancha lookup is unscoped by design (brief AC-12 lists only cliente
+  // / producto for conversion): it stays a plain, eagerly-loaded
+  // select exactly as it was.
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
-      if (!itemType) {
-        setItemOptions([]);
+      if (itemType !== 'sheet') {
+        setSheetOptions([]);
         return;
       }
-      const scope = companyId ? { companyId } : {};
       try {
-        if (itemType === 'product') {
-          const page = await productsApi.getProducts({ limit: 100, ...scope });
-          if (!cancelled) {
-            setItemOptions(
-              page.data.map((product) => ({
-                uuid: product.uuid,
-                label: `${product.code} - ${product.description ?? ''}`.trim(),
-              })),
-            );
-          }
-          return;
-        }
         const page = await paperSheetsApi.getPaperSheets({
           limit: 100,
-          ...scope,
+          ...companyScope(),
         });
         if (!cancelled) {
-          setItemOptions(
+          setSheetOptions(
             page.data.map((sheet) => ({
               uuid: sheet.uuid,
               label: `${sheet.code} - ${sheet.name ?? ''}`.trim(),
@@ -144,15 +173,15 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
           );
         }
       } catch (error) {
-        logger.error('Error loading the pedido item lookup:', error);
-        if (!cancelled) setItemOptions([]);
+        logger.error('Error loading the pedido plancha lookup:', error);
+        if (!cancelled) setSheetOptions([]);
       }
     };
     void load();
     return () => {
       cancelled = true;
     };
-  }, [itemType, companyId]);
+  }, [itemType, companyScope]);
 
   /** One whole filter object per change; empty values are omitted, not sent. */
   const emit = useCallback(
@@ -168,26 +197,102 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
     [onChange, value],
   );
 
+  const handleCustomerChange = (next: FilterOption | undefined) => {
+    setCustomerOption(next);
+    setProductOption(undefined);
+    emit({ customerUuid: next?.value, productUuid: undefined });
+  };
+
   /** Selecting a type clears the other uuid — at most one is ever sent. */
   const selectItemType = (next: ItemType) => {
     setItemType(next);
+    setProductOption(undefined);
     emit({
       productUuid: undefined,
       sheetSupplyUuid: undefined,
     });
   };
 
-  /** null with no radio selected — never a silent fallback to one of the two. */
-  const itemUuidKey: keyof SalesOrderListFilters | null =
+  const topDefs: FilterDef[] = [
+    {
+      kind: 'entity',
+      key: 'customerUuid',
+      label: t('salesOrders.filters.customer'),
+      placeholder: t('salesOrders.filters.customerPlaceholder'),
+      loadOptions: loadCustomerOptions,
+      testId: 'filter-customer',
+      className: 'w-full sm:w-64',
+    },
+    {
+      kind: 'date',
+      key: 'deliveryDateFrom',
+      label: t('salesOrders.filters.deliveryDateFrom'),
+      testId: 'filter-delivery-from',
+      className: 'w-full sm:w-48',
+    },
+    {
+      kind: 'date',
+      key: 'deliveryDateTo',
+      label: t('salesOrders.filters.deliveryDateTo'),
+      testId: 'filter-delivery-to',
+      className: 'w-full sm:w-48',
+    },
+  ];
+
+  const itemDef: FilterDef =
     itemType === 'product'
-      ? 'productUuid'
+      ? {
+          kind: 'entity',
+          key: 'productUuid',
+          label: '',
+          placeholder: t('salesOrders.filters.allItems'),
+          loadOptions: loadProductOptions,
+          testId: 'filter-item',
+          className: 'w-72',
+        }
       : itemType === 'sheet'
-        ? 'sheetSupplyUuid'
-        : null;
+        ? {
+            kind: 'select',
+            key: 'sheetSupplyUuid',
+            label: '',
+            placeholder: t('salesOrders.filters.allItems'),
+            options: sheetOptions.map((option) => ({ value: option.uuid, label: option.label })),
+            testId: 'filter-item',
+            className: 'w-72',
+          }
+        : {
+            kind: 'select',
+            key: 'itemUuid',
+            label: '',
+            placeholder: t('salesOrders.filters.allItems'),
+            options: [],
+            disabled: true,
+            testId: 'filter-item',
+            className: 'w-72',
+          };
+
+  const itemValue: unknown =
+    itemDef.key === 'productUuid' ? productOption : value.sheetSupplyUuid;
+
+  const handleTopChange = (key: string, next: unknown) => {
+    if (key === 'customerUuid') return handleCustomerChange(next as FilterOption | undefined);
+    if (key === 'deliveryDateFrom') return emit({ deliveryDateFrom: next as string });
+    if (key === 'deliveryDateTo') return emit({ deliveryDateTo: next as string });
+  };
+
+  const handleItemChange = (key: string, next: unknown) => {
+    if (key === 'productUuid') {
+      setProductOption(next as FilterOption | undefined);
+      return emit({ productUuid: (next as FilterOption | undefined)?.value });
+    }
+    if (key === 'sheetSupplyUuid') return emit({ sheetSupplyUuid: (next as string) || undefined });
+  };
 
   const handleClear = () => {
     setItemType('');
-    setItemOptions([]);
+    setSheetOptions([]);
+    setCustomerOption(undefined);
+    setProductOption(undefined);
     onClear();
   };
 
@@ -209,47 +314,7 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
             onChange={(event) => emit({ number: event.target.value })}
           />
         </label>
-        <label className="text-sm text-secondary-700">
-          {t('salesOrders.filters.customer')}
-          <select
-            name="customerUuid"
-            className="input-field mt-1"
-            data-testid="filter-customer"
-            value={value.customerUuid ?? ''}
-            onChange={(event) => emit({ customerUuid: event.target.value })}
-          >
-            <option value="">{t('salesOrders.filters.allCustomers')}</option>
-            {customers.map((customer) => (
-              <option key={customer.uuid} value={customer.uuid}>
-                {customer.label}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="text-sm text-secondary-700">
-          {t('salesOrders.filters.deliveryDateFrom')}
-          <input
-            type="date"
-            name="deliveryDateFrom"
-            className="input-field mt-1"
-            data-testid="filter-delivery-from"
-            value={value.deliveryDateFrom ?? ''}
-            onChange={(event) =>
-              emit({ deliveryDateFrom: event.target.value })
-            }
-          />
-        </label>
-        <label className="text-sm text-secondary-700">
-          {t('salesOrders.filters.deliveryDateTo')}
-          <input
-            type="date"
-            name="deliveryDateTo"
-            className="input-field mt-1"
-            data-testid="filter-delivery-to"
-            value={value.deliveryDateTo ?? ''}
-            onChange={(event) => emit({ deliveryDateTo: event.target.value })}
-          />
-        </label>
+        <FilterBar defs={topDefs} values={{ ...value, customerUuid: customerOption }} onChange={handleTopChange} />
       </div>
 
       {/* Row 2 — the exclusive producto / plancha pair */}
@@ -280,23 +345,7 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
             {t('salesOrders.filters.clearType')}
           </Button>
         </div>
-        <select
-          name="itemUuid"
-          className="input-field w-72"
-          data-testid="filter-item"
-          disabled={!itemUuidKey}
-          value={itemUuidKey ? (value[itemUuidKey] ?? '') : ''}
-          onChange={(event) => {
-            if (itemUuidKey) emit({ [itemUuidKey]: event.target.value });
-          }}
-        >
-          <option value="">{t('salesOrders.filters.allItems')}</option>
-          {itemOptions.map((option) => (
-            <option key={option.uuid} value={option.uuid}>
-              {option.label}
-            </option>
-          ))}
-        </select>
+        <FilterBar defs={[itemDef]} values={{ [itemDef.key]: itemValue }} onChange={handleItemChange} />
       </div>
 
       {/* Row 3 — the four checkboxes */}

@@ -1048,7 +1048,15 @@
       "route": "3. Production Route & Supplies",
       "palletizing": "4. Palletizing & Notes"
     },
-    "saveButton": "Save Product"
+    "saveButton": "Save Product",
+    "filters": {
+      "customer": "Customer",
+      "customerPlaceholder": "Search customer…"
+    },
+    "selectCustomerPrompt": {
+      "title": "Select a customer",
+      "description": "Choose a customer to see their products"
+    }
   },
   "manufacturers": {
     "title": "Manufacturers",
@@ -2546,6 +2554,7 @@
     "filters": {
       "number": "Number",
       "customer": "Customer",
+      "customerPlaceholder": "Search customer…",
       "allCustomers": "All customers",
       "deliveryDateFrom": "Delivery date from",
       "deliveryDateTo": "Delivery date to",
@@ -2877,5 +2886,12 @@
       "unknownMessage": "We're requesting approval for this device. If it takes a while, you can try again.",
       "requestApproval": "Request approval"
     }
+  },
+  "filters": {
+    "required": "Required",
+    "clear": "Clear filters",
+    "noResults": "No results",
+    "loading": "Searching…",
+    "searchPlaceholder": "Search…"
   }
 }
