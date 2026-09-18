@@ -356,6 +356,28 @@ describe('AuditLogs page', () => {
         )
       );
     });
+
+    // ── column-filters rich-bars ───────────────────────────────────────────
+    it('sends entityCode once the advanced text filter is set', async () => {
+      render(<AuditLogs />, { user: readOnlyUser });
+      await screen.findByText('DEP-01');
+
+      fireEvent.click(screen.getByRole('button', { name: es.filters.advanced }));
+
+      // "Registro" also labels the record column; the filter bar's own
+      // `<label>` (targeted here) renders before the Table header.
+      const [label] = screen.getAllByText(es.auditLogs.columns.record);
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'DEP' } });
+
+      await waitFor(
+        () =>
+          expect(mockListAuditLogs).toHaveBeenLastCalledWith(
+            expect.objectContaining({ entityCode: 'DEP' })
+          ),
+        { timeout: 2000 }
+      );
+    });
   });
 
   describe('CSV export', () => {

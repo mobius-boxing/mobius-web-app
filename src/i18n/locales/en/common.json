@@ -2892,6 +2892,27 @@
     "clear": "Clear filters",
     "noResults": "No results",
     "loading": "Searching…",
-    "searchPlaceholder": "Search…"
+    "searchPlaceholder": "Search…",
+    "advanced": "Advanced filters",
+    "boolean": {
+      "yes": "Yes",
+      "no": "No"
+    },
+    "range": {
+      "from": "from",
+      "to": "to"
+    },
+    "options": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "cancelled": "Cancelled",
+      "Alta": "Created",
+      "Baja": "Deleted",
+      "Modificacion": "Modified"
+    },
+    "columns": {
+      "createdAt": "Created",
+      "approvalState": "Approval state"
+    }
   }
 }

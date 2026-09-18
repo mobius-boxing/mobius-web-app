@@ -75,73 +75,10 @@ const ProductionOrdersGrid: React.FC<Props> = ({
     [effectiveCompanyId, salesOrderUuid],
   );
 
-  const filterDefs = useProductionOrdersFilterDefs();
-
-  const {
-    filteredData: orders,
-    loading,
-    search,
-    refresh,
-    paginationProps,
-    sortBy,
-    sortOrder,
-    setSort,
-    filters,
-    filterBarProps,
-    clearFilters,
-  } = useEntityList<ProductionOrder>({
-    fetchFn: fetchOrders,
-    searchFields: ['number'],
-    filterDefs,
-  });
-
-  // Scope changes only. Filter changes are deliberately NOT here: they go
-  // through `setFilters`, which resets to page 1 and refetches on its own.
-  // Refreshing here too would fire the request twice — the second at the stale
-  // page number, which is what made a filter change on page 4 return nothing.
-  useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveCompanyId, salesOrderUuid]);
-
-  const activeFilterCount =
-    Object.values(filters).filter((value) => value !== undefined && value !== '').length +
-    (search.trim() ? 1 : 0);
-
-  // UI §7: the standalone page offers generation on demand, so it needs a
-  // pedido to act on. Embedded under a pedido this list is already scoped.
-  const canGenerate = has('production-orders.generate');
-  useEffect(() => {
-    if (salesOrderUuid || compact || !canGenerate) return;
-    let cancelled = false;
-    salesOrdersApi
-      .getSalesOrders({ limit: 100, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) })
-      .then((page) => {
-        if (!cancelled) setSalesOrders(page.data || []);
-      })
-      .catch((err) => logger.error('Error loading sales orders:', err));
-    return () => {
-      cancelled = true;
-    };
-  }, [salesOrderUuid, compact, canGenerate, effectiveCompanyId]);
-
-  const handleDelete = (order: ProductionOrder) => {
-    confirmModal.showConfirm({
-      title: t('confirmModal.deleteTitle'),
-      message: t('productionOrders.deleteConfirm'),
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          await productionOrdersApi.deleteProductionOrder(order.uuid);
-          await refresh();
-          onOrdersChanged?.();
-        } catch (err) {
-          logger.error('Error deleting production order:', err);
-        }
-      },
-    });
-  };
-
+  // Declared ahead of filterDefs/useEntityList so `columnFilterDefs` can read
+  // column headers for its labels; the `render` closures reference
+  // `handleDelete`/`setDetail`, which only run once Table invokes them — well
+  // after those consts are initialized (page-filters lesson).
   const columns = [
     {
       key: 'number',
@@ -253,6 +190,73 @@ const ProductionOrdersGrid: React.FC<Props> = ({
       ),
     },
   ];
+
+  const filterDefs = useProductionOrdersFilterDefs(columns, effectiveCompanyId);
+
+  const {
+    filteredData: orders,
+    loading,
+    search,
+    refresh,
+    paginationProps,
+    sortBy,
+    sortOrder,
+    setSort,
+    filters,
+    filterBarProps,
+    clearFilters,
+  } = useEntityList<ProductionOrder>({
+    fetchFn: fetchOrders,
+    searchFields: ['number'],
+    filterDefs,
+  });
+
+  // Scope changes only. Filter changes are deliberately NOT here: they go
+  // through `setFilters`, which resets to page 1 and refetches on its own.
+  // Refreshing here too would fire the request twice — the second at the stale
+  // page number, which is what made a filter change on page 4 return nothing.
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId, salesOrderUuid]);
+
+  const activeFilterCount =
+    Object.values(filters).filter((value) => value !== undefined && value !== '').length +
+    (search.trim() ? 1 : 0);
+
+  // UI §7: the standalone page offers generation on demand, so it needs a
+  // pedido to act on. Embedded under a pedido this list is already scoped.
+  const canGenerate = has('production-orders.generate');
+  useEffect(() => {
+    if (salesOrderUuid || compact || !canGenerate) return;
+    let cancelled = false;
+    salesOrdersApi
+      .getSalesOrders({ limit: 100, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) })
+      .then((page) => {
+        if (!cancelled) setSalesOrders(page.data || []);
+      })
+      .catch((err) => logger.error('Error loading sales orders:', err));
+    return () => {
+      cancelled = true;
+    };
+  }, [salesOrderUuid, compact, canGenerate, effectiveCompanyId]);
+
+  const handleDelete = (order: ProductionOrder) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('productionOrders.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          await productionOrdersApi.deleteProductionOrder(order.uuid);
+          await refresh();
+          onOrdersChanged?.();
+        } catch (err) {
+          logger.error('Error deleting production order:', err);
+        }
+      },
+    });
+  };
 
   return (
     <div className="space-y-3" data-testid="production-orders-list">

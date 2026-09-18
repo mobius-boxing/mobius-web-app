@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () =>
 
 jest.mock('../../services/api', () => ({
   customerCategoriesApi: {
-    getCategories: () => mockGetCategories(),
+    getCategories: (...args: any[]) => mockGetCategories(...args),
     deleteCategory: (...args: any[]) => mockDeleteCategory(...args),
   },
 }));
@@ -33,11 +33,13 @@ jest.mock('react-i18next', () => ({
         'customerCategories.allCategories': 'All Categories',
         'customerCategories.searchPlaceholder': 'Search categories...',
         'customerCategories.columns.name': 'Name',
+        'customerCategories.columns.categoryName': 'Category Name',
         'customerCategories.columns.created': 'Created',
         'customerCategories.columns.actions': 'Actions',
         'customerCategories.empty.title': 'No categories found',
         'customerCategories.empty.description': 'No results match your search',
         'customerCategories.empty.noData': 'Get started by creating your first category',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -181,6 +183,30 @@ describe('CustomerCategories Page', () => {
       await waitFor(() => {
         expect(screen.getByText('No categories found')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Advanced filters', () => {
+    it('sends name once the advanced text filter is set', async () => {
+      render(<CustomerCategories />);
+      await waitFor(() => {
+        expect(screen.getByText('Retail')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Category Name');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'Retail' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetCategories).toHaveBeenLastCalledWith(
+            expect.objectContaining({ name: 'Retail' })
+          );
+        },
+        { timeout: 2000 }
+      );
     });
   });
 });

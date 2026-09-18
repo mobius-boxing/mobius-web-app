@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Layers } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { GlueType } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
@@ -34,18 +35,6 @@ const GlueTypes: React.FC = () => {
     return glueTypesApi.getGlueTypes(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: glueTypes,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<GlueType>({
-    fetchFn: fetchGlueTypes,
-    searchFields: ['code', 'description'],
-    filterDefs: [searchFilter(t('glueTypes.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -152,6 +141,29 @@ const GlueTypes: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('glueTypes.searchPlaceholder')),
+      ...columnFilterDefs('glue-types', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: glueTypes,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<GlueType>({
+    fetchFn: fetchGlueTypes,
+    searchFields: ['code', 'description'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

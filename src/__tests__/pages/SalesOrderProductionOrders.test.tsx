@@ -107,6 +107,13 @@ describe('the associated production orders page (AC-25, AC-35)', () => {
     expect(screen.queryByTestId('op-tick-completed')).toBeNull();
   });
 
+  it('has no advanced-filters panel (column-filters: endpoint carries no filter config at all)', async () => {
+    render(<SalesOrderProductionOrders />);
+
+    await screen.findByText('PT-1');
+    expect(screen.queryByText('##filters.advanced##')).toBeNull();
+  });
+
   it('offers a back link and no edit or delete control (PLS parity)', async () => {
     render(<SalesOrderProductionOrders />);
 

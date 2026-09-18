@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Plus, Trash2, Edit, User as UserIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Customer } from '../types';
@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { FilterBar, searchFilter } from '../components/ui/filters';
+import { FilterBar, FilterDef, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
@@ -17,6 +17,7 @@ import EditCustomerModal from '../components/modals/EditCustomerModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
 import { historyColumn } from '../components/audit/historyColumn';
+import { columnFilterDefs } from '../filters/columnFilters';
 
 const Customers: React.FC = () => {
   const { t } = useTranslation();
@@ -34,65 +35,16 @@ const Customers: React.FC = () => {
     return customersApi.getCustomers(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: customers,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<Customer>({
-    fetchFn: fetchCustomers,
-    searchFields: ['name', 'supplierCode', 'categoryName', 'salesPersonName'],
-    filterDefs: [searchFilter(t('customers.searchPlaceholder'))],
-  });
-
-  useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveCompanyId]);
-
-  const handleEdit = (customer: Customer) => {
-    setSelectedCustomer(customer);
-    setShowEditModal(true);
-  };
-
-  const handleDelete = (customerId: string) => {
-    confirmModal.showConfirm({
-      title: t('confirmModal.deleteTitle'),
-      message: t('customers.deleteConfirm'),
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          setActionLoading(customerId);
-          await customersApi.deleteCustomer(customerId);
-          await refresh();
-        } catch (error: any) {
-          logger.error('Error deleting customer:', error);
-        } finally {
-          setActionLoading(null);
-        }
-      },
-    });
-  };
-
-  const handleCreateSuccess = () => {
-    setShowCreateModal(false);
-    refresh();
-  };
-
-  const handleEditSuccess = () => {
-    setShowEditModal(false);
-    setSelectedCustomer(null);
-    refresh();
-  };
-
   const getStatusBadgeColor = (isActive: boolean) => {
     return isActive
       ? 'gd-badge-positive'
       : 'gd-badge-negative';
   };
 
+  // Declared ahead of filterDefs/useEntityList so `columnFilterDefs` can read
+  // column headers for its labels; the `render` closures reference
+  // `handleEdit`/`handleDelete`/`actionLoading`, which only run once Table
+  // invokes them — well after those consts are initialized (page-filters lesson).
   const columns = [
     {
       key: 'name',
@@ -185,6 +137,68 @@ const Customers: React.FC = () => {
     },
   ];
 
+  const filterDefs: FilterDef[] = useMemo(
+    () => [
+      searchFilter(t('customers.searchPlaceholder')),
+      ...columnFilterDefs('customers', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: customers,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<Customer>({
+    fetchFn: fetchCustomers,
+    searchFields: ['name', 'supplierCode', 'categoryName', 'salesPersonName'],
+    filterDefs,
+  });
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
+
+  const handleEdit = (customer: Customer) => {
+    setSelectedCustomer(customer);
+    setShowEditModal(true);
+  };
+
+  const handleDelete = (customerId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('customers.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(customerId);
+          await customersApi.deleteCustomer(customerId);
+          await refresh();
+        } catch (error: any) {
+          logger.error('Error deleting customer:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
+  };
+
+  const handleCreateSuccess = () => {
+    setShowCreateModal(false);
+    refresh();
+  };
+
+  const handleEditSuccess = () => {
+    setShowEditModal(false);
+    setSelectedCustomer(null);
+    refresh();
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -205,11 +219,7 @@ const Customers: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="w-full sm:flex-1 sm:max-w-md">
-              <FilterBar {...filterBarProps} />
-            </div>
-          </div>
+          <FilterBar {...filterBarProps} />
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Tag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { CustomerCategory } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
@@ -34,18 +35,6 @@ const CustomerCategories: React.FC = () => {
     return customerCategoriesApi.getCategories(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: categories,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<CustomerCategory>({
-    fetchFn: fetchCategories,
-    searchFields: ['name'],
-    filterDefs: [searchFilter(t('customerCategories.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -148,6 +137,29 @@ const CustomerCategories: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('customerCategories.searchPlaceholder')),
+      ...columnFilterDefs('customer-categories', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: categories,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<CustomerCategory>({
+    fetchFn: fetchCategories,
+    searchFields: ['name'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

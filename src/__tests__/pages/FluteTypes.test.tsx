@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () =>
 
 jest.mock('../../services/api', () => ({
   fluteTypesApi: {
-    getFluteTypes: () => mockGetFluteTypes(),
+    getFluteTypes: (...args: any[]) => mockGetFluteTypes(...args),
     deleteFluteType: (...args: any[]) => mockDeleteFluteType(...args),
   },
 }));
@@ -40,6 +40,7 @@ jest.mock('react-i18next', () => ({
         'fluteTypes.empty.title': 'No flute types found',
         'fluteTypes.empty.description': 'No results match your search',
         'fluteTypes.empty.noData': 'Get started by creating your first flute type',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -166,6 +167,30 @@ describe('FluteTypes Page', () => {
       await waitFor(() => {
         expect(screen.getByText('No flute types found')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Advanced filters', () => {
+    it('sends code once the advanced text filter is set', async () => {
+      render(<FluteTypes />);
+      await waitFor(() => {
+        expect(screen.getByText('FT-001')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Code');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'FT-001' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetFluteTypes).toHaveBeenLastCalledWith(
+            expect.objectContaining({ code: 'FT-001' })
+          );
+        },
+        { timeout: 2000 }
+      );
     });
   });
 });

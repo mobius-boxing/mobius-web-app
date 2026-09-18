@@ -1656,6 +1656,18 @@ export interface SalesOrderListFilters {
   onlyApproved?: 'true' | 'false';
   withoutProductionOrders?: 'true' | 'false';
   allProductionOrdersFulfilled?: 'true' | 'false';
+  // column-filters rich-bars: the advanced panel's own extra columns.
+  createdAtFrom?: string;
+  createdAtTo?: string;
+  purchaseOrder?: string;
+  quantityFrom?: string;
+  quantityTo?: string;
+  supplierCode?: string;
+  salesUserUuid?: string;
+  needsAdvanceInvoice?: 'true' | 'false';
+  invoiceSent?: 'true' | 'false';
+  priceFrom?: string;
+  priceTo?: string;
 }
 
 /**
@@ -1674,6 +1686,15 @@ export type ProductionOrderListFilters = {
   voidState?: 'active' | 'voided';
   deliveryDateFrom?: string;
   deliveryDateTo?: string;
+  // column-filters rich-bars: the advanced panel's own extra columns.
+  number?: string;
+  salesOrderUuid?: string;
+  customerUuid?: string;
+  productUuid?: string;
+  quantityFrom?: string;
+  quantityTo?: string;
+  orderDateFrom?: string;
+  orderDateTo?: string;
 };
 
 /** What the "Alta de Pedido" form POSTs / PUTs. `number` is server-generated. */

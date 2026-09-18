@@ -21,6 +21,8 @@ interface FilterBase {
   disabled?: boolean;
   /** `data-testid` on the rendered control, for a page migrating off a bespoke bar. */
   testId?: string;
+  /** Rendered inside the collapsible "advanced filters" panel, not the primary row. */
+  advanced?: boolean;
 }
 
 export interface TextFilterDef extends FilterBase {
@@ -50,7 +52,13 @@ export interface DateFilterDef extends FilterBase {
   kind: 'date';
 }
 
-export type FilterDef = TextFilterDef | SelectFilterDef | EntityFilterDef | DateFilterDef;
+export interface NumberFilterDef extends FilterBase {
+  kind: 'number';
+  min?: number;
+  max?: number;
+}
+
+export type FilterDef = TextFilterDef | SelectFilterDef | EntityFilterDef | DateFilterDef | NumberFilterDef;
 
 export type FilterValues = Record<string, string | undefined>;
 

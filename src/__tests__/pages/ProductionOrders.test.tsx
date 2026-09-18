@@ -238,4 +238,24 @@ describe('the filter bar', () => {
     );
     expect(screen.getByTestId('filter-void-state')).toHaveValue('');
   });
+
+  // ── column-filters rich-bars ─────────────────────────────────────────────
+  it('sends quantityFrom once the advanced number filter is set', async () => {
+    render(<ProductionOrders />);
+    await waitFor(() => expect(mockGetProductionOrders).toHaveBeenCalled());
+
+    fireEvent.click(screen.getByRole('button', { name: /filters\.advanced/ }));
+
+    const label = screen.getByText(
+      'productionOrders.columns.quantity · filters.range.from',
+    );
+    const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: '50' } });
+
+    await waitFor(() =>
+      expect(mockGetProductionOrders).toHaveBeenLastCalledWith(
+        expect.objectContaining({ quantityFrom: '50' }),
+      ),
+    );
+  });
 });

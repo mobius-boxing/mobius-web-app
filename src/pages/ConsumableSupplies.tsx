@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ConsumableSupply } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -33,18 +34,6 @@ const ConsumableSupplies: React.FC = () => {
     return consumableSuppliesApi.getConsumableSupplies(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: consumableSupplies,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<ConsumableSupply>({
-    fetchFn: fetchConsumableSupplies,
-    searchFields: ['code', 'name', 'description'],
-    filterDefs: [searchFilter(t('consumableSupplies.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -179,6 +168,29 @@ const ConsumableSupplies: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('consumableSupplies.searchPlaceholder')),
+      ...columnFilterDefs('consumable-supplies', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: consumableSupplies,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<ConsumableSupply>({
+    fetchFn: fetchConsumableSupplies,
+    searchFields: ['code', 'name', 'description'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

@@ -374,6 +374,7 @@ const SalesOrdersGrid: React.FC = () => {
         onSearchChange={list.setSearch}
         onClear={clearAll}
         companyId={effectiveCompanyId}
+        columns={columns}
       />
 
       {actionError && (

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, FileText } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperSheet } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -34,18 +35,6 @@ const PaperSheets: React.FC = () => {
     return paperSheetsApi.getPaperSheets(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: paperSheets,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<PaperSheet>({
-    fetchFn: fetchPaperSheets,
-    searchFields: ['code', 'name', 'description'],
-    filterDefs: [searchFilter(t('paperSheets.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -188,6 +177,29 @@ const PaperSheets: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('paperSheets.searchPlaceholder')),
+      ...columnFilterDefs('paper-sheets', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: paperSheets,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<PaperSheet>({
+    fetchFn: fetchPaperSheets,
+    searchFields: ['code', 'name', 'description'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

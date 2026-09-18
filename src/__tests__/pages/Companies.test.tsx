@@ -400,6 +400,31 @@ describe('Companies Page', () => {
     });
   });
 
+  describe('Advanced filters', () => {
+    it('sends name once the advanced text filter is set', async () => {
+      renderCompanies();
+
+      await waitFor(() => {
+        expect(screen.getByText('Company A')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Company');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'Acme' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetCompanies).toHaveBeenLastCalledWith(
+            expect.objectContaining({ name: 'Acme' })
+          );
+        },
+        { timeout: 2000 }
+      );
+    });
+  });
+
   describe('Status Badges', () => {
     it('should show green badge for active companies', async () => {
       renderCompanies();

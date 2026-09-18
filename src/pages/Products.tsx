@@ -16,6 +16,7 @@ import ProductFormModal from '../components/products/ProductFormModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
 import { historyColumn } from '../components/audit/historyColumn';
+import { columnFilterDefs } from '../filters/columnFilters';
 
 const Products: React.FC = () => {
   const { t } = useTranslation();
@@ -46,84 +47,10 @@ const Products: React.FC = () => {
     [effectiveCompanyId]
   );
 
-  const filterDefs: FilterDef[] = useMemo(
-    () => [
-      searchFilter(t('products.searchPlaceholder')),
-      {
-        kind: 'entity',
-        key: 'customerUuid',
-        label: t('products.filters.customer'),
-        placeholder: t('products.filters.customerPlaceholder'),
-        required: true,
-        loadOptions: loadCustomerOptions,
-      },
-    ],
-    [t, loadCustomerOptions]
-  );
-
-  const {
-    data: products,
-    loading,
-    search,
-    filtersReady,
-    filterBarProps,
-    clearFilters,
-    refresh,
-    pagination,
-    paginationProps,
-    sortBy,
-    sortOrder,
-    setSort,
-  } = useEntityList<Product>({
-    fetchFn: fetchProducts,
-    searchFields: ['code', 'clientCode', 'description'],
-    filterDefs,
-  });
-
-  useEffect(() => {
-    clearFilters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveCompanyId]);
-
-  const handleEdit = (product: Product) => {
-    setSelectedProduct(product);
-    setShowEditModal(true);
-  };
-
-  const handleDelete = (productId: string) => {
-    confirmModal.showConfirm({
-      title: t('confirmModal.deleteTitle'),
-      message: t('products.deleteConfirm'),
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          setActionLoading(productId);
-          await productsApi.deleteProduct(productId);
-          await refresh();
-        } catch (error: any) {
-          logger.error('Error deleting product:', error);
-        } finally {
-          setActionLoading(null);
-        }
-      },
-    });
-  };
-
-  const handleCreateSuccess = () => {
-    setShowCreateModal(false);
-    refresh();
-  };
-
-  const handleEditSuccess = () => {
-    setShowEditModal(false);
-    setSelectedProduct(null);
-    refresh();
-  };
-
-  const handleSort = (field: string, order: 'asc' | 'desc') => {
-    setSort(field, order);
-  };
-
+  // Declared ahead of filterDefs/useEntityList so `columnFilterDefs` can read
+  // column headers for its labels; the `render` closures reference
+  // `handleEdit`/`handleDelete`/`actionLoading`, which only run once Table
+  // invokes them — well after those consts are initialized (page-filters lesson).
   const columns = [
     {
       key: 'code',
@@ -234,6 +161,93 @@ const Products: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs: FilterDef[] = useMemo(
+    () => [
+      searchFilter(t('products.searchPlaceholder')),
+      {
+        kind: 'entity',
+        key: 'customerUuid',
+        label: t('products.filters.customer'),
+        placeholder: t('products.filters.customerPlaceholder'),
+        required: true,
+        loadOptions: loadCustomerOptions,
+      },
+      // `columnFilterDefs` also emits a 'customerUuid' entity def for the
+      // 'customer' column (registry coverage, C-3) — dropped here since the
+      // required primary def above already covers it; keeping both would
+      // render the same picker twice and let the advanced panel's "Limpiar"
+      // clear a REQUIRED filter (D-9, contradicts I-4).
+      ...columnFilterDefs('products', columns, t, { companyId: effectiveCompanyId }).filter(
+        (def) => def.key !== 'customerUuid'
+      ),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, loadCustomerOptions, effectiveCompanyId]
+  );
+
+  const {
+    data: products,
+    loading,
+    search,
+    filtersReady,
+    filterBarProps,
+    clearFilters,
+    refresh,
+    pagination,
+    paginationProps,
+    sortBy,
+    sortOrder,
+    setSort,
+  } = useEntityList<Product>({
+    fetchFn: fetchProducts,
+    searchFields: ['code', 'clientCode', 'description'],
+    filterDefs,
+  });
+
+  useEffect(() => {
+    clearFilters();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
+
+  const handleEdit = (product: Product) => {
+    setSelectedProduct(product);
+    setShowEditModal(true);
+  };
+
+  const handleDelete = (productId: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('products.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(productId);
+          await productsApi.deleteProduct(productId);
+          await refresh();
+        } catch (error: any) {
+          logger.error('Error deleting product:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
+  };
+
+  const handleCreateSuccess = () => {
+    setShowCreateModal(false);
+    refresh();
+  };
+
+  const handleEditSuccess = () => {
+    setShowEditModal(false);
+    setSelectedProduct(null);
+    refresh();
+  };
+
+  const handleSort = (field: string, order: 'asc' | 'desc') => {
+    setSort(field, order);
+  };
 
   return (
     <Layout>

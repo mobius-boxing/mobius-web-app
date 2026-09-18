@@ -2892,6 +2892,27 @@
     "clear": "Limpiar filtros",
     "noResults": "Sin resultados",
     "loading": "Buscando…",
-    "searchPlaceholder": "Buscar…"
+    "searchPlaceholder": "Buscar…",
+    "advanced": "Filtros avanzados",
+    "boolean": {
+      "yes": "Sí",
+      "no": "No"
+    },
+    "range": {
+      "from": "desde",
+      "to": "hasta"
+    },
+    "options": {
+      "pending": "Pendiente",
+      "approved": "Aprobado",
+      "cancelled": "Cancelado",
+      "Alta": "Alta",
+      "Baja": "Baja",
+      "Modificacion": "Modificación"
+    },
+    "columns": {
+      "createdAt": "Creado",
+      "approvalState": "Estado de aprobación"
+    }
   }
 }

@@ -118,6 +118,27 @@ describe('deleting a referenced model', () => {
   });
 });
 
+describe('Advanced filters', () => {
+  it('sends code once the advanced text filter is set', async () => {
+    await renderPage();
+
+    fireEvent.click(screen.getByRole('button', { name: /##filters\.advanced##/ }));
+
+    const [label] = screen.getAllByText('##models.columns.code##');
+    const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'M-2' } });
+
+    await waitFor(
+      () => {
+        expect(mockGetModels).toHaveBeenLastCalledWith(
+          expect.objectContaining({ code: 'M-2' }),
+        );
+      },
+      { timeout: 2000 },
+    );
+  });
+});
+
 describe('the formula reference popup over the model form', () => {
   it('closes only the popup on Escape and keeps the form values', async () => {
     await renderPage();

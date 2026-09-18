@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Wrench } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ToolingType } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -33,18 +34,6 @@ const ToolingTypes: React.FC = () => {
     return toolingTypesApi.getToolingTypes(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: toolingTypes,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<ToolingType>({
-    fetchFn: fetchToolingTypes,
-    searchFields: ['code', 'name', 'description'],
-    filterDefs: [searchFilter(t('toolingTypes.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -171,6 +160,29 @@ const ToolingTypes: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('toolingTypes.searchPlaceholder')),
+      ...columnFilterDefs('tooling-types', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: toolingTypes,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<ToolingType>({
+    fetchFn: fetchToolingTypes,
+    searchFields: ['code', 'name', 'description'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

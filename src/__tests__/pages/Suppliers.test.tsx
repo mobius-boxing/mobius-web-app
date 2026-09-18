@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () =>
 
 jest.mock('../../services/api', () => ({
   suppliersApi: {
-    getSuppliers: () => mockGetSuppliers(),
+    getSuppliers: (...args: any[]) => mockGetSuppliers(...args),
     deleteSupplier: (...args: any[]) => mockDeleteSupplier(...args),
   },
 }));
@@ -39,6 +39,7 @@ jest.mock('react-i18next', () => ({
         'suppliers.empty.title': 'No suppliers found',
         'suppliers.empty.description': 'No results match your search',
         'suppliers.empty.noData': 'Get started by creating your first supplier',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -165,6 +166,30 @@ describe('Suppliers Page', () => {
       await waitFor(() => {
         expect(screen.getByText('No suppliers found')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Advanced filters', () => {
+    it('sends code once the advanced text filter is set', async () => {
+      render(<Suppliers />);
+      await waitFor(() => {
+        expect(screen.getByText('SUP-001')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Code');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'SUP-001' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetSuppliers).toHaveBeenLastCalledWith(
+            expect.objectContaining({ code: 'SUP-001' })
+          );
+        },
+        { timeout: 2000 }
+      );
     });
   });
 });

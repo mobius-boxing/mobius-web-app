@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { FinishedGood } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
@@ -34,18 +35,6 @@ const FinishedGoods: React.FC = () => {
     return finishedGoodsApi.getFinishedGoods(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: finishedGoods,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<FinishedGood>({
-    fetchFn: fetchFinishedGoods,
-    searchFields: ['code', 'name', 'description'],
-    filterDefs: [searchFilter(t('finishedGoods.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -144,6 +133,29 @@ const FinishedGoods: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('finishedGoods.searchPlaceholder')),
+      ...columnFilterDefs('finished-goods', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: finishedGoods,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<FinishedGood>({
+    fetchFn: fetchFinishedGoods,
+    searchFields: ['code', 'name', 'description'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

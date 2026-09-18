@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () =>
 
 jest.mock('../../services/api', () => ({
   manufacturersApi: {
-    getManufacturers: () => mockGetManufacturers(),
+    getManufacturers: (...args: any[]) => mockGetManufacturers(...args),
     deleteManufacturer: (...args: any[]) => mockDeleteManufacturer(...args),
   },
 }));
@@ -39,6 +39,7 @@ jest.mock('react-i18next', () => ({
         'manufacturers.empty.title': 'No manufacturers found',
         'manufacturers.empty.description': 'No results match your search',
         'manufacturers.empty.noData': 'Get started by creating your first manufacturer',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -180,6 +181,30 @@ describe('Manufacturers Page', () => {
       await waitFor(() => {
         expect(screen.getByText('No manufacturers found')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Advanced filters', () => {
+    it('sends code once the advanced text filter is set', async () => {
+      render(<Manufacturers />);
+      await waitFor(() => {
+        expect(screen.getByText('MFG-001')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Code');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'MFG-001' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetManufacturers).toHaveBeenLastCalledWith(
+            expect.objectContaining({ code: 'MFG-001' })
+          );
+        },
+        { timeout: 2000 }
+      );
     });
   });
 });

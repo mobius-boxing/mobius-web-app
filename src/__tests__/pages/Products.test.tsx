@@ -1,5 +1,5 @@
 import React from 'react';
-import { screen, fireEvent, waitFor, act } from '@testing-library/react';
+import { screen, fireEvent, waitFor, act, within } from '@testing-library/react';
 import { renderWithProviders as render } from '../../test-utils/renderWithProviders';
 import Products from '../../pages/Products';
 import { createMockProduct, createMockCustomer, createMockPaginatedResponse } from '../../test-utils/api.mock';
@@ -52,6 +52,7 @@ jest.mock('react-i18next', () => ({
         'filters.required': 'Required',
         'filters.noResults': 'No results',
         'filters.loading': 'Searching...',
+        'filters.advanced': 'Advanced filters',
         'common.clear': 'Clear',
       };
       return translations[key] || key;
@@ -299,6 +300,33 @@ describe('Products Page', () => {
       await selectCustomer();
       await waitFor(() => {
         expect(screen.getByText('No products found')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Advanced filters (AC-7)', () => {
+    it('keeps the required customer in the primary row and sends both customerUuid and code once the advanced panel is used', async () => {
+      render(<Products />);
+      await selectCustomer();
+      await waitFor(() => {
+        expect(screen.getByText('PROD-001')).toBeInTheDocument();
+      });
+
+      // The required customer combobox stays alone in the primary row —
+      // `columnFilterDefs`'s own 'customer' entry is dropped by the page
+      // (D-9) — so only the toggle joins it there.
+      const toggle = screen.getByRole('button', { name: /Advanced filters/i });
+      fireEvent.click(toggle);
+
+      const panel = document.getElementById(toggle.getAttribute('aria-controls')!) as HTMLElement;
+      const codeLabel = within(panel).getByText('Code');
+      const codeInput = within(codeLabel.parentElement as HTMLElement).getByRole('textbox');
+      fireEvent.change(codeInput, { target: { value: 'PROD-001' } });
+
+      await waitFor(() => {
+        expect(mockGetProducts).toHaveBeenLastCalledWith(
+          expect.objectContaining({ customerUuid: 'cust-1', code: 'PROD-001' })
+        );
       });
     });
   });

@@ -1,0 +1,497 @@
+{
+  "products": {
+    "endpoint": "/api/product",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "clientCode", "kind": "text" },
+      { "column": "customer", "kind": "entity", "entity": "customer", "param": "customerUuid" },
+      { "column": "description", "kind": "text" },
+      { "column": "revision", "kind": "number" },
+      { "column": "vip", "kind": "boolean" },
+      { "column": "productType", "kind": "entity", "entity": "productType", "param": "productTypeUuid" },
+      { "column": "boxType", "kind": "entity", "entity": "boxType", "param": "boxTypeUuid" },
+      { "column": "approvalState", "kind": "select", "options": ["pending", "approved", "cancelled"] },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "box-types": {
+    "endpoint": "/api/box-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "customers": {
+    "endpoint": "/api/customer",
+    "filters": [
+      { "column": "name", "kind": "text" },
+      { "column": "supplierCode", "kind": "text" },
+      { "column": "category", "kind": "entity", "entity": "customerCategory", "param": "categoryUuid" },
+      { "column": "salesPerson", "kind": "entity", "entity": "user", "param": "salesPersonUuid" },
+      { "column": "status", "kind": "boolean", "param": "active" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "color-types": {
+    "endpoint": "/api/color-type",
+    "filters": [
+      { "column": "name", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "consumable-types": {
+    "endpoint": "/api/consumable-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "autoConsumption", "kind": "boolean" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "corrugation-classes": {
+    "endpoint": "/api/corrugation-class",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "customer-categories": {
+    "endpoint": "/api/customer-category",
+    "filters": [
+      { "column": "name", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "fsc-types": {
+    "endpoint": "/api/fsc-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "manufacturers": {
+    "endpoint": "/api/manufacturer",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "paper-classes": {
+    "endpoint": "/api/paper-class",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "paper-types": {
+    "endpoint": "/api/paper-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "product-types": {
+    "endpoint": "/api/product-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "complements": {
+    "endpoint": "/api/complement",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "delivery-zones": {
+    "endpoint": "/api/delivery-zone",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "flap-types": {
+    "endpoint": "/api/flap-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "flute-types": {
+    "endpoint": "/api/flute-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "fluteFactor", "kind": "number" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "glue-types": {
+    "endpoint": "/api/glue-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "strapping-types": {
+    "endpoint": "/api/strapping-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "trace-types": {
+    "endpoint": "/api/trace-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "colors": {
+    "endpoint": "/api/color",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "tonality", "kind": "number" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "companies": {
+    "endpoint": "/api/companies",
+    "filters": [
+      { "column": "name", "kind": "text" },
+      { "column": "status", "kind": "boolean", "param": "isActive" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "consumable-stock": {
+    "endpoint": "/api/consumable-stock",
+    "filters": [
+      { "column": "consumableSupply", "kind": "entity", "entity": "consumableSupply", "param": "consumableSupplyUuid" },
+      { "column": "warehouse", "kind": "entity", "entity": "warehouse", "param": "warehouseUuid" },
+      { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
+      { "column": "manufacturer", "kind": "entity", "entity": "manufacturer", "param": "manufacturerUuid" },
+      { "column": "quantity", "kind": "number" },
+      { "column": "price", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "consumable-supplies": {
+    "endpoint": "/api/consumable-supply",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "consumableType", "kind": "entity", "entity": "consumableType", "param": "consumableTypeUuid" },
+      { "column": "manufacturer", "kind": "entity", "entity": "manufacturer", "param": "manufacturerUuid" },
+      { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "corrugations": {
+    "endpoint": "/api/corrugation",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "corrugationClass", "kind": "entity", "entity": "corrugationClass", "param": "corrugationClassUuid" },
+      { "column": "theoreticalGrammage", "kind": "number" },
+      { "column": "suggestedWidth", "kind": "number" },
+      { "column": "caliper", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "finished-goods": {
+    "endpoint": "/api/finished-goods",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
+      { "column": "minimumStock", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "machine-types": {
+    "endpoint": "/api/machine-type",
+    "filters": [
+      { "column": "name", "kind": "text" },
+      { "column": "flags", "notFilterable": "computed" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "machines": {
+    "endpoint": "/api/machine",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "machineType", "kind": "entity", "entity": "machineType", "param": "machineTypeUuid" },
+      { "column": "setupTime", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "models": {
+    "endpoint": "/api/models",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "flapType", "kind": "entity", "entity": "flapType", "param": "flapTypeUuid" },
+      { "column": "complement", "kind": "entity", "entity": "complement", "param": "complementUuid" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "pallet-types": {
+    "endpoint": "/api/pallet-types",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "dimensions", "notFilterable": "computed" },
+      { "column": "weight", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "palletizations": {
+    "endpoint": "/api/palletizations",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "boxesPerPallet", "notFilterable": "computed" },
+      { "column": "stackingType", "kind": "text" },
+      { "column": "palletType", "kind": "entity", "entity": "palletType", "param": "palletTypeUuid" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "paper-sheets": {
+    "endpoint": "/api/paper-sheet",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
+      { "column": "manufacturer", "kind": "entity", "entity": "manufacturer", "param": "manufacturerUuid" },
+      { "column": "corrugation", "kind": "entity", "entity": "corrugation", "param": "corrugationUuid" },
+      { "column": "dimensions", "notFilterable": "computed" },
+      { "column": "minimumStock", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "paper-stock": {
+    "endpoint": "/api/paper-stock",
+    "filters": [
+      { "column": "paperSupply", "kind": "entity", "entity": "paperSupply", "param": "paperSupplyUuid" },
+      { "column": "warehouse", "kind": "entity", "entity": "warehouse", "param": "warehouseUuid" },
+      { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
+      { "column": "manufacturer", "kind": "entity", "entity": "manufacturer", "param": "manufacturerUuid" },
+      { "column": "dimensions", "notFilterable": "computed" },
+      { "column": "price", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "supplies": {
+    "endpoint": "/api/paper-supply",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "manufacturer", "kind": "entity", "entity": "manufacturer", "param": "manufacturerUuid" },
+      { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
+      { "column": "paperType", "kind": "entity", "entity": "paperType", "param": "paperTypeUuid" },
+      { "column": "grammage", "kind": "number" },
+      { "column": "price", "kind": "number" },
+      { "column": "minimumStock", "notFilterable": "computed" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "production-routes": {
+    "endpoint": "/api/production-routes",
+    "filters": [
+      { "column": "name", "kind": "text" },
+      { "column": "badges", "notFilterable": "computed" },
+      { "column": "stageCount", "notFilterable": "aggregate" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "sheet-stock": {
+    "endpoint": "/api/sheet-stock",
+    "filters": [
+      { "column": "paperSheet", "kind": "entity", "entity": "paperSheet", "param": "paperSheetUuid" },
+      { "column": "warehouse", "kind": "entity", "entity": "warehouse", "param": "warehouseUuid" },
+      { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
+      { "column": "manufacturer", "kind": "entity", "entity": "manufacturer", "param": "manufacturerUuid" },
+      { "column": "quantity", "kind": "number" },
+      { "column": "price", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "suppliers": {
+    "endpoint": "/api/supplier",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "suppliesSheets", "kind": "boolean" },
+      { "column": "suppliesElaborated", "kind": "boolean" },
+      { "column": "suppliesConsumables", "kind": "boolean" },
+      { "column": "suppliesPaper", "kind": "boolean" },
+      { "column": "suppliesTooling", "kind": "boolean" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "tooling-stock": {
+    "endpoint": "/api/tooling-stock",
+    "filters": [
+      { "column": "tooling", "kind": "entity", "entity": "tooling", "param": "toolingUuid" },
+      { "column": "warehouse", "kind": "entity", "entity": "warehouse", "param": "warehouseUuid" },
+      { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
+      { "column": "manufacturer", "kind": "entity", "entity": "manufacturer", "param": "manufacturerUuid" },
+      { "column": "quantity", "kind": "number" },
+      { "column": "price", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "tooling-types": {
+    "endpoint": "/api/tooling-type",
+    "filters": [
+      { "column": "code", "kind": "text" },
+      { "column": "name", "kind": "text" },
+      { "column": "description", "kind": "text" },
+      { "column": "automaticConsumption", "kind": "boolean" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "toolings": {
+    "endpoint": "/api/tooling",
+    "filters": [
+      { "column": "name", "kind": "text" },
+      { "column": "toolingType", "kind": "entity", "entity": "toolingType", "param": "toolingTypeUuid" },
+      { "column": "manufacturer", "kind": "entity", "entity": "manufacturer", "param": "manufacturerUuid" },
+      { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
+      { "column": "minimumStock", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "warehouses": {
+    "endpoint": "/api/warehouse",
+    "filters": [
+      { "column": "name", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "sales-orders": {
+    "endpoint": "/api/sales-orders",
+    "filters": [
+      { "column": "number", "kind": "text" },
+      { "column": "createdAt", "kind": "date" },
+      { "column": "deliveryDate", "kind": "date" },
+      { "column": "customer", "kind": "entity", "entity": "customer", "param": "customerUuid" },
+      { "column": "purchaseOrder", "kind": "text" },
+      { "column": "itemDescription", "notFilterable": "computed" },
+      { "column": "quantity", "kind": "number" },
+      { "column": "supplierCode", "kind": "text" },
+      { "column": "salesUser", "kind": "entity", "entity": "user", "param": "salesUserUuid" },
+      { "column": "commercialApproved", "notFilterable": "computed" },
+      { "column": "financialApproved", "notFilterable": "computed" },
+      { "column": "needsAdvanceInvoice", "kind": "boolean" },
+      { "column": "invoiceSent", "kind": "boolean" },
+      { "column": "fulfilled", "kind": "boolean" },
+      { "column": "voided", "kind": "boolean" },
+      { "column": "price", "kind": "number" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "production-orders": {
+    "endpoint": "/api/production-orders",
+    "filters": [
+      { "column": "number", "kind": "text" },
+      { "column": "salesOrder", "kind": "entity", "entity": "salesOrder", "param": "salesOrderUuid" },
+      { "column": "customer", "kind": "entity", "entity": "customer", "param": "customerUuid" },
+      { "column": "product", "kind": "entity", "entity": "product", "param": "productUuid" },
+      { "column": "description", "notFilterable": "computed" },
+      { "column": "quantity", "kind": "number" },
+      { "column": "orderDate", "kind": "date" },
+      { "column": "deliveryDate", "kind": "date" },
+      { "column": "scheduling", "notFilterable": "computed" },
+      { "column": "completion", "notFilterable": "computed" },
+      { "column": "history", "notFilterable": "actions" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
+  "sales-order-production-orders": {
+    "endpoint": "/api/sales-orders/{uuid}/production-orders",
+    "filters": [
+      { "column": "number", "notFilterable": "computed" },
+      { "column": "customer", "notFilterable": "computed" },
+      { "column": "product", "notFilterable": "computed" },
+      { "column": "description", "notFilterable": "computed" },
+      { "column": "quantity", "notFilterable": "computed" },
+      { "column": "orderDate", "notFilterable": "computed" },
+      { "column": "deliveryDate", "notFilterable": "computed" },
+      { "column": "schedulingApproved", "notFilterable": "computed" },
+      { "column": "completed", "notFilterable": "computed" },
+      { "column": "voided", "notFilterable": "computed" }
+    ]
+  },
+  "audit-logs": {
+    "endpoint": "/api/audit-logs",
+    "filters": [
+      { "column": "occurredAt", "kind": "date" },
+      { "column": "entityCode", "kind": "text" },
+      { "column": "operation", "kind": "select", "options": ["Alta", "Baja", "Modificacion"] },
+      { "column": "changedKeys", "notFilterable": "computed" },
+      { "column": "actor", "notFilterable": "computed" }
+    ]
+  }
+}

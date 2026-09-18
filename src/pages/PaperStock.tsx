@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperStock } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -34,18 +35,6 @@ const PaperStockPage: React.FC = () => {
     return paperStockApi.getPaperStock(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: paperStock,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<PaperStock>({
-    fetchFn: fetchPaperStock,
-    searchFields: ['comments'],
-    filterDefs: [searchFilter(t('paperStock.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -180,6 +169,29 @@ const PaperStockPage: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('paperStock.searchPlaceholder')),
+      ...columnFilterDefs('paper-stock', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: paperStock,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<PaperStock>({
+    fetchFn: fetchPaperStock,
+    searchFields: ['comments'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () =>
 
 jest.mock('../../services/api', () => ({
   customersApi: {
-    getCustomers: () => mockGetCustomers(),
+    getCustomers: (...args: any[]) => mockGetCustomers(...args),
     deleteCustomer: (...args: any[]) => mockDeleteCustomer(...args),
   },
 }));
@@ -44,6 +44,7 @@ jest.mock('react-i18next', () => ({
         'customers.empty.title': 'No customers found',
         'customers.empty.description': 'No results match your search',
         'customers.empty.noData': 'Get started by creating your first customer',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -217,6 +218,27 @@ describe('Customers Page', () => {
       render(<Customers />);
       await waitFor(() => {
         expect(screen.getByText('No customers found')).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe('Advanced filters (AC-5)', () => {
+    it('sends active once the status filter is set in the advanced panel', async () => {
+      render(<Customers />);
+      await waitFor(() => {
+        expect(screen.getByText('Acme Corp')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const statusSelect = document.querySelector('select') as HTMLSelectElement;
+      expect(statusSelect).not.toBeNull();
+      fireEvent.change(statusSelect, { target: { value: 'true' } });
+
+      await waitFor(() => {
+        expect(mockGetCustomers).toHaveBeenLastCalledWith(
+          expect.objectContaining({ active: 'true' })
+        );
       });
     });
   });

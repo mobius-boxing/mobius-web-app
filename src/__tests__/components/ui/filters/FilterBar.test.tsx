@@ -100,4 +100,98 @@ describe('FilterBar', () => {
     expect(onChange).toHaveBeenCalledWith('username', 'mnovoa');
     jest.useRealTimers();
   });
+
+  it('renders a number filter as <input type="number">, with the shared control classes', () => {
+    const onChange = jest.fn();
+    const defs: FilterDef[] = [
+      { kind: 'number', key: 'revisionFrom', label: 'Revision from', testId: 'filter-revision-from' },
+    ];
+    render(<FilterBar defs={defs} values={{}} onChange={onChange} />);
+
+    const input = screen.getByTestId('filter-revision-from');
+    expect(input).toHaveAttribute('type', 'number');
+    expect(input.className).toContain('border-secondary-300');
+    fireEvent.change(input, { target: { value: '3' } });
+    expect(onChange).toHaveBeenCalledWith('revisionFrom', '3');
+  });
+
+  describe('advanced panel (AC-2, I-4)', () => {
+    const advancedDefs: FilterDef[] = [
+      { kind: 'text', key: 'code', label: 'Code', advanced: true, testId: 'filter-code' },
+      { kind: 'text', key: 'description', label: 'Description', advanced: true, testId: 'filter-description' },
+    ];
+
+    it('is collapsed by default, with a toggle and no badge when nothing is set', () => {
+      const onChange = jest.fn();
+      render(<FilterBar defs={advancedDefs} values={{}} onChange={onChange} />);
+
+      expect(screen.getByRole('button', { name: /filters\.advanced/ })).toHaveAttribute(
+        'aria-expanded',
+        'false'
+      );
+      expect(screen.queryByTestId('filter-code')).not.toBeInTheDocument();
+    });
+
+    it('opens on click and shows a badge counting only advanced defs with a value', () => {
+      const onChange = jest.fn();
+      render(<FilterBar defs={advancedDefs} values={{}} onChange={onChange} />);
+
+      const toggle = screen.getByRole('button', { name: /filters\.advanced/ });
+      expect(toggle).not.toHaveTextContent(/\d/); // no value set yet: no badge
+
+      fireEvent.click(toggle);
+      expect(toggle).toHaveAttribute('aria-expanded', 'true');
+      expect(screen.getByTestId('filter-code')).toBeInTheDocument();
+    });
+
+    it('shows a badge counting only advanced defs with a value', () => {
+      const onChange = jest.fn();
+      render(<FilterBar defs={advancedDefs} values={{ code: 'ABC' }} onChange={onChange} />);
+
+      expect(screen.getByRole('button', { name: /filters\.advanced/ })).toHaveTextContent('1');
+    });
+
+    it('opens automatically when an advanced filter already has a value', () => {
+      const onChange = jest.fn();
+      const { rerender } = render(<FilterBar defs={advancedDefs} values={{}} onChange={onChange} />);
+      expect(screen.queryByTestId('filter-code')).not.toBeInTheDocument();
+
+      rerender(<FilterBar defs={advancedDefs} values={{ code: 'ABC' }} onChange={onChange} />);
+      expect(screen.getByTestId('filter-code')).toBeInTheDocument();
+    });
+
+    it('"Limpiar" clears only advanced values, leaving primary values untouched', () => {
+      const onChange = jest.fn();
+      const defs: FilterDef[] = [
+        { kind: 'text', key: 'search', label: '', placeholder: 'Search…' },
+        ...advancedDefs,
+      ];
+      render(
+        <FilterBar
+          defs={defs}
+          values={{ search: 'acme', code: 'ABC', description: 'desc' }}
+          onChange={onChange}
+        />
+      );
+
+      // Panel opens automatically (I-4) since code/description already have
+      // values — no need to click the toggle first.
+      fireEvent.click(screen.getByText('filters.clear'));
+
+      expect(onChange).toHaveBeenCalledWith('code', undefined);
+      expect(onChange).toHaveBeenCalledWith('description', undefined);
+      expect(onChange).not.toHaveBeenCalledWith('search', undefined);
+    });
+
+    it('disables the toggle while a required primary filter is unmet, like any other optional control', () => {
+      const onChange = jest.fn();
+      const defs: FilterDef[] = [
+        { kind: 'entity', key: 'customerUuid', label: 'Customer', required: true, loadOptions: jest.fn() },
+        ...advancedDefs,
+      ];
+      render(<FilterBar defs={defs} values={{}} onChange={onChange} />);
+
+      expect(screen.getByRole('button', { name: /filters\.advanced/ })).toBeDisabled();
+    });
+  });
 });

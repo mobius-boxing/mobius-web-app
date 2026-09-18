@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState , useMemo } from 'react';
 import { Plus, Trash2, Edit, Building2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreateCompanyModal from '../components/modals/CreateCompanyModal';
@@ -25,18 +26,6 @@ const Companies: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
 
-  const {
-    filteredData: companies,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<Company>({
-    fetchFn: companiesApi.getCompanies,
-    searchFields: ['name', 'description'],
-    filterDefs: [searchFilter(t('companies.searchPlaceholder'))],
-  });
 
   const handleEdit = (company: Company) => {
     setSelectedCompany(company);
@@ -170,6 +159,29 @@ const Companies: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('companies.searchPlaceholder')),
+      ...columnFilterDefs('companies', columns, t),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t]
+  );
+
+  const {
+    filteredData: companies,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<Company>({
+    fetchFn: companiesApi.getCompanies,
+    searchFields: ['name', 'description'],
+    filterDefs,
+  });
+
 
   if (!currentUser || currentUser.role !== 'superAdmin') {
     return (

@@ -506,3 +506,26 @@ describe('the company selector', () => {
     expect(mockGetSalesOrders).toHaveBeenCalledTimes(1);
   });
 });
+
+// ── column-filters rich-bars ─────────────────────────────────────────────────
+describe('advanced filters (column-filters rich-bars)', () => {
+  it('sends purchaseOrder once the advanced text filter is set', async () => {
+    await renderGrid();
+
+    fireEvent.click(screen.getByRole('button', { name: /##filters\.advanced##/ }));
+
+    // The same i18n key also labels the Table column header — the filter
+    // bar's own `<label>` (targeted here) renders first in document order.
+    const [label] = screen.getAllByText('##salesOrders.columns.purchaseOrder##');
+    const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'OC-9' } });
+
+    await waitFor(
+      () =>
+        expect(mockGetSalesOrders).toHaveBeenLastCalledWith(
+          expect.objectContaining({ purchaseOrder: 'OC-9' }),
+        ),
+      { timeout: 2000 },
+    );
+  });
+});

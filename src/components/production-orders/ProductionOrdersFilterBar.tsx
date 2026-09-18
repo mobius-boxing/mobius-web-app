@@ -1,6 +1,16 @@
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterDef } from '../ui/filters';
+import { Column } from '../ui/Table';
+import { columnFilterDefs } from '../../filters/columnFilters';
+
+/**
+ * Registry-generated defs whose key a primary def above already controls
+ * (D-13 pattern, column-filters/model.md): `deliveryDateFrom`/`deliveryDateTo`
+ * are the SELECTS' own date range, so the advanced panel offers only the
+ * columns this bar leaves uncovered.
+ */
+const PRIMARY_KEYS = new Set(['deliveryDateFrom', 'deliveryDateTo']);
 
 /** Every select is a tri-state: `''` (all) plus the two documented values. */
 const SELECTS: Array<{
@@ -50,7 +60,10 @@ const SELECTS: Array<{
  * bespoke wiring at all: `useEntityList`'s `filterBarProps` renders straight
  * through `<FilterBar>`.
  */
-export const useProductionOrdersFilterDefs = (): FilterDef[] => {
+export const useProductionOrdersFilterDefs = (
+  columns: Column<any>[] = [],
+  companyId?: string,
+): FilterDef[] => {
   const { t } = useTranslation();
 
   return useMemo<FilterDef[]>(
@@ -90,8 +103,12 @@ export const useProductionOrdersFilterDefs = (): FilterDef[] => {
         className: 'gd-filters-field',
         testId: 'filter-delivery-to',
       },
+      ...columnFilterDefs('production-orders', columns, t, { companyId }).filter(
+        (def) => !PRIMARY_KEYS.has(def.key),
+      ),
     ],
-    [t],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, columns, companyId],
   );
 };
 

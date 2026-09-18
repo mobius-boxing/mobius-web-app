@@ -18,6 +18,7 @@ import {
 } from '../components/audit/diff';
 import { FetchParams, useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { exportAuditCsv, listAuditEntities, listAuditLogs } from '../services/audit';
 import {
   AuditCsvExport,
@@ -118,6 +119,7 @@ const toQueryFilters = (raw: Record<string, unknown>): AuditLogFilters => {
   const str = (key: string): string => (typeof raw[key] === 'string' ? (raw[key] as string) : '');
 
   if (str('entityName')) query.entityName = str('entityName');
+  if (str('entityCode').trim()) query.entityCode = str('entityCode').trim();
   if (str('operation')) query.operation = str('operation') as AuditOperation;
   if (str('source')) query.source = str('source') as AuditSourceValue;
   if (str('username').trim()) query.username = str('username').trim();
@@ -204,125 +206,9 @@ const AuditLogs: React.FC = () => {
     [entities, translate]
   );
 
-  const filterDefs: FilterDef[] = useMemo(
-    () => [
-      {
-        kind: 'text',
-        key: 'search',
-        label: t('auditLogs.filters.search'),
-        placeholder: t('auditLogs.filters.searchPlaceholder'),
-        className: 'gd-filters-field',
-      },
-      {
-        kind: 'select',
-        key: 'entityName',
-        label: t('auditLogs.filters.entity'),
-        placeholder: t('auditLogs.filters.entityAll'),
-        className: 'gd-filters-field',
-        testId: 'audit-filter-entity',
-        options: entityOptions.map((option) => ({ value: option.key, label: option.label })),
-      },
-      {
-        kind: 'select',
-        key: 'operation',
-        label: t('auditLogs.filters.operation'),
-        placeholder: t('auditLogs.filters.operationAll'),
-        className: 'gd-filters-field',
-        testId: 'audit-filter-operation',
-        options: OPERATIONS.map((operation) => ({ value: operation, label: operationLabel(operation, translate) })),
-      },
-      {
-        kind: 'select',
-        key: 'source',
-        label: t('auditLogs.filters.source'),
-        placeholder: t('auditLogs.filters.sourceAll'),
-        className: 'gd-filters-field',
-        testId: 'audit-filter-source',
-        options: SOURCES.map((source) => ({ value: source, label: t(`auditLogs.source.${source}`) })),
-      },
-      {
-        kind: 'text',
-        key: 'username',
-        label: t('auditLogs.filters.username'),
-        placeholder: t('auditLogs.filters.usernamePlaceholder'),
-        className: 'gd-filters-field',
-        testId: 'audit-filter-username',
-        // A username is typed one letter at a time; without this every
-        // keystroke would be its own request (AC-12 D-14).
-        debounceMs: FILTER_DEBOUNCE_MS,
-      },
-      {
-        kind: 'text',
-        key: 'changedKey',
-        label: t('auditLogs.filters.changedKey'),
-        placeholder: t('auditLogs.filters.changedKeyPlaceholder'),
-        className: 'gd-filters-field',
-        testId: 'audit-filter-changed-key',
-      },
-      {
-        kind: 'date',
-        key: 'from',
-        label: t('auditLogs.filters.from'),
-        className: 'gd-filters-field',
-        testId: 'audit-filter-from',
-      },
-      {
-        kind: 'date',
-        key: 'to',
-        label: t('auditLogs.filters.to'),
-        className: 'gd-filters-field',
-        testId: 'audit-filter-to',
-      },
-    ],
-    [t, translate, entityOptions]
-  );
-
-  const {
-    data: rows,
-    loading,
-    error,
-    search,
-    filters,
-    filterBarProps,
-    clearFilters,
-    paginationProps,
-  } = useEntityList<AuditRowView>({ fetchFn: fetchLogs, filterDefs });
-
-  // A committed filter change closes any expanded row — the same thing the
-  // debounced draft-commit effect did before the fields moved to `FilterBar`.
-  useEffect(() => {
-    setExpanded(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(filters), search]);
-
-  const activeCount =
-    Object.values(filters).filter((value) => value !== undefined && value !== '').length +
-    (search.trim() ? 1 : 0);
-
-  const canExport = has('audit.export');
-
-  const handleExport = useCallback(async () => {
-    setExporting(true);
-    setExportError(null);
-    setExportResult(null);
-    try {
-      const exportFilters = toQueryFilters(filters);
-      if (search.trim()) exportFilters.search = search.trim();
-      // Through axios, never a hand-built anchor: the bearer token lives in
-      // the `mobius_session` cookie and is attached by the shared instance's
-      // request interceptor, so a plain download link would simply 401.
-      setExportResult(await exportAuditCsv(exportFilters));
-    } catch (err: unknown) {
-      logger.error('Audit CSV export failed:', err);
-      setExportError(t('auditLogs.export.error'));
-    } finally {
-      setExporting(false);
-    }
-  }, [filters, search, t]);
-
-  const showWindowNotice =
-    Boolean(windowState.appliedFrom) && !windowState.dateFiltered;
-
+  // Declared ahead of filterDefs so `columnFilterDefs` can read column
+  // headers for its labels (page-filters lesson) — the `render` closures
+  // reference `expanded`/`setExpanded`, already initialized above.
   const columns = useMemo(
     () => [
       {
@@ -399,6 +285,132 @@ const AuditLogs: React.FC = () => {
     ],
     [expanded, t, translate]
   );
+
+  const filterDefs: FilterDef[] = useMemo(
+    () => [
+      {
+        kind: 'text',
+        key: 'search',
+        label: t('auditLogs.filters.search'),
+        placeholder: t('auditLogs.filters.searchPlaceholder'),
+        className: 'gd-filters-field',
+      },
+      {
+        kind: 'select',
+        key: 'entityName',
+        label: t('auditLogs.filters.entity'),
+        placeholder: t('auditLogs.filters.entityAll'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-entity',
+        options: entityOptions.map((option) => ({ value: option.key, label: option.label })),
+      },
+      {
+        kind: 'select',
+        key: 'operation',
+        label: t('auditLogs.filters.operation'),
+        placeholder: t('auditLogs.filters.operationAll'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-operation',
+        options: OPERATIONS.map((operation) => ({ value: operation, label: operationLabel(operation, translate) })),
+      },
+      {
+        kind: 'select',
+        key: 'source',
+        label: t('auditLogs.filters.source'),
+        placeholder: t('auditLogs.filters.sourceAll'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-source',
+        options: SOURCES.map((source) => ({ value: source, label: t(`auditLogs.source.${source}`) })),
+      },
+      {
+        kind: 'text',
+        key: 'username',
+        label: t('auditLogs.filters.username'),
+        placeholder: t('auditLogs.filters.usernamePlaceholder'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-username',
+        // A username is typed one letter at a time; without this every
+        // keystroke would be its own request (AC-12 D-14).
+        debounceMs: FILTER_DEBOUNCE_MS,
+      },
+      {
+        kind: 'text',
+        key: 'changedKey',
+        label: t('auditLogs.filters.changedKey'),
+        placeholder: t('auditLogs.filters.changedKeyPlaceholder'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-changed-key',
+      },
+      {
+        kind: 'date',
+        key: 'from',
+        label: t('auditLogs.filters.from'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-from',
+      },
+      {
+        kind: 'date',
+        key: 'to',
+        label: t('auditLogs.filters.to'),
+        className: 'gd-filters-field',
+        testId: 'audit-filter-to',
+      },
+      // D-13 pattern: `operation` and `occurredAtFrom/To` are dropped — the
+      // primary `operation` select and `from`/`to` date pickers above already
+      // own those columns (column-filters rich-bars, D-31).
+      ...columnFilterDefs('audit-logs', columns, t).filter(
+        (def) => !['operation', 'occurredAtFrom', 'occurredAtTo'].includes(def.key),
+      ),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, translate, entityOptions, columns]
+  );
+
+  const {
+    data: rows,
+    loading,
+    error,
+    search,
+    filters,
+    filterBarProps,
+    clearFilters,
+    paginationProps,
+  } = useEntityList<AuditRowView>({ fetchFn: fetchLogs, filterDefs });
+
+  // A committed filter change closes any expanded row — the same thing the
+  // debounced draft-commit effect did before the fields moved to `FilterBar`.
+  useEffect(() => {
+    setExpanded(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(filters), search]);
+
+  const activeCount =
+    Object.values(filters).filter((value) => value !== undefined && value !== '').length +
+    (search.trim() ? 1 : 0);
+
+  const canExport = has('audit.export');
+
+  const handleExport = useCallback(async () => {
+    setExporting(true);
+    setExportError(null);
+    setExportResult(null);
+    try {
+      const exportFilters = toQueryFilters(filters);
+      if (search.trim()) exportFilters.search = search.trim();
+      // Through axios, never a hand-built anchor: the bearer token lives in
+      // the `mobius_session` cookie and is attached by the shared instance's
+      // request interceptor, so a plain download link would simply 401.
+      setExportResult(await exportAuditCsv(exportFilters));
+    } catch (err: unknown) {
+      logger.error('Audit CSV export failed:', err);
+      setExportError(t('auditLogs.export.error'));
+    } finally {
+      setExporting(false);
+    }
+  }, [filters, search, t]);
+
+  const showWindowNotice =
+    Boolean(windowState.appliedFrom) && !windowState.dateFiltered;
 
   return (
     <Layout>

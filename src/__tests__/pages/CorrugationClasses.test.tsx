@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () =>
 
 jest.mock('../../services/api', () => ({
   corrugationClassesApi: {
-    getCorrugationClasses: () => mockGetCorrugationClasses(),
+    getCorrugationClasses: (...args: any[]) => mockGetCorrugationClasses(...args),
     deleteCorrugationClass: (...args: any[]) => mockDeleteCorrugationClass(...args),
   },
 }));
@@ -42,6 +42,7 @@ jest.mock('react-i18next', () => ({
         'corrugationClasses.deleteConfirm': 'Are you sure you want to delete this corrugation class?',
         'common.confirm': 'Confirm',
         'common.delete': 'Delete',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -215,6 +216,31 @@ describe('CorrugationClasses Page', () => {
       await waitFor(() => {
         expect(screen.getByText('No corrugation classes found')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Advanced filters', () => {
+    it('sends code once the advanced text filter is set', async () => {
+      render(<CorrugationClasses />);
+
+      await waitFor(() => {
+        expect(screen.getByText('CC-001')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Code');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'CC-001' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetCorrugationClasses).toHaveBeenLastCalledWith(
+            expect.objectContaining({ code: 'CC-001' })
+          );
+        },
+        { timeout: 2000 }
+      );
     });
   });
 });

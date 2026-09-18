@@ -1,11 +1,28 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SearchInput } from '../ui/SearchInput';
 import Button from '../ui/Button';
 import { FilterBar, FilterDef, FilterOption } from '../ui/filters';
+import { Column } from '../ui/Table';
 import { SalesOrderListFilters } from '../../types';
 import { customersApi, paperSheetsApi, productsApi } from '../../services/api';
 import { logger } from '../../utils/logger';
+import { columnFilterDefs } from '../../filters/columnFilters';
+
+/**
+ * Registry-generated keys the primary rows above already control (D-13
+ * pattern, column-filters/model.md): keeping both would duplicate a control
+ * and let the advanced panel's "Limpiar" clear a filter this bar itself owns.
+ */
+const PRIMARY_KEYS = new Set([
+  'number',
+  'customerUuid',
+  'productUuid',
+  'deliveryDateFrom',
+  'deliveryDateTo',
+  'fulfilled',
+  'voided',
+]);
 
 /** The exclusive `radioTipoPedido` pair (PedidosForm.cs:258-260; 'parte' removed). */
 type ItemType = '' | 'product' | 'sheet';
@@ -56,6 +73,8 @@ interface Props {
   /** Restores the mount-time filter state (PedidosForm.cs:489-490). */
   onClear: () => void;
   companyId?: string;
+  /** For `columnFilterDefs`'s labels (column-filters rich-bars). */
+  columns: Column<any>[];
 }
 
 /**
@@ -82,12 +101,16 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
   onSearchChange,
   onClear,
   companyId,
+  columns,
 }) => {
   const { t } = useTranslation();
   const [itemType, setItemType] = useState<ItemType>('');
   const [customerOption, setCustomerOption] = useState<FilterOption>();
   const [productOption, setProductOption] = useState<FilterOption>();
   const [sheetOptions, setSheetOptions] = useState<Option[]>([]);
+  // Advanced-panel entity defs (`salesUserUuid`) keep the same local
+  // FilterOption-cache pattern as cliente/producto above.
+  const [salesUserOption, setSalesUserOption] = useState<FilterOption>();
 
   // The plain-string uuid is the source of truth (it is what `value` carries
   // and what `Limpiar` restores); the cached label follows it down rather
@@ -98,6 +121,9 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
   useEffect(() => {
     if (!value.productUuid) setProductOption(undefined);
   }, [value.productUuid]);
+  useEffect(() => {
+    if (!value.salesUserUuid) setSalesUserOption(undefined);
+  }, [value.salesUserUuid]);
 
   const companyScope = useCallback(
     () => (companyId ? { companyId } : {}),
@@ -203,6 +229,32 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
     emit({ customerUuid: next?.value, productUuid: undefined });
   };
 
+  // The columns/quantity/price ranges this bar leaves uncovered (D-13
+  // pattern): dropping the registry's duplicate customer/product/date/
+  // fulfilled/voided/number defs, which the rows above already own.
+  const advancedDefs: FilterDef[] = useMemo(
+    () =>
+      columnFilterDefs('sales-orders', columns, t, { companyId }).filter(
+        (def) => !PRIMARY_KEYS.has(def.key),
+      ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [columns, companyId, t],
+  );
+
+  const advancedValues = useMemo(
+    () => ({ ...value, salesUserUuid: salesUserOption }),
+    [value, salesUserOption],
+  );
+
+  const handleAdvancedChange = (key: string, next: unknown) => {
+    if (key === 'salesUserUuid') {
+      setSalesUserOption(next as FilterOption | undefined);
+      emit({ salesUserUuid: (next as FilterOption | undefined)?.value });
+      return;
+    }
+    emit({ [key]: next } as Partial<SalesOrderListFilters>);
+  };
+
   /** Selecting a type clears the other uuid — at most one is ever sent. */
   const selectItemType = (next: ItemType) => {
     setItemType(next);
@@ -293,6 +345,7 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
     setSheetOptions([]);
     setCustomerOption(undefined);
     setProductOption(undefined);
+    setSalesUserOption(undefined);
     onClear();
   };
 
@@ -389,6 +442,9 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
           {t('salesOrders.filters.clear')}
         </Button>
       </div>
+
+      {/* Row 5 — advanced panel: the extra columns not already covered above. */}
+      <FilterBar defs={advancedDefs} values={advancedValues} onChange={handleAdvancedChange} />
     </div>
   );
 };

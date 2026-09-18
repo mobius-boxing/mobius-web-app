@@ -136,6 +136,8 @@ export type AuditEntity = {
  */
 export type AuditLogFilters = {
   entityName?: string;
+  /** Column-scoped ILIKE on the record's code (column-filters rich-bars). */
+  entityCode?: string;
   entityUuid?: string;
   rootUuid?: string;
   operation?: AuditOperation;

@@ -9,7 +9,7 @@ const mockDeleteWarehouse = jest.fn();
 
 jest.mock('../../services/api', () => ({
   warehousesApi: {
-    getWarehouses: () => mockGetWarehouses(),
+    getWarehouses: (...args: any[]) => mockGetWarehouses(...args),
     deleteWarehouse: (...args: any[]) => mockDeleteWarehouse(...args),
   },
 }));
@@ -40,6 +40,7 @@ jest.mock('react-i18next', () => ({
         'warehouses.empty.title': 'No warehouses found',
         'warehouses.empty.description': 'No results match your search',
         'warehouses.empty.noData': 'Get started by creating your first warehouse',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -183,6 +184,30 @@ describe('Warehouses Page', () => {
       await waitFor(() => {
         expect(screen.getByText('No warehouses found')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Advanced filters', () => {
+    it('sends name once the advanced text filter is set', async () => {
+      render(<Warehouses />);
+      await waitFor(() => {
+        expect(screen.getByText('Main Warehouse')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Name');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'Main Warehouse' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetWarehouses).toHaveBeenLastCalledWith(
+            expect.objectContaining({ name: 'Main Warehouse' })
+          );
+        },
+        { timeout: 2000 }
+      );
     });
   });
 });

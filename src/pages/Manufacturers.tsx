@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Wrench } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Manufacturer } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
@@ -34,18 +35,6 @@ const Manufacturers: React.FC = () => {
     return manufacturersApi.getManufacturers(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: manufacturers,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<Manufacturer>({
-    fetchFn: fetchManufacturers,
-    searchFields: ['code', 'name'],
-    filterDefs: [searchFilter(t('manufacturers.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -150,6 +139,29 @@ const Manufacturers: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('manufacturers.searchPlaceholder')),
+      ...columnFilterDefs('manufacturers', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: manufacturers,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<Manufacturer>({
+    fetchFn: fetchManufacturers,
+    searchFields: ['code', 'name'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () =>
 
 jest.mock('../../services/api', () => ({
   corrugationsApi: {
-    getCorrugations: () => mockGetCorrugations(),
+    getCorrugations: (...args: any[]) => mockGetCorrugations(...args),
     deleteCorrugation: (...args: any[]) => mockDeleteCorrugation(...args),
   },
 }));
@@ -46,6 +46,7 @@ jest.mock('react-i18next', () => ({
         'common.confirm': 'Confirm',
         'common.delete': 'Delete',
         'common.cancel': 'Cancel',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -219,6 +220,31 @@ describe('Corrugations Page', () => {
       await waitFor(() => {
         expect(screen.getByText('No corrugations found')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Advanced filters', () => {
+    it('sends code once the advanced text filter is set', async () => {
+      render(<Corrugations />);
+
+      await waitFor(() => {
+        expect(screen.getByText('CORR-001')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Code');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'CORR-001' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetCorrugations).toHaveBeenLastCalledWith(
+            expect.objectContaining({ code: 'CORR-001' })
+          );
+        },
+        { timeout: 2000 }
+      );
     });
   });
 });

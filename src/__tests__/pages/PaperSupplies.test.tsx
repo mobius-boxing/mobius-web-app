@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () =>
 
 jest.mock('../../services/api', () => ({
   paperSuppliesApi: {
-    getPaperSupplies: () => mockGetPaperSupplies(),
+    getPaperSupplies: (...args: any[]) => mockGetPaperSupplies(...args),
     deletePaperSupply: (...args: any[]) => mockDeletePaperSupply(...args),
   },
 }));
@@ -41,6 +41,7 @@ jest.mock('react-i18next', () => ({
         'paperSupplies.empty.title': 'No paper supplies found',
         'paperSupplies.empty.description': 'No results match your search',
         'paperSupplies.empty.noData': 'Get started by creating your first paper supply',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -182,6 +183,30 @@ describe('PaperSupplies Page', () => {
       await waitFor(() => {
         expect(screen.getByText('No paper supplies found')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Advanced filters', () => {
+    it('sends name once the advanced text filter is set', async () => {
+      render(<PaperSupplies />);
+      await waitFor(() => {
+        expect(screen.getByText('PS-001')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Name');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'Kraft 120gsm' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetPaperSupplies).toHaveBeenLastCalledWith(
+            expect.objectContaining({ name: 'Kraft 120gsm' })
+          );
+        },
+        { timeout: 2000 }
+      );
     });
   });
 });

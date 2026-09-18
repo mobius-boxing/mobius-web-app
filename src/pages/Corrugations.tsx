@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Layers } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Corrugation } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import ConfirmModal from '../components/ui/ConfirmModal';
@@ -33,18 +34,6 @@ const Corrugations: React.FC = () => {
     return corrugationsApi.getCorrugations(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: corrugations,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<Corrugation>({
-    fetchFn: fetchCorrugations,
-    searchFields: ['code', 'description'],
-    filterDefs: [searchFilter(t('corrugations.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -185,6 +174,29 @@ const Corrugations: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('corrugations.searchPlaceholder')),
+      ...columnFilterDefs('corrugations', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: corrugations,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<Corrugation>({
+    fetchFn: fetchCorrugations,
+    searchFields: ['code', 'description'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

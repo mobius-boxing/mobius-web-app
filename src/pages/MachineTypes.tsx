@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Cog } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { MachineType } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -37,10 +38,6 @@ const MachineTypes: React.FC = () => {
     [effectiveCompanyId],
   );
 
-  const { filteredData: machineTypes, loading,
-    filterBarProps, refresh, paginationProps } =
-    useEntityList<MachineType>({ fetchFn: fetchMachineTypes, searchFields: ['name', 'attribute'],
-    filterDefs: [searchFilter(t('machineTypes.searchPlaceholder'))], });
 
   useEffect(() => {
     refresh();
@@ -130,6 +127,21 @@ const MachineTypes: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('machineTypes.searchPlaceholder')),
+      ...columnFilterDefs('machine-types', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const { filteredData: machineTypes, loading,
+    filterBarProps, refresh, paginationProps } =
+    useEntityList<MachineType>({ fetchFn: fetchMachineTypes, searchFields: ['name', 'attribute'],
+    filterDefs, });
+
 
   return (
     <Layout>

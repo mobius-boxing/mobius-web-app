@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Wrench } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ToolingStock } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -34,18 +35,6 @@ const ToolingStockPage: React.FC = () => {
     return toolingStockApi.getToolingStock(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: toolingStock,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<ToolingStock>({
-    fetchFn: fetchToolingStock,
-    searchFields: ['comments'],
-    filterDefs: [searchFilter(t('toolingStock.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -177,6 +166,29 @@ const ToolingStockPage: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('toolingStock.searchPlaceholder')),
+      ...columnFilterDefs('tooling-stock', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: toolingStock,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<ToolingStock>({
+    fetchFn: fetchToolingStock,
+    searchFields: ['comments'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Layers } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { FscType } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
@@ -34,18 +35,6 @@ const FscTypes: React.FC = () => {
     return fscTypesApi.getFscTypes(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: fscTypes,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<FscType>({
-    fetchFn: fetchFscTypes,
-    searchFields: ['code', 'description'],
-    filterDefs: [searchFilter(t('fscTypes.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -152,6 +141,29 @@ const FscTypes: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('fscTypes.searchPlaceholder')),
+      ...columnFilterDefs('fsc-types', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: fscTypes,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<FscType>({
+    fetchFn: fetchFscTypes,
+    searchFields: ['code', 'description'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

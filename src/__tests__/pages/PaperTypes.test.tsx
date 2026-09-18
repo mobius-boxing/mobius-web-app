@@ -13,7 +13,7 @@ jest.mock('../../contexts/AuthContext', () =>
 
 jest.mock('../../services/api', () => ({
   paperTypesApi: {
-    getPaperTypes: () => mockGetPaperTypes(),
+    getPaperTypes: (...args: any[]) => mockGetPaperTypes(...args),
     deletePaperType: (...args: any[]) => mockDeletePaperType(...args),
   },
 }));
@@ -39,6 +39,7 @@ jest.mock('react-i18next', () => ({
         'paperTypes.empty.title': 'No paper types found',
         'paperTypes.empty.description': 'No results match your search',
         'paperTypes.empty.noData': 'Get started by creating your first paper type',
+        'filters.advanced': 'Advanced filters',
       };
       return translations[key] || key;
     },
@@ -198,6 +199,30 @@ describe('PaperTypes Page', () => {
         expect(screen.getByText('No paper types found')).toBeInTheDocument();
         expect(screen.getByText('Get started by creating your first paper type')).toBeInTheDocument();
       });
+    });
+  });
+
+  describe('Advanced filters', () => {
+    it('sends code once the advanced text filter is set', async () => {
+      render(<PaperTypes />);
+      await waitFor(() => {
+        expect(screen.getByText('PT-001')).toBeInTheDocument();
+      });
+
+      fireEvent.click(screen.getByRole('button', { name: /Advanced filters/i }));
+
+      const [label] = screen.getAllByText('Code');
+      const input = label.parentElement!.querySelector('input') as HTMLInputElement;
+      fireEvent.change(input, { target: { value: 'PT-001' } });
+
+      await waitFor(
+        () => {
+          expect(mockGetPaperTypes).toHaveBeenLastCalledWith(
+            expect.objectContaining({ code: 'PT-001' })
+          );
+        },
+        { timeout: 2000 }
+      );
     });
   });
 });

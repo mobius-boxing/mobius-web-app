@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Copy, Route as RouteIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { ProductionRoute } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { usePermissions } from '../hooks/usePermissions';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -36,10 +37,6 @@ const ProductionRoutes: React.FC = () => {
     [effectiveCompanyId],
   );
 
-  const { filteredData: routes, loading,
-    filterBarProps, refresh, paginationProps } =
-    useEntityList<ProductionRoute>({ fetchFn: fetchRoutes, searchFields: ['name'],
-    filterDefs: [searchFilter(t('productionRoutes.searchPlaceholder'))], });
 
   useEffect(() => {
     refresh();
@@ -162,6 +159,21 @@ const ProductionRoutes: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('productionRoutes.searchPlaceholder')),
+      ...columnFilterDefs('production-routes', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const { filteredData: routes, loading,
+    filterBarProps, refresh, paginationProps } =
+    useEntityList<ProductionRoute>({ fetchFn: fetchRoutes, searchFields: ['name'],
+    filterDefs, });
+
 
   return (
     <Layout>

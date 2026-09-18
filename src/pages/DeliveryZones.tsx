@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, MapPin } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { DeliveryZone } from '../types';
@@ -9,6 +9,7 @@ import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
+import { columnFilterDefs } from '../filters/columnFilters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
@@ -34,18 +35,6 @@ const DeliveryZones: React.FC = () => {
     return deliveryZonesApi.getDeliveryZones(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    filteredData: zones,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    paginationProps,
-  } = useEntityList<DeliveryZone>({
-    fetchFn: fetchZones,
-    searchFields: ['code', 'description'],
-    filterDefs: [searchFilter(t('deliveryZones.searchPlaceholder'))],
-  });
 
   useEffect(() => {
     refresh();
@@ -137,6 +126,29 @@ const DeliveryZones: React.FC = () => {
       ),
     },
   ];
+
+  const filterDefs = useMemo(
+    () => [
+      searchFilter(t('deliveryZones.searchPlaceholder')),
+      ...columnFilterDefs('delivery-zones', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    filteredData: zones,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    paginationProps,
+  } = useEntityList<DeliveryZone>({
+    fetchFn: fetchZones,
+    searchFields: ['code', 'description'],
+    filterDefs,
+  });
+
 
   return (
     <Layout>

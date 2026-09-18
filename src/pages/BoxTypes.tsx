@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { Plus, Trash2, Edit, Box } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { BoxType } from '../types';
@@ -8,7 +8,7 @@ import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
-import { FilterBar, searchFilter } from '../components/ui/filters';
+import { FilterBar, FilterDef, searchFilter } from '../components/ui/filters';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
@@ -17,6 +17,7 @@ import EditBoxTypeModal from '../components/modals/EditBoxTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
 import { historyColumn } from '../components/audit/historyColumn';
+import { columnFilterDefs } from '../filters/columnFilters';
 
 const BoxTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -34,67 +35,10 @@ const BoxTypes: React.FC = () => {
     return boxTypesApi.getBoxTypes(fetchParams);
   }, [effectiveCompanyId]);
 
-  const {
-    data: items,
-    loading,
-    search,
-    filterBarProps,
-    refresh,
-    pagination,
-    paginationProps,
-    sortBy,
-    sortOrder,
-    setSort,
-  } = useEntityList<BoxType>({
-    fetchFn: fetchItems,
-    searchFields: ['code', 'name'],
-    filterDefs: [searchFilter(t('boxTypes.searchPlaceholder'))],
-  });
-
-  useEffect(() => {
-    refresh();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [effectiveCompanyId]);
-
-  const handleEdit = (item: BoxType) => {
-    setSelectedItem(item);
-    setShowEditModal(true);
-  };
-
-  const handleDelete = (uuid: string) => {
-    confirmModal.showConfirm({
-      title: t('confirmModal.deleteTitle'),
-      message: t('boxTypes.deleteConfirm'),
-      variant: 'danger',
-      onConfirm: async () => {
-        try {
-          setActionLoading(uuid);
-          await boxTypesApi.deleteBoxType(uuid);
-          await refresh();
-        } catch (error: any) {
-          logger.error('Error deleting box type:', error);
-        } finally {
-          setActionLoading(null);
-        }
-      },
-    });
-  };
-
-  const handleCreateSuccess = () => {
-    setShowCreateModal(false);
-    refresh();
-  };
-
-  const handleEditSuccess = () => {
-    setShowEditModal(false);
-    setSelectedItem(null);
-    refresh();
-  };
-
-  const handleSort = (field: string, order: 'asc' | 'desc') => {
-    setSort(field, order);
-  };
-
+  // Declared ahead of useEntityList so `columnFilterDefs` can read column
+  // headers for its labels; the `render` closures below reference
+  // `handleEdit`/`handleDelete`/`actionLoading`, which only run once Table
+  // invokes them — well after those consts are initialized (page-filters lesson).
   const columns = [
     {
       key: 'code',
@@ -164,6 +108,76 @@ const BoxTypes: React.FC = () => {
     },
   ];
 
+  const filterDefs: FilterDef[] = useMemo(
+    () => [
+      searchFilter(t('boxTypes.searchPlaceholder')),
+      ...columnFilterDefs('box-types', columns, t, { companyId: effectiveCompanyId }),
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, effectiveCompanyId]
+  );
+
+  const {
+    data: items,
+    loading,
+    search,
+    filterBarProps,
+    refresh,
+    pagination,
+    paginationProps,
+    sortBy,
+    sortOrder,
+    setSort,
+  } = useEntityList<BoxType>({
+    fetchFn: fetchItems,
+    searchFields: ['code', 'name'],
+    filterDefs,
+  });
+
+  useEffect(() => {
+    refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [effectiveCompanyId]);
+
+  const handleEdit = (item: BoxType) => {
+    setSelectedItem(item);
+    setShowEditModal(true);
+  };
+
+  const handleDelete = (uuid: string) => {
+    confirmModal.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('boxTypes.deleteConfirm'),
+      variant: 'danger',
+      onConfirm: async () => {
+        try {
+          setActionLoading(uuid);
+          await boxTypesApi.deleteBoxType(uuid);
+          await refresh();
+        } catch (error: any) {
+          logger.error('Error deleting box type:', error);
+        } finally {
+          setActionLoading(null);
+        }
+      },
+    });
+  };
+
+  const handleCreateSuccess = () => {
+    setShowCreateModal(false);
+    refresh();
+  };
+
+  const handleEditSuccess = () => {
+    setShowEditModal(false);
+    setSelectedItem(null);
+    refresh();
+  };
+
+  const handleSort = (field: string, order: 'asc' | 'desc') => {
+    setSort(field, order);
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -184,11 +198,7 @@ const BoxTypes: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="w-full sm:flex-1 sm:max-w-md">
-              <FilterBar {...filterBarProps} />
-            </div>
-          </div>
+          <FilterBar {...filterBarProps} />
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
