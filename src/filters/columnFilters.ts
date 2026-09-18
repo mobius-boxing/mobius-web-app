@@ -93,12 +93,14 @@ export function columnFilterDefs(
           key: `${param}From`,
           label: `${label} · ${t('filters.range.from')}`,
           advanced: true,
+          range: { group: param, role: 'from', label },
         } as FilterDef);
         defs.push({
           kind: spec.kind,
           key: `${param}To`,
           label: `${label} · ${t('filters.range.to')}`,
           advanced: true,
+          range: { group: param, role: 'to', label },
         } as FilterDef);
         break;
 

@@ -193,5 +193,101 @@ describe('FilterBar', () => {
 
       expect(screen.getByRole('button', { name: /filters\.advanced/ })).toBeDisabled();
     });
+
+    it('shows the "filters.advanced" caption and the clear button together in the panel header', () => {
+      const onChange = jest.fn();
+      render(<FilterBar defs={advancedDefs} values={{ code: 'ABC' }} onChange={onChange} />);
+
+      // Panel opens automatically (I-4) since `code` already has a value.
+      expect(screen.getByText('filters.advanced', { selector: 'span' })).toBeInTheDocument();
+      expect(screen.getByText('filters.clear')).toBeInTheDocument();
+    });
+  });
+
+  describe('range pairs (AC-3)', () => {
+    const rangeDefs: FilterDef[] = [
+      {
+        kind: 'number',
+        key: 'quantityFrom',
+        label: 'Quantity · from',
+        advanced: true,
+        testId: 'filter-quantity-from',
+        range: { group: 'quantity', role: 'from', label: 'Quantity' },
+      },
+      {
+        kind: 'number',
+        key: 'quantityTo',
+        label: 'Quantity · to',
+        advanced: true,
+        testId: 'filter-quantity-to',
+        range: { group: 'quantity', role: 'to', label: 'Quantity' },
+      },
+    ];
+
+    it('renders a from/to pair in one cell, under the shared group label', () => {
+      const onChange = jest.fn();
+      render(<FilterBar defs={rangeDefs} values={{}} onChange={onChange} />);
+
+      fireEvent.click(screen.getByRole('button', { name: /filters\.advanced/ }));
+
+      // One group caption, not two per-def labels.
+      expect(screen.getByText('Quantity')).toBeInTheDocument();
+      expect(screen.queryByText('Quantity · from')).not.toBeInTheDocument();
+
+      const from = screen.getByTestId('filter-quantity-from');
+      const to = screen.getByTestId('filter-quantity-to');
+      expect(from).toHaveAttribute('aria-label', 'Quantity · from');
+      expect(to).toHaveAttribute('aria-label', 'Quantity · to');
+      // Both halves share the group's cell.
+      expect(from.closest('div.grid')).toBe(to.closest('div.grid'));
+
+      fireEvent.change(from, { target: { value: '10' } });
+      expect(onChange).toHaveBeenCalledWith('quantityFrom', '10');
+    });
+
+    it('placeholders a number range half with filters.range.from/to', () => {
+      const onChange = jest.fn();
+      render(<FilterBar defs={rangeDefs} values={{}} onChange={onChange} />);
+      fireEvent.click(screen.getByRole('button', { name: /filters\.advanced/ }));
+
+      expect(screen.getByTestId('filter-quantity-from')).toHaveAttribute('placeholder', 'filters.range.from');
+      expect(screen.getByTestId('filter-quantity-to')).toHaveAttribute('placeholder', 'filters.range.to');
+    });
+  });
+
+  it('renders the `children` slot between the primary row and the advanced panel', () => {
+    const onChange = jest.fn();
+    const defs: FilterDef[] = [
+      { kind: 'text', key: 'search', label: '', placeholder: 'Search…' },
+      { kind: 'text', key: 'code', label: 'Code', advanced: true, testId: 'filter-code' },
+    ];
+    const { container } = render(
+      <FilterBar defs={defs} values={{}} onChange={onChange}>
+        <div data-testid="bespoke-row">Bespoke row</div>
+      </FilterBar>,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /filters\.advanced/ }));
+
+    const root = container.firstElementChild as HTMLElement;
+    const children = Array.from(root.children);
+    const rowIndex = children.findIndex((el) => el.querySelector('[placeholder="Search…"]'));
+    const bespokeIndex = children.findIndex((el) => el === screen.getByTestId('bespoke-row'));
+    const panelIndex = children.findIndex((el) => el.querySelector('[data-testid="filter-code"]'));
+
+    expect(rowIndex).toBeGreaterThanOrEqual(0);
+    expect(bespokeIndex).toBeGreaterThan(rowIndex);
+    expect(panelIndex).toBeGreaterThan(bespokeIndex);
+  });
+
+  it('never renders a grid on its own root, regardless of the caller className', () => {
+    const onChange = jest.fn();
+    const defs: FilterDef[] = [{ kind: 'text', key: 'search', label: '', placeholder: 'Search…' }];
+    const { container } = render(<FilterBar defs={defs} values={{}} onChange={onChange} className="extra-class" />);
+
+    const root = container.firstElementChild as HTMLElement;
+    expect(root.className).not.toMatch(/\bgrid\b/);
+    expect(root.className).toContain('flex');
+    expect(root.className).toContain('extra-class');
   });
 });

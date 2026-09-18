@@ -246,10 +246,12 @@ describe('the filter bar', () => {
 
     fireEvent.click(screen.getByRole('button', { name: /filters\.advanced/ }));
 
-    const label = screen.getByText(
+    // The from/to pair now shares one grid cell under a single group caption
+    // (AC-3 range grouping); each control keeps its own def label as its
+    // `aria-label`, which is what still lets "from" and "to" be told apart.
+    const input = screen.getByLabelText(
       'productionOrders.columns.quantity · filters.range.from',
     );
-    const input = label.parentElement!.querySelector('input') as HTMLInputElement;
     fireEvent.change(input, { target: { value: '50' } });
 
     await waitFor(() =>

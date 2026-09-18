@@ -293,14 +293,14 @@ const AuditLogs: React.FC = () => {
         key: 'search',
         label: t('auditLogs.filters.search'),
         placeholder: t('auditLogs.filters.searchPlaceholder'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
       },
       {
         kind: 'select',
         key: 'entityName',
         label: t('auditLogs.filters.entity'),
         placeholder: t('auditLogs.filters.entityAll'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
         testId: 'audit-filter-entity',
         options: entityOptions.map((option) => ({ value: option.key, label: option.label })),
       },
@@ -309,7 +309,7 @@ const AuditLogs: React.FC = () => {
         key: 'operation',
         label: t('auditLogs.filters.operation'),
         placeholder: t('auditLogs.filters.operationAll'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
         testId: 'audit-filter-operation',
         options: OPERATIONS.map((operation) => ({ value: operation, label: operationLabel(operation, translate) })),
       },
@@ -318,7 +318,7 @@ const AuditLogs: React.FC = () => {
         key: 'source',
         label: t('auditLogs.filters.source'),
         placeholder: t('auditLogs.filters.sourceAll'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
         testId: 'audit-filter-source',
         options: SOURCES.map((source) => ({ value: source, label: t(`auditLogs.source.${source}`) })),
       },
@@ -327,7 +327,7 @@ const AuditLogs: React.FC = () => {
         key: 'username',
         label: t('auditLogs.filters.username'),
         placeholder: t('auditLogs.filters.usernamePlaceholder'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
         testId: 'audit-filter-username',
         // A username is typed one letter at a time; without this every
         // keystroke would be its own request (AC-12 D-14).
@@ -338,21 +338,23 @@ const AuditLogs: React.FC = () => {
         key: 'changedKey',
         label: t('auditLogs.filters.changedKey'),
         placeholder: t('auditLogs.filters.changedKeyPlaceholder'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
         testId: 'audit-filter-changed-key',
       },
       {
         kind: 'date',
         key: 'from',
+        range: { group: 'occurredAt', role: 'from', label: t('auditLogs.filters.date') },
         label: t('auditLogs.filters.from'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
         testId: 'audit-filter-from',
       },
       {
         kind: 'date',
         key: 'to',
+        range: { group: 'occurredAt', role: 'to', label: t('auditLogs.filters.date') },
         label: t('auditLogs.filters.to'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
         testId: 'audit-filter-to',
       },
       // D-13 pattern: `operation` and `occurredAtFrom/To` are dropped — the
@@ -449,7 +451,7 @@ const AuditLogs: React.FC = () => {
             </Button>
           </div>
 
-          <FilterBar {...filterBarProps} className="gd-filters-grid" />
+          <FilterBar {...filterBarProps} />
         </div>
 
         {exportError && <ErrorMessage message={exportError} />}

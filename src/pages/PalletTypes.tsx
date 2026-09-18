@@ -165,9 +165,7 @@ const PalletTypes: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="w-full sm:flex-1 sm:max-w-md">
-            <FilterBar {...filterBarProps} />
-          </div>
+          <FilterBar {...filterBarProps} />
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">

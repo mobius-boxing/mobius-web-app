@@ -274,7 +274,7 @@ const ProductionOrdersGrid: React.FC<Props> = ({
               {t('productionOrders.filters.clear')}
             </Button>
           </div>
-          <FilterBar {...filterBarProps} className="gd-filters-grid" />
+          <FilterBar {...filterBarProps} />
         </div>
       )}
 

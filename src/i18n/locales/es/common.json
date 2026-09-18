@@ -2632,7 +2632,8 @@
       "voided": "Anuladas",
       "deliveryFrom": "F. entrega desde",
       "deliveryTo": "F. entrega hasta",
-      "clear": "Limpiar"
+      "clear": "Limpiar",
+      "deliveryDate": "F. entrega"
     },
     "lifecycle": {
       "scheduling": "Habilitación",
@@ -2826,7 +2827,8 @@
       "changedKey": "Campo modificado",
       "changedKeyPlaceholder": "Nombre de columna, p. ej. name",
       "search": "Búsqueda",
-      "searchPlaceholder": "Código o descripción del registro"
+      "searchPlaceholder": "Código o descripción del registro",
+      "date": "Fecha"
     },
     "source": {
       "api": "API",

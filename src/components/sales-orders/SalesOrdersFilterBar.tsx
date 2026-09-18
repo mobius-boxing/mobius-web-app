@@ -10,7 +10,7 @@ import { logger } from '../../utils/logger';
 import { columnFilterDefs } from '../../filters/columnFilters';
 
 /**
- * Registry-generated keys the primary rows above already control (D-13
+ * Registry-generated keys the primary row above already controls (D-13
  * pattern, column-filters/model.md): keeping both would duplicate a control
  * and let the advanced panel's "Limpiar" clear a filter this bar itself owns.
  */
@@ -91,8 +91,8 @@ interface Props {
  * hide fulfilled and voided pedidos by default — parity with
  * `PedidoRepository.cs:89-97`, not an "also include" toggle. Neither fits a
  * generic `FilterDef` kind, so — like the radio pair and the free plancha
- * lookup, which the brief left unconverted — they stay bespoke, driven by
- * the very same `emit`.
+ * lookup, which the brief left unconverted — they stay bespoke, rendered in
+ * `FilterBar`'s `children` slot and driven by the very same `emit`.
  */
 const SalesOrdersFilterBar: React.FC<Props> = ({
   value,
@@ -231,7 +231,7 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
 
   // The columns/quantity/price ranges this bar leaves uncovered (D-13
   // pattern): dropping the registry's duplicate customer/product/date/
-  // fulfilled/voided/number defs, which the rows above already own.
+  // fulfilled/voided/number defs, which the row above already owns.
   const advancedDefs: FilterDef[] = useMemo(
     () =>
       columnFilterDefs('sales-orders', columns, t, { companyId }).filter(
@@ -240,20 +240,6 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [columns, companyId, t],
   );
-
-  const advancedValues = useMemo(
-    () => ({ ...value, salesUserUuid: salesUserOption }),
-    [value, salesUserOption],
-  );
-
-  const handleAdvancedChange = (key: string, next: unknown) => {
-    if (key === 'salesUserUuid') {
-      setSalesUserOption(next as FilterOption | undefined);
-      emit({ salesUserUuid: (next as FilterOption | undefined)?.value });
-      return;
-    }
-    emit({ [key]: next } as Partial<SalesOrderListFilters>);
-  };
 
   /** Selecting a type clears the other uuid — at most one is ever sent. */
   const selectItemType = (next: ItemType) => {
@@ -265,79 +251,107 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
     });
   };
 
-  const topDefs: FilterDef[] = [
-    {
-      kind: 'entity',
-      key: 'customerUuid',
-      label: t('salesOrders.filters.customer'),
-      placeholder: t('salesOrders.filters.customerPlaceholder'),
-      loadOptions: loadCustomerOptions,
-      testId: 'filter-customer',
-      className: 'w-full sm:w-64',
-    },
-    {
-      kind: 'date',
-      key: 'deliveryDateFrom',
-      label: t('salesOrders.filters.deliveryDateFrom'),
-      testId: 'filter-delivery-from',
-      className: 'w-full sm:w-48',
-    },
-    {
-      kind: 'date',
-      key: 'deliveryDateTo',
-      label: t('salesOrders.filters.deliveryDateTo'),
-      testId: 'filter-delivery-to',
-      className: 'w-full sm:w-48',
-    },
-  ];
-
-  const itemDef: FilterDef =
-    itemType === 'product'
-      ? {
-          kind: 'entity',
-          key: 'productUuid',
-          label: '',
-          placeholder: t('salesOrders.filters.allItems'),
-          loadOptions: loadProductOptions,
-          testId: 'filter-item',
-          className: 'w-72',
-        }
-      : itemType === 'sheet'
+  const itemDef: FilterDef = useMemo(
+    () =>
+      itemType === 'product'
         ? {
-            kind: 'select',
-            key: 'sheetSupplyUuid',
+            kind: 'entity',
+            key: 'productUuid',
             label: '',
             placeholder: t('salesOrders.filters.allItems'),
-            options: sheetOptions.map((option) => ({ value: option.uuid, label: option.label })),
+            loadOptions: loadProductOptions,
             testId: 'filter-item',
-            className: 'w-72',
+            className: 'w-full sm:w-72',
           }
-        : {
-            kind: 'select',
-            key: 'itemUuid',
-            label: '',
-            placeholder: t('salesOrders.filters.allItems'),
-            options: [],
-            disabled: true,
-            testId: 'filter-item',
-            className: 'w-72',
-          };
+        : itemType === 'sheet'
+          ? {
+              kind: 'select',
+              key: 'sheetSupplyUuid',
+              label: '',
+              placeholder: t('salesOrders.filters.allItems'),
+              options: sheetOptions.map((option) => ({ value: option.uuid, label: option.label })),
+              testId: 'filter-item',
+              className: 'w-full sm:w-72',
+            }
+          : {
+              kind: 'select',
+              key: 'itemUuid',
+              label: '',
+              placeholder: t('salesOrders.filters.allItems'),
+              options: [],
+              disabled: true,
+              testId: 'filter-item',
+              className: 'w-full sm:w-72',
+            },
+    [itemType, loadProductOptions, sheetOptions, t],
+  );
 
   const itemValue: unknown =
     itemDef.key === 'productUuid' ? productOption : value.sheetSupplyUuid;
 
-  const handleTopChange = (key: string, next: unknown) => {
-    if (key === 'customerUuid') return handleCustomerChange(next as FilterOption | undefined);
-    if (key === 'deliveryDateFrom') return emit({ deliveryDateFrom: next as string });
-    if (key === 'deliveryDateTo') return emit({ deliveryDateTo: next as string });
-  };
+  const defs: FilterDef[] = useMemo(
+    () => [
+      {
+        kind: 'text',
+        key: 'number',
+        label: t('salesOrders.filters.number'),
+        testId: 'filter-number',
+        className: 'w-full sm:w-40',
+      },
+      {
+        kind: 'entity',
+        key: 'customerUuid',
+        label: t('salesOrders.filters.customer'),
+        placeholder: t('salesOrders.filters.customerPlaceholder'),
+        loadOptions: loadCustomerOptions,
+        testId: 'filter-customer',
+        className: 'w-full sm:w-64',
+      },
+      {
+        kind: 'date',
+        key: 'deliveryDateFrom',
+        range: { group: 'deliveryDate', role: 'from', label: t('salesOrders.columns.deliveryDate') },
+        label: t('salesOrders.filters.deliveryDateFrom'),
+        testId: 'filter-delivery-from',
+        className: 'w-full sm:w-48',
+      },
+      {
+        kind: 'date',
+        key: 'deliveryDateTo',
+        range: { group: 'deliveryDate', role: 'to', label: t('salesOrders.columns.deliveryDate') },
+        label: t('salesOrders.filters.deliveryDateTo'),
+        testId: 'filter-delivery-to',
+        className: 'w-full sm:w-48',
+      },
+      itemDef,
+      ...advancedDefs,
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [t, loadCustomerOptions, itemDef, advancedDefs],
+  );
 
-  const handleItemChange = (key: string, next: unknown) => {
+  const values = useMemo(
+    () => ({
+      ...value,
+      customerUuid: customerOption,
+      salesUserUuid: salesUserOption,
+      [itemDef.key]: itemValue,
+    }),
+    [value, customerOption, salesUserOption, itemDef.key, itemValue],
+  );
+
+  const handleFilterChange = (key: string, next: unknown) => {
+    if (key === 'customerUuid') return handleCustomerChange(next as FilterOption | undefined);
     if (key === 'productUuid') {
       setProductOption(next as FilterOption | undefined);
       return emit({ productUuid: (next as FilterOption | undefined)?.value });
     }
     if (key === 'sheetSupplyUuid') return emit({ sheetSupplyUuid: (next as string) || undefined });
+    if (key === 'salesUserUuid') {
+      setSalesUserOption(next as FilterOption | undefined);
+      return emit({ salesUserUuid: (next as FilterOption | undefined)?.value });
+    }
+    emit({ [key]: next } as Partial<SalesOrderListFilters>);
   };
 
   const handleClear = () => {
@@ -351,28 +365,11 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
 
   return (
     <div
-      className="space-y-3 rounded-lg border border-secondary-200 bg-white p-4 shadow-sm"
+      className="rounded-lg border border-secondary-200 bg-white p-4 shadow-sm"
       data-testid="sales-orders-filter-bar"
     >
-      {/* Row 1 — número, cliente, rango de fecha de entrega */}
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-4">
-        <label className="text-sm text-secondary-700">
-          {t('salesOrders.filters.number')}
-          <input
-            type="text"
-            name="number"
-            className="input-field mt-1"
-            data-testid="filter-number"
-            value={value.number ?? ''}
-            onChange={(event) => emit({ number: event.target.value })}
-          />
-        </label>
-        <FilterBar defs={topDefs} values={{ ...value, customerUuid: customerOption }} onChange={handleTopChange} />
-      </div>
-
-      {/* Row 2 — the exclusive producto / plancha pair */}
-      <div className="flex flex-wrap items-end gap-4">
-        <div className="flex items-center gap-3">
+      <FilterBar defs={defs} values={values} onChange={handleFilterChange}>
+        <div className="flex flex-wrap items-center gap-4">
           {ITEM_TYPES.map((option) => (
             <label
               key={option.value}
@@ -398,53 +395,47 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
             {t('salesOrders.filters.clearType')}
           </Button>
         </div>
-        <FilterBar defs={[itemDef]} values={{ [itemDef.key]: itemValue }} onChange={handleItemChange} />
-      </div>
 
-      {/* Row 3 — the four checkboxes */}
-      <div className="flex flex-wrap items-center gap-4">
-        {CHECKBOXES.map((checkbox) => (
-          <label
-            key={checkbox.key}
-            className="flex items-center gap-1 text-sm text-secondary-700"
-          >
-            <input
-              type="checkbox"
-              name={checkbox.key}
-              data-testid={checkbox.testId}
-              checked={value[checkbox.key] === 'true'}
-              onChange={(event) =>
-                emit({
-                  [checkbox.key]: event.target.checked ? 'true' : 'false',
-                })
-              }
-            />
-            {t(checkbox.labelKey)}
-          </label>
-        ))}
-      </div>
-
-      {/* Row 4 — búsqueda libre y Limpiar */}
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="w-72">
-          <SearchInput
-            value={search}
-            onChange={onSearchChange}
-            placeholder={t('salesOrders.searchPlaceholder')}
-          />
+        <div className="flex flex-wrap items-center gap-4">
+          {CHECKBOXES.map((checkbox) => (
+            <label
+              key={checkbox.key}
+              className="flex items-center gap-1 text-sm text-secondary-700"
+            >
+              <input
+                type="checkbox"
+                name={checkbox.key}
+                data-testid={checkbox.testId}
+                checked={value[checkbox.key] === 'true'}
+                onChange={(event) =>
+                  emit({
+                    [checkbox.key]: event.target.checked ? 'true' : 'false',
+                  })
+                }
+              />
+              {t(checkbox.labelKey)}
+            </label>
+          ))}
         </div>
-        <Button
-          variant="secondary"
-          size="sm"
-          data-testid="filter-clear"
-          onClick={handleClear}
-        >
-          {t('salesOrders.filters.clear')}
-        </Button>
-      </div>
 
-      {/* Row 5 — advanced panel: the extra columns not already covered above. */}
-      <FilterBar defs={advancedDefs} values={advancedValues} onChange={handleAdvancedChange} />
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="w-72">
+            <SearchInput
+              value={search}
+              onChange={onSearchChange}
+              placeholder={t('salesOrders.searchPlaceholder')}
+            />
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            data-testid="filter-clear"
+            onClick={handleClear}
+          >
+            {t('salesOrders.filters.clear')}
+          </Button>
+        </div>
+      </FilterBar>
     </div>
   );
 };

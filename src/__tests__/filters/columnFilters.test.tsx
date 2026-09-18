@@ -111,6 +111,22 @@ describe('columnFilterDefs — one def shape per kind', () => {
     expect(to).toMatchObject({ kind: 'date', label: 'Header:createdAt · hasta', advanced: true });
   });
 
+  it('date/number: both halves carry `range.group/role/label` so FilterBar can render them as one cell (AC-3)', () => {
+    const dateDefs = columnFilterDefs('box-types', columnsFor('box-types'), t);
+    const dateFrom = dateDefs.find((def) => def.key === 'createdAtFrom');
+    const dateTo = dateDefs.find((def) => def.key === 'createdAtTo');
+
+    expect(dateFrom).toMatchObject({ range: { group: 'createdAt', role: 'from', label: 'Header:createdAt' } });
+    expect(dateTo).toMatchObject({ range: { group: 'createdAt', role: 'to', label: 'Header:createdAt' } });
+
+    const numberDefs = columnFilterDefs('products', columnsFor('products'), t);
+    const numberFrom = numberDefs.find((def) => def.key === 'revisionFrom');
+    const numberTo = numberDefs.find((def) => def.key === 'revisionTo');
+
+    expect(numberFrom).toMatchObject({ range: { group: 'revision', role: 'from', label: 'Header:revision' } });
+    expect(numberTo).toMatchObject({ range: { group: 'revision', role: 'to', label: 'Header:revision' } });
+  });
+
   it('date: falls back to filters.columns.<column> when the spec is not a shown column', () => {
     // `createdAt` is not a Customers.tsx column; columnFilterDefs still emits
     // it (the DAO supports it), labelled from the i18n fallback.

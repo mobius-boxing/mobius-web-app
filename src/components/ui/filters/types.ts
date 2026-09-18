@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+
 export interface FilterOption {
   value: string;
   label: string;
@@ -23,6 +25,14 @@ interface FilterBase {
   testId?: string;
   /** Rendered inside the collapsible "advanced filters" panel, not the primary row. */
   advanced?: boolean;
+  /**
+   * One half of a from/to range that `FilterBar` renders as a single grid
+   * cell: `group` pairs it with the other half (consecutive defs sharing the
+   * same `group`), `role` picks which half, `label` is the shared caption
+   * shown once above both controls (the per-def `label` above stays for
+   * aria, since the group caption replaces it visually).
+   */
+  range?: { group: string; role: 'from' | 'to'; label: string };
 }
 
 export interface TextFilterDef extends FilterBase {
@@ -73,6 +83,8 @@ export interface FilterBarProps {
   values: Record<string, unknown>;
   onChange: (key: string, value: unknown) => void;
   className?: string;
+  /** A slot for bespoke rows (radios, checkboxes…) between the primary row and the advanced panel. */
+  children?: ReactNode;
 }
 
 /** A `key: 'search'` text def renders as the page's standard search box (not debounced by `FilterBar` itself — `useEntityList` already debounces `search`). */

@@ -2632,7 +2632,8 @@
       "voided": "Voided",
       "deliveryFrom": "Delivery date from",
       "deliveryTo": "Delivery date to",
-      "clear": "Clear"
+      "clear": "Clear",
+      "deliveryDate": "Delivery date"
     },
     "lifecycle": {
       "scheduling": "Habilitación (scheduling)",
@@ -2826,7 +2827,8 @@
       "changedKey": "Changed field",
       "changedKeyPlaceholder": "Column name, e.g. name",
       "search": "Search",
-      "searchPlaceholder": "Record code or description"
+      "searchPlaceholder": "Record code or description",
+      "date": "Date"
     },
     "source": {
       "api": "API",

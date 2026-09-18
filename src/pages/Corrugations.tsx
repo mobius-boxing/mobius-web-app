@@ -218,11 +218,7 @@ const Corrugations: React.FC = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="w-full sm:flex-1 sm:max-w-md">
-              <FilterBar {...filterBarProps} />
-            </div>
-          </div>
+          <FilterBar {...filterBarProps} />
         </div>
 
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">

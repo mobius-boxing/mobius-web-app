@@ -73,7 +73,7 @@ export const useProductionOrdersFilterDefs = (
         key: 'search',
         label: t('productionOrders.filters.search'),
         placeholder: t('productionOrders.searchPlaceholder'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
       },
       ...SELECTS.map(
         (select): FilterDef => ({
@@ -81,7 +81,7 @@ export const useProductionOrdersFilterDefs = (
           key: select.key,
           label: t(select.labelKey),
           placeholder: t(select.allKey),
-          className: 'gd-filters-field',
+          className: 'w-full sm:w-56',
           testId: select.testId,
           options: select.options.map((option) => ({
             value: option.value,
@@ -92,15 +92,17 @@ export const useProductionOrdersFilterDefs = (
       {
         kind: 'date',
         key: 'deliveryDateFrom',
+        range: { group: 'deliveryDate', role: 'from', label: t('productionOrders.filters.deliveryDate') },
         label: t('productionOrders.filters.deliveryFrom'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
         testId: 'filter-delivery-from',
       },
       {
         kind: 'date',
         key: 'deliveryDateTo',
+        range: { group: 'deliveryDate', role: 'to', label: t('productionOrders.filters.deliveryDate') },
         label: t('productionOrders.filters.deliveryTo'),
-        className: 'gd-filters-field',
+        className: 'w-full sm:w-56',
         testId: 'filter-delivery-to',
       },
       ...columnFilterDefs('production-orders', columns, t, { companyId }).filter(
