@@ -127,7 +127,7 @@ describe('Warehouses Page', () => {
     it('should show loading state', () => {
       mockGetWarehouses.mockImplementation(() => new Promise(() => {}));
       render(<Warehouses />);
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
   });
 

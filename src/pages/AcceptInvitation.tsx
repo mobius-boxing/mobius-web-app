@@ -6,6 +6,7 @@ import { authApi } from '../services/api';
 import { AcceptInvitationForm, ApiError, Invitation } from '../types';
 import { logger } from '../utils/logger';
 import { setToken, setDeviceToken } from '../utils/session';
+import { Skeleton } from '../components/ui/Skeleton';
 
 const AcceptInvitation: React.FC = () => {
   const { t } = useTranslation();
@@ -141,10 +142,10 @@ const AcceptInvitation: React.FC = () => {
       <div className="min-h-screen flex items-center justify-center bg-canvas py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-2 border-secondary-200 border-t-primary-600 mx-auto"></div>
             <h2 className="mt-6 text-lg font-medium text-secondary-900">
               {t('invitation.validating')}
             </h2>
+            <Skeleton lines={3} className="mt-6" />
           </div>
         </div>
       </div>

@@ -126,7 +126,7 @@ describe('Manufacturers Page', () => {
     it('should show loading state', () => {
       mockGetManufacturers.mockImplementation(() => new Promise(() => {}));
       render(<Manufacturers />);
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
   });
 

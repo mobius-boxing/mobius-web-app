@@ -126,7 +126,7 @@ describe('PaperTypes Page', () => {
     it('should show loading state', () => {
       mockGetPaperTypes.mockImplementation(() => new Promise(() => {}));
       render(<PaperTypes />);
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
   });
 

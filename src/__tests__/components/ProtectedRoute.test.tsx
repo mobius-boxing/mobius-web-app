@@ -50,7 +50,7 @@ describe('ProtectedRoute', () => {
         </ProtectedRoute>
       );
 
-      const spinner = document.querySelector('.animate-spin');
+      const spinner = document.querySelector('.animate-pulse');
       expect(spinner).toBeInTheDocument();
       expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     });

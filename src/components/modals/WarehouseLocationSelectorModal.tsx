@@ -4,6 +4,7 @@ import { Warehouse, WarehouseLocation } from '../../types';
 import { warehousesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
+import { Skeleton } from '../ui/Skeleton';
 import { Package, Truck, AlertCircle, Archive, MapPin } from 'lucide-react';
 import { logger } from '../../utils/logger';
 
@@ -173,9 +174,7 @@ const WarehouseLocationSelectorModal: React.FC<WarehouseLocationSelectorModalPro
 
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           {loading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            </div>
+            <Skeleton lines={3} />
           ) : (
             <div className="inline-block min-w-full overflow-auto max-h-96">
               {renderGrid()}

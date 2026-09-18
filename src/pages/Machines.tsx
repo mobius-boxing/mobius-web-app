@@ -162,11 +162,7 @@ const Machines: React.FC = () => {
 
         <div className="bg-white rounded-lg shadow-sm border border-secondary-200">
           <div className="p-6">
-            {loading ? (
-              <div className="flex items-center justify-center h-32">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-              </div>
-            ) : machines.length === 0 ? (
+            {!loading && machines.length === 0 ? (
               <div className="text-center py-12">
                 <Factory className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('machines.empty.title')}</h3>

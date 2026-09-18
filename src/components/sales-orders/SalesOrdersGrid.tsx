@@ -402,14 +402,7 @@ const SalesOrdersGrid: React.FC = () => {
             </h2>
           </div>
 
-          {list.loading ? (
-            <div
-              className="flex h-32 items-center justify-center"
-              data-testid="sales-orders-loading"
-            >
-              <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600" />
-            </div>
-          ) : rows.length === 0 ? (
+          {!list.loading && rows.length === 0 ? (
             <div className="py-12 text-center" data-testid="sales-orders-empty">
               <h3 className="text-sm font-medium text-secondary-900">
                 {t('salesOrders.empty.title')}
@@ -420,21 +413,24 @@ const SalesOrdersGrid: React.FC = () => {
             </div>
           ) : (
             <>
-              <Table
-                columns={columns}
-                data={rows}
-                sortBy={list.sortBy}
-                sortOrder={list.sortOrder}
-                          onSort={(field, order) =>
-                  list.setSort(
-                    (SORTABLE as readonly string[]).includes(field)
-                      ? field
-                      : null,
-                    order,
-                  )
-                }
-                listId="sales-orders"
-              />
+              <div data-testid={list.loading ? 'sales-orders-loading' : undefined}>
+                <Table
+                  columns={columns}
+                  data={rows}
+                  loading={list.loading}
+                  sortBy={list.sortBy}
+                  sortOrder={list.sortOrder}
+                  onSort={(field, order) =>
+                    list.setSort(
+                      (SORTABLE as readonly string[]).includes(field)
+                        ? field
+                        : null,
+                      order,
+                    )
+                  }
+                  listId="sales-orders"
+                />
+              </div>
               <Pagination {...list.paginationProps} />
             </>
           )}

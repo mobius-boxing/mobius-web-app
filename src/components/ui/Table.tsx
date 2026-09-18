@@ -7,6 +7,7 @@ import { useElementWidth } from '../../hooks/useElementWidth';
 import { useWheelHorizontalScroll } from '../../hooks/useWheelHorizontalScroll';
 import CardList from './CardList';
 import { ColumnChooserButton } from './ColumnChooser';
+import { TableSkeleton } from './Skeleton';
 
 export interface Column<T = any> {
   key: string;
@@ -105,16 +106,7 @@ function Table<T = any>({
   return (
     <div ref={wrapperRef} className={className}>
       {loading ? (
-        <div className="card">
-          <div className="animate-pulse">
-            <div className="h-4 gd-skel w-full mb-4"></div>
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-4 gd-skel w-full"></div>
-              ))}
-            </div>
-          </div>
-        </div>
+        <TableSkeleton />
       ) : (
         <>
           {prefs.enabled && (

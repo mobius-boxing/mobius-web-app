@@ -125,7 +125,7 @@ describe('CustomerCategories Page', () => {
     it('should show loading state', () => {
       mockGetCategories.mockImplementation(() => new Promise(() => {}));
       render(<CustomerCategories />);
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
   });
 

@@ -126,7 +126,7 @@ describe('PaperClasses Page', () => {
     it('should show loading state', () => {
       mockGetPaperClasses.mockImplementation(() => new Promise(() => {}));
       render(<PaperClasses />);
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
   });
 

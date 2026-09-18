@@ -166,7 +166,7 @@ describe('Companies Page', () => {
       mockGetCompanies.mockImplementation(() => new Promise(() => {}));
       renderCompanies();
 
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
 
     it('should handle API error gracefully', async () => {

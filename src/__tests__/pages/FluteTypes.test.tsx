@@ -127,7 +127,7 @@ describe('FluteTypes Page', () => {
     it('should show loading state', () => {
       mockGetFluteTypes.mockImplementation(() => new Promise(() => {}));
       render(<FluteTypes />);
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
   });
 

@@ -5,6 +5,7 @@ import { ArrowLeft, Check } from 'lucide-react';
 import Layout from '../components/layout/Layout';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
+import { TableSkeleton } from '../components/ui/Skeleton';
 import { SalesOrder, SalesOrderProductionOrder } from '../types';
 import { salesOrdersApi } from '../services/api';
 import { formatBusinessDate } from '../utils/dates';
@@ -202,12 +203,7 @@ const SalesOrderProductionOrders: React.FC = () => {
           <div className="rounded-lg border border-secondary-200 bg-white shadow-sm">
             <div className="p-6">
               {loading ? (
-                <div
-                  className="flex h-32 items-center justify-center"
-                  data-testid="associated-orders-loading"
-                >
-                  <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary-600" />
-                </div>
+                <TableSkeleton data-testid="associated-orders-loading" />
               ) : rows.length === 0 ? (
                 <div className="py-12 text-center" data-testid="associated-orders-empty">
                   <p className="text-sm text-secondary-500">

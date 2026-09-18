@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft } from 'lucide-react';
 import Button from './Button';
+import { Skeleton } from './Skeleton';
 
 interface DualListSelectorProps<T> {
   availableItems: T[];
@@ -110,9 +111,7 @@ function DualListSelector<T>({
   ) => {
     if (loading) {
       return (
-        <div className="flex items-center justify-center h-full py-8">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-        </div>
+        <Skeleton lines={4} className="py-8" />
       );
     }
 

@@ -131,7 +131,7 @@ describe('Customers Page', () => {
     it('should show loading state', () => {
       mockGetCustomers.mockImplementation(() => new Promise(() => {}));
       render(<Customers />);
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
   });
 

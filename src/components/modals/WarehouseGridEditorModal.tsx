@@ -6,6 +6,7 @@ import { Warehouse, WarehouseLocation, BatchUpdateLocation } from '../../types';
 import { warehousesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
+import { Skeleton } from '../ui/Skeleton';
 import ConfirmModal from '../ui/ConfirmModal';
 import { useConfirmModal } from '../../hooks/useConfirmModal';
 import { Package, Truck, AlertCircle, Archive, Box } from 'lucide-react';
@@ -387,9 +388,7 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
 
         <div className="bg-white p-4 rounded-lg border border-gray-200">
           {loading ? (
-            <div className="flex items-center justify-center h-32">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-            </div>
+            <Skeleton lines={3} />
           ) : (
             <div className="inline-block min-w-full">
               {renderGrid()}

@@ -6,6 +6,7 @@ import { CreateProductForm, Product, ProductionRoute } from '../../types';
 import { productionRoutesApi } from '../../services/api';
 import { logger } from '../../utils/logger';
 import { ProductFormOptions } from './ProductFormModal';
+import { Skeleton } from '../ui/Skeleton';
 
 interface Props {
   register: UseFormRegister<CreateProductForm>;
@@ -74,9 +75,7 @@ const ProductRouteTab: React.FC<Props> = ({ register, watch, options, current })
       </div>
 
       {loading ? (
-        <div className="flex h-16 items-center justify-center">
-          <div className="h-5 w-5 animate-spin rounded-full border-b-2 border-primary-600" />
-        </div>
+        <Skeleton lines={2} />
       ) : detail?.stages && detail.stages.length > 0 ? (
         <div className="space-y-3">
           {detail.stages

@@ -128,7 +128,7 @@ describe('PaperSupplies Page', () => {
     it('should show loading state', () => {
       mockGetPaperSupplies.mockImplementation(() => new Promise(() => {}));
       render(<PaperSupplies />);
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
   });
 

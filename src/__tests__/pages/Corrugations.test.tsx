@@ -139,7 +139,7 @@ describe('Corrugations Page', () => {
       mockGetCorrugations.mockImplementation(() => new Promise(() => {}));
       render(<Corrugations />);
 
-      expect(document.querySelector('.animate-spin')).toBeInTheDocument();
+      expect(document.querySelector('.animate-pulse')).toBeInTheDocument();
     });
   });
 

@@ -193,11 +193,7 @@ const PaperClasses: React.FC = () => {
               </h2>
             </div>
 
-            {loading ? (
-              <div className="flex items-center justify-center h-32">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-              </div>
-            ) : paperClasses.length === 0 ? (
+            {!loading && paperClasses.length === 0 ? (
               <div className="text-center py-12">
                 <BookOpen className="mx-auto h-12 w-12 text-secondary-400" />
                 <h3 className="mt-2 text-sm font-medium text-secondary-900">{t('paperClasses.empty.title')}</h3>
