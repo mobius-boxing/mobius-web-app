@@ -346,7 +346,7 @@ const AuditLogs: React.FC = () => {
         key: 'from',
         range: { group: 'occurredAt', role: 'from', label: t('auditLogs.filters.date') },
         label: t('auditLogs.filters.from'),
-        className: 'w-full sm:w-56',
+        className: 'w-full sm:w-[26rem]',
         testId: 'audit-filter-from',
       },
       {
@@ -354,7 +354,7 @@ const AuditLogs: React.FC = () => {
         key: 'to',
         range: { group: 'occurredAt', role: 'to', label: t('auditLogs.filters.date') },
         label: t('auditLogs.filters.to'),
-        className: 'w-full sm:w-56',
+        className: 'w-full sm:w-[26rem]',
         testId: 'audit-filter-to',
       },
       // D-13 pattern: `operation` and `occurredAtFrom/To` are dropped — the

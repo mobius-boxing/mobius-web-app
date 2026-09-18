@@ -313,7 +313,7 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
         range: { group: 'deliveryDate', role: 'from', label: t('salesOrders.columns.deliveryDate') },
         label: t('salesOrders.filters.deliveryDateFrom'),
         testId: 'filter-delivery-from',
-        className: 'w-full sm:w-48',
+        className: 'w-full sm:w-[26rem]',
       },
       {
         kind: 'date',
@@ -321,7 +321,7 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
         range: { group: 'deliveryDate', role: 'to', label: t('salesOrders.columns.deliveryDate') },
         label: t('salesOrders.filters.deliveryDateTo'),
         testId: 'filter-delivery-to',
-        className: 'w-full sm:w-48',
+        className: 'w-full sm:w-[26rem]',
       },
       itemDef,
       ...advancedDefs,

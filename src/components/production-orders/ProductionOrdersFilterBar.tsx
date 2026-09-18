@@ -94,7 +94,7 @@ export const useProductionOrdersFilterDefs = (
         key: 'deliveryDateFrom',
         range: { group: 'deliveryDate', role: 'from', label: t('productionOrders.filters.deliveryDate') },
         label: t('productionOrders.filters.deliveryFrom'),
-        className: 'w-full sm:w-56',
+        className: 'w-full sm:w-[26rem]',
         testId: 'filter-delivery-from',
       },
       {
@@ -102,7 +102,7 @@ export const useProductionOrdersFilterDefs = (
         key: 'deliveryDateTo',
         range: { group: 'deliveryDate', role: 'to', label: t('productionOrders.filters.deliveryDate') },
         label: t('productionOrders.filters.deliveryTo'),
-        className: 'w-full sm:w-56',
+        className: 'w-full sm:w-[26rem]',
         testId: 'filter-delivery-to',
       },
       ...columnFilterDefs('production-orders', columns, t, { companyId }).filter(
