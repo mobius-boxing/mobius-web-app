@@ -537,7 +537,9 @@
     "supplierCode": "Supplier Code",
     "enterSupplierCode": "Enter supplier code (optional)",
     "address": "Address",
-    "enterAddress": "Enter customer address (optional)",
+    "enterAddress": "Enter customer address",
+    "customerAddressBadge": "Customer address",
+    "customerAddressHint": "Edited from the customer's Address field.",
     "active": "Active",
     "assignment": "Assignment",
     "category": "Category",
@@ -2484,7 +2486,7 @@
       "customer": "Customer",
       "product": "Product",
       "quantity": "Quantity",
-      "deliveryLocation": "Delivery location",
+      "deliveryLocation": "Delivery Address",
       "salesUser": "Salesperson",
       "deliveryDate": "Delivery date",
       "purchaseOrder": "Purchase order",
@@ -2503,7 +2505,7 @@
       "customer": "Select a customer",
       "product": "Select a product",
       "productNeedsCustomer": "Pick a customer first",
-      "deliveryLocation": "No delivery location",
+      "deliveryLocation": "No delivery address",
       "salesUser": "Customer's salesperson (default)"
     },
     "approvals": {

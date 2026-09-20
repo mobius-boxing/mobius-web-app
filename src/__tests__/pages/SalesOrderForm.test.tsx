@@ -330,6 +330,35 @@ describe('SalesOrderForm create mode (AC-21)', () => {
     );
   });
 
+  /**
+   * D-6 — the flagged delivery location (the customer's own address) is
+   * preselected once the lists load for a user-driven cliente pick, but only
+   * while the field is still empty.
+   */
+  it("preselects the customer's address location when a cliente is picked", async () => {
+    mockGetDeliveryLocations.mockImplementation(async (params: any) =>
+      page(
+        100,
+        params.customerUuid === CUSTOMER_A
+          ? [
+              { uuid: 'loc-other', address: 'Otra 1' },
+              { uuid: 'loc-primary', address: 'Principal 1', isCustomerAddress: true },
+            ]
+          : [],
+      ),
+    );
+    render(<SalesOrderForm />);
+    await screen.findByTestId('customer-select');
+
+    await selectCustomer(CUSTOMER_A);
+
+    await waitFor(() =>
+      expect(
+        (screen.getByTestId('delivery-location-select') as HTMLSelectElement).value,
+      ).toBe('loc-primary'),
+    );
+  });
+
   it('navigates to the created order on success', async () => {
     mockCreateSalesOrder.mockResolvedValue({ uuid: ORDER_UUID, number: '00000001' });
     render(<SalesOrderForm />);
@@ -590,6 +619,38 @@ describe('SalesOrderForm edit mode (AC-23)', () => {
     await waitFor(() => expect(mockUpdateSalesOrder).toHaveBeenCalled());
     expect(mockUpdateSalesOrder.mock.calls[0][1].deliveryDate).toBe(
       '2026-04-02',
+    );
+  });
+
+  /**
+   * D-6 — the edit-mode load path must NOT preselect: it already bypasses the
+   * cliente-change effect (`loadedForCustomer.current` is set before reset),
+   * so a saved order's own location survives even when a different location
+   * is flagged as the customer's address.
+   */
+  it('keeps the saved delivery location when editing an order', async () => {
+    mockGetSalesOrder.mockResolvedValue({
+      uuid: ORDER_UUID,
+      number: '00000007',
+      quantity: 100,
+      status: 'pending',
+      customer: { uuid: CUSTOMER_A, name: 'Cliente A' },
+      product: { uuid: PRODUCT_A1, code: 'P-A1' },
+      orderData: { uuid: 'od-uuid', deliveryLocation: { uuid: 'loc-order' } },
+      createdAt: '2026-08-20T00:00:00.000Z',
+    });
+    mockGetDeliveryLocations.mockImplementation(async () =>
+      page(100, [
+        { uuid: 'loc-order', address: 'Order location' },
+        { uuid: 'loc-primary', address: 'Principal 1', isCustomerAddress: true },
+      ]),
+    );
+    render(<SalesOrderForm />);
+
+    await waitFor(() =>
+      expect(
+        (screen.getByTestId('delivery-location-select') as HTMLSelectElement).value,
+      ).toBe('loc-order'),
     );
   });
 

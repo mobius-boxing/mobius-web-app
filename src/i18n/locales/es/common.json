@@ -537,7 +537,9 @@
     "supplierCode": "Código de Proveedor",
     "enterSupplierCode": "Ingrese el código de proveedor (opcional)",
     "address": "Dirección",
-    "enterAddress": "Ingrese la dirección del cliente (opcional)",
+    "enterAddress": "Ingrese la dirección del cliente",
+    "customerAddressBadge": "Dirección del cliente",
+    "customerAddressHint": "Se edita desde el campo Dirección del cliente.",
     "active": "Activo",
     "assignment": "Asignación",
     "category": "Categoría",
@@ -2484,7 +2486,7 @@
       "customer": "Cliente",
       "product": "Producto",
       "quantity": "Cantidad",
-      "deliveryLocation": "Lugar de entrega",
+      "deliveryLocation": "Dirección de Entrega",
       "salesUser": "Vendedor",
       "deliveryDate": "Fecha de entrega",
       "purchaseOrder": "Orden de compra",
@@ -2503,7 +2505,7 @@
       "customer": "Seleccione un cliente",
       "product": "Seleccione un producto",
       "productNeedsCustomer": "Elija primero un cliente",
-      "deliveryLocation": "Sin lugar de entrega",
+      "deliveryLocation": "Sin dirección de entrega",
       "salesUser": "Vendedor del cliente (por defecto)"
     },
     "approvals": {

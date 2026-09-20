@@ -107,7 +107,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
 
         <div>
           <label className="gd-label">
-            {t('common:customerModal.address')}
+            {`${t('common:customerModal.address')} *`}
           </label>
           <textarea
             {...register('address')}

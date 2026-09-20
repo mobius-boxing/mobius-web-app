@@ -22,6 +22,7 @@ interface LocationDraft {
   longitude: string;
   externalSystemCode: string;
   deliveryZoneUuid: string;
+  isCustomerAddress: boolean;
 }
 
 const emptyDraft: LocationDraft = {
@@ -31,6 +32,7 @@ const emptyDraft: LocationDraft = {
   longitude: '',
   externalSystemCode: '',
   deliveryZoneUuid: '',
+  isCustomerAddress: false,
 };
 
 /**
@@ -74,7 +76,7 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
     setError(null);
     try {
       const payload = {
-        address: draft.address || undefined,
+        address: draft.isCustomerAddress ? undefined : draft.address || undefined,
         schedule: draft.schedule || undefined,
         latitude: draft.latitude ? parseFloat(draft.latitude) : undefined,
         longitude: draft.longitude ? parseFloat(draft.longitude) : undefined,
@@ -140,6 +142,11 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
           <div className="min-w-0">
             <p className="text-sm font-medium text-secondary-900 truncate">
               {location.address || t('common:customerModal.noAddress')}
+              {location.isCustomerAddress && (
+                <span className="ml-2 inline-block rounded-full bg-primary-100 px-2 py-0.5 text-xs text-primary-700">
+                  {t('common:customerModal.customerAddressBadge')}
+                </span>
+              )}
             </p>
             <p className="text-xs text-secondary-500">
               {location.deliveryZone
@@ -161,6 +168,7 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
                   longitude: location.longitude != null ? String(location.longitude) : '',
                   externalSystemCode: location.externalSystemCode || '',
                   deliveryZoneUuid: location.deliveryZone?.uuid || '',
+                  isCustomerAddress: location.isCustomerAddress || false,
                 })
               }
               className="p-1 text-secondary-500 hover:text-secondary-800"
@@ -168,14 +176,16 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
             >
               <Edit className="h-4 w-4" />
             </button>
-            <button
-              type="button"
-              onClick={() => removeLocation(location.uuid)}
-              className="p-1 text-red-600 hover:text-red-800"
-              title={t('common:customerModal.remove')}
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            {!location.isCustomerAddress && (
+              <button
+                type="button"
+                onClick={() => removeLocation(location.uuid)}
+                className="p-1 text-red-600 hover:text-red-800"
+                title={t('common:customerModal.remove')}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
       ))}
@@ -184,13 +194,22 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
         <div className="bg-white border border-primary-200 rounded-lg p-4 space-y-3">
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <input
-              type="text"
-              placeholder={`${t('common:customerModal.address')} *`}
-              value={draft.address}
-              onChange={(e) => setDraft({ ...draft, address: e.target.value })}
-              className={inputClass}
-            />
+            {draft.isCustomerAddress ? (
+              <div className="sm:col-span-2 lg:col-span-3">
+                <p className="text-sm text-secondary-900">{draft.address}</p>
+                <p className="text-xs text-secondary-500">
+                  {t('common:customerModal.customerAddressHint')}
+                </p>
+              </div>
+            ) : (
+              <input
+                type="text"
+                placeholder={`${t('common:customerModal.address')} *`}
+                value={draft.address}
+                onChange={(e) => setDraft({ ...draft, address: e.target.value })}
+                className={inputClass}
+              />
+            )}
             <select
               value={draft.deliveryZoneUuid}
               onChange={(e) => setDraft({ ...draft, deliveryZoneUuid: e.target.value })}

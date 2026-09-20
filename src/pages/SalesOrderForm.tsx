@@ -133,6 +133,7 @@ const SalesOrderForm: React.FC = () => {
     handleSubmit,
     watch,
     setValue,
+    getValues,
     reset,
     formState: { errors, dirtyFields },
   } = useForm<SalesOrderFormValues>({
@@ -150,6 +151,13 @@ const SalesOrderForm: React.FC = () => {
 
   /** The customer whose dependent lists are currently loaded. */
   const loadedForCustomer = useRef<string>('');
+  /**
+   * The customer a user-driven cliente change is waiting to preselect a
+   * delivery location for (D-6), or `null`. Consumed by the effect below
+   * once `deliveryLocations` actually commits, so the `<option>` the select
+   * needs already exists in the DOM when `setValue` runs.
+   */
+  const pendingLocationPreselect = useRef<string | null>(null);
 
   const companyParams = useCallback(
     () => (effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
@@ -162,12 +170,12 @@ const SalesOrderForm: React.FC = () => {
    * dropdown-race rule).
    */
   const loadCustomerScopedLists = useCallback(
-    async (customer: string) => {
+    async (customer: string): Promise<DeliveryLocationRecord[]> => {
       loadedForCustomer.current = customer;
       if (!customer) {
         setProducts([]);
         setDeliveryLocations([]);
-        return;
+        return [];
       }
       try {
         const [productPage, locationPage] = await Promise.all([
@@ -183,11 +191,14 @@ const SalesOrderForm: React.FC = () => {
           }),
         ]);
         setProducts(productPage.data || []);
-        setDeliveryLocations(locationPage.data || []);
+        const locations = locationPage.data || [];
+        setDeliveryLocations(locations);
+        return locations;
       } catch (err: any) {
         logger.error('Error loading customer-scoped dropdowns:', err);
         setProducts([]);
         setDeliveryLocations([]);
+        return [];
       }
     },
     [companyParams],
@@ -266,7 +277,12 @@ const SalesOrderForm: React.FC = () => {
   /**
    * Changing the cliente clears producto, lugar de entrega and vendedor and
    * refetches both lists — the Procusto refresh chain
-   * (PedidoDeProductoForm.cs:176-199), inverted.
+   * (PedidoDeProductoForm.cs:176-199), inverted. Once the lists reload, the
+   * customer's own delivery location is preselected if the field is still
+   * empty (D-6, via `pendingLocationPreselect` below): the edit-mode load
+   * path bypasses this effect entirely because it sets
+   * `loadedForCustomer.current` before this effect can run, so a saved
+   * order's location is never overwritten.
    */
   useEffect(() => {
     if (customerUuid === loadedForCustomer.current) return;
@@ -276,8 +292,30 @@ const SalesOrderForm: React.FC = () => {
       setValue('deliveryLocationUuid', '');
       setValue('salesUserUuid', '');
     }
+    pendingLocationPreselect.current = customerUuid;
     loadCustomerScopedLists(customerUuid);
   }, [customerUuid, loadCustomerScopedLists, setValue]);
+
+  /**
+   * Runs after `deliveryLocations` commits, so its `<option>`s exist before
+   * `setValue` targets one — assigning an uncontrolled select's value before
+   * its matching `<option>` renders is a silent no-op in the DOM. A list that
+   * belongs to an older cliente than the pending one is skipped.
+   */
+  useEffect(() => {
+    if (
+      pendingLocationPreselect.current === null ||
+      pendingLocationPreselect.current !== loadedForCustomer.current
+    ) {
+      return;
+    }
+    pendingLocationPreselect.current = null;
+    if (getValues('deliveryLocationUuid')) return;
+    const primary = deliveryLocations.find((location) => location.isCustomerAddress);
+    if (primary) {
+      setValue('deliveryLocationUuid', primary.uuid, { shouldDirty: true });
+    }
+  }, [deliveryLocations, getValues, setValue]);
 
   const quantityNumber = Number(quantity);
   const priceNumber = Number(price);

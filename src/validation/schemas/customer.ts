@@ -14,7 +14,9 @@ import {
  *   customers.legalName/tradeName        varchar(255) NULL
  *   customers.legal_code/supplier_code   varchar(255) NULL   ← snake_case columns
  *   customers.code                       varchar(400) NULL, UNIQUE ("companyId", code)
- *   customers.address/notes              text         NULL
+ *   customers.address                    text         NULL — stays NULL in the DB (legacy
+ *                                         rows may be blank); the form requires it (D-1)
+ *   customers.notes                      text         NULL
  *   customers.active                     boolean NULL,     default true
  *   customers.dispatchable               boolean NOT NULL, default true
  *   customers.excludeLogoOnLabels        boolean NOT NULL, default false
@@ -72,7 +74,7 @@ export const createCustomerSchema = (t: Translate) =>
       NAME_MAX
     ),
     code: optionalText(t, t('common:customerModal.code'), CODE_MAX),
-    address: optionalText(t, t('common:customerModal.address'), TEXT_MAX),
+    address: requiredText(t, t('common:customerModal.address'), TEXT_MAX),
     notes: optionalText(t, t('common:customerModal.notes'), TEXT_MAX),
     categoryId: optionalSelect(),
     salesPersonId: optionalSelect(),
@@ -91,6 +93,7 @@ export const editCustomerSchema = (t: Translate) =>
         t('common:customerModal.customerName'),
         NAME_MAX
       ).min(NAME_MIN, t('common:customerModal.validation.nameMinLength')),
+      address: requiredText(t, t('common:customerModal.address'), TEXT_MAX),
     });
 
 export type CreateCustomerSchema = z.infer<

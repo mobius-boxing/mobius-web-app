@@ -234,6 +234,7 @@ export interface DeliveryLocationRecord {
   customer?: { uuid: string; name?: string } | null;
   createdAt?: string;
   updatedAt?: string;
+  isCustomerAddress?: boolean;
 }
 
 export interface CreateDeliveryLocationForm {
