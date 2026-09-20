@@ -3,6 +3,7 @@ import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { useTranslation } from 'react-i18next';
 import { Edit, MapPin, Plus, Trash2 } from 'lucide-react';
 import {
+  CustomerDeliveryLocationInput,
   DeliveryLocationRecord,
   DeliveryZone,
 } from '../../types';
@@ -11,7 +12,11 @@ import Button from '../ui/Button';
 import { logger } from '../../utils/logger';
 
 interface DeliveryLocationsSectionProps {
-  customerUuid: string;
+  /** Present in edit mode — the section fetches and mutates real rows. */
+  customerUuid?: string;
+  /** Create mode: the in-memory list sent as `deliveryLocations` on submit. */
+  pending?: CustomerDeliveryLocationInput[];
+  onPendingChange?: (next: CustomerDeliveryLocationInput[]) => void;
 }
 
 interface LocationDraft {
@@ -35,28 +40,56 @@ const emptyDraft: LocationDraft = {
   isCustomerAddress: false,
 };
 
+function draftToPayload(draft: LocationDraft): CustomerDeliveryLocationInput {
+  return {
+    address: draft.isCustomerAddress ? undefined : draft.address || undefined,
+    schedule: draft.schedule || undefined,
+    latitude: draft.latitude ? parseFloat(draft.latitude) : undefined,
+    longitude: draft.longitude ? parseFloat(draft.longitude) : undefined,
+    externalSystemCode: draft.externalSystemCode || undefined,
+    deliveryZoneUuid: draft.deliveryZoneUuid,
+  };
+}
+
 /**
  * Delivery locations manager (LugaresDeEntrega) — a real resource since
  * migration 20260720000008, nested in the Customer edit flow. The delivery
  * zone is REQUIRED (§L.6).
+ *
+ * Without a `customerUuid` (customer create modal) there is no row to fetch
+ * or POST yet: the section holds the list in `pending`/`onPendingChange`
+ * instead, and the caller sends it as part of the customer's own create
+ * payload (Amendment 2).
  */
-const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ customerUuid }) => {
+const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({
+  customerUuid,
+  pending,
+  onPendingChange,
+}) => {
+  const isPending = !customerUuid;
   const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
   const [locations, setLocations] = useState<DeliveryLocationRecord[]>([]);
   const [zones, setZones] = useState<DeliveryZone[]>([]);
   const [draft, setDraft] = useState<LocationDraft | null>(null);
+  const [pendingEditingIndex, setPendingEditingIndex] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     try {
-      const [locationsRes, zonesRes] = await Promise.all([
-        deliveryLocationsApi.getDeliveryLocations({ customerUuid, limit: 100 }),
-        deliveryZonesApi.getDeliveryZones({ limit: 100, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) }),
-      ]);
-      setLocations(locationsRes.data || []);
-      setZones(zonesRes.data || []);
+      const zonesFilter = { limit: 100, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) };
+      if (customerUuid) {
+        const [locationsRes, zonesRes] = await Promise.all([
+          deliveryLocationsApi.getDeliveryLocations({ customerUuid, limit: 100 }),
+          deliveryZonesApi.getDeliveryZones(zonesFilter),
+        ]);
+        setLocations(locationsRes.data || []);
+        setZones(zonesRes.data || []);
+      } else {
+        const zonesRes = await deliveryZonesApi.getDeliveryZones(zonesFilter);
+        setZones(zonesRes.data || []);
+      }
     } catch (err) {
       logger.error('Error loading delivery locations:', err);
     }
@@ -68,25 +101,38 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
 
   const saveDraft = async () => {
     if (!draft) return;
+    if (!draft.isCustomerAddress && !draft.address.trim()) {
+      setError(t('common:customerModal.deliveryAddressRequired'));
+      return;
+    }
     if (!draft.deliveryZoneUuid) {
       setError(t('common:customerModal.deliveryZoneRequired'));
       return;
     }
+
+    if (isPending) {
+      const payload = draftToPayload(draft);
+      const next = [...(pending || [])];
+      if (pendingEditingIndex !== null) {
+        next[pendingEditingIndex] = payload;
+      } else {
+        next.push(payload);
+      }
+      onPendingChange?.(next);
+      setDraft(null);
+      setPendingEditingIndex(null);
+      setError(null);
+      return;
+    }
+
     setSaving(true);
     setError(null);
     try {
-      const payload = {
-        address: draft.isCustomerAddress ? undefined : draft.address || undefined,
-        schedule: draft.schedule || undefined,
-        latitude: draft.latitude ? parseFloat(draft.latitude) : undefined,
-        longitude: draft.longitude ? parseFloat(draft.longitude) : undefined,
-        externalSystemCode: draft.externalSystemCode || undefined,
-        deliveryZoneUuid: draft.deliveryZoneUuid,
-      };
+      const payload = draftToPayload(draft);
       if (draft.uuid) {
         await deliveryLocationsApi.updateDeliveryLocation(draft.uuid, payload);
       } else {
-        await deliveryLocationsApi.createDeliveryLocation({ ...payload, customerUuid });
+        await deliveryLocationsApi.createDeliveryLocation({ ...payload, customerUuid: customerUuid! });
       }
       setDraft(null);
       await refresh();
@@ -107,8 +153,27 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
     }
   };
 
+  const removePending = (index: number) => {
+    onPendingChange?.((pending || []).filter((_, i) => i !== index));
+  };
+
+  const editPending = (index: number, item: CustomerDeliveryLocationInput) => {
+    setPendingEditingIndex(index);
+    setDraft({
+      address: item.address || '',
+      schedule: item.schedule || '',
+      latitude: item.latitude != null ? String(item.latitude) : '',
+      longitude: item.longitude != null ? String(item.longitude) : '',
+      externalSystemCode: item.externalSystemCode || '',
+      deliveryZoneUuid: item.deliveryZoneUuid,
+      isCustomerAddress: false,
+    });
+  };
+
   const inputClass =
     'w-full border border-secondary-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500';
+
+  const pendingList = pending || [];
 
   return (
     <div className="space-y-4 bg-secondary-50/30 rounded-lg p-4">
@@ -120,75 +185,138 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
           type="button"
           size="sm"
           variant="outline"
-          onClick={() => setDraft({ ...emptyDraft })}
+          onClick={() => {
+            setPendingEditingIndex(null);
+            setDraft({ ...emptyDraft });
+          }}
         >
           <Plus className="h-4 w-4 mr-1" />
           {t('common:customerModal.addLocation')}
         </Button>
       </div>
 
-      {locations.length === 0 && !draft && (
-        <p className="text-sm text-secondary-500 flex items-center gap-2">
-          <MapPin className="h-4 w-4" />
-          {t('common:customerModal.noLocations')}
+      {isPending && (
+        <p className="text-sm text-secondary-500">
+          {t('common:customerModal.customerAddressAutoHint')}
         </p>
       )}
 
-      {locations.map((location) => (
-        <div
-          key={location.uuid}
-          className="bg-white border border-secondary-200 rounded-lg p-3 flex items-center justify-between gap-3"
-        >
-          <div className="min-w-0">
-            <p className="text-sm font-medium text-secondary-900 truncate">
-              {location.address || t('common:customerModal.noAddress')}
-              {location.isCustomerAddress && (
-                <span className="ml-2 inline-block rounded-full bg-primary-100 px-2 py-0.5 text-xs text-primary-700">
-                  {t('common:customerModal.customerAddressBadge')}
-                </span>
-              )}
+      {isPending ? (
+        <>
+          {pendingList.length === 0 && !draft && (
+            <p className="text-sm text-secondary-500 flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              {t('common:customerModal.noLocations')}
             </p>
-            <p className="text-xs text-secondary-500">
-              {location.deliveryZone
-                ? `${t('common:customerModal.deliveryZone')}: ${location.deliveryZone.code || location.deliveryZone.description}`
-                : '—'}
-              {location.schedule ? ` · ${location.schedule}` : ''}
-              {location.externalSystemCode ? ` · ${location.externalSystemCode}` : ''}
-            </p>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={() =>
-                setDraft({
-                  uuid: location.uuid,
-                  address: location.address || '',
-                  schedule: location.schedule || '',
-                  latitude: location.latitude != null ? String(location.latitude) : '',
-                  longitude: location.longitude != null ? String(location.longitude) : '',
-                  externalSystemCode: location.externalSystemCode || '',
-                  deliveryZoneUuid: location.deliveryZone?.uuid || '',
-                  isCustomerAddress: location.isCustomerAddress || false,
-                })
-              }
-              className="p-1 text-secondary-500 hover:text-secondary-800"
-              title={t('common:customerModal.editLocation')}
-            >
-              <Edit className="h-4 w-4" />
-            </button>
-            {!location.isCustomerAddress && (
-              <button
-                type="button"
-                onClick={() => removeLocation(location.uuid)}
-                className="p-1 text-red-600 hover:text-red-800"
-                title={t('common:customerModal.remove')}
+          )}
+
+          {pendingList.map((item, index) => {
+            const zone = zones.find((z) => z.uuid === item.deliveryZoneUuid);
+            return (
+              <div
+                key={index}
+                className="bg-white border border-secondary-200 rounded-lg p-3 flex items-center justify-between gap-3"
               >
-                <Trash2 className="h-4 w-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      ))}
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-secondary-900 truncate">
+                    {item.address || t('common:customerModal.noAddress')}
+                  </p>
+                  <p className="text-xs text-secondary-500">
+                    {zone
+                      ? `${t('common:customerModal.deliveryZone')}: ${zone.code || zone.description}`
+                      : '—'}
+                    {item.schedule ? ` · ${item.schedule}` : ''}
+                    {item.externalSystemCode ? ` · ${item.externalSystemCode}` : ''}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => editPending(index, item)}
+                    className="p-1 text-secondary-500 hover:text-secondary-800"
+                    title={t('common:customerModal.editLocation')}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => removePending(index)}
+                    className="p-1 text-red-600 hover:text-red-800"
+                    title={t('common:customerModal.remove')}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </>
+      ) : (
+        <>
+          {locations.length === 0 && !draft && (
+            <p className="text-sm text-secondary-500 flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              {t('common:customerModal.noLocations')}
+            </p>
+          )}
+
+          {locations.map((location) => (
+            <div
+              key={location.uuid}
+              className="bg-white border border-secondary-200 rounded-lg p-3 flex items-center justify-between gap-3"
+            >
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-secondary-900 truncate">
+                  {location.address || t('common:customerModal.noAddress')}
+                  {location.isCustomerAddress && (
+                    <span className="ml-2 inline-block rounded-full bg-primary-100 px-2 py-0.5 text-xs text-primary-700">
+                      {t('common:customerModal.customerAddressBadge')}
+                    </span>
+                  )}
+                </p>
+                <p className="text-xs text-secondary-500">
+                  {location.deliveryZone
+                    ? `${t('common:customerModal.deliveryZone')}: ${location.deliveryZone.code || location.deliveryZone.description}`
+                    : '—'}
+                  {location.schedule ? ` · ${location.schedule}` : ''}
+                  {location.externalSystemCode ? ` · ${location.externalSystemCode}` : ''}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setDraft({
+                      uuid: location.uuid,
+                      address: location.address || '',
+                      schedule: location.schedule || '',
+                      latitude: location.latitude != null ? String(location.latitude) : '',
+                      longitude: location.longitude != null ? String(location.longitude) : '',
+                      externalSystemCode: location.externalSystemCode || '',
+                      deliveryZoneUuid: location.deliveryZone?.uuid || '',
+                      isCustomerAddress: location.isCustomerAddress || false,
+                    })
+                  }
+                  className="p-1 text-secondary-500 hover:text-secondary-800"
+                  title={t('common:customerModal.editLocation')}
+                >
+                  <Edit className="h-4 w-4" />
+                </button>
+                {!location.isCustomerAddress && (
+                  <button
+                    type="button"
+                    onClick={() => removeLocation(location.uuid)}
+                    className="p-1 text-red-600 hover:text-red-800"
+                    title={t('common:customerModal.remove')}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            </div>
+          ))}
+        </>
+      )}
 
       {draft && (
         <div className="bg-white border border-primary-200 rounded-lg p-4 space-y-3">
@@ -252,11 +380,20 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({ cus
             />
           </div>
           <div className="flex justify-end gap-2">
-            <Button type="button" size="sm" variant="outline" onClick={() => { setDraft(null); setError(null); }}>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                setDraft(null);
+                setPendingEditingIndex(null);
+                setError(null);
+              }}
+            >
               {t('common:customerModal.cancel')}
             </Button>
             <Button type="button" size="sm" loading={saving} onClick={saveDraft}>
-              {draft.uuid
+              {(isPending ? pendingEditingIndex !== null : !!draft.uuid)
                 ? t('common:customerModal.updateLocation')
                 : t('common:customerModal.saveLocation')}
             </Button>

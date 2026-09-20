@@ -599,6 +599,7 @@
     "requiresQualityCertificate": "Requires quality certificate",
     "selectDeliveryZone": "Select delivery zone",
     "deliveryZoneRequired": "A delivery zone is required",
+    "deliveryAddressRequired": "A delivery address is required",
     "externalSystemCode": "External system code",
     "noLocations": "No delivery locations yet",
     "noAddress": "(no address)",
@@ -606,7 +607,7 @@
     "saveLocation": "Save location",
     "updateLocation": "Update location",
     "locationSaveFailed": "Failed to save delivery location. Please try again.",
-    "locationsAfterSaveHint": "Delivery locations can be added after saving the customer."
+    "customerAddressAutoHint": "The customer's address is added as a delivery address automatically on save."
   },
   "customers": {
     "title": "Customers",

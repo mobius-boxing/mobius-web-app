@@ -599,6 +599,7 @@
     "requiresQualityCertificate": "Requiere certificado de calidad",
     "selectDeliveryZone": "Seleccione zona de entrega",
     "deliveryZoneRequired": "La zona de entrega es obligatoria",
+    "deliveryAddressRequired": "La dirección de entrega es obligatoria",
     "externalSystemCode": "Código sistema administrativo",
     "noLocations": "Sin lugares de entrega",
     "noAddress": "(sin domicilio)",
@@ -606,7 +607,7 @@
     "saveLocation": "Guardar lugar",
     "updateLocation": "Actualizar lugar",
     "locationSaveFailed": "No se pudo guardar el lugar de entrega. Intente nuevamente.",
-    "locationsAfterSaveHint": "Los lugares de entrega se agregan después de guardar el cliente."
+    "customerAddressAutoHint": "La dirección del cliente se agrega automáticamente como dirección de entrega al guardar."
   },
   "customers": {
     "title": "Clientes",

@@ -247,6 +247,8 @@ export interface CreateDeliveryLocationForm {
   deliveryZoneUuid: string;
 }
 
+export type CustomerDeliveryLocationInput = Omit<CreateDeliveryLocationForm, 'customerUuid'>;
+
 export interface DeliveryDay {
   day: string;
   from: string;
@@ -304,6 +306,7 @@ export interface CreateCustomerForm {
   requiresQualityCertificate?: boolean;
   contacts?: ContactInfo[];
   companyId?: string;
+  deliveryLocations?: CustomerDeliveryLocationInput[];
 }
 
 export interface PaperType {

@@ -7,6 +7,7 @@ import {
   User,
   ContactInfo,
   CreateCustomerForm,
+  CustomerDeliveryLocationInput,
 } from '../../types';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
@@ -22,6 +23,9 @@ export interface CustomerFormProps {
   setContacts: React.Dispatch<React.SetStateAction<ContactInfo[]>>;
   /** Present in edit mode — enables the delivery-locations manager. */
   customerUuid?: string;
+  /** Create mode: the in-memory list sent as `deliveryLocations` on submit. */
+  pendingLocations?: CustomerDeliveryLocationInput[];
+  setPendingLocations?: React.Dispatch<React.SetStateAction<CustomerDeliveryLocationInput[]>>;
   loading: boolean;
   error?: string;
   onClose: () => void;
@@ -37,6 +41,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   contacts,
   setContacts,
   customerUuid,
+  pendingLocations,
+  setPendingLocations,
   loading,
   error,
   onClose,
@@ -349,14 +355,10 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
       {mode === 'edit' && customerUuid ? (
         <DeliveryLocationsSection customerUuid={customerUuid} />
       ) : (
-        <div className="bg-secondary-50/30 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-secondary-900 border-b pb-2 mb-2">
-            {t('common:customerModal.deliveryLocations')}
-          </h3>
-          <p className="text-sm text-secondary-500">
-            {t('common:customerModal.locationsAfterSaveHint')}
-          </p>
-        </div>
+        <DeliveryLocationsSection
+          pending={pendingLocations || []}
+          onPendingChange={setPendingLocations}
+        />
       )}
 
       <div className="flex justify-end space-x-3 pt-4 border-t">

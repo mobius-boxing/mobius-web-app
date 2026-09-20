@@ -4,7 +4,13 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
 import { createCustomerSchema } from '../../validation/schemas/customer';
-import { CreateCustomerForm, CustomerCategory, User, ContactInfo } from '../../types';
+import {
+  CreateCustomerForm,
+  CustomerCategory,
+  User,
+  ContactInfo,
+  CustomerDeliveryLocationInput,
+} from '../../types';
 import { customersApi, customerCategoriesApi, usersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
@@ -27,6 +33,7 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
   const [categories, setCategories] = useState<CustomerCategory[]>([]);
   const [salesPersons, setSalesPersons] = useState<User[]>([]);
   const [contacts, setContacts] = useState<ContactInfo[]>([]);
+  const [pendingLocations, setPendingLocations] = useState<CustomerDeliveryLocationInput[]>([]);
 
   const {
     form,
@@ -39,7 +46,10 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
       active: true,
       dispatchable: true,
     },
-    onSuccess,
+    onSuccess: () => {
+      setPendingLocations([]);
+      onSuccess();
+    },
     onClose,
     schema: createCustomerSchema(t),
   });
@@ -77,12 +87,14 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
       code: data.code || undefined,
       notes: data.notes || undefined,
       contacts: contacts.length > 0 ? contacts : undefined,
+      deliveryLocations: pendingLocations.length > 0 ? pendingLocations : undefined,
     };
     return customersApi.createCustomer(customerData);
   });
 
   const handleClose = () => {
     setContacts([]);
+    setPendingLocations([]);
     modalHandleClose();
   };
 
@@ -96,6 +108,8 @@ const CreateCustomerModal: React.FC<CreateCustomerModalProps> = ({
         form={form}
         contacts={contacts}
         setContacts={setContacts}
+        pendingLocations={pendingLocations}
+        setPendingLocations={setPendingLocations}
         loading={loading}
         error={error}
         onClose={handleClose}
