@@ -5,6 +5,7 @@ import { firstIssue } from '../../validation/formErrors';
 import { ArrowDown, ArrowUp, BookOpen, Plus, Trash2 } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
+import ActionButton from '../ui/ActionButton';
 import ErrorMessage from '../ui/ErrorMessage';
 import FormulaField from '../ui/FormulaField';
 import FileRefUploader from '../ui/FileRefUploader';
@@ -202,11 +203,8 @@ const ModelFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, model }) 
               }
             />
           </div>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            title={t('models.form.moveUp')}
+          <ActionButton
+            label={t('models.form.moveUp')}
             data-testid={`model-${gridKey}-up-${index}`}
             disabled={index === 0}
             onClick={() =>
@@ -218,12 +216,9 @@ const ModelFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, model }) 
             }
           >
             <ArrowUp className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            title={t('models.form.moveDown')}
+          </ActionButton>
+          <ActionButton
+            label={t('models.form.moveDown')}
             data-testid={`model-${gridKey}-down-${index}`}
             disabled={index === rows.length - 1}
             onClick={() =>
@@ -235,18 +230,15 @@ const ModelFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, model }) 
             }
           >
             <ArrowDown className="h-4 w-4" />
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            className="text-red-600 hover:text-red-700"
-            title={t('models.form.removeRow')}
+          </ActionButton>
+          <ActionButton
+            label={t('models.form.removeRow')}
+            tone="danger"
             data-testid={`model-${gridKey}-remove-${index}`}
             onClick={() => setRows((current) => current.filter((_, i) => i !== index))}
           >
             <Trash2 className="h-4 w-4" />
-          </Button>
+          </ActionButton>
         </div>
       ))}
       <Button

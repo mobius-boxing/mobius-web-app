@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Ban } from 'lucide-react';
-import Button from '../ui/Button';
+import ActionButton from '../ui/ActionButton';
 import ConfirmModal from '../ui/ConfirmModal';
 import { SalesOrder } from '../../types';
 import { salesOrdersApi } from '../../services/api';
@@ -111,42 +111,38 @@ const SalesOrderLifecycleQuickActions: React.FC<Props> = ({
   return (
     <>
       {has(FULFILLMENT_CODE) && (
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={busy}
-          onClick={toggleFulfillment}
-          title={
+        <ActionButton
+          label={
             fulfilled
               ? t('salesOrders.lifecycle.cancel')
               : t('salesOrders.lifecycle.fulfill')
           }
+          disabled={busy}
+          onClick={toggleFulfillment}
           data-testid="fulfillment-quick-btn"
         >
           <CheckCircle2
             className={`h-4 w-4 ${fulfilled ? 'text-green-600' : 'text-secondary-400'}`}
           />
-        </Button>
+        </ActionButton>
       )}
       {has(VOID_CODE) && (
-        <Button
-          variant="ghost"
-          size="sm"
-          disabled={busy || voidBlocked}
-          onClick={toggleVoid}
-          title={
+        <ActionButton
+          label={
             voidBlocked
               ? t('salesOrders.lifecycle.voidBlockedTooltip')
               : voided
                 ? t('salesOrders.lifecycle.cancel')
                 : t('salesOrders.lifecycle.voidAction')
           }
+          disabled={busy || voidBlocked}
+          onClick={toggleVoid}
           data-testid="void-quick-btn"
         >
           <Ban
             className={`h-4 w-4 ${voided ? 'text-red-600' : 'text-secondary-400'}`}
           />
-        </Button>
+        </ActionButton>
       )}
 
       <ConfirmModal

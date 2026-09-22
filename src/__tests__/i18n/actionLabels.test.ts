@@ -5,8 +5,9 @@ import es from '../../i18n/locales/es/common.json';
 
 /**
  * SCOPE (L-019): the grid-action-tooltips file set — the 40 pages with a
- * `key: 'actions'` column plus the 3 grid components that render their own
- * icon-only actions. Not a sweep of every `.tsx` file: a page added later
+ * `key: 'actions'` column, the 3 grid components that render their own
+ * icon-only actions, and (round 2) the 6 non-grid row-action surfaces the
+ * fix brief converted. Not a sweep of every `.tsx` file: a page added later
  * with a plain native `<button title=…>` (e.g. a non-grid icon) is a
  * different feature's scope, not a regression of this one.
  */
@@ -20,6 +21,12 @@ const TARGET_FILES = [
   path.resolve(__dirname, '../../components/sales-orders/SalesOrdersGrid.tsx'),
   path.resolve(__dirname, '../../components/production-orders/ProductionOrdersGrid.tsx'),
   path.resolve(__dirname, '../../components/audit/HistoryButton.tsx'),
+  path.resolve(__dirname, '../../components/sales-orders/SalesOrderLifecycleQuickActions.tsx'),
+  path.resolve(__dirname, '../../components/forms/DeliveryLocationsSection.tsx'),
+  path.resolve(__dirname, '../../components/forms/CorrugationLayersEditor.tsx'),
+  path.resolve(__dirname, '../../components/modals/ModelFormModal.tsx'),
+  path.resolve(__dirname, '../../components/modals/RouteFormModal.tsx'),
+  path.resolve(__dirname, '../../components/production-orders/GenerateOrdersDialog.tsx'),
 ];
 
 const findActionButtonBlocks = (src: string): string[] => {
@@ -38,27 +45,40 @@ const findActionButtonBlocks = (src: string): string[] => {
   return blocks;
 };
 
-const extractLabelKey = (block: string, fileSrc: string): string => {
+/**
+ * Some labels are a ternary/conditional picking between two or more `t()`
+ * calls (e.g. the fulfill/void quick actions' cancel-vs-action wording) —
+ * every branch must resolve, not just the first one a single-match regex
+ * would find (that would leave a broken second branch green, L-018).
+ */
+const extractLabelKeys = (block: string, fileSrc: string): string[] => {
   const labelMatch = block.match(/label=\{([^]*?)\}\n/) ?? block.match(/label=\{(.*?)\}/);
   if (!labelMatch) throw new Error(`ActionButton without a label prop: ${block.slice(0, 80)}`);
   const raw = labelMatch[1].trim();
 
-  const directCall = raw.match(/t\('([^']+)'\)/);
-  if (directCall) return directCall[1];
+  const directCalls = Array.from(raw.matchAll(/t\('([^']+)'\)/g)).map((m) => m[1]);
+  if (directCalls.length > 0) return directCalls;
 
   const constMatch = fileSrc.match(new RegExp(`const ${raw} = t\\('([^']+)'\\)`));
-  if (constMatch) return constMatch[1];
+  if (constMatch) return [constMatch[1]];
 
   throw new Error(`Could not resolve label expression "${raw}" to a t() key`);
 };
 
-const resolveKey = (obj: unknown, key: string): unknown =>
-  key.split('.').reduce<unknown>((acc, part) => {
+/** Only `common` is registered as a namespace (i18n/config.ts), so an
+ * explicit `common:` prefix on a key (e.g. `DeliveryLocationsSection`'s
+ * `t('common:customerModal.editLocation')`) is the same lookup as the bare
+ * key — strip it before walking the JSON. */
+const NS_PREFIX = 'common:';
+const resolveKey = (obj: unknown, key: string): unknown => {
+  const bare = key.startsWith(NS_PREFIX) ? key.slice(NS_PREFIX.length) : key;
+  return bare.split('.').reduce<unknown>((acc, part) => {
     if (acc && typeof acc === 'object' && part in (acc as Record<string, unknown>)) {
       return (acc as Record<string, unknown>)[part];
     }
     return undefined;
   }, obj);
+};
 
 describe('grid action buttons: no title=, every label resolves (AC-4, AC-5)', () => {
   const filesAndSources = TARGET_FILES.map((file) => ({
@@ -66,8 +86,8 @@ describe('grid action buttons: no title=, every label resolves (AC-4, AC-5)', ()
     src: fs.readFileSync(file, 'utf8'),
   }));
 
-  it('found the expected 43 grid-action-tooltips files', () => {
-    expect(filesAndSources).toHaveLength(43);
+  it('found the expected 49 grid-action-tooltips files', () => {
+    expect(filesAndSources).toHaveLength(49);
   });
 
   it.each(filesAndSources)('$file has no title= on an ActionButton', ({ file, src }) => {
@@ -81,7 +101,7 @@ describe('grid action buttons: no title=, every label resolves (AC-4, AC-5)', ()
   const allKeys = new Set<string>();
   filesAndSources.forEach(({ file, src }) => {
     findActionButtonBlocks(src).forEach((block) => {
-      allKeys.add(extractLabelKey(block, src));
+      extractLabelKeys(block, src).forEach((key) => allKeys.add(key));
     });
   });
 

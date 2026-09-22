@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle, Minus, Plus } from 'lucide-react';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
+import ActionButton from '../ui/ActionButton';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import ConfirmModal from '../ui/ConfirmModal';
 import { GenerationEligibility, ProductionOrder, PromisedQuantityRow } from '../../types';
@@ -290,24 +291,22 @@ const GenerateOrdersDialog: React.FC<Props> = ({
               </table>
 
               <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="secondary"
+                <ActionButton
+                  label={t('productionOrders.generate.addRow')}
                   disabled={locked}
                   data-testid="generate-add-row"
                   onClick={addRow}
                 >
                   <Plus className="h-4 w-4" />
-                </Button>
-                <Button
-                  size="sm"
-                  variant="ghost"
+                </ActionButton>
+                <ActionButton
+                  label={t('productionOrders.generate.removeRow')}
                   disabled={locked || rows.length <= 1}
                   data-testid="generate-remove-row"
                   onClick={removeRow}
                 >
                   <Minus className="h-4 w-4" />
-                </Button>
+                </ActionButton>
                 <span className="ml-auto text-sm text-secondary-600" data-testid="generate-total">
                   {t('productionOrders.generate.total', {
                     total,

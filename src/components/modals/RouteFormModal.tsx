@@ -24,6 +24,7 @@ import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import Button from '../ui/Button';
+import ActionButton from '../ui/ActionButton';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import { ModalFooter } from '../ui/ModalFooter';
 import { logger } from '../../utils/logger';
@@ -366,22 +367,19 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                   value={stage.setupTimeMinutes ?? 0}
                   onChange={(e) => patchStage(index, { setupTimeMinutes: parseFloat(e.target.value) || 0 })}
                 />
-                <Button type="button" variant="ghost" size="sm" aria-label={t('productionRoutes.aria.moveStageUp')} onClick={() => moveStage(index, -1)}>
+                <ActionButton label={t('productionRoutes.aria.moveStageUp')} onClick={() => moveStage(index, -1)}>
                   <ArrowUp className="h-4 w-4" />
-                </Button>
-                <Button type="button" variant="ghost" size="sm" aria-label={t('productionRoutes.aria.moveStageDown')} onClick={() => moveStage(index, 1)}>
+                </ActionButton>
+                <ActionButton label={t('productionRoutes.aria.moveStageDown')} onClick={() => moveStage(index, 1)}>
                   <ArrowDown className="h-4 w-4" />
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="text-red-600"
-                  aria-label={t('productionRoutes.aria.removeStage')}
+                </ActionButton>
+                <ActionButton
+                  label={t('productionRoutes.aria.removeStage')}
+                  tone="danger"
                   onClick={() => removeStage(index)}
                 >
                   <Trash2 className="h-4 w-4" />
-                </Button>
+                </ActionButton>
               </div>
 
               {/* Machines (Participantes): first = primary, rest backups */}
@@ -390,11 +388,8 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                   <span className="text-xs font-medium text-secondary-500 w-24">
                     {t('productionRoutes.machines')}
                   </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    aria-label={t('productionRoutes.aria.addMachine')}
+                  <ActionButton
+                    label={t('productionRoutes.aria.addMachine')}
                     disabled={!stage.machineTypeUuid}
                     onClick={() => {
                       loadMachinesFor(stage.machineTypeUuid!);
@@ -407,7 +402,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                     }}
                   >
                     <Plus className="h-3 w-3" />
-                  </Button>
+                  </ActionButton>
                 </div>
                 {stage.machines.map((m, mi) => (
                   <div key={m.clientId ?? mi} className="flex items-center gap-2">
@@ -445,18 +440,15 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                       />
                       {t('productionRoutes.primary')}
                     </label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-600"
-                      aria-label={t('productionRoutes.aria.removeMachine')}
+                    <ActionButton
+                      label={t('productionRoutes.aria.removeMachine')}
+                      tone="danger"
                       onClick={() =>
                         patchStage(index, { machines: stage.machines.filter((_, i) => i !== mi) })
                       }
                     >
                       <Trash2 className="h-3 w-3" />
-                    </Button>
+                    </ActionButton>
                   </div>
                 ))}
               </div>
@@ -467,11 +459,8 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                   <span className="text-xs font-medium text-secondary-500 w-24">
                     {t('productionRoutes.supplies')}
                   </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    aria-label={t('productionRoutes.aria.addSupply')}
+                  <ActionButton
+                    label={t('productionRoutes.aria.addSupply')}
                     onClick={() =>
                       patchStage(index, {
                         supplies: [
@@ -491,7 +480,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                     }
                   >
                     <Plus className="h-3 w-3" />
-                  </Button>
+                  </ActionButton>
                 </div>
                 {stage.supplies.map((s, si) => (
                   <div key={s.clientId ?? si} className="flex items-center gap-2">
@@ -579,18 +568,15 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                       />
                       {t('productionRoutes.allowsSimilar')}
                     </label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="text-red-600"
-                      aria-label={t('productionRoutes.aria.removeSupply')}
+                    <ActionButton
+                      label={t('productionRoutes.aria.removeSupply')}
+                      tone="danger"
                       onClick={() =>
                         patchStage(index, { supplies: stage.supplies.filter((_, i) => i !== si) })
                       }
                     >
                       <Trash2 className="h-3 w-3" />
-                    </Button>
+                    </ActionButton>
                   </div>
                 ))}
               </div>

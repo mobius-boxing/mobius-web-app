@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { ArrowDown, ArrowUp, Plus, Trash2 } from 'lucide-react';
 import { CorrugationLayerInput, FluteType, PaperClass } from '../../types';
 import Button from '../ui/Button';
+import ActionButton from '../ui/ActionButton';
 
 interface CorrugationLayersEditorProps {
   layers: CorrugationLayerInput[];
@@ -125,33 +126,28 @@ const CorrugationLayersEditor: React.FC<CorrugationLayersEditorProps> = ({
             </select>
 
             <div className="flex items-center gap-1">
-              <button
-                type="button"
+              <ActionButton
+                label={t('corrugations.layers.moveUp')}
                 onClick={() => move(index, -1)}
                 disabled={disabled || index === 0}
-                className="p-1 text-secondary-500 hover:text-secondary-800 disabled:opacity-30"
-                title={t('corrugations.layers.moveUp')}
               >
                 <ArrowUp className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
+              </ActionButton>
+              <ActionButton
+                label={t('corrugations.layers.moveDown')}
                 onClick={() => move(index, 1)}
                 disabled={disabled || index === layers.length - 1}
-                className="p-1 text-secondary-500 hover:text-secondary-800 disabled:opacity-30"
-                title={t('corrugations.layers.moveDown')}
               >
                 <ArrowDown className="h-4 w-4" />
-              </button>
-              <button
-                type="button"
+              </ActionButton>
+              <ActionButton
+                label={t('corrugations.layers.removeLayer')}
+                tone="danger"
                 onClick={() => onChange(renumber(layers.filter((_, i) => i !== index)))}
                 disabled={disabled}
-                className="p-1 text-red-600 hover:text-red-800 disabled:opacity-30"
-                title={t('corrugations.layers.removeLayer')}
               >
                 <Trash2 className="h-4 w-4" />
-              </button>
+              </ActionButton>
             </div>
           </div>
         ))

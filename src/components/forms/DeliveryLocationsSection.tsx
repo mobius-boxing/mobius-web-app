@@ -9,6 +9,7 @@ import {
 } from '../../types';
 import { deliveryLocationsApi, deliveryZonesApi } from '../../services/api';
 import Button from '../ui/Button';
+import ActionButton from '../ui/ActionButton';
 import { logger } from '../../utils/logger';
 
 interface DeliveryLocationsSectionProps {
@@ -230,22 +231,19 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({
                   </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
-                  <button
-                    type="button"
+                  <ActionButton
+                    label={t('common:customerModal.editLocation')}
                     onClick={() => editPending(index, item)}
-                    className="p-1 text-secondary-500 hover:text-secondary-800"
-                    title={t('common:customerModal.editLocation')}
                   >
                     <Edit className="h-4 w-4" />
-                  </button>
-                  <button
-                    type="button"
+                  </ActionButton>
+                  <ActionButton
+                    label={t('common:customerModal.remove')}
+                    tone="danger"
                     onClick={() => removePending(index)}
-                    className="p-1 text-red-600 hover:text-red-800"
-                    title={t('common:customerModal.remove')}
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </ActionButton>
                 </div>
               </div>
             );
@@ -283,8 +281,8 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({
                 </p>
               </div>
               <div className="flex items-center gap-1 shrink-0">
-                <button
-                  type="button"
+                <ActionButton
+                  label={t('common:customerModal.editLocation')}
                   onClick={() =>
                     setDraft({
                       uuid: location.uuid,
@@ -297,20 +295,17 @@ const DeliveryLocationsSection: React.FC<DeliveryLocationsSectionProps> = ({
                       isCustomerAddress: location.isCustomerAddress || false,
                     })
                   }
-                  className="p-1 text-secondary-500 hover:text-secondary-800"
-                  title={t('common:customerModal.editLocation')}
                 >
                   <Edit className="h-4 w-4" />
-                </button>
+                </ActionButton>
                 {!location.isCustomerAddress && (
-                  <button
-                    type="button"
+                  <ActionButton
+                    label={t('common:customerModal.remove')}
+                    tone="danger"
                     onClick={() => removeLocation(location.uuid)}
-                    className="p-1 text-red-600 hover:text-red-800"
-                    title={t('common:customerModal.remove')}
                   >
                     <Trash2 className="h-4 w-4" />
-                  </button>
+                  </ActionButton>
                 )}
               </div>
             </div>

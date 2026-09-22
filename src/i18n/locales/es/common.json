@@ -2668,6 +2668,8 @@
       "voidedConfirm": "Se intenta generar las órdenes de un pedido anulado.\n¿Desea generarlas de todas maneras?",
       "loadFailed": "No se pudo verificar el pedido",
       "failed": "No se pudieron generar las órdenes",
+      "addRow": "Agregar fila",
+      "removeRow": "Quitar fila",
       "columns": {
         "deliveryDate": "Fecha de entrega",
         "percentage": "Porcentaje",
