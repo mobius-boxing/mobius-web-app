@@ -97,7 +97,7 @@ describe('deleting a referenced model', () => {
     });
     await renderPage();
 
-    fireEvent.click(screen.getByTitle('##models.deleteModel##'));
+    fireEvent.click(screen.getByRole('button', { name: '##models.deleteModel##' }));
     fireEvent.click(await screen.findByText('##confirmModal.confirm##'));
 
     expect(
@@ -109,7 +109,7 @@ describe('deleting a referenced model', () => {
     mockDeleteModel.mockRejectedValue(new Error('Network Error'));
     await renderPage();
 
-    fireEvent.click(screen.getByTitle('##models.deleteModel##'));
+    fireEvent.click(screen.getByRole('button', { name: '##models.deleteModel##' }));
     fireEvent.click(await screen.findByText('##confirmModal.confirm##'));
 
     expect(
@@ -143,7 +143,7 @@ describe('the formula reference popup over the model form', () => {
   it('closes only the popup on Escape and keeps the form values', async () => {
     await renderPage();
 
-    fireEvent.click(screen.getByTitle('##models.editModel##'));
+    fireEvent.click(screen.getByRole('button', { name: '##models.editModel##' }));
     const code = await screen.findByTestId('model-code');
     await waitFor(() => expect(code).toHaveValue('M-1'));
     fireEvent.change(code, { target: { value: 'M-1-EDITADO' } });
@@ -163,7 +163,7 @@ describe('the formula reference popup over the model form', () => {
   it('closes the form itself on the next Escape', async () => {
     await renderPage();
 
-    fireEvent.click(screen.getByTitle('##models.editModel##'));
+    fireEvent.click(screen.getByRole('button', { name: '##models.editModel##' }));
     await screen.findByTestId('model-code');
     fireEvent.click(screen.getByTestId('model-open-reference'));
     await screen.findByTestId('formula-reference-filter');

@@ -6,6 +6,7 @@ import { colorsApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
+import ActionButton from '../components/ui/ActionButton';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
@@ -124,27 +125,23 @@ const Colors: React.FC = () => {
       render: (value: any, color: Color) => (
         <div className="flex items-center space-x-2">
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('colors.editColor')}
               onClick={() => handleEdit(color)}
               disabled={actionLoading === color?.uuid || !color}
-              title={t('colors.editColor')}
             >
               <Edit className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('colors.deleteColor')}
+              tone="danger"
               onClick={() => handleDelete(color?.uuid)}
               disabled={actionLoading === color?.uuid || !color}
-              className="text-red-600 hover:text-red-700"
-              title={t('colors.deleteColor')}
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
         </div>
       ),

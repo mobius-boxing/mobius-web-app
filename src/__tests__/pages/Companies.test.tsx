@@ -304,7 +304,7 @@ describe('Companies Page', () => {
       });
 
       // One row per record, so take the first row's button.
-      const deleteButton = (await screen.findAllByTitle('Delete'))[0];
+      const deleteButton = (await screen.findAllByRole('button', { name: 'Delete' }))[0];
       fireEvent.click(deleteButton);
     };
 

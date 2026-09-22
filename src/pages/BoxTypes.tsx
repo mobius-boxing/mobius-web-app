@@ -6,6 +6,7 @@ import { boxTypesApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
+import ActionButton from '../components/ui/ActionButton';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, FilterDef, searchFilter } from '../components/ui/filters';
@@ -81,27 +82,23 @@ const BoxTypes: React.FC = () => {
       render: (value: any, item: BoxType) => (
         <div className="flex items-center space-x-2">
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('boxTypes.editBoxType')}
               onClick={() => handleEdit(item)}
               disabled={actionLoading === item?.uuid || !item}
-              title={t('boxTypes.editBoxType')}
             >
               <Edit className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('boxTypes.deleteBoxType')}
+              tone="danger"
               onClick={() => handleDelete(item?.uuid)}
               disabled={actionLoading === item?.uuid || !item}
-              className="text-red-600 hover:text-red-700"
-              title={t('boxTypes.deleteBoxType')}
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
         </div>
       ),

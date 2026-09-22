@@ -6,6 +6,7 @@ import { warehousesApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
+import ActionButton from '../components/ui/ActionButton';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
@@ -125,48 +126,40 @@ const Warehouses: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, warehouse: Warehouse) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
+          <ActionButton
+            label={t('warehouses.viewStock')}
             onClick={() => handleOpenStockView(warehouse)}
             disabled={actionLoading === warehouse?.uuid || !warehouse}
-            title={t('warehouses.viewStock')}
           >
             <Package className="h-4 w-4" />
-          </Button>
+          </ActionButton>
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('warehouses.editGrid')}
               onClick={() => handleOpenGridEditor(warehouse)}
               disabled={actionLoading === warehouse?.uuid || !warehouse}
-              title={t('warehouses.editGrid')}
             >
               <Grid className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('warehouses.editWarehouse')}
               onClick={() => handleEdit(warehouse)}
               disabled={actionLoading === warehouse?.uuid || !warehouse}
-              title={t('warehouses.editWarehouse')}
             >
               <Edit className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('warehouses.deleteWarehouse')}
+              tone="danger"
               onClick={() => handleDelete(warehouse?.uuid)}
               disabled={actionLoading === warehouse?.uuid || !warehouse}
-              className="text-red-600 hover:text-red-700"
-              title={t('warehouses.deleteWarehouse')}
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
         </div>
       ),

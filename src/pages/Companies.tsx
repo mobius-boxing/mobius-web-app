@@ -6,6 +6,7 @@ import { Company } from '../types';
 import { companiesApi } from '../services/api';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
+import ActionButton from '../components/ui/ActionButton';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
@@ -128,14 +129,13 @@ const Companies: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, company: Company) => (
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
+          <ActionButton
+            label={t('common.edit')}
             onClick={() => handleEdit(company)}
             disabled={actionLoading === company?.uuid || !company}
           >
             <Edit className="h-4 w-4" />
-          </Button>
+          </ActionButton>
           <Button
             variant="ghost"
             size="sm"
@@ -145,16 +145,14 @@ const Companies: React.FC = () => {
           >
             {company?.isActive ? t('companies.actions.deactivate') : t('companies.actions.activate')}
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
+          <ActionButton
+            label={t('companies.actions.delete')}
+            tone="danger"
             onClick={() => handleDelete(company)}
             disabled={actionLoading === company?.uuid || !company}
-            className="text-red-600 hover:text-red-700"
-            title={t('companies.actions.delete')}
           >
             <Trash2 className="h-4 w-4" />
-          </Button>
+          </ActionButton>
         </div>
       ),
     },

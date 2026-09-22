@@ -6,6 +6,7 @@ import { palletTypesApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
+import ActionButton from '../components/ui/ActionButton';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
@@ -105,27 +106,23 @@ const PalletTypes: React.FC = () => {
       render: (_: any, pt: PalletType) => (
         <div className="flex items-center space-x-2">
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('palletTypes.editPalletType')}
               onClick={() => { setSelected(pt); setShowEditModal(true); }}
               disabled={actionLoading === pt?.uuid || !pt}
-              title={t('palletTypes.editPalletType')}
             >
               <Edit className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('palletTypes.deletePalletType')}
+              tone="danger"
               onClick={() => handleDelete(pt?.uuid)}
               disabled={actionLoading === pt?.uuid || !pt}
-              className="text-red-600 hover:text-red-700"
-              title={t('palletTypes.deletePalletType')}
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
         </div>
       ),

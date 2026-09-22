@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { History } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import Button from '../ui/Button';
+import ActionButton from '../ui/ActionButton';
 import EntityHistoryDrawer from './EntityHistoryDrawer';
 
 /**
@@ -42,24 +42,19 @@ const HistoryButton: React.FC<HistoryButtonProps> = ({
   const open = useCallback(() => setIsOpen(true), []);
   const close = useCallback(() => setIsOpen(false), []);
 
-  // A bare icon has no accessible name, and `title` alone is not one for a
-  // screen reader — the label is spoken, the tooltip is seen.
   const label = t('audit.title');
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size="sm"
+      <ActionButton
+        label={label}
         onClick={open}
         disabled={!uuid}
-        aria-label={label}
-        title={label}
         data-testid={`history-${uuid ?? ''}`}
         className={className}
       >
         <History className="h-4 w-4" />
-      </Button>
+      </ActionButton>
 
       {isOpen && (
         <EntityHistoryDrawer

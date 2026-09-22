@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Clock, Trash2, XCircle } from 'lucide-react';
 import Button from '../ui/Button';
+import ActionButton from '../ui/ActionButton';
 import Table from '../ui/Table';
 import Pagination from '../ui/Pagination';
 import ConfirmModal from '../ui/ConfirmModal';
@@ -177,16 +178,14 @@ const ProductionOrdersGrid: React.FC<Props> = ({
       pinned: true,
       card: 'actions' as const,
       render: (_: any, o: ProductionOrder) => (
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-red-600"
-          title={t('productionOrders.deleteOrder') ?? ''}
+        <ActionButton
+          label={t('productionOrders.deleteOrder') ?? ''}
+          tone="danger"
           data-testid={`delete-production-order-${o.uuid}`}
           onClick={() => handleDelete(o)}
         >
           <Trash2 className="h-4 w-4" />
-        </Button>
+        </ActionButton>
       ),
     },
   ];

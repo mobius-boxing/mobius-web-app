@@ -1160,6 +1160,35 @@ body::after {
   /* 80ms reads as instant while still avoiding a hard pop. */
   animation: gd-sb-tip-in 0.08s var(--ease-out) both;
 }
+
+/* ── Grid action tooltip ──────────────────────────────────────────────────── */
+/* Same tokens as `.gd-sb-tip`, ported for `Tooltip`/`ActionButton`: portal'd
+   into `document.body` and `position: fixed`, so a table's `overflow-x`
+   wrapper can never clip it. No `translateY(-50%)` here — `Tooltip` centres
+   the trigger itself via `left` and flips `top`/`bottom` with `transform`. */
+.gd-tip {
+  position: fixed;
+  z-index: 60;
+  padding: 0.3125rem 0.5625rem;
+  border-radius: 0.375rem;
+  background: oklch(var(--p-950));
+  border: 1px solid oklch(var(--p-900));
+  box-shadow: 0 4px 10px -2px oklch(var(--n-950) / 0.3);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  color: oklch(var(--white));
+  white-space: nowrap;
+  pointer-events: none;
+  animation: gd-tip-in 0.08s var(--ease-out) both;
+}
+
+@keyframes gd-tip-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .gd-sb-menu {
   position: fixed;
   z-index: 60;
@@ -1273,7 +1302,8 @@ body::after {
   .gd-sidebar,
   .gd-sidebar *,
   .gd-b,
-  .gd-table > tbody > tr {
+  .gd-table > tbody > tr,
+  .gd-tip {
     transition-duration: 0.01ms !important;
     animation-duration: 0.01ms !important;
   }

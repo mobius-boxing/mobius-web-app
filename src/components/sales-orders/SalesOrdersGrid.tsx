@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Check, Edit, ListOrdered, Trash2 } from 'lucide-react';
-import Button from '../ui/Button';
+import ActionButton from '../ui/ActionButton';
 import Table from '../ui/Table';
 import Pagination from '../ui/Pagination';
 import ConfirmModal from '../ui/ConfirmModal';
@@ -326,39 +326,33 @@ const SalesOrdersGrid: React.FC = () => {
             onChanged={patchRow}
             onError={setActionError}
           />
-          <Button
-            variant="ghost"
-            size="sm"
+          <ActionButton
+            label={t('salesOrders.viewProductionOrders')}
             onClick={() =>
               navigate(`/sales-orders/${order.uuid}/production-orders`)
             }
-            title={t('salesOrders.viewProductionOrders')}
             data-testid="view-production-orders-btn"
           >
             <ListOrdered className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
+          </ActionButton>
+          <ActionButton
+            label={t('salesOrders.editOrder')}
             onClick={() => navigate(`/sales-orders/${order.uuid}`)}
-            title={t('salesOrders.editOrder')}
             data-testid="edit-btn"
           >
             <Edit className="h-4 w-4" />
-          </Button>
+          </ActionButton>
           {/* Absent from the DOM without `orders.delete`, the code the API
               requires — the same rule the Precio column follows. */}
           {has(DELETE_CODE) && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('salesOrders.deleteOrder')}
+              tone="danger"
               onClick={() => handleDelete(order.uuid)}
-              className="text-red-600 hover:text-red-700"
-              title={t('salesOrders.deleteOrder')}
               data-testid="delete-btn"
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
         </div>
       ),

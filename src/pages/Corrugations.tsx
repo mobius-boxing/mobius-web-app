@@ -6,6 +6,7 @@ import { corrugationsApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
+import ActionButton from '../components/ui/ActionButton';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
@@ -150,25 +151,23 @@ const Corrugations: React.FC = () => {
       render: (value: any, corrugation: Corrugation) => (
         <div className="flex items-center space-x-2">
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('common.edit')}
               onClick={() => handleEdit(corrugation)}
               disabled={!corrugation}
             >
               <Edit className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('common.delete')}
+              tone="danger"
               onClick={() => handleDeleteClick(corrugation)}
               disabled={!corrugation}
-              className="text-red-600 hover:text-red-700"
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
         </div>
       ),

@@ -6,6 +6,7 @@ import { productTypesApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
+import ActionButton from '../components/ui/ActionButton';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
@@ -122,27 +123,23 @@ const ProductTypes: React.FC = () => {
       render: (value: any, item: ProductType) => (
         <div className="flex items-center space-x-2">
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('productTypes.editProductType')}
               onClick={() => handleEdit(item)}
               disabled={actionLoading === item?.uuid || !item}
-              title={t('productTypes.editProductType')}
             >
               <Edit className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('productTypes.deleteProductType')}
+              tone="danger"
               onClick={() => handleDelete(item?.uuid)}
               disabled={actionLoading === item?.uuid || !item}
-              className="text-red-600 hover:text-red-700"
-              title={t('productTypes.deleteProductType')}
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
         </div>
       ),

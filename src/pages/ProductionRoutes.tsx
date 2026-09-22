@@ -6,6 +6,7 @@ import { productionRoutesApi } from '../services/api';
 import { useEffectiveCompany } from '../hooks/useEffectiveCompany';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
+import ActionButton from '../components/ui/ActionButton';
 import Table from '../components/ui/Table';
 import Pagination from '../components/ui/Pagination';
 import { FilterBar, searchFilter } from '../components/ui/filters';
@@ -119,41 +120,35 @@ const ProductionRoutes: React.FC = () => {
       render: (_: any, r: ProductionRoute) => (
         <div className="flex items-center space-x-2">
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('productionRoutes.editTitle')}
               onClick={() => {
                 setSelected(r);
                 setShowFormModal(true);
               }}
               disabled={actionLoading === r.uuid}
-              title={t('productionRoutes.editTitle')}
             >
               <Edit className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
           {canEdit && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('productionRoutes.cloneTitle')}
               onClick={() => handleClone(r)}
               disabled={actionLoading === r.uuid}
-              title={t('productionRoutes.cloneTitle')}
             >
               <Copy className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
           {canDelete && (
-            <Button
-              variant="ghost"
-              size="sm"
+            <ActionButton
+              label={t('productionRoutes.deleteTitle')}
+              tone="danger"
               onClick={() => handleDelete(r.uuid)}
               disabled={actionLoading === r.uuid}
-              className="text-red-600 hover:text-red-700"
-              title={t('productionRoutes.deleteTitle')}
             >
               <Trash2 className="h-4 w-4" />
-            </Button>
+            </ActionButton>
           )}
         </div>
       ),
