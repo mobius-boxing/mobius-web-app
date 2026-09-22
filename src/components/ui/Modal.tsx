@@ -1,4 +1,5 @@
 import React, { ReactNode, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import Button from './Button';
@@ -85,7 +86,11 @@ const Modal: React.FC<ModalProps> = ({
     '2xl': 'max-w-6xl',
   };
 
-  return (
+  // Portaled to <body>: a modal opened from inside a grid cell (the sales
+  // order fulfil/void confirms) otherwise inherits the cell's
+  // `whitespace-nowrap` and its text runs past the modal edge, and the
+  // table's wheel handler would scroll the grid sideways under the modal.
+  return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4 text-center">
         <div
@@ -121,7 +126,8 @@ const Modal: React.FC<ModalProps> = ({
           <div>{children}</div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

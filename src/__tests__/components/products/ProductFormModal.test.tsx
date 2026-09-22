@@ -95,7 +95,9 @@ const renderModal = async (props: Partial<React.ComponentProps<typeof ProductFor
   );
   await waitFor(() => expect(mockGetCustomers).toHaveBeenCalled());
   await screen.findByRole('tablist');
-  return utils;
+  // Modal renders through a portal into <body>, so `container` (the render
+  // root) never holds the form; hand callers the body instead.
+  return { ...utils, container: utils.baseElement as HTMLElement };
 };
 
 const switchTab = async (key: 'general' | 'production' | 'route' | 'palletizing') => {

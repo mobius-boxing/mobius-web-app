@@ -194,4 +194,24 @@ describe('Modal', () => {
       expect(screen.getByText('Second paragraph')).toBeInTheDocument();
     });
   });
+
+  it('renders through a portal, outside the subtree that opened it', () => {
+    const { container } = render(
+      <table>
+        <tbody>
+          <tr>
+            <td className="whitespace-nowrap">
+              <Modal isOpen onClose={() => {}} title="In a cell">
+                <p>A long confirmation message that must be free to wrap inside the modal</p>
+              </Modal>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    );
+    const content = screen.getByText(/long confirmation message/);
+    expect(container.contains(content)).toBe(false);
+    expect(content.closest('td')).toBeNull();
+    expect(document.body.contains(content)).toBe(true);
+  });
 });
