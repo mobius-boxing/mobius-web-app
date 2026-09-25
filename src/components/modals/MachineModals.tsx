@@ -26,8 +26,14 @@ const MachineFields: React.FC<{
   errors: any;
   machineTypes: MachineType[];
   warehouses: Warehouse[];
-}> = ({ register, errors, machineTypes, warehouses }) => {
+  /** Selected `machineTypeUuid`, to gate the corrugator fields below. */
+  selectedTypeUuid?: string;
+}> = ({ register, errors, machineTypes, warehouses, selectedTypeUuid }) => {
   const { t } = useTranslation();
+  const selectedType = machineTypes.find((mt) => mt.uuid === selectedTypeUuid);
+  // Shown whenever the form knows the type IS corrugated, or does not know the
+  // type yet (new machine, type list still loading) — never hidden by default.
+  const showCorrugatorFields = !selectedType || selectedType.corrugated;
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -117,6 +123,53 @@ const MachineFields: React.FC<{
           )}
         </div>
       </div>
+      {showCorrugatorFields && (
+        <div className="space-y-3 rounded-lg border border-secondary-200 p-3">
+          <p className="gd-label">{t('machines.corrugatorSection')}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="gd-label">{t('machines.trim')}</label>
+              <Input type="number" step="any" {...register('trim')} error={errors.trim?.message as string} helperText={t('machines.unlimitedHint')} />
+            </div>
+            <div>
+              <label className="gd-label">{t('machines.maxElements')}</label>
+              <Input type="number" step="1" {...register('maxElements')} error={errors.maxElements?.message as string} helperText={t('machines.unlimitedHint')} />
+            </div>
+            <div>
+              <label className="gd-label">{t('machines.tableCount')}</label>
+              <Input type="number" step="1" {...register('tableCount')} error={errors.tableCount?.message as string} helperText={t('machines.unlimitedHint')} />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="gd-label">{t('machines.formatsPerTable')}</label>
+              <Input type="number" step="1" {...register('formatsPerTable')} error={errors.formatsPerTable?.message as string} helperText={t('machines.unlimitedHint')} />
+            </div>
+            <div>
+              <label className="gd-label">{t('machines.ordersPerFormat')}</label>
+              <Input type="number" step="1" {...register('ordersPerFormat')} error={errors.ordersPerFormat?.message as string} helperText={t('machines.unlimitedHint')} />
+            </div>
+            <div>
+              <label className="gd-label">{t('machines.ordersPerTable')}</label>
+              <Input type="number" step="1" {...register('ordersPerTable')} error={errors.ordersPerTable?.message as string} helperText={t('machines.unlimitedHint')} />
+            </div>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="gd-label">{t('machines.sheetLengthMin')}</label>
+              <Input type="number" step="any" {...register('sheetLengthMin')} error={errors.sheetLengthMin?.message as string} helperText={t('machines.unlimitedHint')} />
+            </div>
+            <div>
+              <label className="gd-label">{t('machines.sheetLengthMax')}</label>
+              <Input type="number" step="any" {...register('sheetLengthMax')} error={errors.sheetLengthMax?.message as string} helperText={t('machines.unlimitedHint')} />
+            </div>
+            <div>
+              <label className="gd-label">{t('machines.maxScoreLines')}</label>
+              <Input type="number" step="1" {...register('maxScoreLines')} error={errors.maxScoreLines?.message as string} helperText={t('machines.unlimitedHint')} />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
@@ -155,7 +208,7 @@ export const CreateMachineModal: React.FC<BaseProps> = ({ isOpen, onClose, onSuc
   const { machineTypes, warehouses } = useMachineDropdowns(isOpen);
 
   const {
-    form: { register, handleSubmit: formSubmit, formState: { errors } },
+    form: { register, handleSubmit: formSubmit, formState: { errors }, watch },
     loading,
     error,
     handleSubmit,
@@ -170,7 +223,13 @@ export const CreateMachineModal: React.FC<BaseProps> = ({ isOpen, onClose, onSuc
     <Modal isOpen={isOpen} onClose={handleClose} title={t('machines.createTitle')} size="lg">
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
-        <MachineFields register={register} errors={errors} machineTypes={machineTypes} warehouses={warehouses} />
+        <MachineFields
+          register={register}
+          errors={errors}
+          machineTypes={machineTypes}
+          warehouses={warehouses}
+          selectedTypeUuid={watch('machineTypeUuid')}
+        />
         <ModalFooter onCancel={handleClose} loading={loading} submitText={t('machines.createButton')} />
       </form>
     </Modal>
@@ -187,7 +246,7 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
   const { machineTypes, warehouses } = useMachineDropdowns(isOpen);
 
   const {
-    form: { register, handleSubmit: formSubmit, formState: { errors }, reset },
+    form: { register, handleSubmit: formSubmit, formState: { errors }, reset, watch },
     loading,
     error,
     handleSubmit,
@@ -210,9 +269,19 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
         sheetWidthMax: machine.sheetWidthMax ?? undefined,
         sourceWarehouseUuid: machine.sourceWarehouse?.uuid ?? '',
         destinationWarehouseUuid: machine.destinationWarehouse?.uuid ?? '',
+        trim: machine.trim ?? undefined,
+        maxElements: machine.maxElements ?? undefined,
+        tableCount: machine.tableCount ?? undefined,
+        formatsPerTable: machine.formatsPerTable ?? undefined,
+        ordersPerFormat: machine.ordersPerFormat ?? undefined,
+        ordersPerTable: machine.ordersPerTable ?? undefined,
+        sheetLengthMin: machine.sheetLengthMin ?? undefined,
+        sheetLengthMax: machine.sheetLengthMax ?? undefined,
+        maxScoreLines: machine.maxScoreLines ?? undefined,
       });
     }
-  }, [isOpen, machine, reset]);
+    // Re-applied when the dropdown lists arrive: a select reset before its options exist shows the placeholder.
+  }, [isOpen, machine, reset, machineTypes, warehouses]);
 
   const onSubmit = handleSubmit((data) =>
     machinesApi.updateMachine(machine!.uuid, clean(data))
@@ -222,7 +291,13 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
     <Modal isOpen={isOpen} onClose={handleClose} title={t('machines.editTitle')} size="lg">
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
-        <MachineFields register={register} errors={errors} machineTypes={machineTypes} warehouses={warehouses} />
+        <MachineFields
+          register={register}
+          errors={errors}
+          machineTypes={machineTypes}
+          warehouses={warehouses}
+          selectedTypeUuid={watch('machineTypeUuid')}
+        />
         <ModalFooter onCancel={handleClose} loading={loading} submitText={t('machines.editButton')} />
       </form>
     </Modal>

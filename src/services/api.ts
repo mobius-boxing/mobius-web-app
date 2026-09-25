@@ -122,6 +122,15 @@ import {
   ProductionOrderLifecycleMachine,
   PromisedQuantityRow,
   GenerationEligibility,
+  CorrugatorPool,
+  CorrugatorPlan,
+  CorrugatorPlanOrder,
+  CorrugatorPlanListFilters,
+  CorrugatorPlanCreatePayload,
+  CorrugatorPlanUpdatePayload,
+  CorrugatorPlanOrderUpdatePayload,
+  CorrugatorCandidate,
+  CorrugatorCandidateItem,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -2082,6 +2091,136 @@ export const productionOrdersApi = {
     machine: ProductionOrderLifecycleMachine,
   ): Promise<ProductionOrder> => {
     const response = await api.post(`/api/production-orders/${uuid}/${machine}`);
+    return response.data.data;
+  },
+};
+
+/**
+ * Corrugator planning ("Programa de corrugado", tier 1) — docs/dev/corrugator-planning/model.md.
+ * `machines` on create/update carries `{ machineUuid, widths? }` (D-23), not `machineUuids`.
+ */
+export const corrugatorPlansApi = {
+  /** Card 1: not paginated — the pool is a grouped view (C-7). */
+  getPool: async (
+    params: { search?: string; companyId?: string } = {},
+  ): Promise<CorrugatorPool> => {
+    const response = await api.get('/api/corrugator-plans/pool', { params });
+    return response.data.data;
+  },
+  getPlans: async (
+    params: CorrugatorPlanListFilters & {
+      page?: number;
+      limit?: number;
+      sortBy?: string;
+      sortOrder?: 'asc' | 'desc';
+      search?: string;
+      companyId?: string;
+      [key: string]: unknown;
+    } = {},
+  ): Promise<PaginatedResponse<CorrugatorPlan>> => {
+    const response = await api.get('/api/corrugator-plans', { params });
+    const d = response.data;
+    return { data: d.data, total: d.totalCount, page: d.page, limit: d.limit, totalPages: d.totalPages };
+  },
+  getPlan: async (uuid: string): Promise<CorrugatorPlan> => {
+    const response = await api.get(`/api/corrugator-plans/${uuid}`);
+    return response.data.data;
+  },
+  createPlan: async (
+    data: CorrugatorPlanCreatePayload & { companyId?: string },
+  ): Promise<CorrugatorPlan> => {
+    const response = await api.post('/api/corrugator-plans', data);
+    return response.data.data;
+  },
+  updatePlan: async (uuid: string, data: CorrugatorPlanUpdatePayload): Promise<CorrugatorPlan> => {
+    const response = await api.put(`/api/corrugator-plans/${uuid}`, data);
+    return response.data.data;
+  },
+  deletePlan: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/corrugator-plans/${uuid}`);
+  },
+  addOrders: async (uuid: string, productionOrderUuids: string[]): Promise<CorrugatorPlanOrder[]> => {
+    const response = await api.post(`/api/corrugator-plans/${uuid}/orders`, { productionOrderUuids });
+    return response.data.data;
+  },
+  updateOrder: async (
+    uuid: string,
+    orderUuid: string,
+    data: CorrugatorPlanOrderUpdatePayload,
+  ): Promise<CorrugatorPlanOrder> => {
+    const response = await api.put(`/api/corrugator-plans/${uuid}/orders/${orderUuid}`, data);
+    return response.data.data;
+  },
+  removeOrder: async (uuid: string, orderUuid: string): Promise<void> => {
+    await api.delete(`/api/corrugator-plans/${uuid}/orders/${orderUuid}`);
+  },
+  solve: async (uuid: string): Promise<CorrugatorPlan> => {
+    const response = await api.post(`/api/corrugator-plans/${uuid}/solve`);
+    return response.data.data;
+  },
+  cancelSolve: async (uuid: string): Promise<CorrugatorPlan> => {
+    const response = await api.post(`/api/corrugator-plans/${uuid}/cancel-solve`);
+    return response.data.data;
+  },
+  /** Card 3 "add a combination": ≤ 50 candidates containing `orderUuid`, sorted by refile asc. */
+  getCandidates: async (
+    uuid: string,
+    orderUuid: string,
+    machineUuid?: string,
+  ): Promise<CorrugatorCandidate[]> => {
+    const response = await api.get(`/api/corrugator-plans/${uuid}/candidates`, {
+      params: { orderUuid, ...(machineUuid ? { machineUuid } : {}) },
+    });
+    return response.data.data;
+  },
+  addCombination: async (
+    uuid: string,
+    data: { machineKey: string; items: CorrugatorCandidateItem[]; meters?: number },
+  ): Promise<CorrugatorPlan> => {
+    const response = await api.post(`/api/corrugator-plans/${uuid}/combinations`, data);
+    return response.data.data;
+  },
+  setCombinationMeters: async (uuid: string, combinationUuid: string, meters: number): Promise<CorrugatorPlan> => {
+    const response = await api.put(`/api/corrugator-plans/${uuid}/combinations/${combinationUuid}`, { meters });
+    return response.data.data;
+  },
+  setCombinationSequence: async (uuid: string, combinationUuid: string, sequence: number): Promise<CorrugatorPlan> => {
+    const response = await api.put(`/api/corrugator-plans/${uuid}/combinations/${combinationUuid}`, { sequence });
+    return response.data.data;
+  },
+  /** D-44: move a run to another reel width of the plan (`<machineUuid>:<width>`). */
+  setCombinationMachineKey: async (uuid: string, combinationUuid: string, machineKey: string): Promise<CorrugatorPlan> => {
+    const response = await api.put(`/api/corrugator-plans/${uuid}/combinations/${combinationUuid}`, { machineKey });
+    return response.data.data;
+  },
+  setItemPlannedSheets: async (
+    uuid: string,
+    combinationUuid: string,
+    itemUuid: string,
+    value: number,
+  ): Promise<CorrugatorPlan> => {
+    const response = await api.put(`/api/corrugator-plans/${uuid}/combinations/${combinationUuid}`, {
+      plannedSheets: { itemUuid, value },
+    });
+    return response.data.data;
+  },
+  deleteCombination: async (uuid: string, combinationUuid: string): Promise<CorrugatorPlan> => {
+    const response = await api.delete(`/api/corrugator-plans/${uuid}/combinations/${combinationUuid}`);
+    return response.data.data;
+  },
+  deleteItem: async (uuid: string, combinationUuid: string, itemUuid: string): Promise<CorrugatorPlan> => {
+    const response = await api.delete(
+      `/api/corrugator-plans/${uuid}/combinations/${combinationUuid}/items/${itemUuid}`,
+    );
+    return response.data.data;
+  },
+  /** Card 3 "Generar Programa de Corrugado". 409 `STALE_PENDING`/`OVER_ALLOCATED` unless `force`. */
+  register: async (uuid: string, force = false): Promise<CorrugatorPlan> => {
+    const response = await api.post(`/api/corrugator-plans/${uuid}/register`, { force });
+    return response.data.data;
+  },
+  unregister: async (uuid: string): Promise<CorrugatorPlan> => {
+    const response = await api.post(`/api/corrugator-plans/${uuid}/unregister`);
     return response.data.data;
   },
 };

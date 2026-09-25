@@ -10,6 +10,7 @@ import Modal from '../ui/Modal';
 import GenerateOrdersDialog from './GenerateOrdersDialog';
 import { useProductionOrdersFilterDefs } from './ProductionOrdersFilterBar';
 import ProductionOrderLifecycleControl from './ProductionOrderLifecycleControl';
+import ProductionOrderCorrugatorBlock from './ProductionOrderCorrugatorBlock';
 import { FilterBar } from '../ui/filters';
 import { ProductionOrder, SalesOrder } from '../../types';
 import { productionOrdersApi, salesOrdersApi } from '../../services/api';
@@ -343,14 +344,17 @@ const ProductionOrdersGrid: React.FC<Props> = ({
           title={t('productionOrders.detailTitle', { number: detail.number })}
           size="lg"
         >
-          <ProductionOrderLifecycleControl
-            order={detail}
-            onChanged={(updated) => {
-              setDetail(updated);
-              void refresh();
-              onOrdersChanged?.();
-            }}
-          />
+          <div className="space-y-4">
+            <ProductionOrderLifecycleControl
+              order={detail}
+              onChanged={(updated) => {
+                setDetail(updated);
+                void refresh();
+                onOrdersChanged?.();
+              }}
+            />
+            <ProductionOrderCorrugatorBlock orderUuid={detail.uuid} />
+          </div>
         </Modal>
       )}
 

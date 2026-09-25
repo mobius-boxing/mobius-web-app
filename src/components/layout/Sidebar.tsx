@@ -257,6 +257,8 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
     },
     {
       id: 'production', label: t('nav.production'), icon: 'Package', children: [
+        { id: 'corrugator-pool', label: t('nav.corrugatorPool'), path: '/corrugator-pool', icon: 'Boxes', permission: 'corrugator.plan', allowReadOnly: true },
+        { id: 'corrugator-plans', label: t('nav.corrugatorPlans'), path: '/corrugator-plans', icon: 'FileText', permission: 'corrugator.plan', allowReadOnly: true },
         {
           id: 'stock', label: t('nav.stock'), icon: 'Warehouse', children: [
             { id: 'paper-stock', label: t('nav.paperStock'), path: '/paper-stock', icon: 'Package', permission: 'paper-stock.edit', allowReadOnly: true },

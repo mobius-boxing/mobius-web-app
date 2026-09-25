@@ -3,6 +3,7 @@ import {
   nonNegativeNumber,
   optionalSelect,
   optionalText,
+  positiveInt,
   requiredSelect,
   Translate,
 } from '../fields';
@@ -55,6 +56,16 @@ export const createMachineSchema = (t: Translate) =>
     sheetWidthMax: measure(t, t('machines.sheetWidthMax')),
     sourceWarehouseUuid: optionalSelect(),
     destinationWarehouseUuid: optionalSelect(),
+    // Corrugator planning (model.md D-5 revised): 0 = sin límite, never negative.
+    trim: measure(t, t('machines.trim')),
+    maxElements: positiveInt(t, t('machines.maxElements')),
+    tableCount: positiveInt(t, t('machines.tableCount')),
+    formatsPerTable: positiveInt(t, t('machines.formatsPerTable')),
+    ordersPerFormat: positiveInt(t, t('machines.ordersPerFormat')),
+    ordersPerTable: positiveInt(t, t('machines.ordersPerTable')),
+    sheetLengthMin: measure(t, t('machines.sheetLengthMin')),
+    sheetLengthMax: measure(t, t('machines.sheetLengthMax')),
+    maxScoreLines: positiveInt(t, t('machines.maxScoreLines')),
   });
 
 export const editMachineSchema = (t: Translate) =>

@@ -65,6 +65,8 @@
     "audit": "Audit Log",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
+    "corrugatorPool": "Order Pool",
+    "corrugatorPlans": "Corrugator Programs",
     "usersAndRoles": "Users & roles"
   },
   "fileUploader": {
@@ -2357,6 +2359,14 @@
     "selectWarehouse": "Select a warehouse",
     "searchPlaceholder": "Search machines...",
     "deleteConfirm": "Are you sure you want to delete this machine?",
+    "corrugatorSection": "Corrugator",
+    "unlimitedHint": "0 = no limit",
+    "trim": "Machine trim (mm)",
+    "maxElements": "Max elements",
+    "tableCount": "Tables",
+    "formatsPerTable": "Formats per table",
+    "ordersPerFormat": "Orders per format",
+    "ordersPerTable": "Orders per table",
     "columns": {
       "code": "Code",
       "description": "Description",
@@ -2370,7 +2380,10 @@
     },
     "validation": {
       "typeRequired": "Machine type is required"
-    }
+    },
+    "sheetLengthMin": "Minimum sheet length (mm)",
+    "sheetLengthMax": "Maximum sheet length (mm)",
+    "maxScoreLines": "Maximum score lines"
   },
   "productionRoutes": {
     "title": "Production Routes",
@@ -2675,6 +2688,23 @@
         "percentage": "Percentage",
         "quantity": "Quantity"
       }
+    },
+    "corrugator": {
+      "title": "Corrugator",
+      "sheetsPerUnit": "Sheets per box",
+      "sourceRoute": "route",
+      "sourceQuantity": "no route data",
+      "sourceManual": "manual",
+      "required": "Sheets required",
+      "allocated": "Sheets allocated",
+      "pending": "Sheets pending",
+      "state": {
+        "none": "Not scheduled",
+        "partial": "Partial",
+        "programada": "Scheduled"
+      },
+      "plans": "Plans",
+      "loadFailed": "Could not load the corrugator state"
     }
   },
   "users": {
@@ -2920,6 +2950,226 @@
     "columns": {
       "createdAt": "Created",
       "approvalState": "Approval state"
+    }
+  },
+  "corrugatorPool": {
+    "title": "Order Pool",
+    "subtitle": "Eligible orders grouped by flute type and paper class/grammage",
+    "searchPlaceholder": "Search by number, customer or product...",
+    "empty": "No eligible orders to plan",
+    "loadFailed": "Could not load the order pool",
+    "noFluteType": "No flute type",
+    "corrugations": "Corrugations",
+    "grammage": "Grammage",
+    "createPlan": "Create plan",
+    "createPlanTitle": "Create corrugator plan",
+    "createPlanSubtitle": "{{count}} order(s) selected — {{board}}",
+    "planName": "Plan name",
+    "planNamePlaceholder": "Optional",
+    "machines": "Corrugators",
+    "noMachines": "No corrugators configured",
+    "addWidth": "Add",
+    "removeWidth": "Remove width {{width}} mm",
+    "extraWidthPlaceholder": "Width (mm)",
+    "createPlanSubmit": "Create plan",
+    "createFailed": "Could not create the plan",
+    "notPlannable": "Not plannable",
+    "sheetsWarning": "No route data: assumed 1 sheet per box",
+    "columns": {
+      "number": "Number",
+      "customer": "Customer",
+      "product": "Product",
+      "sheetSize": "Sheet L×W",
+      "rotation": "Rotation",
+      "boxes": "Boxes",
+      "sheetsPerBox": "Sheets/box",
+      "required": "Required",
+      "allocated": "Allocated",
+      "pending": "Pending",
+      "deliveryDate": "Delivery date",
+      "inPlans": "In plans"
+    },
+    "reasons": {
+      "noSheetDimensions": "No sheet dimensions",
+      "noCorrugation": "No corrugation",
+      "withinTolerance": "Within tolerance",
+      "fullyAllocated": "Fully allocated"
+    }
+  },
+  "corrugatorPlans": {
+    "title": "Corrugator Programs",
+    "subtitle": "Plans created from the order pool",
+    "searchPlaceholder": "Search by name or number...",
+    "empty": "No corrugator plans",
+    "goToPool": "Go to order pool",
+    "columns": {
+      "status": "Status",
+      "number": "Number",
+      "name": "Name",
+      "board": "Board",
+      "orders": "Orders",
+      "combinations": "Combinations",
+      "createdAt": "Created",
+      "registeredAt": "Registered"
+    },
+    "status": {
+      "draft": "Draft",
+      "solving": "Solving",
+      "solved": "Solved",
+      "failed": "Failed",
+      "registered": "Registered"
+    }
+  },
+  "corrugatorPlan": {
+    "untitled": "Untitled",
+    "loadFailed": "Could not load the plan",
+    "notFound": "Plan not found",
+    "solve": "Solve",
+    "resolve": "Solve again",
+    "solveFailed": "Could not start solving",
+    "cancelSolve": "Cancel",
+    "cancelFailed": "Could not cancel solving",
+    "solving": "Solving… {{seconds}}s",
+    "register": "Generate Corrugator Program",
+    "registerFailed": "Could not generate the program",
+    "unregister": "Undo",
+    "unregisterFailed": "Could not undo the program",
+    "force": "Force",
+    "pendingWas": "pending was {{was}}, now {{now}}",
+    "plannedOverLimit": "planned {{planned}} exceeds the limit {{limit}}",
+    "print": "Print",
+    "deleteConfirm": "Delete this plan? This cannot be undone.",
+    "deleteFailed": "Could not delete the plan",
+    "machinesTitle": "Corrugators and widths",
+    "discardSolutionTitle": "This will discard the current solution",
+    "discardSolutionMessage": "Changing this deletes the current combinations and returns the plan to draft. Continue?",
+    "parametersTitle": "Parameters",
+    "advanced": "Advanced",
+    "saveParameters": "Save parameters",
+    "updateFailed": "Could not save the change",
+    "params": {
+      "scrapAbsolute": "Absolute scrap (mm)",
+      "minRunLength": "Minimum run length (m)",
+      "minMeters": "Minimum metres (m)",
+      "maxGap": "Max gap (%)",
+      "timeLimitSeconds": "Time limit (s)",
+      "rotation": "Allow rotation",
+      "toleranceQuantities": "Quantity tolerance",
+      "scrapPercentage": "Scrap percentage (%)",
+      "excessFactor": "Excess factor (%)",
+      "minFormatLength": "Minimum format (m)",
+      "limitCombinations": "Combination limit",
+      "costViolationLower": "Lower violation cost",
+      "costViolationUpper": "Upper violation cost",
+      "costViolationLowerMandatory": "Lower violation cost (mandatory)",
+      "costViolationUpperMandatory": "Upper violation cost (mandatory)",
+      "costFormatChange": "Format change cost",
+      "averageGrammage": "Average grammage (g/m²)",
+      "roundingFactor": "Rounding factor (m)"
+    },
+    "constraints": {
+      "violationLower": "Lower violation",
+      "violationUpper": "Upper violation",
+      "minRun": "Minimum run",
+      "conditionalProduction": "Conditional production",
+      "minFormat": "Minimum format"
+    },
+    "ordersTitle": "Orders",
+    "addOrders": "Add from pool",
+    "addOrdersTitle": "Add orders from the pool",
+    "addOrdersSubmit": "Add",
+    "addOrdersFailed": "Could not add the orders",
+    "noPoolOrders": "No more orders available for this board",
+    "removeOrder": "Remove order",
+    "removeOrderConfirm": "Remove order {{number}} from the plan?",
+    "ordersColumns": {
+      "number": "Number",
+      "product": "Product",
+      "requestedSheets": "Requested sheets",
+      "sheetsPerUnit": "Sheets/box",
+      "priority": "Priority",
+      "partial": "Partial",
+      "rotation": "Rotation",
+      "pending": "Pending"
+    },
+    "priority": {
+      "normal": "Normal",
+      "mandatory": "Mandatory",
+      "optional": "Optional"
+    },
+    "kpi": {
+      "totalMeters": "Total metres",
+      "averageRefile": "Average refile",
+      "averageFullRefile": "Average full refile",
+      "averageTrim": "Average trim",
+      "scrapKg": "Scrap",
+      "averageFulfillment": "Average fulfilment",
+      "states": "Complete/Partial/Empty/Exceeded"
+    },
+    "fulfillmentTitle": "Fulfilment per order",
+    "fulfillmentColumns": {
+      "lowerBound": "Lower bound",
+      "upperBound": "Upper bound",
+      "planned": "Planned",
+      "percentage": "%",
+      "state": "State"
+    },
+    "fulfillmentState": {
+      "empty": "Empty",
+      "partial": "Partial",
+      "complete": "Complete",
+      "exceeded": "Exceeded"
+    },
+    "addCombination": "Add combination",
+    "addCombinationTitle": "Add combination — order {{number}}",
+    "addCombinationFailed": "Could not add the combination",
+    "candidatesFailed": "Could not load candidate combinations",
+    "noCandidates": "No candidate combinations for this order",
+    "suggestedMeters": "Suggested metres",
+    "pickCandidate": "Pick",
+    "combinationsTitle": "Combinations",
+    "noCombinations": "The plan has no combinations yet",
+    "meters": "Metres",
+    "trim": "Trim",
+    "refile": "Refile",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "deleteCombination": "Delete combination",
+    "deleteCombinationConfirm": "Delete this combination and all its lanes?",
+    "deleteLane": "Delete lane",
+    "deleteLaneConfirm": "Delete this lane?",
+    "plannedSheets": "Planned sheets",
+    "rotated": "rotated",
+    "solveOutcome": {
+      "no-combinations": "No combination of orders fits the reel widths with the current limits. Try adding another reel width, raising the maximum refile (absolute scrap), allowing rotation, or reviewing the machine limits (elements, tables, orders per table).",
+      "too-many-combinations": "There are too many possible combinations to solve in time. Tighten the machine limits (elements, tables, orders per table) or lower the maximum refile.",
+      "too-large": "The model is too large for the embedded optimizer. Split the plan into fewer orders.",
+      "infeasible": "No plan satisfies every constraint. Enable the shortfall slack or relax the minimum run.",
+      "time-limit": "The optimizer hit its time limit: the plan is valid but may not be the best.",
+      "error": "The optimizer failed. Check the log and try again.",
+      "cancelled": "The solve was cancelled."
+    }
+  },
+  "corrugatorPrint": {
+    "title": "Corrugator Program",
+    "loadFailed": "Could not load the plan",
+    "notFound": "Plan not found",
+    "printButton": "Print",
+    "noCombinations": "The plan has no combinations",
+    "sequence": "Run",
+    "trim": "Trim",
+    "refile": "Refile",
+    "totalMeters": "Total metres",
+    "averageRefile": "Average refile",
+    "scrapKg": "Scrap",
+    "columns": {
+      "order": "Order",
+      "customer": "Customer",
+      "product": "Product",
+      "runSize": "Length×Width",
+      "count": "Count",
+      "plannedSheets": "Sheets",
+      "strokes": "Strokes"
     }
   }
 }

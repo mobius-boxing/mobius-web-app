@@ -42,6 +42,10 @@ import DeliveryZones from './pages/DeliveryZones';
 import FinishedGoods from './pages/FinishedGoods';
 import ProductionRoutes from './pages/ProductionRoutes';
 import Machines from './pages/Machines';
+import CorrugatorPool from './pages/CorrugatorPool';
+import CorrugatorPlans from './pages/CorrugatorPlans';
+import CorrugatorPlan from './pages/CorrugatorPlan';
+import CorrugatorPlanPrint from './pages/CorrugatorPlanPrint';
 import MachineTypes from './pages/MachineTypes';
 import PalletTypes from './pages/PalletTypes';
 import Palletizations from './pages/Palletizations';
@@ -402,6 +406,42 @@ function App() {
               element={
                 <ProtectedRoute requiredPermission="machines.edit">
                   <Machines />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/corrugator-pool"
+              element={
+                <ProtectedRoute requiredPermission="corrugator.plan">
+                  <CorrugatorPool />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/corrugator-plans"
+              element={
+                <ProtectedRoute requiredPermission="corrugator.plan">
+                  <CorrugatorPlans />
+                </ProtectedRoute>
+              }
+            />
+            {/* The print route's static tail must precede the dynamic
+                `/corrugator-plans/:uuid` or the literal is captured (L-011,
+                same pattern as `/sales-orders/:uuid/production-orders`). */}
+            <Route
+              path="/corrugator-plans/:uuid/print"
+              element={
+                <ProtectedRoute requiredPermission="corrugator.plan">
+                  <CorrugatorPlanPrint />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/corrugator-plans/:uuid"
+              element={
+                <ProtectedRoute requiredPermission="corrugator.plan">
+                  <CorrugatorPlan />
                 </ProtectedRoute>
               }
             />

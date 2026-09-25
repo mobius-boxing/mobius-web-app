@@ -1449,6 +1449,13 @@ export interface Machine {
   width?: number | null;
   maxScoreLines?: number | null;
   linearMeters?: number | null;
+  // Corrugator planning (model.md D-5 revised) — mm/count, 0 = sin límite.
+  trim?: number | null;
+  maxElements?: number | null;
+  tableCount?: number | null;
+  formatsPerTable?: number | null;
+  ordersPerFormat?: number | null;
+  ordersPerTable?: number | null;
   machineType?: { uuid: string; name?: string; corrugated?: boolean } | null;
   sourceWarehouse?: { uuid: string; name?: string } | null;
   destinationWarehouse?: { uuid: string; name?: string } | null;
@@ -1466,7 +1473,323 @@ export interface CreateMachineForm {
   sheetLengthMax?: number;
   sourceWarehouseUuid?: string;
   destinationWarehouseUuid?: string;
+  trim?: number;
+  maxElements?: number;
+  tableCount?: number;
+  formatsPerTable?: number;
+  ordersPerFormat?: number;
+  ordersPerTable?: number;
+  maxScoreLines?: number;
   companyId?: string;
+}
+
+// ── Corrugator planning ("Programa de corrugado", tier 1) ───────────────────
+// 1:1 projections of the API interfaces (docs/dev/corrugator-planning/model.md
+// §API contracts + Amendments D-5/D-23). Dates travel as ISO strings.
+
+export const CORRUGATOR_PLAN_STATUSES = ['draft', 'solving', 'solved', 'failed', 'registered'] as const;
+export type CorrugatorPlanStatus = (typeof CORRUGATOR_PLAN_STATUSES)[number];
+
+export const CORRUGATOR_SOLVE_STATUSES = [
+  'ok', 'no-combinations', 'too-many-combinations', 'too-large', 'infeasible', 'time-limit', 'cancelled', 'error',
+] as const;
+export type CorrugatorSolveStatus = (typeof CORRUGATOR_SOLVE_STATUSES)[number];
+
+export type CorrugatorPriority = 'normal' | 'mandatory' | 'optional';
+export type CorrugatorSheetsSource = 'route' | 'quantity' | 'manual';
+export type CorrugatorFulfillment = 'empty' | 'partial' | 'complete' | 'exceeded';
+export type CorrugatorNotPlannableReason = 'no-sheet-dimensions' | 'no-corrugation' | 'within-tolerance' | 'fully-allocated';
+
+export interface CorrugatorBoard {
+  key: string;
+  corrugations: { uuid: string; code: string }[];
+  fluteTypes: string[];
+  paperClasses: { code: string; name: string }[];
+  theoreticalGrammage: number | null;
+}
+
+/** One physical corrugator on a plan; `widths` are the reel/format widths offered (D-23). */
+export interface CorrugatorMachineSnapshot {
+  machineUuid: string;
+  code: string | null;
+  description: string | null;
+  width: number;
+  widths: number[];
+  trim: number;
+  maxElements: number;
+  tableCount: number;
+  formatsPerTable: number;
+  ordersPerFormat: number;
+  ordersPerTable: number;
+  sheetLengthMin: number;
+  sheetLengthMax: number;
+  maxScoreLines: number;
+}
+
+export interface CorrugatorConstraintFlags {
+  violationLower: boolean;
+  violationUpper: boolean;
+  minRun: boolean;
+  conditionalProduction: boolean;
+  minFormat: boolean;
+}
+
+export interface CorrugatorParameters {
+  scrapAbsolute: number;
+  scrapPercentage: number;
+  excessFactor: number;
+  toleranceQuantities: boolean;
+  rotation: boolean;
+  minRunLength: number;
+  minMeters: number;
+  minFormatLength: number;
+  limitCombinations: number;
+  costViolationLower: number;
+  costViolationUpper: number;
+  costViolationLowerMandatory: number;
+  costViolationUpperMandatory: number;
+  costFormatChange: number;
+  averageGrammage: number;
+  roundingFactor: number;
+  maxGap: number;
+  timeLimitSeconds: number;
+  constraints: CorrugatorConstraintFlags;
+}
+
+/** D-44: `minRun` is now on by default and `minMeters` (post-solve discard) defaults to 0. */
+export const CORRUGATOR_PARAMETER_DEFAULTS: CorrugatorParameters = {
+  scrapAbsolute: 80,
+  scrapPercentage: 100,
+  excessFactor: 0,
+  toleranceQuantities: true,
+  rotation: true,
+  minRunLength: 500,
+  minMeters: 0,
+  minFormatLength: 0,
+  limitCombinations: 0,
+  costViolationLower: 10,
+  costViolationUpper: 100,
+  costViolationLowerMandatory: 100,
+  costViolationUpperMandatory: 1000,
+  costFormatChange: 5,
+  averageGrammage: 0,
+  roundingFactor: 0,
+  maxGap: 10,
+  timeLimitSeconds: 120,
+  constraints: {
+    violationLower: true,
+    violationUpper: false,
+    minRun: true,
+    conditionalProduction: false,
+    minFormat: false,
+  },
+};
+
+export interface CorrugatorPlanOrder {
+  uuid: string;
+  position: number;
+  productionOrder: { uuid: string; number: string };
+  customerName: string | null;
+  productCode: string | null;
+  productDescription: string | null;
+  deliveryDate: string | null;
+  sheetLength: number;
+  sheetWidth: number;
+  allowsRotation: boolean;
+  scoreLineCount: number;
+  orderQuantity: number;
+  sheetsPerUnit: number;
+  sheetsSource: CorrugatorSheetsSource;
+  requiredSheets: number;
+  pendingSheets: number;
+  requestedSheets: number;
+  underrunPercentage: number;
+  overrunPercentage: number;
+  priority: CorrugatorPriority;
+  partialProduction: boolean;
+  allocatedSheets: number | null;
+  // Present once the plan has been solved (`evaluate`/`loadSolution`).
+  lowerBound?: number;
+  upperBound?: number;
+  plannedSheets?: number;
+  fulfillment?: number;
+  state?: CorrugatorFulfillment;
+}
+
+export interface CorrugatorPlanItem {
+  uuid: string;
+  position: number;
+  order: { uuid: string; number: string; customerName: string | null; productCode: string | null };
+  count: number;
+  rotated: boolean;
+  runLength: number;
+  runWidth: number;
+  plannedSheets: number;
+  strokes: number;
+  linearProduction: number;
+}
+
+export interface CorrugatorPlanCombination {
+  uuid: string;
+  machineKey: string; // `${machineUuid}:${width}` (D-23)
+  sequence: number; // per physical machine, from 1
+  meters: number;
+  width: number;
+  trim: number;
+  transversalRefile: number;
+  refile: number;
+  fullRefile: number;
+  wasteLinear: number | null;
+  scrapKg: number | null;
+  elements: number;
+  tables: number;
+  scoreLines: number;
+  items: CorrugatorPlanItem[];
+}
+
+export interface CorrugatorSummary {
+  totalMeters: number;
+  averageRefile: number;
+  averageFullRefile: number;
+  averageTrim: number;
+  scrapKg: number | null;
+  complete: number;
+  partial: number;
+  empty: number;
+  exceeded: number;
+  averageFulfillment: number;
+}
+
+export interface CorrugatorPlan {
+  uuid: string;
+  number: number;
+  name: string | null;
+  notes: string | null;
+  status: CorrugatorPlanStatus;
+  board: CorrugatorBoard;
+  machines: CorrugatorMachineSnapshot[];
+  parameters: CorrugatorParameters;
+  solve: {
+    status: CorrugatorSolveStatus | null;
+    startedAt: string | null;
+    finishedAt: string | null;
+    combinationsGenerated: number | null;
+    log: string | null;
+  } | null;
+  registeredAt: string | null;
+  registeredByUser: string | null;
+  createdByUser: string | null;
+  createdAt: string;
+  updatedAt: string;
+  orders?: CorrugatorPlanOrder[];
+  combinations?: CorrugatorPlanCombination[];
+  summary?: CorrugatorSummary | null;
+  // List rows only (`GET /corrugator-plans`) — computed, no `orders`/`combinations` payload.
+  orderCount?: number;
+  combinationCount?: number;
+}
+
+export interface CorrugatorPoolOrder {
+  productionOrder: { uuid: string; number: string };
+  customer: { uuid: string; name: string } | null;
+  product: { uuid: string; code: string; description: string };
+  deliveryDate: string | null;
+  sheetLength: number;
+  sheetWidth: number;
+  allowsRotation: boolean;
+  orderQuantity: number;
+  sheetsPerUnit: number;
+  sheetsSource: CorrugatorSheetsSource;
+  requiredSheets: number;
+  allocatedSheets: number;
+  pendingSheets: number;
+  inPlans: { uuid: string; number: number; status: CorrugatorPlanStatus }[];
+}
+
+export interface CorrugatorPoolGroup {
+  board: CorrugatorBoard;
+  orders: CorrugatorPoolOrder[];
+}
+
+export interface CorrugatorPoolNotPlannable {
+  productionOrder: { uuid: string; number: string };
+  reason: CorrugatorNotPlannableReason;
+  detail: string;
+}
+
+export interface CorrugatorPool {
+  groups: CorrugatorPoolGroup[];
+  notPlannable: CorrugatorPoolNotPlannable[];
+}
+
+export interface CorrugatorCandidateItem {
+  orderUuid: string;
+  count: number;
+  rotated: boolean;
+}
+
+export interface CorrugatorCandidate {
+  machineKey: string;
+  items: CorrugatorCandidateItem[];
+  trim: number;
+  transversalRefile: number;
+  refile: number;
+  fullRefile: number;
+  suggestedMeters: number;
+}
+
+export interface CorrugatorPlanListFilters {
+  status?: CorrugatorPlanStatus;
+  number?: number;
+  createdByUser?: string;
+}
+
+export interface CorrugatorMachineSelection {
+  machineUuid: string;
+  widths?: number[];
+}
+
+export interface CorrugatorPlanCreatePayload {
+  name?: string;
+  notes?: string;
+  productionOrderUuids: string[];
+  machines: CorrugatorMachineSelection[];
+  parameters?: Partial<CorrugatorParameters>;
+}
+
+export interface CorrugatorPlanUpdatePayload {
+  name?: string;
+  notes?: string;
+  parameters?: Partial<CorrugatorParameters>;
+  machines?: CorrugatorMachineSelection[];
+}
+
+export interface CorrugatorPlanOrderUpdatePayload {
+  requestedSheets?: number;
+  sheetsPerUnit?: number;
+  underrunPercentage?: number;
+  overrunPercentage?: number;
+  priority?: CorrugatorPriority;
+  partialProduction?: boolean;
+  allowsRotation?: boolean;
+  position?: number;
+}
+
+export interface CorrugatorRegisterConflictOrder {
+  uuid: string;
+  number: string;
+  [key: string]: unknown;
+}
+
+/** `ICorrugatorOrderState` (model.md), the derived block on production-order detail. */
+export interface CorrugatorOrderState {
+  sheetsPerUnit: number;
+  sheetsSource: CorrugatorSheetsSource;
+  requiredSheets: number;
+  allocatedSheets: number;
+  pendingSheets: number;
+  state: 'none' | 'partial' | 'programada';
+  plans: { uuid: string; number: number; status: CorrugatorPlanStatus; registeredAt: string | null }[];
 }
 
 // ── Production routes (module 12) ────────────────────────────────────────────
@@ -1804,6 +2127,9 @@ export interface ProductionOrder {
   anulada?: boolean;
   clisePendiente?: boolean;
   troquelPendiente?: boolean;
+
+  // Derived, detail endpoint only (D-9) — null when the order is not eligible.
+  corrugator?: CorrugatorOrderState | null;
 }
 
 /** What the manual create/edit path sends. `number` is server-generated. */

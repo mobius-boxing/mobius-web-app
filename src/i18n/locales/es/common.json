@@ -65,6 +65,8 @@
     "audit": "Auditoría",
     "openMenu": "Abrir menú",
     "closeMenu": "Cerrar menú",
+    "corrugatorPool": "Agrupación de Pedidos",
+    "corrugatorPlans": "Programas de Corrugado",
     "usersAndRoles": "Usuarios y roles"
   },
   "fileUploader": {
@@ -2357,6 +2359,14 @@
     "selectWarehouse": "Seleccione un depósito",
     "searchPlaceholder": "Buscar máquinas...",
     "deleteConfirm": "¿Está seguro de que desea eliminar esta máquina?",
+    "corrugatorSection": "Corrugadora",
+    "unlimitedHint": "0 = sin límite",
+    "trim": "Refile de máquina (mm)",
+    "maxElements": "Elementos máx.",
+    "tableCount": "Mesas",
+    "formatsPerTable": "Formatos por mesa",
+    "ordersPerFormat": "Pedidos por formato",
+    "ordersPerTable": "Pedidos por mesa",
     "columns": {
       "code": "Código",
       "description": "Descripción",
@@ -2370,7 +2380,10 @@
     },
     "validation": {
       "typeRequired": "El tipo de máquina es obligatorio"
-    }
+    },
+    "sheetLengthMin": "Largo mínimo de plancha (mm)",
+    "sheetLengthMax": "Largo máximo de plancha (mm)",
+    "maxScoreLines": "Máximo de trazadores"
   },
   "productionRoutes": {
     "title": "Rutas de Producción",
@@ -2675,6 +2688,23 @@
         "percentage": "Porcentaje",
         "quantity": "Cantidad"
       }
+    },
+    "corrugator": {
+      "title": "Corrugadora",
+      "sheetsPerUnit": "Planchas por caja",
+      "sourceRoute": "ruta",
+      "sourceQuantity": "sin datos de ruta",
+      "sourceManual": "manual",
+      "required": "Planchas requeridas",
+      "allocated": "Planchas asignadas",
+      "pending": "Planchas pendientes",
+      "state": {
+        "none": "Sin programar",
+        "partial": "Parcial",
+        "programada": "Programada"
+      },
+      "plans": "Programas",
+      "loadFailed": "No se pudo cargar el estado de corrugadora"
     }
   },
   "users": {
@@ -2920,6 +2950,226 @@
     "columns": {
       "createdAt": "Creado",
       "approvalState": "Estado de aprobación"
+    }
+  },
+  "corrugatorPool": {
+    "title": "Agrupación de Pedidos",
+    "subtitle": "Pedidos habilitados agrupados por tipo de onda y clase de papel/gramaje",
+    "searchPlaceholder": "Buscar por número, cliente o producto...",
+    "empty": "No hay pedidos habilitados para planificar",
+    "loadFailed": "No se pudo cargar la agrupación de pedidos",
+    "noFluteType": "Sin tipo de onda",
+    "corrugations": "Corrugados",
+    "grammage": "Gramaje",
+    "createPlan": "Crear programa",
+    "createPlanTitle": "Crear programa de corrugado",
+    "createPlanSubtitle": "{{count}} pedido(s) seleccionado(s) — {{board}}",
+    "planName": "Nombre del programa",
+    "planNamePlaceholder": "Opcional",
+    "machines": "Corrugadoras",
+    "noMachines": "No hay corrugadoras configuradas",
+    "addWidth": "Agregar",
+    "removeWidth": "Quitar ancho {{width}} mm",
+    "extraWidthPlaceholder": "Ancho (mm)",
+    "createPlanSubmit": "Crear programa",
+    "createFailed": "No se pudo crear el programa",
+    "notPlannable": "No planificables",
+    "sheetsWarning": "Sin datos de ruta: se asumió 1 plancha por caja",
+    "columns": {
+      "number": "Número",
+      "customer": "Cliente",
+      "product": "Producto",
+      "sheetSize": "Plancha L×A",
+      "rotation": "Rotación",
+      "boxes": "Cajas",
+      "sheetsPerBox": "Planchas/caja",
+      "required": "Requeridas",
+      "allocated": "Asignadas",
+      "pending": "Pendientes",
+      "deliveryDate": "F. entrega",
+      "inPlans": "En programas"
+    },
+    "reasons": {
+      "noSheetDimensions": "Sin dimensiones de plancha",
+      "noCorrugation": "Sin corrugado",
+      "withinTolerance": "Dentro de tolerancia",
+      "fullyAllocated": "Totalmente asignado"
+    }
+  },
+  "corrugatorPlans": {
+    "title": "Programas de Corrugado",
+    "subtitle": "Programas creados a partir de la agrupación de pedidos",
+    "searchPlaceholder": "Buscar por nombre o número...",
+    "empty": "No hay programas de corrugado",
+    "goToPool": "Ir a agrupación de pedidos",
+    "columns": {
+      "status": "Estado",
+      "number": "Número",
+      "name": "Nombre",
+      "board": "Onda",
+      "orders": "Pedidos",
+      "combinations": "Combinaciones",
+      "createdAt": "Creado",
+      "registeredAt": "Generado"
+    },
+    "status": {
+      "draft": "Borrador",
+      "solving": "Resolviendo",
+      "solved": "Resuelto",
+      "failed": "Falló",
+      "registered": "Generado"
+    }
+  },
+  "corrugatorPlan": {
+    "untitled": "Sin nombre",
+    "loadFailed": "No se pudo cargar el programa",
+    "notFound": "Programa no encontrado",
+    "solve": "Resolver",
+    "resolve": "Volver a resolver",
+    "solveFailed": "No se pudo iniciar la resolución",
+    "cancelSolve": "Cancelar",
+    "cancelFailed": "No se pudo cancelar la resolución",
+    "solving": "Resolviendo… {{seconds}}s",
+    "register": "Generar Programa de Corrugado",
+    "registerFailed": "No se pudo generar el programa",
+    "unregister": "Deshacer",
+    "unregisterFailed": "No se pudo deshacer el programa",
+    "force": "Forzar",
+    "pendingWas": "pendiente era {{was}}, ahora {{now}}",
+    "plannedOverLimit": "programado {{planned}} supera el límite {{limit}}",
+    "print": "Imprimir",
+    "deleteConfirm": "¿Eliminar este programa? Esta acción no se puede deshacer.",
+    "deleteFailed": "No se pudo eliminar el programa",
+    "machinesTitle": "Corrugadoras y anchos",
+    "discardSolutionTitle": "Se descartará la solución actual",
+    "discardSolutionMessage": "Cambiar esto elimina las combinaciones actuales y vuelve el programa a borrador. ¿Continuar?",
+    "parametersTitle": "Parámetros",
+    "advanced": "Avanzado",
+    "saveParameters": "Guardar parámetros",
+    "updateFailed": "No se pudo guardar el cambio",
+    "params": {
+      "scrapAbsolute": "Scrap absoluto (mm)",
+      "minRunLength": "Longitud mínima de tramo (m)",
+      "minMeters": "Metros mínimos (m)",
+      "maxGap": "Gap máximo (%)",
+      "timeLimitSeconds": "Tiempo límite (s)",
+      "rotation": "Permitir rotación",
+      "toleranceQuantities": "Tolerancia de cantidades",
+      "scrapPercentage": "Scrap porcentual (%)",
+      "excessFactor": "Factor de exceso (%)",
+      "minFormatLength": "Formato mínimo (m)",
+      "limitCombinations": "Límite de combinaciones",
+      "costViolationLower": "Costo violación inferior",
+      "costViolationUpper": "Costo violación superior",
+      "costViolationLowerMandatory": "Costo violación inferior (urgente)",
+      "costViolationUpperMandatory": "Costo violación superior (urgente)",
+      "costFormatChange": "Costo cambio de formato",
+      "averageGrammage": "Gramaje promedio (g/m²)",
+      "roundingFactor": "Factor de redondeo (m)"
+    },
+    "constraints": {
+      "violationLower": "Violación inferior",
+      "violationUpper": "Violación superior",
+      "minRun": "Tramo mínimo",
+      "conditionalProduction": "Producción condicional",
+      "minFormat": "Formato mínimo"
+    },
+    "ordersTitle": "Pedidos",
+    "addOrders": "Agregar desde agrupación",
+    "addOrdersTitle": "Agregar pedidos desde la agrupación",
+    "addOrdersSubmit": "Agregar",
+    "addOrdersFailed": "No se pudieron agregar los pedidos",
+    "noPoolOrders": "No hay más pedidos disponibles de esta onda",
+    "removeOrder": "Quitar pedido",
+    "removeOrderConfirm": "¿Quitar el pedido {{number}} del programa?",
+    "ordersColumns": {
+      "number": "Número",
+      "product": "Producto",
+      "requestedSheets": "Planchas solicitadas",
+      "sheetsPerUnit": "Planchas/caja",
+      "priority": "Prioridad",
+      "partial": "Parcial",
+      "rotation": "Rotación",
+      "pending": "Pendientes"
+    },
+    "priority": {
+      "normal": "Normal",
+      "mandatory": "Obligatorio",
+      "optional": "Opcional"
+    },
+    "kpi": {
+      "totalMeters": "Metros totales",
+      "averageRefile": "Refile promedio",
+      "averageFullRefile": "Refile total promedio",
+      "averageTrim": "Trim promedio",
+      "scrapKg": "Scrap",
+      "averageFulfillment": "Cumplimiento promedio",
+      "states": "Completos/Parciales/Vacíos/Excedidos"
+    },
+    "fulfillmentTitle": "Cumplimiento por pedido",
+    "fulfillmentColumns": {
+      "lowerBound": "Mínimo",
+      "upperBound": "Máximo",
+      "planned": "Programado",
+      "percentage": "%",
+      "state": "Estado"
+    },
+    "fulfillmentState": {
+      "empty": "Vacío",
+      "partial": "Parcial",
+      "complete": "Completo",
+      "exceeded": "Excedido"
+    },
+    "addCombination": "Agregar combinación",
+    "addCombinationTitle": "Agregar combinación — pedido {{number}}",
+    "addCombinationFailed": "No se pudo agregar la combinación",
+    "candidatesFailed": "No se pudieron cargar las combinaciones candidatas",
+    "noCandidates": "No hay combinaciones candidatas para este pedido",
+    "suggestedMeters": "Metros sugeridos",
+    "pickCandidate": "Elegir",
+    "combinationsTitle": "Combinaciones",
+    "noCombinations": "El programa todavía no tiene combinaciones",
+    "meters": "Metros",
+    "trim": "Trim",
+    "refile": "Refile",
+    "moveUp": "Subir",
+    "moveDown": "Bajar",
+    "deleteCombination": "Eliminar combinación",
+    "deleteCombinationConfirm": "¿Eliminar esta combinación y todas sus vías?",
+    "deleteLane": "Eliminar vía",
+    "deleteLaneConfirm": "¿Eliminar esta vía?",
+    "plannedSheets": "Planchas programadas",
+    "rotated": "rotado",
+    "solveOutcome": {
+      "no-combinations": "Ninguna combinación de pedidos entra en los anchos de bobina con los límites actuales. Probá agregar otro ancho de bobina, subir el refile máximo (scrap absoluto), permitir rotación o revisar los límites de la máquina (elementos, mesas, pedidos por mesa).",
+      "too-many-combinations": "Hay demasiadas combinaciones posibles para resolver a tiempo. Ajustá los límites de la máquina (elementos, mesas, pedidos por mesa) o bajá el refile máximo.",
+      "too-large": "El modelo es demasiado grande para el optimizador integrado. Dividí el programa en menos pedidos.",
+      "infeasible": "No existe un plan que cumpla todas las restricciones. Activá la holgura de faltantes o relajá la corrida mínima.",
+      "time-limit": "El optimizador alcanzó el tiempo límite: el plan es válido pero puede no ser el mejor.",
+      "error": "El optimizador falló. Revisá el registro y volvé a intentar.",
+      "cancelled": "La resolución fue cancelada."
+    }
+  },
+  "corrugatorPrint": {
+    "title": "Programa de Corrugado",
+    "loadFailed": "No se pudo cargar el programa",
+    "notFound": "Programa no encontrado",
+    "printButton": "Imprimir",
+    "noCombinations": "El programa no tiene combinaciones",
+    "sequence": "Vía",
+    "trim": "Trim",
+    "refile": "Refile",
+    "totalMeters": "Metros totales",
+    "averageRefile": "Refile promedio",
+    "scrapKg": "Scrap",
+    "columns": {
+      "order": "Pedido",
+      "customer": "Cliente",
+      "product": "Producto",
+      "runSize": "Largo×Ancho",
+      "count": "Cantidad",
+      "plannedSheets": "Planchas",
+      "strokes": "Golpes"
     }
   }
 }
