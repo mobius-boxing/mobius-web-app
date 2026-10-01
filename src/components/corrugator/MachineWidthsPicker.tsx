@@ -7,8 +7,10 @@ import { Machine } from '../../types';
 export type MachineWidthSelection = Record<string, number[]>;
 
 interface MachineWidthsPickerProps {
-  /** Candidate corrugator machines (`machineType.corrugated`, `width > 0`). */
+  /** Every corrugator-type machine; one without a recorded width takes typed reel widths (D-73). */
   machines: Machine[];
+  /** Corrugators the selected orders' routes run on, marked so the planner sees the expected one. */
+  routeMachineUuids?: string[];
   selected: MachineWidthSelection;
   onChange: (next: MachineWidthSelection) => void;
   disabled?: boolean;
@@ -21,7 +23,7 @@ interface MachineWidthsPickerProps {
  * input to add extra widths (e.g. 1800 + 1650). Shared by `CreatePlanModal`
  * and the plan editor's machines panel.
  */
-const MachineWidthsPicker: React.FC<MachineWidthsPickerProps> = ({ machines, selected, onChange, disabled }) => {
+const MachineWidthsPicker: React.FC<MachineWidthsPickerProps> = ({ machines, selected, onChange, disabled, routeMachineUuids = [] }) => {
   const { t } = useTranslation();
   const [widthDraft, setWidthDraft] = useState<Record<string, string>>({});
 
@@ -30,7 +32,7 @@ const MachineWidthsPicker: React.FC<MachineWidthsPickerProps> = ({ machines, sel
     if (next[machine.uuid]) {
       delete next[machine.uuid];
     } else {
-      next[machine.uuid] = [machine.width ?? 0];
+      next[machine.uuid] = (machine.width ?? 0) > 0 ? [machine.width as number] : [];
     }
     onChange(next);
   };
@@ -42,7 +44,8 @@ const MachineWidthsPicker: React.FC<MachineWidthsPickerProps> = ({ machines, sel
   const addWidth = (machine: Machine) => {
     const raw = widthDraft[machine.uuid];
     const value = Number(raw);
-    if (!raw || !Number.isFinite(value) || value <= 0 || value > (machine.width ?? 0)) return;
+    const max = machine.width ?? 0;
+    if (!raw || !Number.isFinite(value) || value <= 0 || (max > 0 && value > max)) return;
     const current = selected[machine.uuid] ?? [];
     if (!current.includes(value)) {
       onChange({ ...selected, [machine.uuid]: [...current, value].sort((a, b) => b - a) });
@@ -69,10 +72,21 @@ const MachineWidthsPicker: React.FC<MachineWidthsPickerProps> = ({ machines, sel
                 onChange={() => toggleMachine(machine)}
                 data-testid={`machine-widths-checkbox-${machine.uuid}`}
               />
-              {machine.code || machine.description || machine.uuid} — {machine.width} mm
+              {machine.code || machine.description || machine.uuid}
+              <span className="font-normal text-secondary-500">
+                {(machine.width ?? 0) > 0 ? `— ${machine.width} mm` : `— ${t('corrugatorPool.noMachineWidth')}`}
+              </span>
+              {routeMachineUuids.includes(machine.uuid) && (
+                <span className="rounded-full bg-primary-50 px-2 py-0.5 text-xs font-normal text-primary-700" data-testid={`machine-widths-route-${machine.uuid}`}>
+                  {t('corrugatorPool.inRoute')}
+                </span>
+              )}
             </label>
             {checked && (
               <div className="mt-2 flex flex-wrap items-center gap-2 pl-6">
+                {widths.length === 0 && (
+                  <span className="text-xs text-amber-700" data-testid={`machine-widths-missing-${machine.uuid}`}>{t('corrugatorPool.enterReelWidth')}</span>
+                )}
                 {widths.map((w) => (
                   <span key={w} className="inline-flex items-center gap-1 rounded-full bg-primary-100 px-2 py-0.5 text-xs text-primary-700">
                     {w} mm
@@ -88,7 +102,7 @@ const MachineWidthsPicker: React.FC<MachineWidthsPickerProps> = ({ machines, sel
                     <input
                       type="number"
                       min={1}
-                      max={machine.width ?? undefined}
+                      max={(machine.width ?? 0) > 0 ? (machine.width as number) : undefined}
                       value={widthDraft[machine.uuid] ?? ''}
                       onChange={(e) => setWidthDraft((prev) => ({ ...prev, [machine.uuid]: e.target.value }))}
                       onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addWidth(machine))}

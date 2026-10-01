@@ -128,6 +128,10 @@ const MachineFields: React.FC<{
           <p className="gd-label">{t('machines.corrugatorSection')}</p>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
+              <label className="gd-label">{t('machines.machineWidth')}</label>
+              <Input type="number" step="any" {...register('width')} error={errors.width?.message as string} helperText={t('machines.machineWidthHint')} />
+            </div>
+            <div>
               <label className="gd-label">{t('machines.trim')}</label>
               <Input type="number" step="any" {...register('trim')} error={errors.trim?.message as string} helperText={t('machines.unlimitedHint')} />
             </div>
@@ -246,7 +250,7 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
   const { machineTypes, warehouses } = useMachineDropdowns(isOpen);
 
   const {
-    form: { register, handleSubmit: formSubmit, formState: { errors }, reset, watch },
+    form: { register, handleSubmit: formSubmit, formState: { errors }, reset, watch, setValue },
     loading,
     error,
     handleSubmit,
@@ -269,6 +273,7 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
         sheetWidthMax: machine.sheetWidthMax ?? undefined,
         sourceWarehouseUuid: machine.sourceWarehouse?.uuid ?? '',
         destinationWarehouseUuid: machine.destinationWarehouse?.uuid ?? '',
+        width: machine.width ?? undefined,
         trim: machine.trim ?? undefined,
         maxElements: machine.maxElements ?? undefined,
         tableCount: machine.tableCount ?? undefined,
@@ -280,8 +285,19 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
         maxScoreLines: machine.maxScoreLines ?? undefined,
       });
     }
-    // Re-applied when the dropdown lists arrive: a select reset before its options exist shows the placeholder.
-  }, [isOpen, machine, reset, machineTypes, warehouses]);
+  }, [isOpen, machine, reset]);
+
+  // A select reset before its options load shows the placeholder; re-apply only the select values
+  // once the lists arrive (a full reset here would wipe what the user already typed).
+  useEffect(() => {
+    if (!isOpen || !machine) return;
+    if (machineTypes.length) setValue('machineTypeUuid', machine.machineType?.uuid ?? '');
+    if (warehouses.length) {
+      setValue('sourceWarehouseUuid', machine.sourceWarehouse?.uuid ?? '');
+      setValue('destinationWarehouseUuid', machine.destinationWarehouse?.uuid ?? '');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the option lists change
+  }, [machineTypes, warehouses]);
 
   const onSubmit = handleSubmit((data) =>
     machinesApi.updateMachine(machine!.uuid, clean(data))

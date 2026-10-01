@@ -2383,7 +2383,9 @@
     },
     "sheetLengthMin": "Largo mínimo de plancha (mm)",
     "sheetLengthMax": "Largo máximo de plancha (mm)",
-    "maxScoreLines": "Máximo de trazadores"
+    "maxScoreLines": "Máximo de trazadores",
+    "machineWidth": "Ancho máximo de bobina (mm)",
+    "machineWidthHint": "El ancho más grande que admite la corrugadora"
   },
   "productionRoutes": {
     "title": "Rutas de Producción",
@@ -2967,7 +2969,7 @@
     "planName": "Nombre del programa",
     "planNamePlaceholder": "Opcional",
     "machines": "Corrugadoras",
-    "noMachines": "No hay corrugadoras configuradas",
+    "noMachines": "No hay máquinas con tipo «corrugadora». Marcá el tipo en Maestros › Tipos de máquina y cargá la máquina en Maestros › Máquinas.",
     "addWidth": "Agregar",
     "removeWidth": "Quitar ancho {{width}} mm",
     "extraWidthPlaceholder": "Ancho (mm)",
@@ -2987,14 +2989,19 @@
       "allocated": "Asignadas",
       "pending": "Pendientes",
       "deliveryDate": "F. entrega",
-      "inPlans": "En programas"
+      "inPlans": "En programas",
+      "corrugators": "Corrugadoras"
     },
     "reasons": {
       "noSheetDimensions": "Sin dimensiones de plancha",
       "noCorrugation": "Sin corrugado",
       "withinTolerance": "Dentro de tolerancia",
       "fullyAllocated": "Totalmente asignado"
-    }
+    },
+    "offMachine": "La ruta de {{numbers}} no pasa por la corrugadora elegida; el programa se rechazará.",
+    "noMachineWidth": "sin ancho cargado",
+    "inRoute": "en la ruta",
+    "enterReelWidth": "Ingresá al menos un ancho de bobina"
   },
   "corrugatorPlans": {
     "title": "Programas de Corrugado",

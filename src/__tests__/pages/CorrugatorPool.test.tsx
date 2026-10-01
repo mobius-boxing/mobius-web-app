@@ -68,7 +68,7 @@ const POOL = {
           sheetsSource: 'quantity',
           requiredSheets: 5000,
           allocatedSheets: 0,
-          pendingSheets: 5000,
+          pendingSheets: 5000, corrugators: [{ uuid: "m-1", code: "COR-1" }],
           inPlans: [],
         },
       ],

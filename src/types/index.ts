@@ -1467,6 +1467,7 @@ export interface CreateMachineForm {
   description?: string;
   machineTypeUuid: string;
   setupTime?: number;
+  width?: number;
   sheetWidthMin?: number;
   sheetWidthMax?: number;
   sheetLengthMin?: number;
@@ -1703,6 +1704,7 @@ export interface CorrugatorPoolOrder {
   requiredSheets: number;
   allocatedSheets: number;
   pendingSheets: number;
+  corrugators: { uuid: string; code: string | null }[];
   inPlans: { uuid: string; number: number; status: CorrugatorPlanStatus }[];
 }
 

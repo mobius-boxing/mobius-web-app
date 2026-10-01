@@ -12,7 +12,7 @@ import { useEffectiveCompany } from '../hooks/useEffectiveCompany';
 import { usePermissions } from '../hooks/usePermissions';
 import { formatBusinessDate } from '../utils/dates';
 import { logger } from '../utils/logger';
-import { CorrugatorBoard, CorrugatorPool as CorrugatorPoolData } from '../types';
+import { CorrugatorPoolOrder, CorrugatorBoard, CorrugatorPool as CorrugatorPoolData } from '../types';
 
 const NOT_PLANNABLE_REASON_KEY: Record<string, string> = {
   'no-sheet-dimensions': 'corrugatorPool.reasons.noSheetDimensions',
@@ -36,7 +36,7 @@ const CorrugatorPool: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [selected, setSelected] = useState<Record<string, Set<string>>>({});
   const [notPlannableOpen, setNotPlannableOpen] = useState(false);
-  const [createFor, setCreateFor] = useState<{ board: CorrugatorBoard; uuids: string[] } | null>(null);
+  const [createFor, setCreateFor] = useState<{ board: CorrugatorBoard; orders: CorrugatorPoolOrder[] } | null>(null);
 
   useEffect(() => {
     const handle = setTimeout(() => setDebouncedSearch(search), 300);
@@ -122,7 +122,7 @@ const CorrugatorPool: React.FC = () => {
                     <Button
                       size="sm"
                       disabled={boardSelection.size === 0}
-                      onClick={() => setCreateFor({ board: group.board, uuids: Array.from(boardSelection) })}
+                      onClick={() => setCreateFor({ board: group.board, orders: group.orders.filter((o) => boardSelection.has(o.productionOrder.uuid)) })}
                       data-testid="create-plan-btn"
                     >
                       {t('corrugatorPool.createPlan')} ({boardSelection.size})
@@ -146,6 +146,7 @@ const CorrugatorPool: React.FC = () => {
                         <th className="px-3 py-2">{t('corrugatorPool.columns.allocated')}</th>
                         <th className="px-3 py-2">{t('corrugatorPool.columns.pending')}</th>
                         <th className="px-3 py-2">{t('corrugatorPool.columns.deliveryDate')}</th>
+                        <th className="px-3 py-2">{t('corrugatorPool.columns.corrugators')}</th>
                         <th className="px-3 py-2">{t('corrugatorPool.columns.inPlans')}</th>
                       </tr>
                     </thead>
@@ -182,6 +183,9 @@ const CorrugatorPool: React.FC = () => {
                           <td className="whitespace-nowrap px-3 py-2 text-sm text-secondary-600">{order.allocatedSheets}</td>
                           <td className="whitespace-nowrap px-3 py-2 text-sm text-secondary-600">{order.pendingSheets}</td>
                           <td className="whitespace-nowrap px-3 py-2 text-sm text-secondary-600">{formatBusinessDate(order.deliveryDate)}</td>
+                          <td className="whitespace-nowrap px-3 py-2 text-sm text-secondary-600" data-testid={`pool-order-corrugators-${order.productionOrder.uuid}`}>
+                            {order.corrugators.length === 0 ? '-' : order.corrugators.map((c) => c.code ?? '?').join(', ')}
+                          </td>
                           <td className="whitespace-nowrap px-3 py-2 text-sm">
                             {order.inPlans.length === 0 ? (
                               '-'
@@ -241,7 +245,7 @@ const CorrugatorPool: React.FC = () => {
           isOpen={!!createFor}
           onClose={() => setCreateFor(null)}
           board={createFor.board}
-          productionOrderUuids={createFor.uuids}
+          orders={createFor.orders}
           onCreated={(plan) => {
             setCreateFor(null);
             navigate(`/corrugator-plans/${plan.uuid}`);

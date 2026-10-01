@@ -5,7 +5,7 @@ import Input from '../ui/Input';
 import Button from '../ui/Button';
 import { ErrorMessage } from '../ui/ErrorMessage';
 import MachineWidthsPicker, { MachineWidthSelection } from './MachineWidthsPicker';
-import { CorrugatorBoard, CorrugatorPlan, Machine } from '../../types';
+import { CorrugatorPoolOrder, CorrugatorBoard, CorrugatorPlan, Machine } from '../../types';
 import { corrugatorPlansApi, machinesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { logger } from '../../utils/logger';
@@ -14,7 +14,7 @@ interface CreatePlanModalProps {
   isOpen: boolean;
   onClose: () => void;
   board: CorrugatorBoard;
-  productionOrderUuids: string[];
+  orders: CorrugatorPoolOrder[];
   onCreated: (plan: CorrugatorPlan) => void;
 }
 
@@ -23,9 +23,10 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
   isOpen,
   onClose,
   board,
-  productionOrderUuids,
+  orders,
   onCreated,
 }) => {
+  const productionOrderUuids = orders.map((o) => o.productionOrder.uuid);
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
   const [machines, setMachines] = useState<Machine[]>([]);
@@ -41,19 +42,35 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
     setError('');
     machinesApi
       .getMachines({ limit: 100, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) })
-      .then((page) => setMachines(page.data.filter((m) => m.machineType?.corrugated && (m.width ?? 0) > 0)))
+      .then((page) => {
+        const corrugators = page.data.filter((m) => m.machineType?.corrugated);
+        setMachines(corrugators);
+        // Pre-select the corrugators the orders' routes run on, as Procusto programmes per corrugator.
+        const inRoute = new Set(orders.flatMap((o) => o.corrugators.map((c) => c.uuid)));
+        const preset: MachineWidthSelection = {};
+        for (const m of corrugators) {
+          if (inRoute.has(m.uuid)) preset[m.uuid] = (m.width ?? 0) > 0 ? [m.width as number] : [];
+        }
+        setSelected(preset);
+      })
       .catch((err) => logger.error('Error loading corrugator machines:', err));
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- orders are fixed while the dialog is open
   }, [isOpen, effectiveCompanyId]);
 
   const machineSelections = useMemo(
-    () =>
-      Object.entries(selected)
-        .filter(([, widths]) => widths.length > 0)
-        .map(([machineUuid, widths]) => ({ machineUuid, widths })),
+    () => Object.entries(selected).map(([machineUuid, widths]) => ({ machineUuid, widths })),
     [selected],
   );
+  const routeMachineUuids = useMemo(() => Array.from(new Set(orders.flatMap((o) => o.corrugators.map((c) => c.uuid)))), [orders]);
 
-  const canSubmit = machineSelections.length > 0 && productionOrderUuids.length > 0;
+  const canSubmit =
+    machineSelections.length > 0 && machineSelections.every((m) => m.widths.length > 0) && productionOrderUuids.length > 0;
+  // Procusto only plans an order on a corrugator its route's corrugation stage runs; the API rejects the rest.
+  const offMachine = machineSelections.length
+    ? orders.filter(
+        (o) => o.corrugators.length > 0 && !o.corrugators.some((c) => machineSelections.some((m) => m.machineUuid === c.uuid)),
+      )
+    : [];
 
   const handleSubmit = async () => {
     if (!canSubmit) return;
@@ -90,8 +107,14 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
 
         <div>
           <span className="gd-label">{t('corrugatorPool.machines')}</span>
-          <MachineWidthsPicker machines={machines} selected={selected} onChange={setSelected} />
+          <MachineWidthsPicker machines={machines} selected={selected} onChange={setSelected} routeMachineUuids={routeMachineUuids} />
         </div>
+
+        {offMachine.length > 0 && (
+          <p className="text-sm text-amber-700" data-testid="create-plan-off-machine">
+            {t('corrugatorPool.offMachine', { numbers: offMachine.map((o) => o.productionOrder.number).join(', ') })}
+          </p>
+        )}
 
         <div className="flex justify-end gap-2 pt-2">
           <Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>

@@ -2383,7 +2383,9 @@
     },
     "sheetLengthMin": "Minimum sheet length (mm)",
     "sheetLengthMax": "Maximum sheet length (mm)",
-    "maxScoreLines": "Maximum score lines"
+    "maxScoreLines": "Maximum score lines",
+    "machineWidth": "Maximum reel width (mm)",
+    "machineWidthHint": "The widest reel the corrugator accepts"
   },
   "productionRoutes": {
     "title": "Production Routes",
@@ -2967,7 +2969,7 @@
     "planName": "Plan name",
     "planNamePlaceholder": "Optional",
     "machines": "Corrugators",
-    "noMachines": "No corrugators configured",
+    "noMachines": "No machine has a corrugator type. Mark the type in Masters › Machine types and add the machine in Masters › Machines.",
     "addWidth": "Add",
     "removeWidth": "Remove width {{width}} mm",
     "extraWidthPlaceholder": "Width (mm)",
@@ -2987,14 +2989,19 @@
       "allocated": "Allocated",
       "pending": "Pending",
       "deliveryDate": "Delivery date",
-      "inPlans": "In plans"
+      "inPlans": "In plans",
+      "corrugators": "Corrugators"
     },
     "reasons": {
       "noSheetDimensions": "No sheet dimensions",
       "noCorrugation": "No corrugation",
       "withinTolerance": "Within tolerance",
       "fullyAllocated": "Fully allocated"
-    }
+    },
+    "offMachine": "The route of {{numbers}} does not run on the chosen corrugator; the plan will be rejected.",
+    "noMachineWidth": "no width set",
+    "inRoute": "in route",
+    "enterReelWidth": "Enter at least one reel width"
   },
   "corrugatorPlans": {
     "title": "Corrugator Programs",

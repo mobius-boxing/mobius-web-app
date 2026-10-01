@@ -57,6 +57,7 @@ export const createMachineSchema = (t: Translate) =>
     sourceWarehouseUuid: optionalSelect(),
     destinationWarehouseUuid: optionalSelect(),
     // Corrugator planning (model.md D-5 revised): 0 = sin límite, never negative.
+    width: measure(t, t('machines.machineWidth')),
     trim: measure(t, t('machines.trim')),
     maxElements: positiveInt(t, t('machines.maxElements')),
     tableCount: positiveInt(t, t('machines.tableCount')),

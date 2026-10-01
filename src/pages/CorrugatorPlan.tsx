@@ -158,7 +158,7 @@ const CorrugatorPlan: React.FC = () => {
     if (!machinesEditorOpen) return;
     machinesApi
       .getMachines({ limit: 100, ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}) })
-      .then((page) => setCorrugatorMachines(page.data.filter((m) => m.machineType?.corrugated && (m.width ?? 0) > 0)))
+      .then((page) => setCorrugatorMachines(page.data.filter((m) => m.machineType?.corrugated)))
       .catch((err) => logger.error('Error loading corrugator machines:', err));
   }, [machinesEditorOpen, effectiveCompanyId]);
 
