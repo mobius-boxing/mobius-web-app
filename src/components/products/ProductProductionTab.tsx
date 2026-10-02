@@ -1,12 +1,21 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { FieldErrors, UseFormRegister, UseFormWatch } from 'react-hook-form';
+import Button from '../ui/Button';
 import Input from '../ui/Input';
 import { CreateProductForm } from '../../types';
 import { ProductFormOptions } from './ProductFormModal';
 
 type OuterDimField = 'externalLength' | 'externalWidth' | 'externalHeight';
-type TriggerField = OuterDimField | 'boxSurface' | 'grammage' | 'flap';
+type TriggerField =
+  | OuterDimField
+  | 'boxSurface'
+  | 'grammage'
+  | 'flap'
+  | 'lowerFlap'
+  | 'upperFlap'
+  | 'flapOverlap'
+  | 'additionalSheetLength';
 
 interface Props {
   register: UseFormRegister<CreateProductForm>;
@@ -15,6 +24,8 @@ interface Props {
   options: ProductFormOptions;
   onOuterDimBlur: (field: TriggerField, value: number | null) => void;
   onModelChange: () => void;
+  /** Re-apply the model's formulas, discarding hand-typed calculated values (Procusto "Rec"). */
+  onRecalculate: () => void;
   calcError: string | null;
   calculating: boolean;
   effectiveGrammage: number | null;
@@ -49,6 +60,7 @@ const ProductProductionTab: React.FC<Props> = ({
   options,
   onOuterDimBlur,
   onModelChange,
+  onRecalculate,
   calcError,
   calculating,
   effectiveGrammage,
@@ -67,7 +79,17 @@ const ProductProductionTab: React.FC<Props> = ({
   return (
     <div className="space-y-4">
       <div className="rounded-md border border-secondary-200 p-4">
-        <h3 className="mb-3 text-sm font-semibold text-secondary-900">{t('products.fields.geometrySection')}</h3>
+        <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold text-secondary-900">{t('products.fields.geometrySection')}</h3>
+            {hasModel && <p className="mt-1 text-xs text-secondary-500">{t('products.fields.calculatedHint')}</p>}
+          </div>
+          {hasModel && (
+            <Button type="button" size="sm" variant="ghost" onClick={onRecalculate} disabled={calculating} data-testid="product-recalculate">
+              {t('products.fields.recalculate')}
+            </Button>
+          )}
+        </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
             <label className="gd-label">{t('products.fields.corrugation')} *</label>
@@ -150,7 +172,7 @@ const ProductProductionTab: React.FC<Props> = ({
                 type="number"
                 step="any"
                 label={t('products.fields.additionalSheetLength')}
-                {...register('additionalSheetLength')}
+                {...register('additionalSheetLength', { onBlur: triggerBlur('additionalSheetLength') })}
                 error={errors.additionalSheetLength?.message}
               />
               <Input
@@ -167,9 +189,9 @@ const ProductProductionTab: React.FC<Props> = ({
         <div className="mt-4">
           <h4 className="mb-2 text-xs font-semibold uppercase text-secondary-500">{t('products.fields.flapsTitle')}</h4>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-            <Input type="number" step="any" label={calcLabel('lowerFlap')} {...register('lowerFlap')} error={errors.lowerFlap?.message} />
-            <Input type="number" step="any" label={calcLabel('upperFlap')} {...register('upperFlap')} error={errors.upperFlap?.message} />
-            <Input type="number" step="any" label={t('products.fields.flapOverlap')} {...register('flapOverlap')} error={errors.flapOverlap?.message} />
+            <Input type="number" step="any" label={calcLabel('lowerFlap')} {...register('lowerFlap', { onBlur: triggerBlur('lowerFlap') })} error={errors.lowerFlap?.message} />
+            <Input type="number" step="any" label={calcLabel('upperFlap')} {...register('upperFlap', { onBlur: triggerBlur('upperFlap') })} error={errors.upperFlap?.message} />
+            <Input type="number" step="any" label={t('products.fields.flapOverlap')} {...register('flapOverlap', { onBlur: triggerBlur('flapOverlap') })} error={errors.flapOverlap?.message} />
           </div>
         </div>
       </div>

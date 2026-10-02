@@ -712,6 +712,10 @@ export type ProductCalculateField =
   | 'boxSurface'
   | 'grammage'
   | 'flap'
+  | 'lowerFlap'
+  | 'upperFlap'
+  | 'flapOverlap'
+  | 'additionalSheetLength'
   | 'mandatoryRotation'
   | 'model';
 

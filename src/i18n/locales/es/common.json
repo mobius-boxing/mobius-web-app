@@ -1023,7 +1023,7 @@
       "outerDimsTitle": "1. Ingrese medidas exteriores (mm)",
       "innerDimsTitle": "2. Medidas interiores (calculadas)",
       "sheetDevelopmentTitle": "Desarrollo de plancha",
-      "calculatedSuffix": " (calculado)",
+      "calculatedSuffix": " (calculado, editable)",
       "flapsTitle": "Aletas",
       "averageWeight": "Peso promedio",
       "effectiveGrammage": "Gramaje efectivo: {{value}} g/m²",
@@ -1035,7 +1035,9 @@
       "stageSupplies": "Insumos",
       "routeNoStages": "La ruta seleccionada aún no tiene etapas.",
       "routeNoneSelected": "Elija una ruta para ver sus etapas, o deje vacío para crear una ruta propia automáticamente.",
-      "routeLink": "Ir a rutas de producción"
+      "routeLink": "Ir a rutas de producción",
+      "calculatedHint": "Los campos marcados como calculados salen de las fórmulas del modelo y se pueden editar. Cambiar medidas, solapas o el modelo los vuelve a calcular; «Recalcular» descarta lo editado a mano.",
+      "recalculate": "Recalcular"
     },
     "form": {
       "approvalAfterSave": "La aprobación técnica estará disponible después de guardar.",

@@ -122,6 +122,10 @@ type CalcTriggerField =
   | 'externalWidth'
   | 'externalHeight'
   | 'flap'
+  | 'lowerFlap'
+  | 'upperFlap'
+  | 'flapOverlap'
+  | 'additionalSheetLength'
   | 'mandatoryRotation'
   | 'model';
 
@@ -499,9 +503,11 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
   }, [errors]);
 
   const runCalculate = useCallback(
-    async (field: CalcTriggerField, value: number | boolean | null) => {
+    async (field: CalcTriggerField, value: number | boolean | null, force = false) => {
       const modelUuid = getValues('modelUuid') || null;
-      if (field === 'mandatoryRotation') {
+      if (force) {
+        // "Recalcular": re-apply the model's formulas even when nothing changed.
+      } else if (field === 'mandatoryRotation') {
         if (mandatoryRotationBaselineRef.current === value) return;
       } else if (field === 'model') {
         if (modelBaselineRef.current === modelUuid) return;
@@ -539,6 +545,8 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
         });
         // Not echoed back by the endpoint (D-5) — the guard tracks what was sent.
         calcBaselineRef.current.flap = toCalcNumber(values.flap);
+        calcBaselineRef.current.flapOverlap = toCalcNumber(values.flapOverlap);
+        calcBaselineRef.current.additionalSheetLength = toCalcNumber(values.additionalSheetLength);
         CALC_TEXT_FIELDS.forEach((key) => {
           const next = result[key];
           if (next === undefined) return;
@@ -561,8 +569,8 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
   );
 
   const triggerCalculate = useCallback(
-    (field: CalcTriggerField, value: number | boolean | null) => {
-      const pending = runCalculate(field, value);
+    (field: CalcTriggerField, value: number | boolean | null, force = false) => {
+      const pending = runCalculate(field, value, force);
       pendingCalcRef.current = pending;
       pending.finally(() => {
         if (pendingCalcRef.current === pending) pendingCalcRef.current = null;
@@ -647,6 +655,7 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
           options={options}
           onOuterDimBlur={triggerCalculate}
           onModelChange={() => triggerCalculate('model', null)}
+          onRecalculate={() => triggerCalculate('model', null, true)}
           calcError={calcError}
           calculating={calculating}
           effectiveGrammage={effectiveGrammage}

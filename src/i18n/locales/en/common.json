@@ -1023,7 +1023,7 @@
       "outerDimsTitle": "1. Enter outer dimensions (mm)",
       "innerDimsTitle": "2. Inner dimensions (calculated)",
       "sheetDevelopmentTitle": "Sheet development",
-      "calculatedSuffix": " (calculated)",
+      "calculatedSuffix": " (calculated, editable)",
       "flapsTitle": "Flaps",
       "averageWeight": "Average weight",
       "effectiveGrammage": "Effective grammage: {{value}} g/m²",
@@ -1035,7 +1035,9 @@
       "stageSupplies": "Supplies",
       "routeNoStages": "The selected route has no stages yet.",
       "routeNoneSelected": "Pick a route to see its stages, or leave empty for an auto-created private route.",
-      "routeLink": "Go to production routes"
+      "routeLink": "Go to production routes",
+      "calculatedHint": "Fields marked as calculated come from the model formulas and can be edited. Changing dimensions, flaps or the model recalculates them; \"Recalculate\" discards hand edits.",
+      "recalculate": "Recalculate"
     },
     "form": {
       "approvalAfterSave": "Technical approval becomes available after saving.",
