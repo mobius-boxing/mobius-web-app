@@ -35,7 +35,9 @@
     "typecheck": "node scripts/typecheck.js",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "deploy": "bash ../debug/deploy-frontend.sh"
+    "deploy": "echo \"Choose an environment: npm run deploy:dev | npm run deploy:prod\" && exit 1",
+    "deploy:dev": "bash ../debug/deploy-frontend.sh dev",
+    "deploy:prod": "bash ../debug/deploy-frontend.sh prod"
   },
   "eslintConfig": {
     "extends": [

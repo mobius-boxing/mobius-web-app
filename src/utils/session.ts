@@ -10,11 +10,13 @@
 // the same exposure as the previous localStorage token. Moving to an HttpOnly, server-set
 // cookie would be a separate, larger hardening change.
 
-const COOKIE_NAME = 'mobius_session';
+// Dev builds set REACT_APP_COOKIE_PREFIX=mobius_dev so they never read a prod session.
+const COOKIE_PREFIX = process.env.REACT_APP_COOKIE_PREFIX || 'mobius';
+const COOKIE_NAME = `${COOKIE_PREFIX}_session`;
 const COOKIE_DOMAIN = process.env.REACT_APP_COOKIE_DOMAIN; // ".mobiusboxing.com" in prod; unset locally
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days; the server still enforces JWT expiry
 
-export const DEVICE_COOKIE_NAME = 'mobius_device';
+export const DEVICE_COOKIE_NAME = `${COOKIE_PREFIX}_device`;
 const DEVICE_MAX_AGE_SECONDS = 31536000; // 365 days
 
 const buildCookie = (nameValue: string, maxAge: number): string => {
