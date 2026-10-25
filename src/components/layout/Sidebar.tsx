@@ -25,6 +25,9 @@ import {
   Route,
   Cog,
   ScrollText,
+  Users,
+  ShieldCheck,
+  Smartphone,
   X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -270,12 +273,11 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
       ],
     },
     {
-      id: 'users-and-roles',
-      label: t('nav.usersAndRoles'),
-      externalUrl: process.env.REACT_APP_BACKOFFICE_URL || 'http://localhost:3002',
-      icon: 'UserCircle',
-      permission: ['users.edit', 'roles.edit'],
-      allowReadOnly: true,
+      id: 'administration', label: t('nav.administration'), icon: 'UserCircle', children: [
+        { id: 'users', label: t('nav.users'), path: '/users', icon: 'Users', permission: 'users.edit', allowReadOnly: true },
+        { id: 'roles', label: t('nav.roles'), path: '/roles', icon: 'ShieldCheck', permission: 'roles.edit', allowReadOnly: true },
+        { id: 'devices', label: t('nav.devices'), path: '/devices', icon: 'Smartphone', permission: 'devices.approve' },
+      ],
     },
     { id: 'audit-logs', label: t('nav.audit'), path: '/audit-logs', icon: 'ScrollText', permission: 'audit.read', allowReadOnly: true },
   ];
@@ -305,6 +307,9 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
       Route,
       Cog,
       ScrollText,
+      Users,
+      ShieldCheck,
+      Smartphone,
     };
     const IconComponent = icons[iconName as keyof typeof icons];
     return IconComponent ? <IconComponent className={className} /> : null;

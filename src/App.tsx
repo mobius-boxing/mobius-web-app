@@ -53,6 +53,9 @@ import StrappingTypes from './pages/StrappingTypes';
 import Complements from './pages/Complements';
 import TraceTypes from './pages/TraceTypes';
 import AuditLogs from './pages/AuditLogs';
+import Users from './pages/Users';
+import Roles from './pages/Roles';
+import Devices from './pages/Devices';
 import DevicePending from './pages/DevicePending';
 import AcceptInvitation from './pages/AcceptInvitation';
 import ForgotPassword from './pages/ForgotPassword';
@@ -515,6 +518,33 @@ function App() {
               element={
                 <ProtectedRoute requiredPermission="audit.read">
                   <AuditLogs />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Administración de usuarios. Each route asks the same question as its
+                sidebar leaf (L-011). */}
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute requiredPermission="users.edit">
+                  <Users />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/roles"
+              element={
+                <ProtectedRoute requiredPermission="roles.edit">
+                  <Roles />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/devices"
+              element={
+                <ProtectedRoute requiredPermission="devices.approve">
+                  <Devices />
                 </ProtectedRoute>
               }
             />
