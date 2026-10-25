@@ -29,6 +29,8 @@ export interface Invitation {
   id: string;
   email: string;
   role: 'member' | 'admin';
+  roleUuid?: string | null;
+  roleName?: string | null;
   companyId: string;
   companyName?: string;
   inviterName?: string;
@@ -84,6 +86,28 @@ export interface DeviceSession {
   token?: string;
 }
 
+export interface UserRef {
+  uuid: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+}
+
+export interface UserDevice {
+  uuid: string;
+  status: DeviceStatus;
+  userAgent: string | null;
+  requestIp: string | null;
+  requestedAt: string;
+  approvedAt: string | null;
+  revokedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  user: UserRef;
+  approvedBy: UserRef | null;
+  revokedBy: UserRef | null;
+}
+
 export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
@@ -132,6 +156,15 @@ export interface UpdateUserRequest {
   isActive: boolean;
   companyId?: string;
   password?: string;
+}
+
+export interface InviteCompanyUserRequest {
+  email: string;
+  firstName: string;
+  lastName: string;
+  roleUuid: string;
+  /** superAdmin only: the API takes the company from the JWT for everyone else. */
+  companyId?: string;
 }
 
 export interface AcceptInvitationForm {
@@ -1244,21 +1277,16 @@ export interface CreateConsumableStockForm {
 }
 // ── RBAC (module 02) ──────────────────────────────────────────────────────────
 
-export type RoleProfileType =
-  | 'director'
-  | 'general'
-  | 'productionManager'
-  | 'qualityManager'
-  | 'salesperson';
-
 export interface Role {
-  id?: number;
   uuid: string;
   name: string;
-  profileType: RoleProfileType;
-  hasAccessToAllMachines: boolean;
+  /** 'admin' | 'member' for the two system roles, null for a custom role. */
+  systemKey: 'admin' | 'member' | null;
+  /** Admin's grants are locked (no rename, no grant edits, no delete). */
   isProtected: boolean;
-  /** Granted permission codes — populated by GET /roles/:uuid. */
+  /** Computed by the API: users with this roleId. */
+  userCount: number;
+  /** Populated by GET /roles/:uuid only. */
   permissionCodes?: string[];
   createdAt?: string;
   updatedAt?: string;
@@ -1266,8 +1294,6 @@ export interface Role {
 
 export interface CreateRoleForm {
   name: string;
-  profileType?: RoleProfileType;
-  hasAccessToAllMachines?: boolean;
 }
 
 export interface Permission {

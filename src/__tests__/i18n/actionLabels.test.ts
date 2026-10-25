@@ -86,8 +86,8 @@ describe('grid action buttons: no title=, every label resolves (AC-4, AC-5)', ()
     src: fs.readFileSync(file, 'utf8'),
   }));
 
-  it('found the expected 49 grid-action-tooltips files', () => {
-    expect(filesAndSources).toHaveLength(49);
+  it('found the expected 52 grid-action-tooltips files', () => {
+    expect(filesAndSources).toHaveLength(52);
   });
 
   it.each(filesAndSources)('$file has no title= on an ActionButton', ({ file, src }) => {

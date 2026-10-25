@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { email, oneOf, optionalSelect, requiredText, Translate } from '../fields';
+import { email, oneOf, optionalSelect, requiredSelect, requiredText, Translate } from '../fields';
 import { USER_ROLES } from './user';
 
 /**
@@ -35,3 +35,14 @@ export const inviteUserSchema = (t: Translate) =>
   });
 
 export type InviteUserSchema = z.infer<ReturnType<typeof inviteUserSchema>>;
+
+/** `roleUuid` is required by `POST /invitations` (400 without it). */
+export const inviteCompanyUserSchema = (t: Translate) =>
+  z.object({
+    firstName: requiredText(t, t('userModal.firstName'), NAME_MAX),
+    lastName: requiredText(t, t('userModal.lastName'), NAME_MAX),
+    email: email(t),
+    roleUuid: requiredSelect(t, t('userManagement.role')),
+  });
+
+export type InviteCompanyUserSchema = z.infer<ReturnType<typeof inviteCompanyUserSchema>>;

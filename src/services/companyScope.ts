@@ -8,6 +8,7 @@ export const CENTRAL_API_FOLDERS: readonly string[] = [
   'auth',
   'companies',
   'db-servers',
+  'devices',
   'health',
   'invitations',
   'modules',

@@ -18,6 +18,12 @@ import {
   User,
   Company,
   Invitation,
+  InviteCompanyUserRequest,
+  UpdateUserRequest,
+  UserDevice,
+  Role,
+  Permission,
+  CreateRoleForm,
   CreateCompanyForm,
   AcceptInvitationForm,
   ChangePasswordForm,
@@ -295,6 +301,7 @@ export const usersApi = {
     role?: string;
     isActive?: boolean;
     companyId?: string;
+    roleUuid?: string;
   } = {}): Promise<PaginatedResponse<User>> => {
     const response = await api.get('/api/users', { params });
     const backendData = response.data;
@@ -312,9 +319,50 @@ export const usersApi = {
     return response.data.data!;
   },
 
+  updateUser: async (id: string, data: UpdateUserRequest): Promise<User> => {
+    const response: AxiosResponse<ApiResponse<User>> = await api.put(`/api/users/${id}`, data);
+    return response.data.data!;
+  },
+
+  deleteUser: async (id: string): Promise<void> => {
+    await api.delete(`/api/users/${id}`);
+  },
+
   getUserStats: async (companyId?: string): Promise<UserStats> => {
     const params = companyId ? { companyId } : {};
     const response: AxiosResponse<ApiResponse<UserStats>> = await api.get('/api/users/stats', { params });
+    return response.data.data!;
+  },
+};
+
+export const devicesApi = {
+  getDevices: async (params: {
+    page?: number;
+    limit?: number;
+    search?: string;
+    status?: string;
+    sortBy?: string;
+    sortOrder?: 'asc' | 'desc';
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<UserDevice>> => {
+    const response = await api.get('/api/devices', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  approveDevice: async (uuid: string): Promise<UserDevice> => {
+    const response: AxiosResponse<ApiResponse<UserDevice>> = await api.patch(`/api/devices/${uuid}/approve`);
+    return response.data.data!;
+  },
+
+  revokeDevice: async (uuid: string): Promise<UserDevice> => {
+    const response: AxiosResponse<ApiResponse<UserDevice>> = await api.patch(`/api/devices/${uuid}/revoke`);
     return response.data.data!;
   },
 };
@@ -385,12 +433,95 @@ export const companiesApi = {
 };
 
 export const invitationsApi = {
+  // Gated `users.edit`; superAdmin must put `companyId` in the body.
+  createRoleInvitation: async (data: InviteCompanyUserRequest): Promise<Invitation> => {
+    const response: AxiosResponse<ApiResponse<Invitation>> = await api.post('/api/invitations', data);
+    return response.data.data!;
+  },
+
   getInvitationStats: async (companyId?: string): Promise<InvitationStats> => {
     const params = companyId ? { companyId } : {};
     const response: AxiosResponse<ApiResponse<InvitationStats>> = await api.get('/api/invitations/stats', { params });
     return response.data.data!;
   },
 
+};
+
+export const rolesApi = {
+  getRoles: async (params: {
+    page?: number;
+    limit?: number;
+    // Server-side subset rule: only roles the caller may assign.
+    assignable?: boolean;
+    // superAdmin only; the API ignores it for company actors.
+    companyId?: string;
+  } = {}): Promise<PaginatedResponse<Role>> => {
+    const response = await api.get('/api/roles', { params });
+    const backendData = response.data;
+    return {
+      data: backendData.data,
+      total: backendData.totalCount,
+      page: backendData.page,
+      limit: backendData.limit,
+      totalPages: backendData.totalPages,
+    };
+  },
+
+  getRole: async (uuid: string, companyId?: string): Promise<Role> => {
+    const params = companyId ? { companyId } : {};
+    const response: AxiosResponse<ApiResponse<Role>> = await api.get(`/api/roles/${uuid}`, { params });
+    return response.data.data!;
+  },
+
+  createRole: async (data: CreateRoleForm & { companyId?: string }): Promise<Role> => {
+    const response: AxiosResponse<ApiResponse<Role>> = await api.post('/api/roles', data);
+    return response.data.data!;
+  },
+
+  // 409 SYSTEM_ROLE when the role has a systemKey.
+  renameRole: async (uuid: string, name: string, companyId?: string): Promise<Role> => {
+    const params = companyId ? { companyId } : {};
+    const response: AxiosResponse<ApiResponse<Role>> = await api.put(`/api/roles/${uuid}`, { name }, { params });
+    return response.data.data!;
+  },
+
+  // 409 SYSTEM_ROLE or ROLE_IN_USE (users/pending invitations reference it).
+  deleteRole: async (uuid: string, companyId?: string): Promise<void> => {
+    const params = companyId ? { companyId } : {};
+    await api.delete(`/api/roles/${uuid}`, { params });
+  },
+
+  // 400 UNKNOWN_PERMISSION, 403 GRANT_CEILING/OWN_ROLE.
+  setRolePermissions: async (uuid: string, codes: string[], companyId?: string): Promise<string[]> => {
+    const params = companyId ? { companyId } : {};
+    const response: AxiosResponse<ApiResponse<{ codes: string[] }>> = await api.put(
+      `/api/roles/${uuid}/permissions`,
+      { codes },
+      { params }
+    );
+    return response.data.data!.codes;
+  },
+
+  // roleUuid is required. 403 GRANT_CEILING/OWN_ROLE, 409 LAST_ADMIN.
+  assignRole: async (userUuid: string, roleUuid: string, companyId?: string): Promise<void> => {
+    const params = companyId ? { companyId } : {};
+    await api.put('/api/roles/assign', { userUuid, roleUuid }, { params });
+  },
+};
+
+export const permissionsApi = {
+  // The catalogue can exceed the API's page cap: page through to totalPages.
+  getPermissions: async (params: { companyId?: string } = {}): Promise<Permission[]> => {
+    const pageSize = 100;
+    const first = await api.get('/api/permissions', { params: { ...params, limit: pageSize, page: 1 } });
+    const all: Permission[] = [...first.data.data];
+    const totalPages: number = first.data.totalPages ?? 1;
+    for (let page = 2; page <= totalPages; page++) {
+      const next = await api.get('/api/permissions', { params: { ...params, limit: pageSize, page } });
+      all.push(...next.data.data);
+    }
+    return all;
+  },
 };
 
 export const customerCategoriesApi = {
