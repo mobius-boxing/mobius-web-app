@@ -281,6 +281,13 @@ export function oneOf<T extends readonly [string, ...string[]]>(
  * `min` is the product rule (8), `max` the column width (255). Neither is a
  * strength policy: hashing and any complexity rules stay server-side.
  */
+/**
+ * Mirrors `MIN_PASSWORD_LENGTH` in mobius-api `src/utils/passwordPolicy.ts`,
+ * which every password-accepting endpoint enforces. A lower value here lets the
+ * form pass a password the API then rejects.
+ */
+export const PASSWORD_MIN_LENGTH = 12;
+
 export function password(
   t: Translate,
   label: string,
@@ -296,7 +303,7 @@ export function password(
   label: string,
   options: { min?: number; max?: number; required?: boolean } = {}
 ) {
-  const { min = 8, max = 255, required = false } = options;
+  const { min = PASSWORD_MIN_LENGTH, max = 255, required = false } = options;
   const requiredMessage = t('validation.required', { field: label });
   const schema = z
     .string({ error: requiredMessage })

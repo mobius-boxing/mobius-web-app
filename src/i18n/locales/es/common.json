@@ -478,12 +478,12 @@
     "resetFailed": "Error al restablecer la contraseña. El enlace puede haber expirado.",
     "invalidToken": "Token de restablecimiento inválido o faltante",
     "passwordRequirements": "La contraseña debe contener:",
-    "requirement1": "Al menos 8 caracteres",
+    "requirement1": "Al menos 12 caracteres",
     "requirement2": "Una letra mayúscula",
     "requirement3": "Un número",
     "validation": {
       "passwordRequired": "La contraseña es requerida",
-      "passwordMinLength": "La contraseña debe tener al menos 8 caracteres",
+      "passwordMinLength": "La contraseña debe tener al menos 12 caracteres",
       "passwordPattern": "La contraseña debe contener al menos una letra mayúscula y un número",
       "confirmPasswordRequired": "Por favor confirma tu contraseña",
       "passwordsMismatch": "Las contraseñas no coinciden"
@@ -506,7 +506,7 @@
     "submitButton": "Completar Registro",
     "creating": "Creando Cuenta...",
     "passwordRequirements": "La contraseña debe contener:",
-    "requirement1": "Al menos 8 caracteres",
+    "requirement1": "Al menos 12 caracteres",
     "requirement2": "Una letra minúscula (a-z)",
     "requirement3": "Una letra mayúscula (A-Z)",
     "requirement4": "Un número (0-9)",
@@ -517,7 +517,7 @@
       "lastNameRequired": "El apellido es requerido",
       "lastNameInvalid": "El apellido solo puede contener letras, espacios, guiones y apóstrofos",
       "passwordRequired": "La contraseña es requerida",
-      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres",
+      "passwordTooShort": "La contraseña debe tener al menos 12 caracteres",
       "passwordNoLowercase": "La contraseña debe contener al menos una letra minúscula",
       "passwordNoUppercase": "La contraseña debe contener al menos una letra mayúscula",
       "passwordNoNumber": "La contraseña debe contener al menos un número",
@@ -2781,7 +2781,7 @@
       "emailInvalid": "Ingrese una dirección de email válida",
       "roleRequired": "El rol es obligatorio",
       "companyRequired": "La empresa es obligatoria",
-      "passwordMinLength": "La contraseña debe tener al menos 8 caracteres"
+      "passwordMinLength": "La contraseña debe tener al menos 12 caracteres"
     }
   },
   "dashboard": {

@@ -77,8 +77,8 @@ describe('user schema', () => {
       'password',
     ]);
     expect(
-      parse(editUserSchema(t), { ...user, password: 'longenough1' }).password
-    ).toBe('longenough1');
+      parse(editUserSchema(t), { ...user, password: 'longenough12' }).password
+    ).toBe('longenough12');
   });
 
   it('rejects a malformed email', () => {
@@ -118,15 +118,15 @@ describe('auth schemas (converted, not changed)', () => {
     ]);
   });
 
-  const good = { newPassword: 'Password1', confirmPassword: 'Password1' };
+  const good = { newPassword: 'Password1234', confirmPassword: 'Password1234' };
 
   it('keeps the reset-password strength rule verbatim', () => {
     expect(parse(resetPasswordSchema(t), good)).toEqual(good);
     // no uppercase, no digit → the pattern rule fires
     expect(
       issues(resetPasswordSchema(t), {
-        newPassword: 'password',
-        confirmPassword: 'password',
+        newPassword: 'passwordpassword',
+        confirmPassword: 'passwordpassword',
       })
     ).toEqual(['newPassword']);
     expect(
@@ -143,8 +143,8 @@ describe('auth schemas (converted, not changed)', () => {
    */
   it('reports a mismatch ON the confirm field, not at the root', () => {
     const result = resetPasswordSchema(t).safeParse({
-      newPassword: 'Password1',
-      confirmPassword: 'Password2',
+      newPassword: 'Password1234',
+      confirmPassword: 'Password1235',
     });
     expect(result.success).toBe(false);
     const issue = (result as { error: { issues: Array<{ path: unknown[] }> } })

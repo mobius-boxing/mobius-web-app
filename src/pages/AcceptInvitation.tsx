@@ -7,6 +7,7 @@ import { AcceptInvitationForm, ApiError, Invitation } from '../types';
 import { logger } from '../utils/logger';
 import { setToken, setDeviceToken } from '../utils/session';
 import { Skeleton } from '../components/ui/Skeleton';
+import { PASSWORD_MIN_LENGTH } from '../validation/fields';
 
 const AcceptInvitation: React.FC = () => {
   const { t } = useTranslation();
@@ -56,7 +57,9 @@ const AcceptInvitation: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
-    const nameRegex = /^[a-zA-Z\s\-']+$/;
+    // \p{M} admits accents typed as a base letter plus a combining mark (NFD
+    // input, e.g. macOS); ’ is the apostrophe phone keyboards insert.
+    const nameRegex = /^[\p{L}\p{M}\s'’-]+$/u;
 
     if (!formData.firstName.trim()) {
       setError(t('invitation.validation.firstNameRequired'));
@@ -80,7 +83,7 @@ const AcceptInvitation: React.FC = () => {
       setError(t('invitation.validation.passwordRequired'));
       return false;
     }
-    if (formData.password.length < 8) {
+    if (formData.password.length < PASSWORD_MIN_LENGTH) {
       setError(t('invitation.validation.passwordTooShort'));
       return false;
     }

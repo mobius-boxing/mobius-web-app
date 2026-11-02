@@ -478,12 +478,12 @@
     "resetFailed": "Failed to reset password. The link may have expired.",
     "invalidToken": "Invalid or missing reset token",
     "passwordRequirements": "Password must contain:",
-    "requirement1": "At least 8 characters",
+    "requirement1": "At least 12 characters",
     "requirement2": "One uppercase letter",
     "requirement3": "One number",
     "validation": {
       "passwordRequired": "Password is required",
-      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordMinLength": "Password must be at least 12 characters",
       "passwordPattern": "Password must contain at least one uppercase letter and one number",
       "confirmPasswordRequired": "Please confirm your password",
       "passwordsMismatch": "Passwords do not match"
@@ -506,7 +506,7 @@
     "submitButton": "Complete Registration",
     "creating": "Creating Account...",
     "passwordRequirements": "Password must contain:",
-    "requirement1": "At least 8 characters",
+    "requirement1": "At least 12 characters",
     "requirement2": "One lowercase letter (a-z)",
     "requirement3": "One uppercase letter (A-Z)",
     "requirement4": "One number (0-9)",
@@ -517,7 +517,7 @@
       "lastNameRequired": "Last name is required",
       "lastNameInvalid": "Last name can only contain letters, spaces, hyphens, and apostrophes",
       "passwordRequired": "Password is required",
-      "passwordTooShort": "Password must be at least 8 characters",
+      "passwordTooShort": "Password must be at least 12 characters",
       "passwordNoLowercase": "Password must contain at least one lowercase letter",
       "passwordNoUppercase": "Password must contain at least one uppercase letter",
       "passwordNoNumber": "Password must contain at least one number",
@@ -2781,7 +2781,7 @@
       "emailInvalid": "Please enter a valid email address",
       "roleRequired": "Role is required",
       "companyRequired": "Company is required",
-      "passwordMinLength": "Password must be at least 8 characters"
+      "passwordMinLength": "Password must be at least 12 characters"
     }
   },
   "dashboard": {

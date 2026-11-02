@@ -9,7 +9,8 @@ import { email, password, Translate } from '../fields';
  *
  *   Login           email required + pattern, password required
  *   ForgotPassword  email required + pattern
- *   ResetPassword   password required, min 8, upper+lower+digit pattern;
+ *   ResetPassword   password required, min PASSWORD_MIN_LENGTH (12, the
+ *                   API's policy), upper+lower+digit pattern;
  *                   confirmPassword required and equal to it
  *
  * Their messages keep their existing `login.validation.*` /
@@ -21,8 +22,6 @@ import { email, password, Translate } from '../fields';
  * `users.password` is varchar(255) — the hash's column, not the typed value's,
  * so the max is a sanity bound, not a policy.
  */
-
-const PASSWORD_MIN = 8;
 
 /**
  * At least one lowercase, one uppercase and one digit. Byte-identical to the
@@ -54,7 +53,6 @@ export const resetPasswordSchema = (t: Translate) =>
   z
     .object({
       newPassword: password(t, t('resetPassword.newPasswordLabel'), {
-        min: PASSWORD_MIN,
         required: true,
       }).regex(PASSWORD_PATTERN, t('resetPassword.validation.passwordPattern')),
       confirmPassword: z
