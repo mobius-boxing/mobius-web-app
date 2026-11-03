@@ -35,7 +35,7 @@ const Pagination: React.FC<PaginationProps> = ({
           <select
             value={limit}
             onChange={(e) => onLimitChange(Number(e.target.value))}
-            className="ml-1 bg-white border border-secondary-300 rounded-md px-2 py-1 text-sm text-secondary-700 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 cursor-pointer"
+            className="ml-1 min-w-[72px] bg-white border border-secondary-300 rounded-md px-2 py-1 text-sm text-secondary-700 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 cursor-pointer"
           >
             {[10, 20, 50].map((size) => (
               <option key={size} value={size}>

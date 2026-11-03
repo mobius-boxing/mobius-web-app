@@ -66,7 +66,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
           </div>
         </div>
       </div>
-      <div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse gap-3">
+      <div className="gd-modal-footer mt-5 flex flex-col gap-3 sm:mt-4 sm:flex-row-reverse">
         <Button
           onClick={onConfirm}
           disabled={loading}
@@ -78,7 +78,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
           variant="outline"
           onClick={onClose}
           disabled={loading}
-          className="mt-3 sm:mt-0 w-full sm:w-auto"
+          className="w-full sm:w-auto"
         >
           {cancelText || t('confirmModal.cancel')}
         </Button>

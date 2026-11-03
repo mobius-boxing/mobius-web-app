@@ -330,7 +330,7 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t">
+        <div className="gd-modal-footer flex flex-wrap justify-end gap-3">
           <Button type="button" variant="outline" onClick={onClose}>
             {t('common.close')}
           </Button>

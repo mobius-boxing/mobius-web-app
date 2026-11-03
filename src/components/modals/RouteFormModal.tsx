@@ -328,10 +328,10 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
 
           {stages.map((stage, index) => (
             <div key={stage.clientId ?? index} className="px-4 py-3 border-b border-secondary-100 last:border-b-0 space-y-3">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-sm font-semibold text-secondary-700 w-8">#{index + 1}</span>
                 <Input
-                  className="flex-1"
+                  className="min-w-0 flex-1"
                   placeholder={t('productionRoutes.stageDescription')}
                   value={stage.description ?? ''}
                   onChange={(e) => patchStage(index, { description: e.target.value })}
@@ -405,7 +405,7 @@ const RouteFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, route }) 
                   </ActionButton>
                 </div>
                 {stage.machines.map((m, mi) => (
-                  <div key={m.clientId ?? mi} className="flex items-center gap-2">
+                  <div key={m.clientId ?? mi} className="flex flex-wrap items-center gap-2">
                     <select
                       className="input-field w-64"
                       value={m.machineUuid ?? ''}

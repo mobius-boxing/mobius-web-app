@@ -704,15 +704,12 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
           errorLabel={t('products.form.tabHasError') ?? undefined}
         />
 
-        <div className="flex items-center justify-between border-t border-secondary-200 pt-4">
-          <div>{approvalBadge(current?.approvalStatus ?? 'pending', t, current)}</div>
-          <ModalFooter
-            loading={loading}
-            onCancel={handleClose}
-            submitText={t('products.saveButton')}
-            className="pt-0"
-          />
-        </div>
+        <div>{approvalBadge(current?.approvalStatus ?? 'pending', t, current)}</div>
+        <ModalFooter
+          loading={loading}
+          onCancel={handleClose}
+          submitText={t('products.saveButton')}
+        />
       </form>
     </Modal>
   );

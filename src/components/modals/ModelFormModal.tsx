@@ -382,7 +382,9 @@ const ModelFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, model }) 
         )}
       </div>
 
-      <div className="mt-6 flex justify-end gap-2 border-t border-secondary-200 pt-4">
+      <FormulaReferenceModal isOpen={showReference} onClose={() => setShowReference(false)} />
+
+      <div className="gd-modal-footer flex flex-wrap justify-end gap-3">
         <Button variant="secondary" onClick={onClose} disabled={saving}>
           {t('common.cancel')}
         </Button>
@@ -391,7 +393,6 @@ const ModelFormModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, model }) 
         </Button>
       </div>
 
-      <FormulaReferenceModal isOpen={showReference} onClose={() => setShowReference(false)} />
     </Modal>
   );
 };

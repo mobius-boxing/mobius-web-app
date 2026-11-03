@@ -327,7 +327,7 @@ const GenerateOrdersDialog: React.FC<Props> = ({
             </>
           )}
 
-          <div className="flex justify-end gap-2 border-t border-secondary-200 pt-4">
+          <div className="gd-modal-footer flex flex-wrap justify-end gap-3">
             <Button variant="ghost" onClick={onClose} data-testid="generate-no">
               {t('productionOrders.generate.no')}
             </Button>

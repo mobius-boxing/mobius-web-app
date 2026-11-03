@@ -160,7 +160,7 @@ export function ColumnChooser<T>({
         })}
       </ul>
 
-      <div className="flex items-center justify-between mt-4 pt-4 border-t border-secondary-100">
+      <div className="gd-modal-footer flex flex-wrap items-center justify-between gap-3">
         <Button variant="secondary" size="sm" onClick={onReset} disabled={!isCustomized}>
           {t('table.resetColumns')}
         </Button>

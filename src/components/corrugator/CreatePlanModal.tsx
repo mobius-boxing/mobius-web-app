@@ -116,7 +116,7 @@ const CreatePlanModal: React.FC<CreatePlanModalProps> = ({
           </p>
         )}
 
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="gd-modal-footer flex flex-wrap justify-end gap-3">
           <Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
           <Button onClick={handleSubmit} loading={loading} disabled={!canSubmit} data-testid="create-plan-submit">
             {t('corrugatorPool.createPlanSubmit')}

@@ -48,7 +48,7 @@ const EditPalletTypeModal: React.FC<EditPalletTypeModalProps> = ({ isOpen, onClo
   });
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={t('palletTypes.editTitle')}>
+    <Modal isOpen={isOpen} onClose={handleClose} title={t('palletTypes.editTitle')} size="lg">
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

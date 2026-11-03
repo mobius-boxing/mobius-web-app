@@ -1039,6 +1039,57 @@ body::after {
   margin: 0;
 }
 
+/* WHY: on a 650px-tall laptop viewport long forms (customers: ~1300-1700px)
+   pushed their actions two screens down. The panel is capped to the viewport,
+   its body scrolls, and the footer pins to the bottom of that scroll area.
+   100vh first: dvh is the override for browsers that know it (mobile bars). */
+.gd-modal-frame {
+  --gd-modal-px: 1rem;
+  /* Clips the square sticky footer/header to the panel's rounded corners.
+     Nothing may escape the panel: Tooltip is portaled, modal forms use native selects. */
+  overflow: hidden;
+  max-height: calc(100vh - 1rem);
+  max-height: calc(100dvh - 1rem);
+}
+
+@media (min-width: 640px) {
+  .gd-modal-frame {
+    --gd-modal-px: 1.5rem;
+    max-height: calc(100vh - 2rem);
+    max-height: calc(100dvh - 2rem);
+  }
+}
+
+/* The scroll container carries NO padding: a sticky child would otherwise stop
+   short of the scrollport edge by that padding and let content show beneath. */
+.gd-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.gd-modal-content {
+  padding: 0 var(--gd-modal-px) var(--gd-modal-px);
+}
+
+.gd-modal-content--untitled {
+  padding-top: var(--gd-modal-px);
+}
+
+/* Bleeds to the panel edges so content scrolling under it stays hidden. Sticky
+   only within its parent box — keep footers the last child of their form. */
+.gd-modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-inline: calc(-1 * var(--gd-modal-px));
+  margin-bottom: calc(-1 * var(--gd-modal-px));
+  padding: 1rem var(--gd-modal-px) var(--gd-modal-px);
+  background: oklch(var(--white));
+  border-top: 1px solid var(--gd-hairline);
+}
+
 /* ── Auth pages ──────────────────────────────────────────────────────────── */
 /* WHY: a 24px heading over a generic shadow-lg card. The first screen of the
    product looked like a bootstrapped admin template. */

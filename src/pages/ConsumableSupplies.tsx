@@ -91,10 +91,10 @@ const ConsumableSupplies: React.FC = () => {
               <Package className="h-5 w-5 text-primary-600" />
             </div>
           </div>
-          <div className="ml-4">
+          <div className="ml-4 min-w-0">
             <div className="font-medium text-secondary-900">{supply.code || 'Unknown'}</div>
             {supply.description && (
-              <div className="text-sm text-secondary-500 truncate max-w-xs">{supply.description}</div>
+              <div className="break-words text-sm text-secondary-500">{supply.description}</div>
             )}
           </div>
         </div>

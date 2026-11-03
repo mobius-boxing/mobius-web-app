@@ -221,7 +221,7 @@ const RolePermissionsModal: React.FC<RolePermissionsModalProps> = ({
           </div>
         )}
 
-        <div className="flex justify-end space-x-3 pt-2 border-t border-secondary-200">
+        <div className="gd-modal-footer flex flex-wrap justify-end gap-3">
           <Button variant="outline" onClick={onClose} disabled={saving}>
             {t('common.cancel')}
           </Button>

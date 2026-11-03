@@ -90,7 +90,7 @@ const AddOrdersFromPoolModal: React.FC<AddOrdersFromPoolModalProps> = ({ isOpen,
             ))}
           </div>
         )}
-        <div className="flex justify-end gap-2 pt-2">
+        <div className="gd-modal-footer flex flex-wrap justify-end gap-3">
           <Button variant="ghost" onClick={onClose}>{t('common.cancel')}</Button>
           <Button onClick={handleSubmit} loading={submitting} disabled={selected.size === 0} data-testid="add-orders-submit">
             {t('corrugatorPlan.addOrdersSubmit')}

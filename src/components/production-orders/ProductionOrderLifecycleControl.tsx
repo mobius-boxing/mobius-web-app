@@ -89,7 +89,7 @@ const ProductionOrderLifecycleControl: React.FC<Props> = ({ order, onChanged }) 
         return (
           <div
             key={machine.key}
-            className="flex items-center justify-between rounded-lg border border-secondary-200 p-3"
+            className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-secondary-200 p-3"
             data-testid={`lifecycle-${machine.key}`}
           >
             <div>
@@ -117,7 +117,7 @@ const ProductionOrderLifecycleControl: React.FC<Props> = ({ order, onChanged }) 
               </div>
             </div>
             {canAct && (
-              <div className="flex gap-2">
+              <div className="flex flex-wrap justify-end gap-2">
                 <Button
                   size="sm"
                   variant="secondary"

@@ -168,7 +168,7 @@ function DualListSelector<T>({
   };
 
   return (
-    <div className="grid grid-cols-[1fr_auto_1fr] gap-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_auto_1fr]">
       <div className="flex flex-col space-y-3">
         <div>
           <label className="gd-label">
@@ -199,7 +199,7 @@ function DualListSelector<T>({
         </p>
       </div>
 
-      <div className="flex flex-col justify-center space-y-2 pt-8">
+      <div className="flex flex-row justify-center gap-2 sm:flex-col sm:gap-0 sm:space-y-2 sm:pt-8">
         <Button
           type="button"
           variant="outline"

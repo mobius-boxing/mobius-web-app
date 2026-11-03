@@ -22,7 +22,7 @@ export const ModalFooter: React.FC<ModalFooterProps> = ({
   const { t } = useTranslation();
 
   return (
-    <div className={`flex justify-end space-x-3 pt-4 ${className}`}>
+    <div className={`gd-modal-footer flex flex-wrap justify-end gap-3 ${className}`}>
       <Button
         type="button"
         variant="outline"

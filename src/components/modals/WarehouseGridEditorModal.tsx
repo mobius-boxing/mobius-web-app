@@ -475,15 +475,15 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
           </div>
         </div>
 
-        <div className="flex justify-between items-center pt-4 border-t">
-          <div className="text-sm text-gray-600">
+        <div className="gd-modal-footer flex flex-wrap justify-end gap-3">
+          <div className="mr-auto text-sm text-gray-600">
             {changes.size > 0 && (
               <span className="text-yellow-600 font-medium">
                 {t('warehouses.grid.unsavedCount', { count: changes.size })}
               </span>
             )}
           </div>
-          <div className="flex space-x-3">
+          <div className="flex flex-wrap justify-end gap-3">
             <Button
               type="button"
               variant="outline"

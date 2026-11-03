@@ -361,7 +361,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         />
       )}
 
-      <div className="flex justify-end space-x-3 pt-4 border-t">
+      <div className="gd-modal-footer flex flex-wrap justify-end gap-3">
         <Button
           type="button"
           variant="outline"

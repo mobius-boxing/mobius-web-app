@@ -78,6 +78,8 @@ const Modal: React.FC<ModalProps> = ({
 
   if (!isOpen) return null;
 
+  const hasHeader = Boolean(title || showCloseButton);
+
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-lg',
@@ -92,7 +94,7 @@ const Modal: React.FC<ModalProps> = ({
   // table's wheel handler would scroll the grid sideways under the modal.
   return createPortal(
     <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex min-h-full items-center justify-center p-4 text-center">
+      <div className="flex min-h-full items-center justify-center p-2 sm:p-4 text-center">
         <div
           className="gd-modal-overlay fixed inset-0 transition-opacity"
           aria-hidden="true"
@@ -100,12 +102,12 @@ const Modal: React.FC<ModalProps> = ({
         />
 
         <div
-          className={`relative w-full ${sizeClasses[size]} text-left bg-white rounded-lg shadow-xl border border-secondary-200 p-6 animate-scale-in`}
+          className={`gd-modal-frame relative flex flex-col w-full ${sizeClasses[size]} text-left bg-white rounded-lg shadow-xl border border-secondary-200 animate-scale-in`}
         >
-          {(title || showCloseButton) && (
-            <div className="flex items-start justify-between mb-5">
+          {hasHeader && (
+            <div className="flex shrink-0 items-start justify-between gap-3 px-4 pt-4 pb-4 sm:px-6 sm:pt-6 sm:pb-5">
               {title && (
-                <h3 className="gd-modal-title">
+                <h3 className="gd-modal-title min-w-0 break-words">
                   {title}
                 </h3>
               )}
@@ -123,7 +125,13 @@ const Modal: React.FC<ModalProps> = ({
             </div>
           )}
 
-          <div>{children}</div>
+          <div className="gd-modal-body">
+            <div
+              className={`gd-modal-content${hasHeader ? '' : ' gd-modal-content--untitled'}`}
+            >
+              {children}
+            </div>
+          </div>
         </div>
       </div>
     </div>,

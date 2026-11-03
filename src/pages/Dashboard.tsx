@@ -30,7 +30,7 @@ const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <Card className="p-5">
+    <Card className="min-w-0 p-5">
       <div className="flex items-start justify-between gap-3">
         <p className="text-xs font-semibold uppercase tracking-wider text-secondary-500">
           {title}
@@ -120,7 +120,7 @@ const Dashboard: React.FC = () => {
       <Layout>
         <div className="animate-pulse space-y-6">
           <div className="h-8 bg-secondary-200 rounded w-1/3"></div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
             {[...Array(4)].map((_, i) => (
               <div key={i} className="h-32 bg-secondary-200 rounded"></div>
             ))}
@@ -175,7 +175,7 @@ const Dashboard: React.FC = () => {
 
         {user?.role !== 'superAdmin' && canReadUsers && userStats && invitationStats && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
               <StatCard
                 title={t('dashboard.stats.totalUsers')}
                 value={userStats.totalUsers}
@@ -219,7 +219,7 @@ const Dashboard: React.FC = () => {
 
         {user?.role === 'superAdmin' && userStats && companyStats && invitationStats && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
               <StatCard
                 title={t('dashboard.stats.totalCompanies')}
                 value={companyStats.totalCompanies}
