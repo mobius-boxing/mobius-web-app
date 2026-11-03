@@ -1234,7 +1234,9 @@
       "selectCell": "Detalles de Stock",
       "unassigned": "Sin Asignar",
       "clickToView": "Haga clic en una celda para ver stock",
-      "stockCount": "Cantidad de Items"
+      "stockCount": "Cantidad de Items",
+      "consumableStock": "Stock de Consumibles",
+      "toolingStock": "Stock de Herramientas"
     },
     "locationSelector": {
       "title": "Seleccionar Ubicación - {{name}}",

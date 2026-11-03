@@ -1021,6 +1021,8 @@ export interface LocationStock {
   locationType: string;
   paperStock: PaperStock[];
   sheetStock: SheetStock[];
+  consumableStock: ConsumableStock[];
+  toolingStock: ToolingStock[];
   totalItems: number;
 }
 
@@ -1029,8 +1031,12 @@ export interface WarehouseStockResponse {
   locations: LocationStock[];
   unassignedPaperStock: PaperStock[];
   unassignedSheetStock: SheetStock[];
+  unassignedConsumableStock: ConsumableStock[];
+  unassignedToolingStock: ToolingStock[];
   totalPaperStock: number;
   totalSheetStock: number;
+  totalConsumableStock: number;
+  totalToolingStock: number;
 }
 
 export interface ToolingType {

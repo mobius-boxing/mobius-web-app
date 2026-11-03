@@ -1234,7 +1234,9 @@
       "selectCell": "Stock Details",
       "unassigned": "Unassigned",
       "clickToView": "Click a cell to view stock",
-      "stockCount": "Item Count"
+      "stockCount": "Item Count",
+      "consumableStock": "Consumable Stock",
+      "toolingStock": "Tooling Stock"
     },
     "locationSelector": {
       "title": "Select Location - {{name}}",

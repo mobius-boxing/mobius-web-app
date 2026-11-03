@@ -1,12 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { Warehouse, WarehouseLocation, LocationStock, PaperStock, SheetStock } from '../../types';
+import {
+  Warehouse,
+  WarehouseLocation,
+  LocationStock,
+  PaperStock,
+  SheetStock,
+  ConsumableStock,
+  ToolingStock,
+} from '../../types';
 import { warehousesApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import { Skeleton } from '../ui/Skeleton';
-import { Package, Truck, AlertCircle, Archive, Box, ExternalLink, FileText, Layers } from 'lucide-react';
+import {
+  Package,
+  Truck,
+  AlertCircle,
+  Archive,
+  Box,
+  ExternalLink,
+  FileText,
+  Layers,
+  Droplet,
+  Wrench,
+} from 'lucide-react';
 import { logger } from '../../utils/logger';
 
 interface WarehouseStockViewModalProps {
@@ -18,6 +37,35 @@ interface WarehouseStockViewModalProps {
 }
 
 type LocationTypeOption = 'storage' | 'receiving' | 'shipping' | 'quarantine' | 'wip';
+
+// The four physical stock types a cell can hold. Catalogue entities (supplies,
+// definitions) are not stock on hand, so they never appear here.
+interface StockGroups {
+  paperStock: PaperStock[];
+  sheetStock: SheetStock[];
+  consumableStock: ConsumableStock[];
+  toolingStock: ToolingStock[];
+}
+
+const EMPTY_GROUPS: StockGroups = {
+  paperStock: [],
+  sheetStock: [],
+  consumableStock: [],
+  toolingStock: [],
+};
+
+const groupsOf = (source: Partial<StockGroups>): StockGroups => ({
+  paperStock: source.paperStock || [],
+  sheetStock: source.sheetStock || [],
+  consumableStock: source.consumableStock || [],
+  toolingStock: source.toolingStock || [],
+});
+
+const groupCount = (groups: StockGroups): number =>
+  groups.paperStock.length +
+  groups.sheetStock.length +
+  groups.consumableStock.length +
+  groups.toolingStock.length;
 
 const LOCATION_TYPE_ICONS = {
   storage: Package,
@@ -49,8 +97,7 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
   const [locations, setLocations] = useState<WarehouseLocation[]>([]);
   const [stockByLocation, setStockByLocation] = useState<Map<string, LocationStock>>(new Map());
   const [selectedCell, setSelectedCell] = useState<LocationStock | null>(null);
-  const [unassignedPaperStock, setUnassignedPaperStock] = useState<PaperStock[]>([]);
-  const [unassignedSheetStock, setUnassignedSheetStock] = useState<SheetStock[]>([]);
+  const [unassigned, setUnassigned] = useState<StockGroups>(EMPTY_GROUPS);
   const [showUnassigned, setShowUnassigned] = useState(false);
 
   useEffect(() => {
@@ -82,8 +129,14 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
         stockMap.set(key, loc);
       });
       setStockByLocation(stockMap);
-      setUnassignedPaperStock(stockData.unassignedPaperStock || []);
-      setUnassignedSheetStock(stockData.unassignedSheetStock || []);
+      setUnassigned(
+        groupsOf({
+          paperStock: stockData.unassignedPaperStock,
+          sheetStock: stockData.unassignedSheetStock,
+          consumableStock: stockData.unassignedConsumableStock,
+          toolingStock: stockData.unassignedToolingStock,
+        }),
+      );
     } catch (err: any) {
       logger.error('Error fetching warehouse data:', err);
       setError(err.response?.data?.message || t('warehouses.stockView.fetchError'));
@@ -111,14 +164,15 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
     }
   };
 
-  const handleNavigateToStock = (type: 'paper' | 'sheet', uuid: string) => {
+  const handleNavigateToStock = (
+    type: 'paper' | 'sheet' | 'consumable' | 'tooling',
+    uuid: string,
+  ) => {
     onClose();
-    if (type === 'paper') {
-      navigate(`/paper-stock?edit=${uuid}`);
-    } else {
-      navigate(`/sheet-stock?edit=${uuid}`);
-    }
+    navigate(`/${type}-stock?edit=${uuid}`);
   };
+
+  const unassignedCount = groupCount(unassigned);
 
   const renderGrid = () => {
     if (!warehouse) return null;
@@ -178,8 +232,8 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
     return <div className="grid gap-0">{gridArray}</div>;
   };
 
-  const renderStockList = (paperStock: PaperStock[], sheetStock: SheetStock[], title: string) => {
-    if (paperStock.length === 0 && sheetStock.length === 0) {
+  const renderStockList = (groups: StockGroups) => {
+    if (groupCount(groups) === 0) {
       return (
         <p className="text-sm text-gray-500 text-center py-4">
           {t('warehouses.stockView.noStock')}
@@ -189,7 +243,7 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
 
     return (
       <div className="space-y-2 max-h-64 overflow-y-auto">
-        {paperStock.map(stock => (
+        {groups.paperStock.map(stock => (
           <div
             key={stock.uuid}
             className="flex items-center justify-between p-2 bg-blue-50 rounded-lg border border-blue-100 hover:bg-blue-100 cursor-pointer transition-colors"
@@ -211,7 +265,7 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
           </div>
         ))}
 
-        {sheetStock.map(stock => (
+        {groups.sheetStock.map(stock => (
           <div
             key={stock.uuid}
             className="flex items-center justify-between p-2 bg-green-50 rounded-lg border border-green-100 hover:bg-green-100 cursor-pointer transition-colors"
@@ -222,6 +276,48 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
               <div>
                 <p className="text-sm font-medium text-gray-900">
                   {stock.paperSheet?.name || stock.paperSheet?.code || t('warehouses.stockView.sheetStock')}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {t('warehouses.stockView.quantity')}: {stock.quantity}
+                </p>
+              </div>
+            </div>
+            <ExternalLink className="w-4 h-4 text-gray-400" />
+          </div>
+        ))}
+
+        {groups.consumableStock.map(stock => (
+          <div
+            key={stock.uuid}
+            className="flex items-center justify-between p-2 bg-amber-50 rounded-lg border border-amber-100 hover:bg-amber-100 cursor-pointer transition-colors"
+            onClick={() => handleNavigateToStock('consumable', stock.uuid)}
+          >
+            <div className="flex items-center gap-2">
+              <Droplet className="w-4 h-4 text-amber-600" />
+              <div>
+                <p className="text-sm font-medium text-gray-900">
+                  {stock.consumableSupply?.name || stock.consumableSupply?.code || t('warehouses.stockView.consumableStock')}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {t('warehouses.stockView.quantity')}: {stock.quantity}
+                </p>
+              </div>
+            </div>
+            <ExternalLink className="w-4 h-4 text-gray-400" />
+          </div>
+        ))}
+
+        {groups.toolingStock.map(stock => (
+          <div
+            key={stock.uuid}
+            className="flex items-center justify-between p-2 bg-purple-50 rounded-lg border border-purple-100 hover:bg-purple-100 cursor-pointer transition-colors"
+            onClick={() => handleNavigateToStock('tooling', stock.uuid)}
+          >
+            <div className="flex items-center gap-2">
+              <Wrench className="w-4 h-4 text-purple-600" />
+              <div>
+                <p className="text-sm font-medium text-gray-900">
+                  {stock.tooling?.name || stock.tooling?.code || t('warehouses.stockView.toolingStock')}
                 </p>
                 <p className="text-xs text-gray-500">
                   {t('warehouses.stockView.quantity')}: {stock.quantity}
@@ -278,7 +374,7 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
                   ? t('warehouses.stockView.unassignedStock')
                   : t('warehouses.stockView.selectCell')}
               </h3>
-              {(unassignedPaperStock.length > 0 || unassignedSheetStock.length > 0) && (
+              {unassignedCount > 0 && (
                 <button
                   onClick={() => {
                     setShowUnassigned(!showUnassigned);
@@ -290,15 +386,15 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
                       : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                   }`}
                 >
-                  {t('warehouses.stockView.unassigned')} ({unassignedPaperStock.length + unassignedSheetStock.length})
+                  {t('warehouses.stockView.unassigned')} ({unassignedCount})
                 </button>
               )}
             </div>
 
             {selectedCell ? (
-              renderStockList(selectedCell.paperStock, selectedCell.sheetStock, selectedCell.locationCode)
+              renderStockList(groupsOf(selectedCell))
             ) : showUnassigned ? (
-              renderStockList(unassignedPaperStock, unassignedSheetStock, t('warehouses.stockView.unassigned'))
+              renderStockList(unassigned)
             ) : (
               <p className="text-sm text-gray-500 text-center py-8">
                 {t('warehouses.stockView.clickToView')}
@@ -308,7 +404,7 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
         </div>
 
         <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 text-xs">
             <div className="flex items-center gap-2">
               <FileText className="w-4 h-4 text-blue-600" />
               <span>{t('warehouses.stockView.paperStock')}</span>
@@ -318,14 +414,18 @@ const WarehouseStockViewModal: React.FC<WarehouseStockViewModalProps> = ({
               <span>{t('warehouses.stockView.sheetStock')}</span>
             </div>
             <div className="flex items-center gap-2">
+              <Droplet className="w-4 h-4 text-amber-600" />
+              <span>{t('warehouses.stockView.consumableStock')}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Wrench className="w-4 h-4 text-purple-600" />
+              <span>{t('warehouses.stockView.toolingStock')}</span>
+            </div>
+            <div className="flex items-center gap-2">
               <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center">
                 <span className="text-[8px] text-white font-bold">3</span>
               </div>
               <span>{t('warehouses.stockView.stockCount')}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded border border-gray-300 bg-gray-100"></div>
-              <span>{t('warehouses.grid.inactive')}</span>
             </div>
           </div>
         </div>
