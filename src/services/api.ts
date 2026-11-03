@@ -571,6 +571,8 @@ export const customersApi = {
     salesPersonId?: string;
     search?: string;
     companyId?: string;
+    sortBy?: 'name' | 'createdAt' | 'updatedAt' | 'supplierCode';
+    sortOrder?: 'asc' | 'desc';
   } = {}): Promise<PaginatedResponse<Customer>> => {
     const response = await api.get('/api/customer', { params });
     const backendData = response.data;
@@ -928,6 +930,8 @@ export const productsApi = {
     // filter was deleted API-side (it parseInt'ed a UUID into NaN).
     customerUuid?: string;
     companyId?: string;
+    sortBy?: 'code' | 'clientCode' | 'createdAt' | 'updatedAt';
+    sortOrder?: 'asc' | 'desc';
   } = {}): Promise<PaginatedResponse<Product>> => {
     const response = await api.get('/api/product', { params });
     const backendData = response.data;

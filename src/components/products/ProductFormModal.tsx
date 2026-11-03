@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Modal from '../ui/Modal';
 import Tabs, { TabItem } from '../ui/Tabs';
@@ -9,7 +9,6 @@ import { productSchema } from '../../validation/schemas/product';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import {
   productsApi,
-  customersApi,
   corrugationsApi,
   productionRoutesApi,
   palletizationsApi,
@@ -23,7 +22,6 @@ import {
 import {
   Product,
   CreateProductForm,
-  Customer,
   Corrugation,
   ProductionRoute,
   Model,
@@ -36,6 +34,8 @@ import {
   ProductApprovalStatus,
 } from '../../types';
 import { logger } from '../../utils/logger';
+import { entityLoaders } from '../../filters/entityLoaders';
+import { FilterOption } from '../ui/filters';
 import ProductGeneralTab, { FileUuids } from './ProductGeneralTab';
 import ProductProductionTab from './ProductProductionTab';
 import ProductRouteTab from './ProductRouteTab';
@@ -47,7 +47,6 @@ interface Options {
 }
 
 export interface ProductFormOptions {
-  customers: Options[];
   corrugations: Options[];
   models: Options[];
   flapTypes: Options[];
@@ -215,7 +214,6 @@ const FIELD_TAB: Partial<Record<keyof CreateProductForm, TabKey>> = {
 };
 
 const EMPTY_OPTIONS: ProductFormOptions = {
-  customers: [],
   corrugations: [],
   models: [],
   flapTypes: [],
@@ -393,6 +391,11 @@ const approvalBadge = (
 const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, product }) => {
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
+  const [customerOption, setCustomerOption] = useState<FilterOption>();
+  const loadCustomerOptions = useMemo(
+    () => entityLoaders.customer(effectiveCompanyId ?? undefined),
+    [effectiveCompanyId],
+  );
   const isEdit = mode === 'edit';
 
   const [activeTab, setActiveTab] = useState<TabKey>('general');
@@ -441,6 +444,11 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
     setEffectiveGrammage(product?.effectiveGrammage ?? null);
     const initial = product ? productToForm(product) : EMPTY_FORM;
     reset(initial);
+    setCustomerOption(
+      product?.customer
+        ? { value: product.customer.uuid, label: product.customer.name ?? product.customer.uuid }
+        : undefined,
+    );
     calcBaselineRef.current = Object.fromEntries(
       CALC_FIELDS.map((key) => [key, toCalcNumber(initial[key])]),
     );
@@ -461,9 +469,8 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
     const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
     (async () => {
       try {
-        const [customers, corrugations, models, flapTypes, glueTypes, strappingTypes, traceTypes, complements, palletizations, globalRoutes] =
+        const [corrugations, models, flapTypes, glueTypes, strappingTypes, traceTypes, complements, palletizations, globalRoutes] =
           await Promise.all([
-            customersApi.getCustomers({ limit: 100, ...companyFilter }),
             corrugationsApi.getCorrugations({ limit: 100, ...companyFilter }),
             modelsApi.getModels({ limit: 100, ...companyFilter }),
             flapTypesApi.getFlapTypes({ limit: 100, ...companyFilter }),
@@ -475,7 +482,6 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
             productionRoutesApi.getRoutes({ limit: 100, isGlobal: 'true', ...companyFilter }),
           ]);
         setOptions({
-          customers: optionsOf<Customer>(customers.data, (c) => c.name),
           corrugations: optionsOf<Corrugation>(corrugations.data, (c) => c.code),
           models: optionsOf<Model>(models.data, (m) => [m.code, m.description].filter(Boolean).join(' - ')),
           flapTypes: optionsOf<FlapType>(flapTypes.data, (f) => f.code),
@@ -634,7 +640,12 @@ const ProductFormModal: React.FC<Props> = ({ mode, isOpen, onClose, onSuccess, p
         <ProductGeneralTab
           register={register}
           errors={errors}
-          options={options}
+          customer={customerOption}
+          loadCustomerOptions={loadCustomerOptions}
+          onCustomerChange={(next) => {
+            setCustomerOption(next);
+            setValue('customerId', next?.value ?? '', { shouldDirty: true, shouldValidate: true });
+          }}
           fileUuids={fileUuids}
           onFileUuidsChange={setFileUuids}
           isEdit={isEdit}

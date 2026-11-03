@@ -8,6 +8,7 @@ import { SalesOrderListFilters } from '../../types';
 import { customersApi, paperSheetsApi, productsApi } from '../../services/api';
 import { logger } from '../../utils/logger';
 import { columnFilterDefs } from '../../filters/columnFilters';
+import { CUSTOMER_LOOKUP_ORDER, PRODUCT_LOOKUP_ORDER } from '../../filters/entityLoaders';
 
 /**
  * Registry-generated keys the primary row above already controls (D-13
@@ -138,7 +139,7 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
   const loadCustomerOptions = useCallback(
     (term: string) =>
       customersApi
-        .getCustomers({ search: term, limit: 20, ...companyScope() })
+        .getCustomers({ search: term, limit: 20, ...CUSTOMER_LOOKUP_ORDER, ...companyScope() })
         .then((page) =>
           page.data.map((customer) => ({
             value: customer.uuid,
@@ -160,7 +161,13 @@ const SalesOrdersFilterBar: React.FC<Props> = ({
   const loadProductOptions = useCallback(
     (term: string) => {
       return productsApi
-        .getProducts({ search: term, limit: 20, ...customerScope(), ...companyScope() })
+        .getProducts({
+          search: term,
+          limit: 20,
+          ...PRODUCT_LOOKUP_ORDER,
+          ...customerScope(),
+          ...companyScope(),
+        })
         .then((page) =>
           page.data.map((product) => ({
             value: product.uuid,

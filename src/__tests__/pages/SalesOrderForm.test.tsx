@@ -136,20 +136,18 @@ const optionValues = (testId: string) =>
 
 const productOptionValues = () => optionValues('product-select');
 
-/**
- * Pick a cliente only once its <option> exists — jsdom (like a browser)
- * silently ignores a select value with no matching option, which is the same
- * dropdown race the form itself guards against.
- */
+const CUSTOMER_LABELS: Record<string, string> = {
+  [CUSTOMER_A]: 'Cliente A',
+  [CUSTOMER_B]: 'Cliente B',
+};
+
+/** The cliente is a search-as-you-type combobox: open it, then pick the option. */
 const selectCustomer = async (uuid: string) => {
-  await waitFor(() => expect(optionValues('customer-select')).toContain(uuid));
-  fireEvent.change(screen.getByTestId('customer-select'), {
-    target: { value: uuid },
-  });
+  const label = CUSTOMER_LABELS[uuid];
+  fireEvent.focus(screen.getByTestId('customer-select'));
+  fireEvent.mouseDown(await screen.findByRole('option', { name: label }));
   await waitFor(() =>
-    expect((screen.getByTestId('customer-select') as HTMLSelectElement).value).toBe(
-      uuid,
-    ),
+    expect((screen.getByTestId('customer-select') as HTMLInputElement).value).toBe(label),
   );
 };
 
@@ -516,8 +514,8 @@ describe('SalesOrderForm edit mode (AC-23)', () => {
     render(<SalesOrderForm />);
 
     await waitFor(() =>
-      expect((screen.getByTestId('customer-select') as HTMLSelectElement).value).toBe(
-        CUSTOMER_A,
+      expect((screen.getByTestId('customer-select') as HTMLInputElement).value).toBe(
+        CUSTOMER_LABELS[CUSTOMER_A],
       ),
     );
     expect(screen.getByTestId('customer-select')).toBeDisabled();

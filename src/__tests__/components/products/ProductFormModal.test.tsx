@@ -89,11 +89,20 @@ beforeEach(() => {
   mockCreateProduct.mockResolvedValue({ uuid: 'prod-1' });
 });
 
+/** The cliente is a search-as-you-type combobox: open it, then pick the option. */
+const pickCustomer = async (label: string) => {
+  fireEvent.focus(screen.getByTestId('product-customer'));
+  fireEvent.mouseDown(await screen.findByRole('option', { name: label }));
+  await waitFor(() =>
+    expect((screen.getByTestId('product-customer') as HTMLInputElement).value).toBe(label),
+  );
+};
+
 const renderModal = async (props: Partial<React.ComponentProps<typeof ProductFormModal>> = {}) => {
   const utils = render(
     <ProductFormModal mode="create" isOpen onClose={jest.fn()} onSuccess={jest.fn()} product={null} {...props} />,
   );
-  await waitFor(() => expect(mockGetCustomers).toHaveBeenCalled());
+  await waitFor(() => expect(mockGetCorrugations).toHaveBeenCalled());
   await screen.findByRole('tablist');
   // Modal renders through a portal into <body>, so `container` (the render
   // root) never holds the form; hand callers the body instead.
@@ -124,7 +133,7 @@ describe('ProductFormModal save (AC-14)', () => {
     const { container } = await renderModal({ onSuccess });
 
     fireEvent.change(container.querySelector('[name="code"]')!, { target: { value: 'CAJA-01' } });
-    fireEvent.change(container.querySelector('[name="customerId"]')!, { target: { value: 'cust-1' } });
+    await pickCustomer('Cliente Uno');
 
     await switchTab('production');
     await waitFor(() =>
@@ -458,7 +467,7 @@ describe('ProductFormModal fefco-sheet-calculation triggers (AC-6)', () => {
 
     await switchTab('general');
     fireEvent.change(container.querySelector('[name="code"]')!, { target: { value: 'CAJA-02' } });
-    fireEvent.change(container.querySelector('[name="customerId"]')!, { target: { value: 'cust-1' } });
+    await pickCustomer('Cliente Uno');
     fireEvent.click(screen.getByText('products.saveButton'));
 
     await waitFor(() => expect(mockCreateProduct).toHaveBeenCalledTimes(1));
@@ -477,7 +486,7 @@ describe('ProductFormModal validation jumps to the offending tab (AC-14)', () =>
     const { container } = await renderModal();
 
     fireEvent.change(container.querySelector('[name="code"]')!, { target: { value: 'CAJA-01' } });
-    fireEvent.change(container.querySelector('[name="customerId"]')!, { target: { value: 'cust-1' } });
+    await pickCustomer('Cliente Uno');
 
     fireEvent.click(screen.getByText('products.saveButton'));
 

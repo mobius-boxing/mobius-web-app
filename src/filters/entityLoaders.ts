@@ -63,6 +63,14 @@ export type EntityKind =
   | 'salesOrder';
 
 type Loader = (search: string) => Promise<FilterOption[]>;
+
+/**
+ * Lookups must not rely on the API's default `createdAt desc`: an imported
+ * company inserts every row in one transaction, so they all share one
+ * timestamp and that order is arbitrary.
+ */
+export const CUSTOMER_LOOKUP_ORDER = { sortBy: 'name', sortOrder: 'asc' } as const;
+export const PRODUCT_LOOKUP_ORDER = { sortBy: 'code', sortOrder: 'asc' } as const;
 type NamedEntity = { uuid: string; code?: string | null; name?: string | null; description?: string | null };
 
 const entityLabel = ({ code, name, description }: NamedEntity): string =>
@@ -84,7 +92,7 @@ const userLabel = (user: { firstName?: string; lastName?: string; email: string 
 const IMPLEMENTED_LOADERS: Partial<Record<EntityKind, (companyId?: string) => Loader>> = {
   customer: (companyId) => (search) =>
     customersApi
-      .getCustomers({ search, limit: 20, ...(companyId ? { companyId } : {}) })
+      .getCustomers({ search, limit: 20, ...CUSTOMER_LOOKUP_ORDER, ...(companyId ? { companyId } : {}) })
       .then((page) => page.data.map((customer) => ({ value: customer.uuid, label: customer.name }))),
 
   productType: (companyId) => (search) =>
@@ -119,7 +127,7 @@ const IMPLEMENTED_LOADERS: Partial<Record<EntityKind, (companyId?: string) => Lo
 
   product: (companyId) => (search) =>
     productsApi
-      .getProducts({ search, limit: 20, ...(companyId ? { companyId } : {}) })
+      .getProducts({ search, limit: 20, ...PRODUCT_LOOKUP_ORDER, ...(companyId ? { companyId } : {}) })
       .then((page) =>
         page.data.map((product) => ({
           value: product.uuid,

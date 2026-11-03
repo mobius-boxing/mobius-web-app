@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -6,7 +6,6 @@ import { salesOrderSchema } from '../validation/schemas/salesOrder';
 import { useTranslation } from 'react-i18next';
 import { ArrowLeft } from 'lucide-react';
 import {
-  Customer,
   DeliveryLocationRecord,
   Product,
   SalesOrder,
@@ -14,7 +13,6 @@ import {
   User,
 } from '../types';
 import {
-  customersApi,
   deliveryLocationsApi,
   productsApi,
   salesOrdersApi,
@@ -32,6 +30,8 @@ import Input from '../components/ui/Input';
 import { ErrorMessage } from '../components/ui/ErrorMessage';
 import { logger } from '../utils/logger';
 import { formatMoney } from '../utils/money';
+import { entityLoaders } from '../filters/entityLoaders';
+import { EntityAutocomplete, FilterOption } from '../components/ui/filters';
 
 const DROPDOWN_LIMIT = 100;
 
@@ -119,7 +119,7 @@ const SalesOrderForm: React.FC = () => {
   const canViewSalesSector = has('orders.view-sales-sector');
 
   const [order, setOrder] = useState<SalesOrder | null>(null);
-  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [customerOption, setCustomerOption] = useState<FilterOption>();
   const [users, setUsers] = useState<User[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [deliveryLocations, setDeliveryLocations] = useState<DeliveryLocationRecord[]>([]);
@@ -204,17 +204,18 @@ const SalesOrderForm: React.FC = () => {
     [companyParams],
   );
 
-  // Company-wide dropdowns (cliente + vendedor).
+  const loadCustomerOptions = useMemo(
+    () => entityLoaders.customer(effectiveCompanyId ?? undefined),
+    [effectiveCompanyId],
+  );
+
+  // Company-wide dropdowns (vendedor; the cliente is searched as you type).
   useEffect(() => {
     let cancelled = false;
     const load = async () => {
       try {
-        const [customerPage, userPage] = await Promise.all([
-          customersApi.getCustomers({ ...companyParams(), limit: DROPDOWN_LIMIT }),
-          usersApi.getUsers({ ...companyParams(), limit: DROPDOWN_LIMIT }),
-        ]);
+        const userPage = await usersApi.getUsers({ ...companyParams(), limit: DROPDOWN_LIMIT });
         if (cancelled) return;
-        setCustomers(customerPage.data || []);
         setUsers(userPage.data || []);
       } catch (err: any) {
         logger.error('Error loading sales order dropdowns:', err);
@@ -238,6 +239,11 @@ const SalesOrderForm: React.FC = () => {
         if (cancelled) return;
         setOrder(loaded);
         const customer = loaded.customer?.uuid ?? '';
+        setCustomerOption(
+          loaded.customer
+            ? { value: loaded.customer.uuid, label: loaded.customer.name ?? loaded.customer.uuid }
+            : undefined,
+        );
         await loadCustomerScopedLists(customer);
         if (cancelled) return;
         reset({
@@ -510,20 +516,22 @@ const SalesOrderForm: React.FC = () => {
                   {t('salesOrders.fields.customer')}
                   <span className="text-red-500 ml-1">*</span>
                 </label>
-                <select
+                <input type="hidden" {...register('customerUuid')} />
+                <EntityAutocomplete
                   id="customerUuid"
-                  className={selectClass}
                   data-testid="customer-select"
                   disabled={isEdit || loading}
-                  {...register('customerUuid')}
-                >
-                  <option value="">{t('salesOrders.placeholders.customer')}</option>
-                  {customers.map((customer) => (
-                    <option key={customer.uuid} value={customer.uuid}>
-                      {customer.name}
-                    </option>
-                  ))}
-                </select>
+                  value={customerOption}
+                  onChange={(next) => {
+                    setCustomerOption(next);
+                    setValue('customerUuid', next?.value ?? '', {
+                      shouldDirty: true,
+                      shouldValidate: true,
+                    });
+                  }}
+                  loadOptions={loadCustomerOptions}
+                  placeholder={t('salesOrders.placeholders.customer')}
+                />
                 {errors.customerUuid && (
                   <p className="mt-1.5 text-sm text-red-600">{errors.customerUuid.message}</p>
                 )}

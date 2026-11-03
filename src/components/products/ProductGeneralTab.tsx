@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next';
 import { FieldErrors, UseFormRegister } from 'react-hook-form';
 import Input from '../ui/Input';
 import FileRefUploader from '../ui/FileRefUploader';
+import { EntityAutocomplete, FilterOption } from '../ui/filters';
 import ProductApprovalWidget from '../forms/ProductApprovalWidget';
 import { CreateProductForm, Product } from '../../types';
-import { ProductFormOptions } from './ProductFormModal';
 
 export interface FileUuids {
   technicalSheetFileUuid: string | null;
@@ -17,7 +17,9 @@ export interface FileUuids {
 interface Props {
   register: UseFormRegister<CreateProductForm>;
   errors: FieldErrors<CreateProductForm>;
-  options: ProductFormOptions;
+  customer: FilterOption | undefined;
+  loadCustomerOptions: (search: string) => Promise<FilterOption[]>;
+  onCustomerChange: (next: FilterOption | undefined) => void;
   fileUuids: FileUuids;
   onFileUuidsChange: (next: FileUuids) => void;
   isEdit: boolean;
@@ -28,7 +30,9 @@ interface Props {
 const ProductGeneralTab: React.FC<Props> = ({
   register,
   errors,
-  options,
+  customer,
+  loadCustomerOptions,
+  onCustomerChange,
   fileUuids,
   onFileUuidsChange,
   isEdit,
@@ -57,17 +61,18 @@ const ProductGeneralTab: React.FC<Props> = ({
           error={errors.clientCode?.message}
         />
         <div>
-          <label className="gd-label">
+          <label className="gd-label" htmlFor="product-customer">
             {t('products.customer')} *
           </label>
-          <select className="input-field w-full" {...register('customerId')}>
-            <option value="">{t('products.selectCustomer')}</option>
-            {options.customers.map((customer) => (
-              <option key={customer.uuid} value={customer.uuid}>
-                {customer.label}
-              </option>
-            ))}
-          </select>
+          <input type="hidden" {...register('customerId')} />
+          <EntityAutocomplete
+            id="product-customer"
+            data-testid="product-customer"
+            value={customer}
+            onChange={onCustomerChange}
+            loadOptions={loadCustomerOptions}
+            placeholder={t('products.selectCustomer')}
+          />
           {errors.customerId && (
             <p className="mt-1.5 text-sm text-red-600">{errors.customerId.message}</p>
           )}
