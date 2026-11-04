@@ -561,7 +561,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
       <div className="flex items-center justify-between h-16 px-3 border-b border-secondary-200">
         {!collapsed && (
           <div className="flex items-center gap-2.5 pl-1">
-            <img src={mobiusMark} alt="" className="h-8 w-8" />
+            <img src={mobiusMark} alt="" className="h-8 w-8 rounded-lg bg-white p-1" />
             <span className="text-lg font-bold tracking-tight text-secondary-900">
               Mobius
             </span>
