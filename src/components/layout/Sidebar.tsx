@@ -38,6 +38,7 @@ import LanguageSwitcher from '../ui/LanguageSwitcher';
 import CompanySwitcher from '../ui/CompanySwitcher';
 import { logger } from '../../utils/logger';
 import { cn } from '../../utils/cn';
+import mobiusMark from '../../assets/mobius-mark.png';
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
 
@@ -560,9 +561,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
       <div className="flex items-center justify-between h-16 px-3 border-b border-secondary-200">
         {!collapsed && (
           <div className="flex items-center gap-2.5 pl-1">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-white text-sm font-bold shadow-sm">
-              M
-            </div>
+            <img src={mobiusMark} alt="" className="h-8 w-8" />
             <span className="text-lg font-bold tracking-tight text-secondary-900">
               Mobius
             </span>
