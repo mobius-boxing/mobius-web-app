@@ -1,6 +1,7 @@
 import React from 'react';
 import { Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import mobiusMark from '../../assets/mobius-mark.svg';
 
 export interface TopBarProps {
   onOpenMenu: () => void;
@@ -24,9 +25,7 @@ const TopBar: React.FC<TopBarProps> = ({ onOpenMenu, menuButtonRef }) => {
         <Menu className="h-5 w-5" />
       </button>
       <div className="flex items-center gap-2.5">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-600 text-sm font-bold text-white shadow-sm">
-          M
-        </div>
+        <img src={mobiusMark} alt="" className="h-8 w-8" />
         <span className="text-lg font-bold tracking-tight text-secondary-900">
           Mobius
         </span>

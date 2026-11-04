@@ -8,6 +8,7 @@ import { logger } from '../utils/logger';
 import { setToken, setDeviceToken } from '../utils/session';
 import { Skeleton } from '../components/ui/Skeleton';
 import { PASSWORD_MIN_LENGTH } from '../validation/fields';
+import mobiusMark from '../assets/mobius-mark.svg';
 
 const AcceptInvitation: React.FC = () => {
   const { t } = useTranslation();
@@ -172,9 +173,7 @@ const AcceptInvitation: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-canvas py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white text-lg font-bold shadow-sm">
-            M
-          </div>
+          <img src={mobiusMark} alt="" className="h-10 w-10" />
           <h2 className="mt-6 text-2xl font-bold tracking-tight text-secondary-900">
             {t('invitation.title')}
           </h2>
