@@ -236,18 +236,15 @@ body::after {
 }
 
 .gd-sb-mark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.125rem;
-  height: 2.125rem;
+  display: block;
+  width: 2rem;
+  height: 2rem;
   flex: none;
-  border-radius: 0.625rem;
-  background: oklch(var(--p-500));
-  color: oklch(var(--n-950));
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 0.9375rem;
+  padding: 0.25rem;
+  border-radius: 0.5rem;
+  /* The logo's navy blades vanish on the dark rail without a light tile. A
+     class rather than bg-white: the rail remaps .bg-white to transparent. */
+  background: oklch(1 0 0);
 }
 
 .gd-sb-wordmark {

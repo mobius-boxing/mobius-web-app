@@ -25,7 +25,7 @@ const TopBar: React.FC<TopBarProps> = ({ onOpenMenu, menuButtonRef }) => {
         <Menu className="h-5 w-5" />
       </button>
       <div className="flex items-center gap-2.5">
-        <img src={mobiusMark} alt="" className="h-8 w-8 rounded-lg bg-white p-1" />
+        <img src={mobiusMark} alt="" className="gd-sb-mark" />
         <span className="text-lg font-bold tracking-tight text-secondary-900">
           Mobius
         </span>
