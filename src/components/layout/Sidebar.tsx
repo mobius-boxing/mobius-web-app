@@ -38,7 +38,7 @@ import LanguageSwitcher from '../ui/LanguageSwitcher';
 import CompanySwitcher from '../ui/CompanySwitcher';
 import { logger } from '../../utils/logger';
 import { cn } from '../../utils/cn';
-import mobiusMark from '../../assets/mobius-mark.png';
+import mobiusMark from '../../assets/mobius-mark.svg';
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
 

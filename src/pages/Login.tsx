@@ -10,7 +10,7 @@ import { LoginCredentials } from '../types';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { logger } from '../utils/logger';
-import mobiusMark from '../assets/mobius-mark.png';
+import mobiusMark from '../assets/mobius-mark.svg';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
