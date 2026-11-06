@@ -32,6 +32,9 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
+import { authApi } from '../../services/api';
+import UserAvatar from '../ui/UserAvatar';
+import AvatarModal from '../profile/AvatarModal';
 import { usePermissions } from '../../hooks/usePermissions';
 import { NavItem } from '../../types';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
@@ -70,7 +73,8 @@ export interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeButtonRef }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, updateUser } = useAuth();
+  const [avatarOpen, setAvatarOpen] = useState(false);
   const { has } = usePermissions();
   const location = useLocation();
   const navRef = useRef<HTMLElement | null>(null);
@@ -594,14 +598,19 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
 
       <div className={`border-b border-secondary-200 ${collapsed ? 'p-2' : 'p-4'}`}>
         <div className={`flex items-center ${collapsed ? 'justify-center' : 'space-x-3'}`}>
-          <div
-            className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0"
-            title={collapsed ? `${user?.firstName} ${user?.lastName}` : undefined}
+          <button
+            type="button"
+            className="gd-sb-avatar-btn"
+            title={t('avatar.changePhoto')}
+            aria-label={t('avatar.changePhoto')}
+            onClick={() => setAvatarOpen(true)}
           >
-            <span className="text-sm font-medium text-primary-600">
-              {user?.firstName?.[0]}{user?.lastName?.[0]}
-            </span>
-          </div>
+            <UserAvatar
+              user={user}
+              className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0"
+              textClassName="text-sm font-medium text-primary-600"
+            />
+          </button>
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-sm font-medium text-secondary-900 truncate">
@@ -686,6 +695,16 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
             </div>
           )}
         </div>
+      )}
+      {user && (
+        <AvatarModal
+          isOpen={avatarOpen}
+          onClose={() => setAvatarOpen(false)}
+          user={user}
+          upload={authApi.uploadAvatar}
+          remove={authApi.removeAvatar}
+          onChanged={(avatarUuid) => updateUser({ ...user, avatarUuid })}
+        />
       )}
     </div>
   );

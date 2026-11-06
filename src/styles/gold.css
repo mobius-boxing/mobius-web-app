@@ -1356,3 +1356,34 @@ body::after {
     animation-duration: 0.01ms !important;
   }
 }
+
+.gd-avatar-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 9999px;
+}
+
+.gd-avatar-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 7rem;
+  height: 7rem;
+  border-radius: 9999px;
+  background: oklch(var(--p-500) / 0.16);
+  color: oklch(var(--p-600));
+}
+
+.gd-sb-avatar-btn {
+  padding: 0;
+  cursor: pointer;
+  border-radius: 9999px;
+  flex: none;
+}
+
+.gd-sb-avatar-btn:focus-visible {
+  outline: 2px solid oklch(var(--p-400));
+  outline-offset: 2px;
+}

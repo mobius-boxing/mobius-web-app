@@ -3323,5 +3323,15 @@
       "alreadyRevoked": "This device was already revoked. The list has been refreshed."
     },
     "selectCompanyPrompt": "Pick a company in the selector to review its devices."
+  },
+  "avatar": {
+    "title": "Profile photo",
+    "changePhoto": "Change profile photo",
+    "changeUserPhoto": "Change photo",
+    "upload": "Upload photo",
+    "remove": "Remove photo",
+    "invalidImage": "The image could not be read. Use a PNG, JPEG or WebP file.",
+    "uploadFailed": "The photo could not be uploaded.",
+    "removeFailed": "The photo could not be removed."
   }
 }

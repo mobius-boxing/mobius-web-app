@@ -9,6 +9,7 @@ export interface User {
   roleName: string | null;
   companyId?: string;
   companyName?: string;
+  avatarUuid?: string | null;
   isActive: boolean;
   emailVerified: boolean;
   createdAt: string;
@@ -54,6 +55,7 @@ export interface AuthUser {
   role: 'member' | 'admin' | 'superAdmin';
   companyId?: string;
   companyName?: string;
+  avatarUuid?: string | null;
   /** Assigned role identity returned by `/api/auth/me`; null for superAdmins and legacy users. */
   roleUuid: string | null;
   /** Assigned role name returned by `/api/auth/me`; null while the API has no role assignment. */

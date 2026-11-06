@@ -3323,5 +3323,15 @@
       "alreadyRevoked": "Este dispositivo ya estaba revocado. Se actualizó la lista."
     },
     "selectCompanyPrompt": "Elige una empresa en el selector para revisar sus dispositivos."
+  },
+  "avatar": {
+    "title": "Foto de perfil",
+    "changePhoto": "Cambiar foto de perfil",
+    "changeUserPhoto": "Cambiar foto",
+    "upload": "Subir foto",
+    "remove": "Quitar foto",
+    "invalidImage": "No se pudo leer la imagen. Usa un archivo PNG, JPEG o WebP.",
+    "uploadFailed": "No se pudo subir la foto.",
+    "removeFailed": "No se pudo quitar la foto."
   }
 }

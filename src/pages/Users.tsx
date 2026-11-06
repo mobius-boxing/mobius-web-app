@@ -1,9 +1,9 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Trash2, ToggleLeft, ToggleRight, Users as UsersIcon } from 'lucide-react';
+import { Plus, Edit, Camera, Trash2, ToggleLeft, ToggleRight, Users as UsersIcon } from 'lucide-react';
 import { User } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { usersApi } from '../services/api';
+import { authApi, usersApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
@@ -20,6 +20,8 @@ import { FilterPromptState } from '../components/ui/filters';
 import InviteCompanyUserModal from '../components/users/InviteCompanyUserModal';
 import EditUserModal from '../components/users/EditUserModal';
 import UserRolePicker from '../components/users/UserRolePicker';
+import UserAvatar from '../components/ui/UserAvatar';
+import AvatarModal from '../components/profile/AvatarModal';
 import { logger } from '../utils/logger';
 
 const errorMessage = (err: unknown, fallback: string): string =>
@@ -27,7 +29,7 @@ const errorMessage = (err: unknown, fallback: string): string =>
 
 const Users: React.FC = () => {
   const { t } = useTranslation();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, updateUser: updateAuthUser } = useAuth();
   const { has } = usePermissions();
   const { isSuperAdmin, effectiveCompanyId, hasCompanySelected } = useEffectiveCompany();
   const canWriteUsers = has('users.edit');
@@ -95,6 +97,7 @@ const Users: React.FC = () => {
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [avatarUser, setAvatarUser] = useState<User | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [statusLoading, setStatusLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -163,11 +166,11 @@ const Users: React.FC = () => {
       render: (_value: unknown, user: User) => (
         <div className="flex items-center">
           <div className="h-10 w-10 flex-shrink-0">
-            <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-              <span className="text-sm font-medium text-primary-600">
-                {user.firstName?.[0]}{user.lastName?.[0]}
-              </span>
-            </div>
+            <UserAvatar
+              user={user}
+              className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center"
+              textClassName="text-sm font-medium text-primary-600"
+            />
           </div>
           <div className="ml-4">
             <div className="text-sm font-medium text-secondary-900">
@@ -213,6 +216,11 @@ const Users: React.FC = () => {
           {canEditUser(user) && (
             <ActionButton label={t('common.edit')} onClick={() => handleEditUser(user)}>
               <Edit className="h-4 w-4" />
+            </ActionButton>
+          )}
+          {canEditUser(user) && (
+            <ActionButton label={t('avatar.changeUserPhoto')} onClick={() => setAvatarUser(user)}>
+              <Camera className="h-4 w-4" />
             </ActionButton>
           )}
           {canToggleActive(user) && (
@@ -325,6 +333,31 @@ const Users: React.FC = () => {
         }}
         companyId={effectiveCompanyId}
       />
+
+      {avatarUser && (
+        <AvatarModal
+          isOpen
+          onClose={() => setAvatarUser(null)}
+          user={avatarUser}
+          upload={(image) =>
+            avatarUser.uuid === currentUser?.uuid
+              ? authApi.uploadAvatar(image)
+              : usersApi.setUserAvatar(avatarUser.uuid, image)
+          }
+          remove={() =>
+            avatarUser.uuid === currentUser?.uuid
+              ? authApi.removeAvatar()
+              : usersApi.removeUserAvatar(avatarUser.uuid)
+          }
+          onChanged={(avatarUuid) => {
+            setAvatarUser({ ...avatarUser, avatarUuid });
+            if (avatarUser.uuid === currentUser?.uuid && currentUser) {
+              updateAuthUser({ ...currentUser, avatarUuid });
+            }
+            refresh();
+          }}
+        />
+      )}
 
       {selectedUser && (
         <EditUserModal
