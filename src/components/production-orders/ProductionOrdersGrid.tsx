@@ -20,7 +20,7 @@ import { usePermissions } from '../../hooks/usePermissions';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
 import { formatBusinessDate } from '../../utils/dates';
 import { logger } from '../../utils/logger';
-import { historyColumn } from '../audit/historyColumn';
+import { withHistory } from '../audit/historyColumn';
 
 interface Props {
   /** When set: the grid embedded on a pedido, scoped to that pedido's orders. */
@@ -172,8 +172,7 @@ const ProductionOrdersGrid: React.FC<Props> = ({
       render: (_: any, o: ProductionOrder) =>
         stateChip(o.completedAt, o.completionCancelledAt),
     },
-    historyColumn('production_orders', t),
-    {
+    withHistory('production_orders', t, {
       key: 'actions',
       header: t('productionOrders.columns.actions'),
       pinned: true,
@@ -188,7 +187,7 @@ const ProductionOrdersGrid: React.FC<Props> = ({
           <Trash2 className="h-4 w-4" />
         </ActionButton>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useProductionOrdersFilterDefs(columns, effectiveCompanyId);

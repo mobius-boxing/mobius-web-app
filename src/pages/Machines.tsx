@@ -17,7 +17,7 @@ import { useConfirmModal } from '../hooks/useConfirmModal';
 import { CreateMachineModal, EditMachineModal } from '../components/modals/MachineModals';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const Machines: React.FC = () => {
   const { t } = useTranslation();
@@ -97,8 +97,7 @@ const Machines: React.FC = () => {
         <span className="text-sm text-secondary-500">{m.setupTime ?? 0}</span>
       ),
     },
-    historyColumn('machines', t),
-    {
+    withHistory('machines', t, {
       key: 'actions',
       header: t('machines.columns.actions'),
       pinned: true,
@@ -129,7 +128,7 @@ const Machines: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

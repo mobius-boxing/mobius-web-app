@@ -17,7 +17,7 @@ import CreateBoxTypeModal from '../components/modals/CreateBoxTypeModal';
 import EditBoxTypeModal from '../components/modals/EditBoxTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 import { columnFilterDefs } from '../filters/columnFilters';
 
 const BoxTypes: React.FC = () => {
@@ -49,7 +49,7 @@ const BoxTypes: React.FC = () => {
       card: 'title' as const,
       render: (value: any, item: BoxType) => (
         <span className="text-sm font-medium text-secondary-900">
-          {item.code || 'N/A'}
+          {item.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -69,12 +69,11 @@ const BoxTypes: React.FC = () => {
       sortable: true,
       render: (value: any, item: BoxType) => (
         <span className="text-sm text-secondary-500">
-          {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}
+          {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('box_types', t),
-    {
+    withHistory('box_types', t, {
       key: 'actions',
       header: t('boxTypes.columns.actions'),
       pinned: true,
@@ -102,7 +101,7 @@ const BoxTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs: FilterDef[] = useMemo(

@@ -18,7 +18,7 @@ import CreateFscTypeModal from '../components/modals/CreateFscTypeModal';
 import EditFscTypeModal from '../components/modals/EditFscTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const FscTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const FscTypes: React.FC = () => {
       card: 'title' as const,
       render: (value: any, fscType: FscType) => (
         <span className="text-sm font-medium text-secondary-900">
-          {fscType.code || 'N/A'}
+          {fscType.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,12 +103,11 @@ const FscTypes: React.FC = () => {
       header: t('fscTypes.columns.created'),
       render: (value: any, fscType: FscType) => (
         <span className="text-sm text-secondary-500">
-          {fscType.createdAt ? new Date(fscType.createdAt).toLocaleDateString() : 'N/A'}
+          {fscType.createdAt ? new Date(fscType.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('fsc_types', t),
-    {
+    withHistory('fsc_types', t, {
       key: 'actions',
       header: t('fscTypes.columns.actions'),
       pinned: true,
@@ -136,7 +135,7 @@ const FscTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

@@ -10,7 +10,7 @@ import { LoginCredentials } from '../types';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { logger } from '../utils/logger';
-import mobiusMark from '../assets/mobius-mark.svg';
+import mobiusLogo from '../assets/mobius-logo-text.svg';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
@@ -54,12 +54,7 @@ const Login: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-canvas py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full">
         <div className="flex flex-col items-center text-center mb-8">
-          <div className="flex items-center gap-2.5">
-            <img src={mobiusMark} alt="" className="h-10 w-10" />
-            <span className="gd-page-title">
-              Mobius
-            </span>
-          </div>
+          <img src={mobiusLogo} alt="Mobius" className="w-60 max-w-full" />
           <h2 className="mt-7 text-2xl font-bold tracking-tight text-secondary-900">
             {t('login.title')}
           </h2>

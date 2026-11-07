@@ -18,7 +18,7 @@ import CreateComplementModal from '../components/modals/CreateComplementModal';
 import EditComplementModal from '../components/modals/EditComplementModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const Complements: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const Complements: React.FC = () => {
       card: 'title' as const,
       render: (value: any, complement: Complement) => (
         <span className="text-sm font-medium text-secondary-900">
-          {complement.code || 'N/A'}
+          {complement.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,12 +103,11 @@ const Complements: React.FC = () => {
       header: t('complements.columns.created'),
       render: (value: any, complement: Complement) => (
         <span className="text-sm text-secondary-500">
-          {complement.createdAt ? new Date(complement.createdAt).toLocaleDateString() : 'N/A'}
+          {complement.createdAt ? new Date(complement.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('complements', t),
-    {
+    withHistory('complements', t, {
       key: 'actions',
       header: t('complements.columns.actions'),
       pinned: true,
@@ -136,7 +135,7 @@ const Complements: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

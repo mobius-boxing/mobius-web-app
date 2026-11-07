@@ -18,7 +18,7 @@ import CreateFluteTypeModal from '../components/modals/CreateFluteTypeModal';
 import EditFluteTypeModal from '../components/modals/EditFluteTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const FluteTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -91,7 +91,7 @@ const FluteTypes: React.FC = () => {
             </div>
           </div>
           <div className="ml-4">
-            <div className="font-medium text-secondary-900">{fluteType.code || 'Unknown Code'}</div>
+            <div className="font-medium text-secondary-900">{fluteType.code || t('common.unknownCode')}</div>
           </div>
         </div>
       ),
@@ -119,12 +119,11 @@ const FluteTypes: React.FC = () => {
       header: t('fluteTypes.columns.created'),
       render: (value: any, fluteType: FluteType) => (
         <span className="text-sm text-secondary-900">
-          {fluteType?.createdAt ? new Date(fluteType.createdAt).toLocaleDateString() : 'N/A'}
+          {fluteType?.createdAt ? new Date(fluteType.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('flute_types', t),
-    {
+    withHistory('flute_types', t, {
       key: 'actions',
       header: t('fluteTypes.columns.actions'),
       pinned: true,
@@ -152,7 +151,7 @@ const FluteTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

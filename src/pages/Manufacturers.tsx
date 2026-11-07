@@ -18,7 +18,7 @@ import CreateManufacturerModal from '../components/modals/CreateManufacturerModa
 import EditManufacturerModal from '../components/modals/EditManufacturerModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const Manufacturers: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const Manufacturers: React.FC = () => {
       card: 'title' as const,
       render: (value: any, manufacturer: Manufacturer) => (
         <span className="text-sm font-medium text-secondary-900">
-          {manufacturer.code || 'N/A'}
+          {manufacturer.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -94,7 +94,7 @@ const Manufacturers: React.FC = () => {
       header: t('manufacturers.columns.name'),
       render: (value: any, manufacturer: Manufacturer) => (
         <span className="text-sm text-secondary-900">
-          {manufacturer.name || 'N/A'}
+          {manufacturer.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,12 +103,11 @@ const Manufacturers: React.FC = () => {
       header: t('manufacturers.columns.created'),
       render: (value: any, manufacturer: Manufacturer) => (
         <span className="text-sm text-secondary-500">
-          {manufacturer.createdAt ? new Date(manufacturer.createdAt).toLocaleDateString() : 'N/A'}
+          {manufacturer.createdAt ? new Date(manufacturer.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('manufacturers', t),
-    {
+    withHistory('manufacturers', t, {
       key: 'actions',
       header: t('manufacturers.columns.actions'),
       pinned: true,
@@ -136,7 +135,7 @@ const Manufacturers: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

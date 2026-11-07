@@ -32,9 +32,8 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
-import { authApi } from '../../services/api';
 import UserAvatar from '../ui/UserAvatar';
-import AvatarModal from '../profile/AvatarModal';
+import ProfileModal from '../profile/ProfileModal';
 import { usePermissions } from '../../hooks/usePermissions';
 import { NavItem } from '../../types';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
@@ -73,8 +72,8 @@ export interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeButtonRef }) => {
-  const { user, logout, updateUser } = useAuth();
-  const [avatarOpen, setAvatarOpen] = useState(false);
+  const { user, logout } = useAuth();
+  const [profileOpen, setProfileOpen] = useState(false);
   const { has } = usePermissions();
   const location = useLocation();
   const navRef = useRef<HTMLElement | null>(null);
@@ -601,9 +600,8 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
           <button
             type="button"
             className="gd-sb-avatar-btn"
-            title={t('avatar.changePhoto')}
-            aria-label={t('avatar.changePhoto')}
-            onClick={() => setAvatarOpen(true)}
+            aria-label={t('profile.open')}
+            onClick={() => setProfileOpen(true)}
           >
             <UserAvatar
               user={user}
@@ -612,15 +610,19 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
             />
           </button>
           {!collapsed && (
-            <div className="min-w-0">
-              <p className="text-sm font-medium text-secondary-900 truncate">
+            <button
+              type="button"
+              className="min-w-0 text-left"
+              onClick={() => setProfileOpen(true)}
+            >
+              <span className="block text-sm font-medium text-secondary-900 truncate">
                 {user?.firstName} {user?.lastName}
-              </p>
-              <p className="text-xs text-secondary-500 capitalize truncate">
+              </span>
+              <span className="block text-xs text-secondary-500 capitalize truncate">
                 {user?.roleName ?? t(`roleNames.${user?.role}`, { defaultValue: user?.role })}
                 {user?.companyName && ` • ${user.companyName}`}
-              </p>
-            </div>
+              </span>
+            </button>
           )}
         </div>
       </div>
@@ -696,16 +698,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
           )}
         </div>
       )}
-      {user && (
-        <AvatarModal
-          isOpen={avatarOpen}
-          onClose={() => setAvatarOpen(false)}
-          user={user}
-          upload={authApi.uploadAvatar}
-          remove={authApi.removeAvatar}
-          onChanged={(avatarUuid) => updateUser({ ...user, avatarUuid })}
-        />
-      )}
+      <ProfileModal isOpen={profileOpen} onClose={() => setProfileOpen(false)} />
     </div>
   );
 };

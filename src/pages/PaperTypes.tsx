@@ -18,7 +18,7 @@ import CreatePaperTypeModal from '../components/modals/CreatePaperTypeModal';
 import EditPaperTypeModal from '../components/modals/EditPaperTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const PaperTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -91,7 +91,7 @@ const PaperTypes: React.FC = () => {
             </div>
           </div>
           <div className="ml-4">
-            <div className="font-medium text-secondary-900">{paperType.code || 'Unknown Code'}</div>
+            <div className="font-medium text-secondary-900">{paperType.code || t('common.unknownCode')}</div>
           </div>
         </div>
       ),
@@ -110,12 +110,11 @@ const PaperTypes: React.FC = () => {
       header: t('paperTypes.columns.created'),
       render: (value: any, paperType: PaperType) => (
         <span className="text-sm text-secondary-900">
-          {paperType?.createdAt ? new Date(paperType.createdAt).toLocaleDateString() : 'N/A'}
+          {paperType?.createdAt ? new Date(paperType.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('paper_types', t),
-    {
+    withHistory('paper_types', t, {
       key: 'actions',
       header: t('paperTypes.columns.actions'),
       pinned: true,
@@ -143,7 +142,7 @@ const PaperTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

@@ -18,7 +18,7 @@ import CreatePaperSupplyModal from '../components/modals/CreatePaperSupplyModal'
 import EditPaperSupplyModal from '../components/modals/EditPaperSupplyModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const PaperSupplies: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const PaperSupplies: React.FC = () => {
       card: 'title' as const,
       render: (value: any, paperSupply: PaperSupply) => (
         <span className="text-sm font-medium text-secondary-900">
-          {paperSupply.code || 'N/A'}
+          {paperSupply.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -94,7 +94,7 @@ const PaperSupplies: React.FC = () => {
       header: t('paperSupplies.columns.name'),
       render: (value: any, paperSupply: PaperSupply) => (
         <span className="text-sm text-secondary-900">
-          {paperSupply.name || 'N/A'}
+          {paperSupply.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,7 +103,7 @@ const PaperSupplies: React.FC = () => {
       header: t('paperSupplies.columns.manufacturer'),
       render: (value: any, paperSupply: PaperSupply) => (
         <span className="text-sm text-secondary-900">
-          {paperSupply.manufacturer?.name || paperSupply.manufacturerName || 'N/A'}
+          {paperSupply.manufacturer?.name || paperSupply.manufacturerName || t('common.notAvailable')}
         </span>
       ),
     },
@@ -112,7 +112,7 @@ const PaperSupplies: React.FC = () => {
       header: t('paperSupplies.columns.supplier'),
       render: (value: any, paperSupply: PaperSupply) => (
         <span className="text-sm text-secondary-900">
-          {paperSupply.supplier?.code || paperSupply.supplierCode || 'N/A'}
+          {paperSupply.supplier?.code || paperSupply.supplierCode || t('common.notAvailable')}
         </span>
       ),
     },
@@ -121,7 +121,7 @@ const PaperSupplies: React.FC = () => {
       header: t('paperSupplies.columns.paperType'),
       render: (value: any, paperSupply: PaperSupply) => (
         <span className="text-sm text-secondary-900">
-          {paperSupply.paperType?.code || 'N/A'}
+          {paperSupply.paperType?.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -130,7 +130,7 @@ const PaperSupplies: React.FC = () => {
       header: t('paperSupplies.columns.grammage'),
       render: (value: any, paperSupply: PaperSupply) => (
         <span className="text-sm text-secondary-900">
-          {paperSupply.grammage != null ? `${paperSupply.grammage} g/m²` : 'N/A'}
+          {paperSupply.grammage != null ? `${paperSupply.grammage} g/m²` : t('common.notAvailable')}
         </span>
       ),
     },
@@ -139,7 +139,7 @@ const PaperSupplies: React.FC = () => {
       header: t('paperSupplies.columns.price'),
       render: (value: any, paperSupply: PaperSupply) => (
         <span className="text-sm text-secondary-900">
-          {paperSupply.price != null ? `$${paperSupply.price.toFixed(2)}` : 'N/A'}
+          {paperSupply.price != null ? `$${paperSupply.price.toFixed(2)}` : t('common.notAvailable')}
         </span>
       ),
     },
@@ -150,12 +150,11 @@ const PaperSupplies: React.FC = () => {
         <span className="text-sm text-secondary-500">
           {paperSupply.minimumStock && (paperSupply.minimumStock.weightKg || paperSupply.minimumStock.diameterMm)
             ? `${paperSupply.minimumStock.weightKg ?? 0} kg / ${paperSupply.minimumStock.diameterMm ?? 0} mm`
-            : 'N/A'}
+            : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('paper_supplies', t),
-    {
+    withHistory('paper_supplies', t, {
       key: 'actions',
       header: t('paperSupplies.columns.actions'),
       pinned: true,
@@ -183,7 +182,7 @@ const PaperSupplies: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

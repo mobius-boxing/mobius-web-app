@@ -18,7 +18,7 @@ import CreatePaperStockModal from '../components/modals/CreatePaperStockModal';
 import EditPaperStockModal from '../components/modals/EditPaperStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const PaperStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const PaperStockPage: React.FC = () => {
       card: 'title' as const,
       render: (value: any, stock: PaperStock) => (
         <span className="text-sm font-medium text-secondary-900">
-          {stock.paperSupply?.code || 'N/A'}
+          {stock.paperSupply?.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -94,7 +94,7 @@ const PaperStockPage: React.FC = () => {
       header: t('paperStock.columns.warehouse'),
       render: (value: any, stock: PaperStock) => (
         <span className="text-sm text-secondary-900">
-          {stock.warehouse?.name || 'N/A'}
+          {stock.warehouse?.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,7 +103,7 @@ const PaperStockPage: React.FC = () => {
       header: t('paperStock.columns.supplier'),
       render: (value: any, stock: PaperStock) => (
         <span className="text-sm text-secondary-900">
-          {stock.supplier?.code || 'N/A'}
+          {stock.supplier?.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -112,7 +112,7 @@ const PaperStockPage: React.FC = () => {
       header: t('paperStock.columns.manufacturer'),
       render: (value: any, stock: PaperStock) => (
         <span className="text-sm text-secondary-900">
-          {stock.manufacturer?.name || 'N/A'}
+          {stock.manufacturer?.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -124,7 +124,7 @@ const PaperStockPage: React.FC = () => {
           {stock.weight != null ? `${stock.weight} kg` : ''}
           {stock.diameter != null ? ` / ${stock.diameter} cm` : ''}
           {stock.width != null ? ` / ${stock.width} cm` : ''}
-          {!stock.weight && !stock.diameter && !stock.width ? 'N/A' : ''}
+          {!stock.weight && !stock.diameter && !stock.width ? t('common.notAvailable') : ''}
         </span>
       ),
     },
@@ -133,12 +133,11 @@ const PaperStockPage: React.FC = () => {
       header: t('paperStock.columns.price'),
       render: (value: any, stock: PaperStock) => (
         <span className="text-sm text-secondary-500">
-          {stock.price != null ? `$${stock.price.toFixed(2)}` : 'N/A'}
+          {stock.price != null ? `$${stock.price.toFixed(2)}` : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('paper_stock', t),
-    {
+    withHistory('paper_stock', t, {
       key: 'actions',
       header: t('paperStock.columns.actions'),
       pinned: true,
@@ -166,7 +165,7 @@ const PaperStockPage: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

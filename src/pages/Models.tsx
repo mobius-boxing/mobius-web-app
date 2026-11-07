@@ -18,7 +18,7 @@ import ModelFormModal from '../components/modals/ModelFormModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const Models: React.FC = () => {
   const { t } = useTranslation();
@@ -75,7 +75,7 @@ const Models: React.FC = () => {
       hideable: false,
       card: 'title' as const,
       render: (_: any, m: Model) => (
-        <span className="text-sm font-medium text-secondary-900">{m.code || 'N/A'}</span>
+        <span className="text-sm font-medium text-secondary-900">{m.code || t('common.notAvailable')}</span>
       ),
     },
     {
@@ -99,8 +99,7 @@ const Models: React.FC = () => {
         <span className="text-sm text-secondary-500">{m.complement?.code || '-'}</span>
       ),
     },
-    historyColumn('models', t),
-    {
+    withHistory('models', t, {
       key: 'actions',
       header: t('models.columns.actions'),
       pinned: true,
@@ -128,7 +127,7 @@ const Models: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

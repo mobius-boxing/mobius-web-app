@@ -18,7 +18,7 @@ import CreateGlueTypeModal from '../components/modals/CreateGlueTypeModal';
 import EditGlueTypeModal from '../components/modals/EditGlueTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const GlueTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const GlueTypes: React.FC = () => {
       card: 'title' as const,
       render: (value: any, glueType: GlueType) => (
         <span className="text-sm font-medium text-secondary-900">
-          {glueType.code || 'N/A'}
+          {glueType.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,12 +103,11 @@ const GlueTypes: React.FC = () => {
       header: t('glueTypes.columns.created'),
       render: (value: any, glueType: GlueType) => (
         <span className="text-sm text-secondary-500">
-          {glueType.createdAt ? new Date(glueType.createdAt).toLocaleDateString() : 'N/A'}
+          {glueType.createdAt ? new Date(glueType.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('glue_types', t),
-    {
+    withHistory('glue_types', t, {
       key: 'actions',
       header: t('glueTypes.columns.actions'),
       pinned: true,
@@ -136,7 +135,7 @@ const GlueTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

@@ -182,7 +182,7 @@ export const setDeviceRejectionHandler = (
 // which is what should clear local auth and bounce to the login page.
 const SELF_HANDLED_401_PATHS = [
   '/api/auth/login',
-  '/api/auth/password',
+  '/api/auth/change-password',
   '/api/auth/request-password-reset',
   '/api/auth/reset-password',
 ];
@@ -254,6 +254,11 @@ export const authApi = {
     await api.delete('/api/auth/avatar');
   },
 
+  updateProfile: async (data: { firstName: string; lastName: string }): Promise<AuthUser> => {
+    const response: AxiosResponse<ApiResponse<AuthUser>> = await api.put('/api/auth/profile', data);
+    return response.data.data!;
+  },
+
   logout: async (): Promise<void> => {
     await api.post('/api/auth/logout');
     clearToken();
@@ -283,7 +288,7 @@ export const authApi = {
   },
 
   changePassword: async (data: ChangePasswordForm): Promise<void> => {
-    await api.put('/api/auth/password', {
+    await api.post('/api/auth/change-password', {
       currentPassword: data.currentPassword,
       newPassword: data.newPassword,
     });
@@ -620,6 +625,19 @@ export const customersApi = {
   getCustomerById: async (id: string): Promise<Customer> => {
     const response: AxiosResponse<ApiResponse<Customer>> = await api.get(`/api/customer/${id}`);
     return response.data.data!;
+  },
+
+  uploadCustomerAvatar: async (id: string, image: Blob): Promise<string> => {
+    const response: AxiosResponse<ApiResponse<{ avatarUuid: string }>> = await api.put(
+      `/api/customer/${id}/avatar`,
+      avatarForm(image),
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    return response.data.data!.avatarUuid;
+  },
+
+  removeCustomerAvatar: async (id: string): Promise<void> => {
+    await api.delete(`/api/customer/${id}/avatar`);
   },
 
   createCustomer: async (data: CreateCustomerForm): Promise<Customer> => {

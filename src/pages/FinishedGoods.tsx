@@ -18,7 +18,7 @@ import CreateFinishedGoodModal from '../components/modals/CreateFinishedGoodModa
 import EditFinishedGoodModal from '../components/modals/EditFinishedGoodModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const FinishedGoods: React.FC = () => {
   const { t } = useTranslation();
@@ -99,8 +99,7 @@ const FinishedGoods: React.FC = () => {
         </span>
       ),
     },
-    historyColumn('finished_goods', t),
-    {
+    withHistory('finished_goods', t, {
       key: 'actions',
       header: t('finishedGoods.columns.actions'),
       pinned: true,
@@ -128,7 +127,7 @@ const FinishedGoods: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

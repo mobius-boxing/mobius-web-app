@@ -18,7 +18,7 @@ import CreateCustomerCategoryModal from '../components/modals/CreateCustomerCate
 import EditCustomerCategoryModal from '../components/modals/EditCustomerCategoryModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const CustomerCategories: React.FC = () => {
   const { t } = useTranslation();
@@ -91,7 +91,7 @@ const CustomerCategories: React.FC = () => {
             </div>
           </div>
           <div className="ml-4">
-            <div className="font-medium text-secondary-900">{category.name || 'Unknown Category'}</div>
+            <div className="font-medium text-secondary-900">{category.name || t('common.unknownCategory')}</div>
           </div>
         </div>
       ),
@@ -101,12 +101,11 @@ const CustomerCategories: React.FC = () => {
       header: t('customerCategories.columns.created'),
       render: (value: any, category: CustomerCategory) => (
         <span className="text-sm text-secondary-900">
-          {category?.createdAt ? new Date(category.createdAt).toLocaleDateString() : 'N/A'}
+          {category?.createdAt ? new Date(category.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('customer_categories', t),
-    {
+    withHistory('customer_categories', t, {
       key: 'actions',
       header: t('customerCategories.columns.actions'),
       pinned: true,
@@ -134,7 +133,7 @@ const CustomerCategories: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

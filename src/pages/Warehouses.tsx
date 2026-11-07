@@ -20,7 +20,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import WarehouseGridEditorModal from '../components/modals/WarehouseGridEditorModal';
 import WarehouseStockViewModal from '../components/modals/WarehouseStockViewModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const Warehouses: React.FC = () => {
   const { t } = useTranslation();
@@ -105,7 +105,7 @@ const Warehouses: React.FC = () => {
       card: 'title' as const,
       render: (value: any, warehouse: Warehouse) => (
         <span className="text-sm font-medium text-secondary-900">
-          {warehouse.name || 'N/A'}
+          {warehouse.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -114,12 +114,11 @@ const Warehouses: React.FC = () => {
       header: t('warehouses.columns.created'),
       render: (value: any, warehouse: Warehouse) => (
         <span className="text-sm text-secondary-500">
-          {warehouse.createdAt ? new Date(warehouse.createdAt).toLocaleDateString() : 'N/A'}
+          {warehouse.createdAt ? new Date(warehouse.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('warehouses', t),
-    {
+    withHistory('warehouses', t, {
       key: 'actions',
       header: t('warehouses.columns.actions'),
       pinned: true,
@@ -163,7 +162,7 @@ const Warehouses: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

@@ -18,7 +18,7 @@ import CreateFlapTypeModal from '../components/modals/CreateFlapTypeModal';
 import EditFlapTypeModal from '../components/modals/EditFlapTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const FlapTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const FlapTypes: React.FC = () => {
       card: 'title' as const,
       render: (value: any, flapType: FlapType) => (
         <span className="text-sm font-medium text-secondary-900">
-          {flapType.code || 'N/A'}
+          {flapType.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,12 +103,11 @@ const FlapTypes: React.FC = () => {
       header: t('flapTypes.columns.created'),
       render: (value: any, flapType: FlapType) => (
         <span className="text-sm text-secondary-500">
-          {flapType.createdAt ? new Date(flapType.createdAt).toLocaleDateString() : 'N/A'}
+          {flapType.createdAt ? new Date(flapType.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('flap_types', t),
-    {
+    withHistory('flap_types', t, {
       key: 'actions',
       header: t('flapTypes.columns.actions'),
       pinned: true,
@@ -136,7 +135,7 @@ const FlapTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

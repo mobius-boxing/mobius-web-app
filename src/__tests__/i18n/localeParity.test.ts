@@ -69,7 +69,9 @@ describe('i18n locale parity', () => {
     // label — do not just bump the number. Exception here: `parts` and
     // `part_approval_events` are RETIRED tables (remove-composite-products,
     // model.md I-1) — two labels removed, not a label forgotten.
-    const AUDITED_TABLES = 73;
+    // 73 → 80 (dario-corrections): the corrugator-planning tables and the
+    // db-per-company control-plane tables were audited but never labelled.
+    const AUDITED_TABLES = 80;
 
     expect(Object.keys(es.audit.entities)).toHaveLength(AUDITED_TABLES);
     expect(Object.keys(en.audit.entities)).toHaveLength(AUDITED_TABLES);

@@ -11,6 +11,7 @@ import {
 } from '../../types';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
+import CustomerAvatar from '../ui/CustomerAvatar';
 import DeliveryLocationsSection from './DeliveryLocationsSection';
 
 export interface CustomerFormProps {
@@ -23,6 +24,9 @@ export interface CustomerFormProps {
   setContacts: React.Dispatch<React.SetStateAction<ContactInfo[]>>;
   /** Present in edit mode — enables the delivery-locations manager. */
   customerUuid?: string;
+  /** Edit mode only: a photo needs the customer's uuid, so create mode has no control. */
+  avatarUuid?: string | null;
+  onChangePhoto?: () => void;
   /** Create mode: the in-memory list sent as `deliveryLocations` on submit. */
   pendingLocations?: CustomerDeliveryLocationInput[];
   setPendingLocations?: React.Dispatch<React.SetStateAction<CustomerDeliveryLocationInput[]>>;
@@ -41,6 +45,8 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
   contacts,
   setContacts,
   customerUuid,
+  avatarUuid,
+  onChangePhoto,
   pendingLocations,
   setPendingLocations,
   loading,
@@ -66,6 +72,19 @@ const CustomerForm: React.FC<CustomerFormProps> = ({
         <h3 className="text-sm font-semibold text-secondary-900 border-b pb-2">
           {t('common:customerModal.basicInformation')}
         </h3>
+
+        {mode === 'edit' && onChangePhoto && (
+          <div className="flex items-center gap-4">
+            <CustomerAvatar
+              customer={{ avatarUuid, name: form.getValues('name') }}
+              className="h-16 w-16 rounded-full bg-primary-100 flex items-center justify-center"
+              textClassName="text-lg font-medium text-primary-600"
+            />
+            <Button type="button" variant="outline" onClick={onChangePhoto}>
+              {t('avatar.changeUserPhoto')}
+            </Button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input

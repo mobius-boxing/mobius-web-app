@@ -18,7 +18,7 @@ import CreatePaperSheetModal from '../components/modals/CreatePaperSheetModal';
 import EditPaperSheetModal from '../components/modals/EditPaperSheetModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const PaperSheets: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const PaperSheets: React.FC = () => {
       card: 'title' as const,
       render: (value: any, paperSheet: PaperSheet) => (
         <span className="text-sm font-medium text-secondary-900">
-          {paperSheet.code || 'N/A'}
+          {paperSheet.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -94,7 +94,7 @@ const PaperSheets: React.FC = () => {
       header: t('paperSheets.columns.name'),
       render: (value: any, paperSheet: PaperSheet) => (
         <span className="text-sm text-secondary-900">
-          {paperSheet.name || 'N/A'}
+          {paperSheet.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,7 +103,7 @@ const PaperSheets: React.FC = () => {
       header: t('paperSheets.columns.supplier'),
       render: (value: any, paperSheet: PaperSheet) => (
         <span className="text-sm text-secondary-900">
-          {paperSheet.supplier?.code || 'N/A'}
+          {paperSheet.supplier?.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -112,7 +112,7 @@ const PaperSheets: React.FC = () => {
       header: t('paperSheets.columns.manufacturer'),
       render: (value: any, paperSheet: PaperSheet) => (
         <span className="text-sm text-secondary-900">
-          {paperSheet.manufacturer?.name || 'N/A'}
+          {paperSheet.manufacturer?.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -121,7 +121,7 @@ const PaperSheets: React.FC = () => {
       header: t('paperSheets.columns.corrugation'),
       render: (value: any, paperSheet: PaperSheet) => (
         <span className="text-sm text-secondary-900">
-          {paperSheet.corrugation?.code || 'N/A'}
+          {paperSheet.corrugation?.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -132,7 +132,7 @@ const PaperSheets: React.FC = () => {
         <span className="text-sm text-secondary-500">
           {paperSheet.length != null && paperSheet.width != null
             ? `${paperSheet.length} x ${paperSheet.width}`
-            : 'N/A'}
+            : t('common.notAvailable')}
         </span>
       ),
     },
@@ -141,12 +141,11 @@ const PaperSheets: React.FC = () => {
       header: t('paperSheets.columns.minimumStock'),
       render: (value: any, paperSheet: PaperSheet) => (
         <span className="text-sm text-secondary-500">
-          {paperSheet.minimumStock != null ? paperSheet.minimumStock : 'N/A'}
+          {paperSheet.minimumStock != null ? paperSheet.minimumStock : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('paper_sheets', t),
-    {
+    withHistory('paper_sheets', t, {
       key: 'actions',
       header: t('paperSheets.columns.actions'),
       pinned: true,
@@ -174,7 +173,7 @@ const PaperSheets: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

@@ -17,7 +17,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateConsumableSupplyModal from '../components/modals/CreateConsumableSupplyModal';
 import EditConsumableSupplyModal from '../components/modals/EditConsumableSupplyModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const ConsumableSupplies: React.FC = () => {
   const { t } = useTranslation();
@@ -92,7 +92,7 @@ const ConsumableSupplies: React.FC = () => {
             </div>
           </div>
           <div className="ml-4 min-w-0">
-            <div className="font-medium text-secondary-900">{supply.code || 'Unknown'}</div>
+            <div className="font-medium text-secondary-900">{supply.code || t('common.unknown')}</div>
             {supply.description && (
               <div className="break-words text-sm text-secondary-500">{supply.description}</div>
             )}
@@ -136,8 +136,7 @@ const ConsumableSupplies: React.FC = () => {
         </span>
       ),
     },
-    historyColumn('consumable_supplies', t),
-    {
+    withHistory('consumable_supplies', t, {
       key: 'actions',
       header: t('consumableSupplies.columns.actions'),
       pinned: true,
@@ -165,7 +164,7 @@ const ConsumableSupplies: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

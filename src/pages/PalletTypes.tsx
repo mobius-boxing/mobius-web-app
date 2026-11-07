@@ -18,7 +18,7 @@ import CreatePalletTypeModal from '../components/modals/CreatePalletTypeModal';
 import EditPalletTypeModal from '../components/modals/EditPalletTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const PalletTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -73,7 +73,7 @@ const PalletTypes: React.FC = () => {
       hideable: false,
       card: 'title' as const,
       render: (_: any, pt: PalletType) => (
-        <span className="text-sm font-medium text-secondary-900">{pt.code || 'N/A'}</span>
+        <span className="text-sm font-medium text-secondary-900">{pt.code || t('common.notAvailable')}</span>
       ),
     },
     {
@@ -97,8 +97,7 @@ const PalletTypes: React.FC = () => {
         <span className="text-sm text-secondary-500">{pt.weight != null ? `${pt.weight} kg` : '-'}</span>
       ),
     },
-    historyColumn('pallet_types', t),
-    {
+    withHistory('pallet_types', t, {
       key: 'actions',
       header: t('palletTypes.columns.actions'),
       pinned: true,
@@ -126,7 +125,7 @@ const PalletTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

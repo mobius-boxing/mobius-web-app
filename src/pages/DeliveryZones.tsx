@@ -18,7 +18,7 @@ import CreateDeliveryZoneModal from '../components/modals/CreateDeliveryZoneModa
 import EditDeliveryZoneModal from '../components/modals/EditDeliveryZoneModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const DeliveryZones: React.FC = () => {
   const { t } = useTranslation();
@@ -73,7 +73,7 @@ const DeliveryZones: React.FC = () => {
       hideable: false,
       card: 'title' as const,
       render: (value: any, zone: DeliveryZone) => (
-        <span className="text-sm font-medium text-secondary-900">{zone.code || 'N/A'}</span>
+        <span className="text-sm font-medium text-secondary-900">{zone.code || t('common.notAvailable')}</span>
       ),
     },
     {
@@ -88,12 +88,11 @@ const DeliveryZones: React.FC = () => {
       header: t('deliveryZones.columns.created'),
       render: (value: any, zone: DeliveryZone) => (
         <span className="text-sm text-secondary-500">
-          {zone.createdAt ? new Date(zone.createdAt).toLocaleDateString() : 'N/A'}
+          {zone.createdAt ? new Date(zone.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('delivery_zones', t),
-    {
+    withHistory('delivery_zones', t, {
       key: 'actions',
       header: t('deliveryZones.columns.actions'),
       pinned: true,
@@ -121,7 +120,7 @@ const DeliveryZones: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

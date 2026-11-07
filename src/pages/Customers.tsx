@@ -14,10 +14,11 @@ import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
 import CreateCustomerModal from '../components/modals/CreateCustomerModal';
+import CustomerAvatar from '../components/ui/CustomerAvatar';
 import EditCustomerModal from '../components/modals/EditCustomerModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 import { columnFilterDefs } from '../filters/columnFilters';
 
 const Customers: React.FC = () => {
@@ -55,12 +56,14 @@ const Customers: React.FC = () => {
       render: (value: any, customer: Customer) => (
         <div className="flex items-center">
           <div className="flex-shrink-0 h-10 w-10">
-            <div className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center">
-              <UserIcon className="h-5 w-5 text-primary-600" />
-            </div>
+            <CustomerAvatar
+              customer={customer}
+              className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center"
+              textClassName="text-sm font-medium text-primary-600"
+            />
           </div>
           <div className="ml-4">
-            <div className="font-medium text-secondary-900">{customer.name || 'Unknown Customer'}</div>
+            <div className="font-medium text-secondary-900">{customer.name || t('common.unknownCustomer')}</div>
             {customer.legalName && (
               <div className="text-sm text-secondary-500">{customer.legalName}</div>
             )}
@@ -73,7 +76,7 @@ const Customers: React.FC = () => {
       header: t('customers.columns.supplierCode'),
       render: (value: any, customer: Customer) => (
         <span className="text-sm text-secondary-900">
-          {customer.supplierCode || 'N/A'}
+          {customer.supplierCode || t('common.notAvailable')}
         </span>
       ),
     },
@@ -82,7 +85,7 @@ const Customers: React.FC = () => {
       header: t('customers.columns.category'),
       render: (value: any, customer: Customer) => (
         <span className="text-sm text-secondary-900">
-          {customer.categoryName || 'N/A'}
+          {customer.categoryName || t('common.notAvailable')}
         </span>
       ),
     },
@@ -91,7 +94,7 @@ const Customers: React.FC = () => {
       header: t('customers.columns.salesPerson'),
       render: (value: any, customer: Customer) => (
         <span className="text-sm text-secondary-900">
-          {customer.salesPersonName || 'N/A'}
+          {customer.salesPersonName || t('common.notAvailable')}
         </span>
       ),
     },
@@ -104,8 +107,7 @@ const Customers: React.FC = () => {
         </span>
       ),
     },
-    historyColumn('customers', t),
-    {
+    withHistory('customers', t, {
       key: 'actions',
       header: t('customers.columns.actions'),
       pinned: true,
@@ -133,7 +135,7 @@ const Customers: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs: FilterDef[] = useMemo(
@@ -273,6 +275,7 @@ const Customers: React.FC = () => {
           setSelectedCustomer(null);
         }}
         onSuccess={handleEditSuccess}
+        onAvatarChanged={refresh}
         customer={selectedCustomer}
       />
 

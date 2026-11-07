@@ -20,6 +20,9 @@ interface WarehouseGridEditorModalProps {
 }
 
 type LocationTypeOption = 'storage' | 'receiving' | 'shipping' | 'quarantine' | 'wip';
+type Tool = LocationTypeOption | 'inactive';
+
+const LOCATION_TYPES: LocationTypeOption[] = ['storage', 'receiving', 'shipping', 'quarantine', 'wip'];
 
 const LOCATION_TYPE_ICONS = {
   storage: Package,
@@ -37,6 +40,12 @@ const LOCATION_TYPE_COLORS = {
   wip: 'bg-orange-500 hover:bg-orange-600 border-orange-600',
 };
 
+// Seed data carries types outside LocationTypeOption (e.g. 'picking'); without
+// a fallback their cells crash the render.
+const iconFor = (type: string) => LOCATION_TYPE_ICONS[type as LocationTypeOption] ?? Package;
+const colorFor = (type: string) =>
+  LOCATION_TYPE_COLORS[type as LocationTypeOption] ?? 'bg-slate-500 hover:bg-slate-600 border-slate-600';
+
 const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
   isOpen,
   onClose,
@@ -51,13 +60,12 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
   const [error, setError] = useState('');
   const [locations, setLocations] = useState<WarehouseLocation[]>([]);
   const [changes, setChanges] = useState<Map<string, BatchUpdateLocation>>(new Map());
-  const [selectedType, setSelectedType] = useState<LocationTypeOption>('storage');
+  const [selectedTool, setSelectedTool] = useState<Tool>('storage');
   const [newGridRows, setNewGridRows] = useState<number>(10);
   const [newGridCols, setNewGridCols] = useState<number>(10);
   const [gridRows, setGridRows] = useState<number>(10); // Confirmed dimensions for rendering
   const [gridCols, setGridCols] = useState<number>(10);
   const [isDragging, setIsDragging] = useState(false);
-  const [dragAction, setDragAction] = useState<'activate' | 'deactivate' | null>(null);
 
   useEffect(() => {
     if (isOpen && warehouse) {
@@ -76,7 +84,6 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
     const handleGlobalMouseUp = () => {
       if (isDragging) {
         setIsDragging(false);
-        setDragAction(null);
       }
     };
 
@@ -98,7 +105,7 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
       setChanges(new Map());
     } catch (err: any) {
       logger.error('Error fetching warehouse locations:', err);
-      setError(err.response?.data?.message || 'Failed to load warehouse locations');
+      setError(err.response?.data?.message || t('warehouses.grid.errors.loadFailed'));
     } finally {
       setLoading(false);
     }
@@ -112,70 +119,29 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
     return locations.find(loc => loc.row === row && loc.col === col);
   };
 
-  const handleCellClick = (row: number, col: number) => {
-    const key = getLocationKey(row, col);
-    const location = getLocationByPosition(row, col);
-
-    if (!location) return;
-
-    const currentStatus = changes.get(key)?.status || location.status;
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
-
-    const change: BatchUpdateLocation = {
-      row,
-      col,
-      status: newStatus,
-      locationType: newStatus === 'active' ? selectedType : location.locationType,
-    };
-
-    const newChanges = new Map(changes);
-    newChanges.set(key, change);
-    setChanges(newChanges);
-  };
-
-  const paintCell = (row: number, col: number, action: 'activate' | 'deactivate') => {
+  const paintCell = (row: number, col: number) => {
     const location = getLocationByPosition(row, col);
     if (!location) return;
 
-    const key = getLocationKey(row, col);
-    const newStatus = action === 'activate' ? 'active' : 'inactive';
+    const change: BatchUpdateLocation =
+      selectedTool === 'inactive'
+        ? { row, col, status: 'inactive', locationType: getCellType(row, col) }
+        : { row, col, status: 'active', locationType: selectedTool };
 
-    const change: BatchUpdateLocation = {
-      row,
-      col,
-      status: newStatus,
-      locationType: newStatus === 'active' ? selectedType : location.locationType,
-    };
-
-    const newChanges = new Map(changes);
-    newChanges.set(key, change);
-    setChanges(newChanges);
+    setChanges((prev) => new Map(prev).set(getLocationKey(row, col), change));
   };
 
   const handleMouseDown = (row: number, col: number) => {
-    const location = getLocationByPosition(row, col);
-    if (!location) return;
-
-    const key = getLocationKey(row, col);
-    const currentStatus = changes.get(key)?.status || location.status;
-
-    const action = currentStatus === 'active' ? 'deactivate' : 'activate';
-
     setIsDragging(true);
-    setDragAction(action);
-
-    paintCell(row, col, action);
+    paintCell(row, col);
   };
 
   const handleMouseEnter = (row: number, col: number) => {
-    if (!isDragging || !dragAction) return;
-
-    paintCell(row, col, dragAction);
+    if (isDragging) paintCell(row, col);
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
-    setDragAction(null);
   };
 
   const getCellStatus = (row: number, col: number): 'active' | 'inactive' => {
@@ -302,14 +268,14 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
           'aspect-square',
           'hover:scale-110 hover:z-10 hover:shadow-md',
           status === 'active'
-            ? LOCATION_TYPE_COLORS[locationType]
+            ? colorFor(locationType)
             : 'bg-gray-100 hover:bg-gray-200 border-gray-300',
           hasChange ? 'ring-2 ring-yellow-400' : '',
           'text-xs',
           isDragging ? 'cursor-grabbing' : 'cursor-pointer',
         ].join(' ');
 
-        const Icon = status === 'active' ? LOCATION_TYPE_ICONS[locationType] : Box;
+        const Icon = status === 'active' ? iconFor(locationType) : Box;
 
         rowCells.push(
           <div
@@ -321,8 +287,7 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
             }}
             onMouseEnter={() => handleMouseEnter(row, col)}
             onMouseUp={handleMouseUp}
-            onClick={() => handleCellClick(row, col)}
-            title={`${locationCode} - ${status === 'active' ? locationType : 'inactive'}`}
+            title={`${locationCode} - ${status === 'active' ? t(`warehouses.grid.types.${locationType}`, { defaultValue: locationType }) : t('warehouses.grid.inactive')}`}
             style={{ userSelect: 'none' }}
           >
             <Icon className={`w-3 h-3 ${status === 'active' ? 'text-white' : 'text-gray-400'}`} />
@@ -360,26 +325,40 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
             {t('warehouses.grid.selectType')}
           </label>
           <div className="flex flex-wrap gap-2">
-            {(['storage', 'receiving', 'shipping', 'quarantine', 'wip'] as LocationTypeOption[]).map(type => {
+            {LOCATION_TYPES.map(type => {
               const Icon = LOCATION_TYPE_ICONS[type];
               return (
                 <button
                   key={type}
                   type="button"
-                  onClick={() => setSelectedType(type)}
+                  onClick={() => setSelectedTool(type)}
                   className={`
                     px-4 py-2 rounded-lg border-2 transition-all flex items-center gap-2
-                    ${selectedType === type
+                    ${selectedTool === type
                       ? LOCATION_TYPE_COLORS[type] + ' text-white'
                       : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
                     }
                   `}
                 >
                   <Icon className="w-4 h-4" />
-                  <span className="font-medium capitalize">{type}</span>
+                  <span className="font-medium">{t(`warehouses.grid.types.${type}`)}</span>
                 </button>
               );
             })}
+            <button
+              type="button"
+              onClick={() => setSelectedTool('inactive')}
+              className={`
+                px-4 py-2 rounded-lg border-2 transition-all flex items-center gap-2
+                ${selectedTool === 'inactive'
+                  ? 'bg-gray-600 hover:bg-gray-700 border-gray-700 text-white'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+                }
+              `}
+            >
+              <Box className="w-4 h-4" />
+              <span className="font-medium">{t('warehouses.grid.inactive')}</span>
+            </button>
           </div>
           <p className="text-xs text-gray-500 mt-2">
             {t('warehouses.grid.instructions')}
@@ -455,14 +434,14 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
         <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
           <h3 className="text-sm font-medium text-gray-700 mb-2">{t('warehouses.grid.legend')}</h3>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-            {(['storage', 'receiving', 'shipping', 'quarantine', 'wip'] as LocationTypeOption[]).map(type => {
+            {LOCATION_TYPES.map(type => {
               const Icon = LOCATION_TYPE_ICONS[type];
               return (
                 <div key={type} className="flex items-center gap-2">
                   <div className={`w-6 h-6 rounded flex items-center justify-center ${LOCATION_TYPE_COLORS[type]}`}>
                     <Icon className="w-4 h-4 text-white" />
                   </div>
-                  <span className="text-sm capitalize">{type}</span>
+                  <span className="text-sm">{t(`warehouses.grid.types.${type}`)}</span>
                 </div>
               );
             })}

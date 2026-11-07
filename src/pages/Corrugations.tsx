@@ -17,7 +17,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateCorrugationModal from '../components/modals/CreateCorrugationModal';
 import EditCorrugationModal from '../components/modals/EditCorrugationModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const Corrugations: React.FC = () => {
   const { t } = useTranslation();
@@ -92,7 +92,7 @@ const Corrugations: React.FC = () => {
             </div>
           </div>
           <div className="ml-4">
-            <div className="font-medium text-secondary-900">{corrugation.code || 'Unknown Code'}</div>
+            <div className="font-medium text-secondary-900">{corrugation.code || t('common.unknownCode')}</div>
           </div>
         </div>
       ),
@@ -142,8 +142,7 @@ const Corrugations: React.FC = () => {
         </span>
       ),
     },
-    historyColumn('corrugations', t),
-    {
+    withHistory('corrugations', t, {
       key: 'actions',
       header: t('corrugations.columns.actions'),
       pinned: true,
@@ -171,7 +170,7 @@ const Corrugations: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

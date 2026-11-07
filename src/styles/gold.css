@@ -211,7 +211,7 @@ body::after {
 .gd-sidebar {
   background: oklch(var(--p-950));
   border-right: 1px solid oklch(var(--p-900));
-  color: oklch(var(--n-300));
+  color: oklch(var(--n-100));
   color-scheme: dark;
 }
 
@@ -264,7 +264,7 @@ body::after {
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: oklch(var(--n-500));
+  color: oklch(var(--n-400));
   line-height: 1.4;
 }
 
@@ -304,7 +304,7 @@ body::after {
   font-size: 0.625rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: oklch(var(--n-500));
+  color: oklch(var(--n-400));
   line-height: 1.5;
 }
 
@@ -329,13 +329,13 @@ body::after {
    never a side stripe." Honoured — the navy rail supplies the contrast
    that the old bg-primary-100 slab was straining for, without a stripe. */
 .gd-sidebar .sidebar-item-inactive {
-  color: oklch(var(--n-400));
+  color: oklch(var(--n-200));
   background: transparent;
 }
 
 .gd-sidebar .sidebar-item-inactive:hover {
   background: oklch(1 0 0 / 0.05);
-  color: oklch(var(--n-100));
+  color: oklch(var(--white));
 }
 
 .gd-sidebar .sidebar-item-active {
@@ -378,7 +378,7 @@ body::after {
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: oklch(var(--n-500));
+  color: oklch(var(--n-400));
 }
 
 .gd-sidebar select {
@@ -411,12 +411,12 @@ body::after {
    utilities it uses is the non-invasive way to make them legible on navy —
    the wordmark and the user's name were rendering near-black on near-black. */
 .gd-sidebar .border-secondary-200 { border-color: oklch(1 0 0 / 0.1) !important; }
-.gd-sidebar .text-secondary-900 { color: oklch(var(--n-100)) !important; }
-.gd-sidebar .text-secondary-800 { color: oklch(var(--n-200)) !important; }
-.gd-sidebar .text-secondary-700 { color: oklch(var(--n-300)) !important; }
-.gd-sidebar .text-secondary-600 { color: oklch(var(--n-400)) !important; }
-.gd-sidebar .text-secondary-500 { color: oklch(var(--n-500)) !important; }
-.gd-sidebar .text-secondary-400 { color: oklch(var(--n-500)) !important; }
+.gd-sidebar .text-secondary-900 { color: oklch(var(--white)) !important; }
+.gd-sidebar .text-secondary-800 { color: oklch(var(--n-100)) !important; }
+.gd-sidebar .text-secondary-700 { color: oklch(var(--n-200)) !important; }
+.gd-sidebar .text-secondary-600 { color: oklch(var(--n-300)) !important; }
+.gd-sidebar .text-secondary-500 { color: oklch(var(--n-400)) !important; }
+.gd-sidebar .text-secondary-400 { color: oklch(var(--n-400)) !important; }
 .gd-sidebar .bg-white { background-color: transparent !important; }
 .gd-sidebar .hover\:bg-secondary-100:hover { background-color: oklch(1 0 0 / 0.07) !important; }
 .gd-sidebar .hover\:text-secondary-800:hover { color: oklch(var(--white)) !important; }
@@ -429,7 +429,7 @@ body::after {
 .gd-sidebar .text-primary-600,
 .gd-sidebar .text-primary-700,
 .gd-sidebar .text-primary-900 { color: oklch(var(--p-300)) !important; }
-.gd-sidebar .text-secondary-500 { color: oklch(var(--n-500)); }
+.gd-sidebar .text-secondary-500 { color: oklch(var(--n-400)); }
 
 /* Sign-out gets a danger-leaning hover; it is the one destructive control here. */
 .gd-sb-signout:hover {
@@ -565,7 +565,7 @@ body::after {
 /* ── Inputs ──────────────────────────────────────────────────────────────── */
 .input-field,
 .gd-input {
-  min-height: 44px;
+  min-height: 2.5rem;
   border-radius: 0.625rem;
   border: 1px solid var(--gd-hairline-strong);
   background: oklch(var(--white));
@@ -629,6 +629,15 @@ body::after {
   padding-bottom: 0.875rem;
   margin-bottom: 1.125rem;
   border-bottom: 1px solid var(--gd-hairline);
+}
+
+/* Primary row: every cell has a label above its control, so tops and bottoms
+   line up across the row. */
+.gd-filters-primary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.75rem;
+  align-items: end;
 }
 
 /* Six fields: 3-up ≥1024px, 2-up ≥640px, stacked below. */
@@ -711,18 +720,20 @@ body::after {
    which are the only thing that stops matching, are exactly the bug. */
 .gd-table > thead > tr > th {
   font-family: var(--font-mono);
-  font-size: 0.625rem;
+  font-size: 0.75rem;
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: oklch(var(--n-500));
   padding: 0.875rem 1.5rem;
+  vertical-align: middle;
   border-bottom: 1px solid var(--gd-hairline);
   white-space: nowrap;
 }
 
 .gd-table > tbody > tr > td {
   padding: 1rem 1.5rem;
+  vertical-align: middle;
   font-size: 0.875rem;
   color: oklch(var(--n-800));
   border-bottom: 1px solid oklch(var(--n-950) / 0.045);

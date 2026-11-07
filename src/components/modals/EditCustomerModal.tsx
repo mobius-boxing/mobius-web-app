@@ -5,6 +5,7 @@ import { Customer, CreateCustomerForm, CustomerCategory, User, ContactInfo } fro
 import { customersApi, customerCategoriesApi, usersApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import CustomerForm from '../forms/CustomerForm';
+import AvatarModal from '../profile/AvatarModal';
 import { useModalForm } from '../../hooks/useModalForm';
 import { editCustomerSchema } from '../../validation/schemas/customer';
 import useEffectiveCompany from '../../hooks/useEffectiveCompany';
@@ -15,6 +16,8 @@ interface EditCustomerModalProps {
   onClose: () => void;
   customer: Customer | null;
   onSuccess: () => void;
+  /** The photo is saved on its own, so the list behind the modal must reload even if the form is cancelled. */
+  onAvatarChanged?: () => void;
 }
 
 const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
@@ -22,6 +25,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   onClose,
   customer,
   onSuccess,
+  onAvatarChanged,
 }) => {
   const { effectiveCompanyId } = useEffectiveCompany();
   const { t } = useTranslation();
@@ -30,6 +34,8 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
   const [salesPersons, setSalesPersons] = useState<User[]>([]);
   const [contacts, setContacts] = useState<ContactInfo[]>([]);
   const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
+  const [avatarUuid, setAvatarUuid] = useState<string | null>(null);
+  const [avatarOpen, setAvatarOpen] = useState(false);
 
   const {
     form,
@@ -50,6 +56,10 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
       setDropdownsLoaded(false);
       fetchDropdownData();
     }
+  }, [isOpen, customer]);
+
+  useEffect(() => {
+    setAvatarUuid(customer?.avatarUuid ?? null);
   }, [isOpen, customer]);
 
   useEffect(() => {
@@ -126,10 +136,24 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = ({
         contacts={contacts}
         setContacts={setContacts}
         customerUuid={customer.uuid}
+        avatarUuid={avatarUuid}
+        onChangePhoto={() => setAvatarOpen(true)}
         loading={loading}
         error={error}
         onClose={handleClose}
         onSubmit={formSubmit(onSubmit)}
+      />
+      <AvatarModal
+        isOpen={avatarOpen}
+        onClose={() => setAvatarOpen(false)}
+        user={{}}
+        customer={{ avatarUuid, name: customer.name }}
+        upload={(image) => customersApi.uploadCustomerAvatar(customer.uuid, image)}
+        remove={() => customersApi.removeCustomerAvatar(customer.uuid)}
+        onChanged={(next) => {
+          setAvatarUuid(next);
+          onAvatarChanged?.();
+        }}
       />
     </Modal>
   );

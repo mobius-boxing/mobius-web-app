@@ -18,7 +18,7 @@ import CreateSupplierModal from '../components/modals/CreateSupplierModal';
 import EditSupplierModal from '../components/modals/EditSupplierModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const Suppliers: React.FC = () => {
   const { t } = useTranslation();
@@ -91,7 +91,7 @@ const Suppliers: React.FC = () => {
       card: 'title' as const,
       render: (value: any, supplier: Supplier) => (
         <span className="text-sm font-medium text-secondary-900">
-          {supplier.code || 'N/A'}
+          {supplier.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -140,8 +140,7 @@ const Suppliers: React.FC = () => {
         </span>
       ),
     },
-    historyColumn('suppliers', t),
-    {
+    withHistory('suppliers', t, {
       key: 'actions',
       header: t('suppliers.columns.actions'),
       pinned: true,
@@ -169,7 +168,7 @@ const Suppliers: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

@@ -98,12 +98,14 @@ const Users: React.FC = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [avatarUser, setAvatarUser] = useState<User | null>(null);
+  const [editPhoto, setEditPhoto] = useState<string | null | undefined>(undefined);
   const [deleteLoading, setDeleteLoading] = useState<string | null>(null);
   const [statusLoading, setStatusLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const handleEditUser = (user: User) => {
     setSelectedUser(user);
+    setEditPhoto(undefined);
     setIsEditModalOpen(true);
   };
 
@@ -351,6 +353,7 @@ const Users: React.FC = () => {
           }
           onChanged={(avatarUuid) => {
             setAvatarUser({ ...avatarUser, avatarUuid });
+            if (avatarUser.uuid === selectedUser?.uuid) setEditPhoto(avatarUuid);
             if (avatarUser.uuid === currentUser?.uuid && currentUser) {
               updateAuthUser({ ...currentUser, avatarUuid });
             }
@@ -368,6 +371,8 @@ const Users: React.FC = () => {
           }}
           user={selectedUser}
           currentUserUuid={currentUser?.uuid}
+          avatarUuid={editPhoto}
+          onChangePhoto={() => setAvatarUser(selectedUser)}
           onSuccess={() => {
             setIsEditModalOpen(false);
             setSelectedUser(null);

@@ -18,7 +18,7 @@ import CreateToolingStockModal from '../components/modals/CreateToolingStockModa
 import EditToolingStockModal from '../components/modals/EditToolingStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const ToolingStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const ToolingStockPage: React.FC = () => {
       card: 'title' as const,
       render: (value: any, stock: ToolingStock) => (
         <span className="text-sm font-medium text-secondary-900">
-          {stock.tooling?.name || 'N/A'}
+          {stock.tooling?.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -94,7 +94,7 @@ const ToolingStockPage: React.FC = () => {
       header: t('toolingStock.columns.warehouse'),
       render: (value: any, stock: ToolingStock) => (
         <span className="text-sm text-secondary-900">
-          {stock.warehouse?.name || 'N/A'}
+          {stock.warehouse?.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,7 +103,7 @@ const ToolingStockPage: React.FC = () => {
       header: t('toolingStock.columns.supplier'),
       render: (value: any, stock: ToolingStock) => (
         <span className="text-sm text-secondary-900">
-          {stock.supplier?.code || 'N/A'}
+          {stock.supplier?.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -112,7 +112,7 @@ const ToolingStockPage: React.FC = () => {
       header: t('toolingStock.columns.manufacturer'),
       render: (value: any, stock: ToolingStock) => (
         <span className="text-sm text-secondary-900">
-          {stock.manufacturer?.name || 'N/A'}
+          {stock.manufacturer?.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -121,7 +121,7 @@ const ToolingStockPage: React.FC = () => {
       header: t('toolingStock.columns.quantity'),
       render: (value: any, stock: ToolingStock) => (
         <span className="text-sm text-secondary-500">
-          {stock.quantity != null ? stock.quantity : 'N/A'}
+          {stock.quantity != null ? stock.quantity : t('common.notAvailable')}
         </span>
       ),
     },
@@ -130,12 +130,11 @@ const ToolingStockPage: React.FC = () => {
       header: t('toolingStock.columns.price'),
       render: (value: any, stock: ToolingStock) => (
         <span className="text-sm text-secondary-500">
-          {stock.price != null ? `$${stock.price.toFixed(2)}` : 'N/A'}
+          {stock.price != null ? `$${stock.price.toFixed(2)}` : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('tooling_stock', t),
-    {
+    withHistory('tooling_stock', t, {
       key: 'actions',
       header: t('toolingStock.columns.actions'),
       pinned: true,
@@ -163,7 +162,7 @@ const ToolingStockPage: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

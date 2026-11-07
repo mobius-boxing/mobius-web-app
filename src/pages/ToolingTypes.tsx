@@ -17,7 +17,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateToolingTypeModal from '../components/modals/CreateToolingTypeModal';
 import EditToolingTypeModal from '../components/modals/EditToolingTypeModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const ToolingTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -92,7 +92,7 @@ const ToolingTypes: React.FC = () => {
             </div>
           </div>
           <div className="ml-4">
-            <div className="font-medium text-secondary-900">{toolingType.code || 'Unknown Code'}</div>
+            <div className="font-medium text-secondary-900">{toolingType.code || t('common.unknownCode')}</div>
           </div>
         </div>
       ),
@@ -128,8 +128,7 @@ const ToolingTypes: React.FC = () => {
         </span>
       ),
     },
-    historyColumn('tooling_types', t),
-    {
+    withHistory('tooling_types', t, {
       key: 'actions',
       header: t('toolingTypes.columns.actions'),
       pinned: true,
@@ -157,7 +156,7 @@ const ToolingTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

@@ -9,12 +9,17 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
+import Button from '../ui/Button';
+import UserAvatar from '../ui/UserAvatar';
 
 interface EditUserModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: User;
   currentUserUuid?: string;
+  /** Overrides `user.avatarUuid` so a photo change shows without re-seeding the form. */
+  avatarUuid?: string | null;
+  onChangePhoto?: () => void;
   onSuccess: () => void;
 }
 
@@ -28,6 +33,8 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
   onClose,
   user,
   currentUserUuid,
+  avatarUuid,
+  onChangePhoto,
   onSuccess,
 }) => {
   const { t } = useTranslation();
@@ -75,6 +82,19 @@ const EditUserModal: React.FC<EditUserModalProps> = ({
     <Modal isOpen={isOpen} onClose={handleClose} title={t('userManagement.editTitle')}>
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
+
+        {onChangePhoto && (
+          <div className="flex items-center gap-4">
+            <UserAvatar
+              user={{ ...user, avatarUuid: avatarUuid === undefined ? user.avatarUuid : avatarUuid }}
+              className="h-16 w-16 rounded-full bg-primary-100 flex items-center justify-center"
+              textClassName="text-lg font-medium text-primary-600"
+            />
+            <Button type="button" variant="outline" onClick={onChangePhoto}>
+              {t('avatar.changeUserPhoto')}
+            </Button>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input

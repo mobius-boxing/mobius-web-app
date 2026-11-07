@@ -77,4 +77,34 @@ export function historyColumn<T extends HistoryRow = any>(
   };
 }
 
+/**
+ * Folds the history button into the page's own actions column so every list
+ * has a single pinned actions cell with all icons inline.
+ */
+export function withHistory<T extends HistoryRow = any>(
+  entityKey: string,
+  t: Translate,
+  actions?: Column<T>
+): Column<T> {
+  const base: Column<T> = actions ?? {
+    key: 'actions',
+    header: t('audit.title'),
+    pinned: true,
+    card: 'actions',
+  };
+  return {
+    ...base,
+    render: (value: any, row: T) => (
+      <div className="flex items-center space-x-2">
+        <HistoryButton
+          entityKey={entityKey}
+          uuid={row?.uuid}
+          recordLabel={recordLabelOf(row)}
+        />
+        {base.render ? base.render(value, row) : null}
+      </div>
+    ),
+  };
+}
+
 export default historyColumn;

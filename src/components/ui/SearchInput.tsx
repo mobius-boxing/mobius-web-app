@@ -53,7 +53,7 @@ export const SearchInput: React.FC<SearchInputProps> = ({
         placeholder={placeholder || t('common.search')}
         disabled={disabled}
         className={`
-          block w-full pl-10 pr-10 py-2
+          block w-full h-10 pl-10 pr-10 py-2
           bg-white border border-secondary-300 rounded-lg
           text-sm text-secondary-900 placeholder-secondary-400
           transition-colors duration-150

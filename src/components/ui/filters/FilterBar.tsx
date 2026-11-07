@@ -12,10 +12,8 @@ function hasValue(value: unknown): boolean {
 
 /** Shared select/date styling — matches `SearchInput`/`Input` (border-secondary-300, focus ring primary-500/30). */
 const CONTROL_CLASSNAME =
-  'block w-full py-2 px-3 bg-white border border-secondary-300 rounded-lg text-sm text-secondary-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed';
+  'block w-full h-10 py-2 px-3 bg-white border border-secondary-300 rounded-lg text-sm text-secondary-900 focus:outline-none focus:ring-2 focus:ring-primary-500/30 focus:border-primary-500 disabled:bg-secondary-100 disabled:cursor-not-allowed';
 
-/** The default field width for a def with no explicit `className`. */
-const DEFAULT_FIELD_WIDTH = 'w-full sm:flex-1 sm:max-w-md';
 
 interface DebouncedTextFieldProps {
   value: string;
@@ -163,27 +161,24 @@ const FilterControl: React.FC<FilterControlProps> = ({ def, value, disabled, onC
   );
 };
 
-type FieldVariant = 'primary' | 'panel';
-
 interface FilterFieldProps {
   def: FilterDef;
   value: unknown;
   disabled: boolean;
   onChange: (key: string, value: unknown) => void;
-  variant: FieldVariant;
 }
 
 /** A plain (non-range) field cell: label always rendered (a same-height placeholder when there is none), control pinned to the bottom via `mt-auto`. */
-const FilterField: React.FC<FilterFieldProps> = ({ def, value, disabled, onChange, variant }) => {
+const FilterField: React.FC<FilterFieldProps> = ({ def, value, disabled, onChange }) => {
   const { t } = useTranslation();
-  const cellClassName =
-    variant === 'primary' ? `flex flex-col ${def.className ?? DEFAULT_FIELD_WIDTH}` : 'flex flex-col';
+  const cellClassName = 'flex flex-col min-w-0';
+  const label = def.label || (def.key === 'search' ? t('common.search') : '');
 
   return (
     <div className={cellClassName}>
-      {def.label ? (
-        <label className="gd-label truncate" title={def.label}>
-          {def.label}
+      {label ? (
+        <label className="gd-label truncate" title={label}>
+          {label}
           {def.required && (
             <span className="text-red-500 ml-1" aria-hidden="true" title={t('filters.required')}>
               *
@@ -209,18 +204,14 @@ interface FilterRangeFieldProps {
   values: Record<string, unknown>;
   isDisabled: (def: FilterDef) => boolean;
   onChange: (key: string, value: unknown) => void;
-  variant: FieldVariant;
 }
 
 /** A from/to range cell (AC-3): one shared caption, two controls side by side, each keeping its own def's label as an `aria-label`. */
-const FilterRangeField: React.FC<FilterRangeFieldProps> = ({ label, defs, values, isDisabled, onChange, variant }) => {
+const FilterRangeField: React.FC<FilterRangeFieldProps> = ({ label, defs, values, isDisabled, onChange }) => {
   const { t } = useTranslation();
-  const firstDef = defs[0];
-  const cellClassName =
-    variant === 'primary' ? `flex flex-col ${firstDef.className ?? DEFAULT_FIELD_WIDTH}` : 'flex flex-col';
 
   return (
-    <div className={cellClassName}>
+    <div className="flex flex-col min-w-0">
       <label className="gd-label truncate" title={label}>
         {label}
       </label>
@@ -293,7 +284,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ defs, values, onChange, cl
 
   return (
     <div className={['flex flex-col gap-3', className].filter(Boolean).join(' ')}>
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="gd-filters-primary">
         {primaryCells.map((cell) =>
           cell.type === 'range' ? (
             <FilterRangeField
@@ -303,7 +294,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({ defs, values, onChange, cl
               values={values}
               isDisabled={isPrimaryDisabled}
               onChange={onChange}
-              variant="primary"
             />
           ) : (
             <FilterField
@@ -312,7 +302,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({ defs, values, onChange, cl
               value={values[cell.def.key]}
               disabled={isPrimaryDisabled(cell.def)}
               onChange={onChange}
-              variant="primary"
             />
           ),
         )}
@@ -324,7 +313,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({ defs, values, onChange, cl
             disabled={requiredUnmet}
             aria-expanded={panelOpen}
             aria-controls={panelId}
-            className="inline-flex items-center gap-2 py-2 px-3 border border-secondary-300 rounded-lg text-sm text-secondary-700 hover:bg-secondary-50 disabled:bg-secondary-100 disabled:cursor-not-allowed disabled:text-secondary-400"
+            className="inline-flex items-center gap-2 h-10 py-2 px-3 border border-secondary-300 rounded-lg text-sm text-secondary-700 hover:bg-secondary-50 disabled:bg-secondary-100 disabled:cursor-not-allowed disabled:text-secondary-400"
           >
             <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
             {t('filters.advanced')}
@@ -363,7 +352,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({ defs, values, onChange, cl
                   values={values}
                   isDisabled={isAdvancedDisabled}
                   onChange={onChange}
-                  variant="panel"
                 />
               ) : (
                 <FilterField
@@ -372,7 +360,6 @@ export const FilterBar: React.FC<FilterBarProps> = ({ defs, values, onChange, cl
                   value={values[cell.def.key]}
                   disabled={isAdvancedDisabled(cell.def)}
                   onChange={onChange}
-                  variant="panel"
                 />
               ),
             )}

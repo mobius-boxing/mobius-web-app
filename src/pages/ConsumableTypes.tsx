@@ -17,7 +17,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateConsumableTypeModal from '../components/modals/CreateConsumableTypeModal';
 import EditConsumableTypeModal from '../components/modals/EditConsumableTypeModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const ConsumableTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -92,7 +92,7 @@ const ConsumableTypes: React.FC = () => {
             </div>
           </div>
           <div className="ml-4">
-            <div className="font-medium text-secondary-900">{consumableType.code || 'Unknown Code'}</div>
+            <div className="font-medium text-secondary-900">{consumableType.code || t('common.unknownCode')}</div>
           </div>
         </div>
       ),
@@ -119,8 +119,7 @@ const ConsumableTypes: React.FC = () => {
         </span>
       ),
     },
-    historyColumn('consumable_types', t),
-    {
+    withHistory('consumable_types', t, {
       key: 'actions',
       header: t('consumableTypes.columns.actions'),
       pinned: true,
@@ -148,7 +147,7 @@ const ConsumableTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

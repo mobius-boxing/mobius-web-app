@@ -18,7 +18,7 @@ import CreateProductTypeModal from '../components/modals/CreateProductTypeModal'
 import EditProductTypeModal from '../components/modals/EditProductTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const ProductTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -90,7 +90,7 @@ const ProductTypes: React.FC = () => {
       card: 'title' as const,
       render: (value: any, item: ProductType) => (
         <span className="text-sm font-medium text-secondary-900">
-          {item.code || 'N/A'}
+          {item.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -110,12 +110,11 @@ const ProductTypes: React.FC = () => {
       sortable: true,
       render: (value: any, item: ProductType) => (
         <span className="text-sm text-secondary-500">
-          {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : 'N/A'}
+          {item.createdAt ? new Date(item.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('product_types', t),
-    {
+    withHistory('product_types', t, {
       key: 'actions',
       header: t('productTypes.columns.actions'),
       pinned: true,
@@ -143,7 +142,7 @@ const ProductTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

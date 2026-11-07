@@ -18,7 +18,7 @@ import CreateStrappingTypeModal from '../components/modals/CreateStrappingTypeMo
 import EditStrappingTypeModal from '../components/modals/EditStrappingTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const StrappingTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const StrappingTypes: React.FC = () => {
       card: 'title' as const,
       render: (value: any, strappingType: StrappingType) => (
         <span className="text-sm font-medium text-secondary-900">
-          {strappingType.code || 'N/A'}
+          {strappingType.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,12 +103,11 @@ const StrappingTypes: React.FC = () => {
       header: t('strappingTypes.columns.created'),
       render: (value: any, strappingType: StrappingType) => (
         <span className="text-sm text-secondary-500">
-          {strappingType.createdAt ? new Date(strappingType.createdAt).toLocaleDateString() : 'N/A'}
+          {strappingType.createdAt ? new Date(strappingType.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('strapping_types', t),
-    {
+    withHistory('strapping_types', t, {
       key: 'actions',
       header: t('strappingTypes.columns.actions'),
       pinned: true,
@@ -136,7 +135,7 @@ const StrappingTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

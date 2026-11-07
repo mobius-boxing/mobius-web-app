@@ -16,7 +16,7 @@ import { useConfirmModal } from '../hooks/useConfirmModal';
 import ProductFormModal from '../components/products/ProductFormModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 import { columnFilterDefs } from '../filters/columnFilters';
 
 const Products: React.FC = () => {
@@ -61,7 +61,7 @@ const Products: React.FC = () => {
       card: 'title' as const,
       render: (value: any, product: Product) => (
         <span className="text-sm font-medium text-secondary-900">
-          {product.code || 'N/A'}
+          {product.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -71,7 +71,7 @@ const Products: React.FC = () => {
       sortable: true,
       render: (value: any, product: Product) => (
         <span className="text-sm text-secondary-900">
-          {product.clientCode || 'N/A'}
+          {product.clientCode || t('common.notAvailable')}
         </span>
       ),
     },
@@ -80,7 +80,7 @@ const Products: React.FC = () => {
       header: t('products.columns.customer'),
       render: (value: any, product: Product) => (
         <span className="text-sm text-secondary-900">
-          {product.customer?.name || 'N/A'}
+          {product.customer?.name || t('common.notAvailable')}
         </span>
       ),
     },
@@ -89,7 +89,7 @@ const Products: React.FC = () => {
       header: t('products.columns.description'),
       render: (value: any, product: Product) => (
         <span className="text-sm text-secondary-500">
-          {product.description || 'N/A'}
+          {product.description || t('common.notAvailable')}
         </span>
       ),
     },
@@ -129,8 +129,7 @@ const Products: React.FC = () => {
         </span>
       ),
     },
-    historyColumn('products', t),
-    {
+    withHistory('products', t, {
       key: 'actions',
       header: t('products.columns.actions'),
       pinned: true,
@@ -158,7 +157,7 @@ const Products: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs: FilterDef[] = useMemo(

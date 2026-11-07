@@ -17,7 +17,7 @@ import ConfirmModal from '../components/ui/ConfirmModal';
 import CreateCorrugationClassModal from '../components/modals/CreateCorrugationClassModal';
 import EditCorrugationClassModal from '../components/modals/EditCorrugationClassModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const CorrugationClasses: React.FC = () => {
   const { t } = useTranslation();
@@ -92,7 +92,7 @@ const CorrugationClasses: React.FC = () => {
             </div>
           </div>
           <div className="ml-4">
-            <div className="font-medium text-secondary-900">{corrugationClass.code || 'Unknown Code'}</div>
+            <div className="font-medium text-secondary-900">{corrugationClass.code || t('common.unknownCode')}</div>
           </div>
         </div>
       ),
@@ -111,12 +111,11 @@ const CorrugationClasses: React.FC = () => {
       header: t('corrugationClasses.columns.created'),
       render: (value: any, corrugationClass: CorrugationClass) => (
         <span className="text-sm text-secondary-900">
-          {corrugationClass?.createdAt ? new Date(corrugationClass.createdAt).toLocaleDateString() : 'N/A'}
+          {corrugationClass?.createdAt ? new Date(corrugationClass.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('corrugation_classes', t),
-    {
+    withHistory('corrugation_classes', t, {
       key: 'actions',
       header: t('corrugationClasses.columns.actions'),
       pinned: true,
@@ -144,7 +143,7 @@ const CorrugationClasses: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

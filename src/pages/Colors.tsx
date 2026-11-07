@@ -18,7 +18,7 @@ import CreateColorModal from '../components/modals/CreateColorModal';
 import EditColorModal from '../components/modals/EditColorModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const Colors: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const Colors: React.FC = () => {
       card: 'title' as const,
       render: (value: any, color: Color) => (
         <span className="text-sm font-medium text-secondary-900">
-          {color.code || 'N/A'}
+          {color.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -112,12 +112,11 @@ const Colors: React.FC = () => {
       header: t('colors.columns.created'),
       render: (value: any, color: Color) => (
         <span className="text-sm text-secondary-500">
-          {color.createdAt ? new Date(color.createdAt).toLocaleDateString() : 'N/A'}
+          {color.createdAt ? new Date(color.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('colors', t),
-    {
+    withHistory('colors', t, {
       key: 'actions',
       header: t('colors.columns.actions'),
       pinned: true,
@@ -145,7 +144,7 @@ const Colors: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

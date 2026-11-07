@@ -18,7 +18,7 @@ import CreatePalletizationModal from '../components/modals/CreatePalletizationMo
 import EditPalletizationModal from '../components/modals/EditPalletizationModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const Palletizations: React.FC = () => {
   const { t } = useTranslation();
@@ -68,7 +68,7 @@ const Palletizations: React.FC = () => {
       hideable: false,
       card: 'title' as const,
       render: (_: any, p: Palletization) => (
-        <span className="text-sm font-medium text-secondary-900">{p.code || 'N/A'}</span>
+        <span className="text-sm font-medium text-secondary-900">{p.code || t('common.notAvailable')}</span>
       ),
     },
     {
@@ -99,8 +99,7 @@ const Palletizations: React.FC = () => {
         <span className="text-sm text-secondary-500">{p.palletType?.code || '-'}</span>
       ),
     },
-    historyColumn('palletizations', t),
-    {
+    withHistory('palletizations', t, {
       key: 'actions',
       header: t('palletizations.columns.actions'),
       pinned: true,
@@ -128,7 +127,7 @@ const Palletizations: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

@@ -4,6 +4,7 @@ import Modal from '../ui/Modal';
 import Button from '../ui/Button';
 import ErrorMessage from '../ui/ErrorMessage';
 import UserAvatar from '../ui/UserAvatar';
+import CustomerAvatar from '../ui/CustomerAvatar';
 
 const AVATAR_PX = 256;
 
@@ -53,6 +54,8 @@ interface AvatarModalProps {
   isOpen: boolean;
   onClose: () => void;
   user: { avatarUuid?: string | null; firstName?: string; lastName?: string };
+  /** Previews a customer's photo (its own public route and initials) instead of a user's. */
+  customer?: { avatarUuid?: string | null; name?: string };
   upload: (image: Blob) => Promise<string>;
   remove: () => Promise<void>;
   onChanged: (avatarUuid: string | null) => void;
@@ -63,6 +66,7 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
   isOpen,
   onClose,
   user,
+  customer,
   upload,
   remove,
   onChanged,
@@ -106,11 +110,19 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title={t('avatar.title')} size="sm">
       <div className="flex flex-col items-center gap-4">
-        <UserAvatar
-          user={user}
-          className="gd-avatar-preview"
-          textClassName="text-2xl font-medium"
-        />
+        {customer ? (
+          <CustomerAvatar
+            customer={customer}
+            className="gd-avatar-preview"
+            textClassName="text-2xl font-medium"
+          />
+        ) : (
+          <UserAvatar
+            user={user}
+            className="gd-avatar-preview"
+            textClassName="text-2xl font-medium"
+          />
+        )}
         <ErrorMessage message={error} />
         <input
           ref={inputRef}
@@ -124,7 +136,7 @@ const AvatarModal: React.FC<AvatarModalProps> = ({
           <Button onClick={() => inputRef.current?.click()} loading={busy}>
             {t('avatar.upload')}
           </Button>
-          {user.avatarUuid && (
+          {(customer ?? user).avatarUuid && (
             <Button
               variant="outline"
               disabled={busy}

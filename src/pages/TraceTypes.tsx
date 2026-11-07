@@ -18,7 +18,7 @@ import CreateTraceTypeModal from '../components/modals/CreateTraceTypeModal';
 import EditTraceTypeModal from '../components/modals/EditTraceTypeModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
-import { historyColumn } from '../components/audit/historyColumn';
+import { withHistory } from '../components/audit/historyColumn';
 
 const TraceTypes: React.FC = () => {
   const { t } = useTranslation();
@@ -85,7 +85,7 @@ const TraceTypes: React.FC = () => {
       card: 'title' as const,
       render: (value: any, traceType: TraceType) => (
         <span className="text-sm font-medium text-secondary-900">
-          {traceType.code || 'N/A'}
+          {traceType.code || t('common.notAvailable')}
         </span>
       ),
     },
@@ -103,12 +103,11 @@ const TraceTypes: React.FC = () => {
       header: t('traceTypes.columns.created'),
       render: (value: any, traceType: TraceType) => (
         <span className="text-sm text-secondary-500">
-          {traceType.createdAt ? new Date(traceType.createdAt).toLocaleDateString() : 'N/A'}
+          {traceType.createdAt ? new Date(traceType.createdAt).toLocaleDateString() : t('common.notAvailable')}
         </span>
       ),
     },
-    historyColumn('trace_types', t),
-    {
+    withHistory('trace_types', t, {
       key: 'actions',
       header: t('traceTypes.columns.actions'),
       pinned: true,
@@ -136,7 +135,7 @@ const TraceTypes: React.FC = () => {
           )}
         </div>
       ),
-    },
+    }),
   ];
 
   const filterDefs = useMemo(

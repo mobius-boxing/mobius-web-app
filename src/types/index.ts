@@ -310,6 +310,7 @@ export interface Customer {
   notes?: string;
   excludeLogoOnLabels?: boolean;
   requiresQualityCertificate?: boolean;
+  avatarUuid?: string | null;
   contacts: ContactInfo[];
   createdAt: string;
   updatedAt: string;
