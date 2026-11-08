@@ -120,9 +120,6 @@ const WarehouseGridEditorModal: React.FC<WarehouseGridEditorModalProps> = ({
   };
 
   const paintCell = (row: number, col: number) => {
-    const location = getLocationByPosition(row, col);
-    if (!location) return;
-
     const change: BatchUpdateLocation =
       selectedTool === 'inactive'
         ? { row, col, status: 'inactive', locationType: getCellType(row, col) }
