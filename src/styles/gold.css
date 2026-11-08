@@ -732,7 +732,8 @@ body::after {
 }
 
 .gd-table > tbody > tr > td {
-  padding: 1rem 1.5rem;
+  /* 0.25rem deeper than the th on purpose: content sits just inside its header. */
+  padding: 1rem 1.5rem 1rem 1.75rem;
   vertical-align: middle;
   font-size: 0.875rem;
   color: oklch(var(--n-800));
