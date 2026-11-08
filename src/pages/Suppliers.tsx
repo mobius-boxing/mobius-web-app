@@ -80,7 +80,7 @@ const Suppliers: React.FC = () => {
   const getBadgeColor = (value: boolean) => {
     return value
       ? 'gd-badge-positive'
-      : 'bg-gray-100 text-gray-800';
+      : 'gd-badge-neutral';
   };
 
   const columns = [
@@ -99,7 +99,7 @@ const Suppliers: React.FC = () => {
       key: 'suppliesSheets',
       header: t('suppliers.columns.sheets'),
       render: (value: any, supplier: Supplier) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getBadgeColor(supplier?.suppliesSheets ?? false)}`}>
+        <span className={`gd-badge ${getBadgeColor(supplier?.suppliesSheets ?? false)}`}>
           {supplier?.suppliesSheets ? t('common.yes') : t('common.no')}
         </span>
       ),
@@ -108,7 +108,7 @@ const Suppliers: React.FC = () => {
       key: 'suppliesElaborated',
       header: t('suppliers.columns.elaborated'),
       render: (value: any, supplier: Supplier) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getBadgeColor(supplier?.suppliesElaborated ?? false)}`}>
+        <span className={`gd-badge ${getBadgeColor(supplier?.suppliesElaborated ?? false)}`}>
           {supplier?.suppliesElaborated ? t('common.yes') : t('common.no')}
         </span>
       ),
@@ -117,7 +117,7 @@ const Suppliers: React.FC = () => {
       key: 'suppliesConsumables',
       header: t('suppliers.columns.consumables'),
       render: (value: any, supplier: Supplier) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getBadgeColor(supplier?.suppliesConsumables ?? false)}`}>
+        <span className={`gd-badge ${getBadgeColor(supplier?.suppliesConsumables ?? false)}`}>
           {supplier?.suppliesConsumables ? t('common.yes') : t('common.no')}
         </span>
       ),
@@ -126,7 +126,7 @@ const Suppliers: React.FC = () => {
       key: 'suppliesPaper',
       header: t('suppliers.columns.paper'),
       render: (value: any, supplier: Supplier) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getBadgeColor(supplier?.suppliesPaper ?? false)}`}>
+        <span className={`gd-badge ${getBadgeColor(supplier?.suppliesPaper ?? false)}`}>
           {supplier?.suppliesPaper ? t('common.yes') : t('common.no')}
         </span>
       ),
@@ -135,7 +135,7 @@ const Suppliers: React.FC = () => {
       key: 'suppliesTooling',
       header: t('suppliers.columns.tooling'),
       render: (value: any, supplier: Supplier) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getBadgeColor(supplier?.suppliesTooling ?? false)}`}>
+        <span className={`gd-badge ${getBadgeColor(supplier?.suppliesTooling ?? false)}`}>
           {supplier?.suppliesTooling ? t('common.yes') : t('common.no')}
         </span>
       ),

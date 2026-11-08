@@ -900,7 +900,14 @@ body::after {
   box-shadow: inset -2px 0 0 oklch(var(--p-500));
 }
 
+/* Out of flow, inside the th's 1.5rem left padding: in flow, the hidden grip
+   still took its width plus the flex gap and pushed every draggable header
+   20px right of its column's content. */
 .gd-drag-grip {
+  position: absolute;
+  left: 0.375rem;
+  top: 50%;
+  transform: translateY(-50%);
   opacity: 0;
   transition: opacity 0.15s var(--ease-snap);
 }

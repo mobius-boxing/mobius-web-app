@@ -102,7 +102,7 @@ const Customers: React.FC = () => {
       key: 'status',
       header: t('customers.columns.status'),
       render: (value: any, customer: Customer) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(customer?.active ?? false)}`}>
+        <span className={`gd-badge ${getStatusBadgeColor(customer?.active ?? false)}`}>
           {customer?.active ? t('customers.status.active') : t('customers.status.inactive')}
         </span>
       ),

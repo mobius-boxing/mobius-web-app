@@ -108,7 +108,7 @@ const Companies: React.FC = () => {
       key: 'status',
       header: t('companies.columns.status'),
       render: (value: any, company: Company) => (
-        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusBadgeColor(company?.isActive ?? false)}`}>
+        <span className={`gd-badge ${getStatusBadgeColor(company?.isActive ?? false)}`}>
           {company?.isActive ? t('companies.status.active') : t('companies.status.inactive')}
         </span>
       ),

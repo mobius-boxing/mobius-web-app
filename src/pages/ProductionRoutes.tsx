@@ -76,7 +76,7 @@ const ProductionRoutes: React.FC = () => {
   };
 
   const badge = (text: string, cls: string) => (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${cls}`}>
+    <span className={`gd-badge ${cls}`}>
       {text}
     </span>
   );
