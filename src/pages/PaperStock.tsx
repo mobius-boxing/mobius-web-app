@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect , useMemo } from 'react';
-import { Plus, Trash2, Edit, Package } from 'lucide-react';
+import { Plus, Trash2, Edit, Package, Printer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { PaperStock } from '../types';
 import { paperStockApi } from '../services/api';
@@ -19,6 +19,7 @@ import EditPaperStockModal from '../components/modals/EditPaperStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
 import { logger } from '../utils/logger';
 import { withHistory } from '../components/audit/historyColumn';
+import { useReelLabelPrint } from '../components/paper-stock/useReelLabelPrint';
 
 const PaperStockPage: React.FC = () => {
   const { t } = useTranslation();
@@ -30,6 +31,7 @@ const PaperStockPage: React.FC = () => {
   const [selectedPaperStock, setSelectedPaperStock] = useState<PaperStock | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
+  const printLabels = useReelLabelPrint();
 
   const fetchPaperStock = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
@@ -66,9 +68,23 @@ const PaperStockPage: React.FC = () => {
     });
   };
 
-  const handleCreateSuccess = () => {
+  const handleCreateSuccess = (created?: PaperStock, printLabel = false) => {
     setShowCreateModal(false);
     refresh();
+    if (created && printLabel) {
+      paperStockApi
+        .getPaperStockById(created.uuid)
+        .then((reel) => printLabels([reel]))
+        .catch((error) => logger.error('Error loading reel for label:', error));
+    }
+  };
+
+  const handlePrint = async (stock: PaperStock) => {
+    try {
+      printLabels([await paperStockApi.getPaperStockById(stock.uuid)]);
+    } catch (error) {
+      logger.error('Error loading reel for label:', error);
+    }
   };
 
   const handleEditSuccess = () => {
@@ -78,6 +94,12 @@ const PaperStockPage: React.FC = () => {
   };
 
   const columns = [
+    {
+      key: 'code',
+      header: t('paperStock.columns.code'),
+      sortable: true,
+      render: (value: string | undefined) => <span className="text-sm font-medium text-secondary-900">{value || t('common.notAvailable')}</span>,
+    },
     {
       key: 'paperSupply',
       header: t('paperStock.columns.paperSupply'),
@@ -122,11 +144,16 @@ const PaperStockPage: React.FC = () => {
       render: (value: any, stock: PaperStock) => (
         <span className="text-sm text-secondary-500">
           {stock.weight != null ? `${stock.weight} kg` : ''}
-          {stock.diameter != null ? ` / ${stock.diameter} cm` : ''}
-          {stock.width != null ? ` / ${stock.width} cm` : ''}
+          {stock.diameter != null ? ` / ${stock.diameter} mm` : ''}
+          {stock.width != null ? ` / ${stock.width} mm` : ''}
           {!stock.weight && !stock.diameter && !stock.width ? t('common.notAvailable') : ''}
         </span>
       ),
+    },
+    {
+      key: 'createdAt',
+      header: t('paperStock.columns.createdAt'),
+      render: (value: string | undefined) => <span className="text-sm text-secondary-500">{value ? new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Argentina/Buenos_Aires' }).format(new Date(value)) : t('common.notAvailable')}</span>,
     },
     {
       key: 'price',
@@ -144,6 +171,9 @@ const PaperStockPage: React.FC = () => {
       card: 'actions' as const,
       render: (value: any, stock: PaperStock) => (
         <div className="flex items-center space-x-2">
+          <ActionButton label={t('paperStock.printLabel')} onClick={() => handlePrint(stock)} disabled={!stock}>
+            <Printer className="h-4 w-4" />
+          </ActionButton>
           {canEdit && (
             <ActionButton
               label={t('common.edit')}
@@ -184,9 +214,12 @@ const PaperStockPage: React.FC = () => {
     filterBarProps,
     refresh,
     paginationProps,
+    sortBy,
+    sortOrder,
+    setSort,
   } = useEntityList<PaperStock>({
     fetchFn: fetchPaperStock,
-    searchFields: ['comments'],
+    searchFields: ['comments', 'code', 'barcode'],
     filterDefs,
   });
 
@@ -220,6 +253,10 @@ const PaperStockPage: React.FC = () => {
               <h2 className="text-lg font-medium text-secondary-900">
                 {t('paperStock.allPaperStock')} ({paperStock.length})
               </h2>
+              <Button variant="secondary" onClick={() => printLabels(paperStock)} disabled={paperStock.length === 0}>
+                <Printer className="h-4 w-4 mr-2" />
+                {t('paperStock.printLabels', { count: paperStock.length })}
+              </Button>
             </div>
 
             {!loading && paperStock.length === 0 ? (
@@ -245,6 +282,9 @@ const PaperStockPage: React.FC = () => {
                   data={paperStock}
                   loading={loading}
                   listId="paper-stock"
+                  sortBy={sortBy}
+                  sortOrder={sortOrder}
+                  onSort={setSort}
                 />
                 <Pagination {...paginationProps} />
               </>

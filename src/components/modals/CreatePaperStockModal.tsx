@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { CreatePaperStockForm, Manufacturer, Supplier, Warehouse, PaperSupply, WarehouseLocation } from '../../types';
+import { CreatePaperStockForm, Manufacturer, Supplier, Warehouse, PaperSupply, WarehouseLocation, PaperStock } from '../../types';
 import { paperStockApi, manufacturersApi, suppliersApi, warehousesApi, paperSuppliesApi } from '../../services/api';
 import { useModalForm } from '../../hooks/useModalForm';
 import { createPaperStockSchema } from '../../validation/schemas/paperStock';
@@ -17,7 +17,7 @@ import { logger } from '../../utils/logger';
 interface CreatePaperStockModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: () => void;
+  onSuccess: (created?: PaperStock, printLabel?: boolean) => void;
 }
 
 const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
@@ -33,6 +33,8 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
   const [paperSupplies, setPaperSupplies] = useState<PaperSupply[]>([]);
   const [locationSelectorOpen, setLocationSelectorOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<WarehouseLocation | null>(null);
+  const [printLabel, setPrintLabel] = useState(true);
+  const createdRef = useRef<PaperStock | undefined>(undefined);
 
   const {
     form: {
@@ -46,7 +48,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
     handleSubmit,
     handleClose: modalHandleClose,
   } = useModalForm<CreatePaperStockForm>({
-    onSuccess,
+    onSuccess: () => onSuccess(createdRef.current, printLabel),
     onClose,
     schema: createPaperStockSchema(t),
   });
@@ -58,6 +60,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
     if (isOpen) {
       fetchDropdownData();
       setSelectedLocation(null);
+      setPrintLabel(true);
     }
   }, [isOpen, effectiveCompanyId]);
 
@@ -83,7 +86,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
     }
   };
 
-  const onSubmit = handleSubmit((data) => {
+  const onSubmit = handleSubmit(async (data) => {
     const stockData = {
       warehouseId: data.warehouseId,
       warehouseLocationId: selectedLocation?.uuid || undefined,
@@ -95,11 +98,13 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
       weight: data.weight || undefined,
       diameter: data.diameter || undefined,
       width: data.width || undefined,
+      barcode: data.barcode || undefined,
       // superAdmin operating-as: the backend resolves this body companyId;
       // regular users' company always comes from their JWT instead.
       ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
     };
-    return paperStockApi.createPaperStock(stockData);
+    const created = await paperStockApi.createPaperStock(stockData);
+    createdRef.current = created;
   });
 
   const handleClose = () => {
@@ -131,6 +136,16 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperStock.createTitle')}>
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
+
+        <div>
+          <label className="gd-label">{t('paperStock.barcode')}</label>
+          <Input {...register('barcode')} error={errors.barcode?.message as string} placeholder={t('paperStock.barcodePlaceholder')} data-testid="paper-stock-barcode" />
+        </div>
+
+        <label className="flex items-center gap-2 text-sm text-secondary-700">
+          <input name="printLabel" type="checkbox" checked={printLabel} onChange={(event) => setPrintLabel(event.target.checked)} data-testid="paper-stock-print-label" />
+          {t('paperStock.printOnSave')}
+        </label>
 
         <div>
           <label className="gd-label">

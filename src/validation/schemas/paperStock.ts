@@ -40,9 +40,17 @@ import {
 /** numeric(10,2) — shared by price and the three measures on this table. */
 const NUMERIC_10_2_MAX = 99999999.99;
 const COMMENTS_MAX = 10000;
+const BARCODE_MAX = 50;
+const PRINTABLE_ASCII = /^[\x20-\x7E]*$/;
 
 const measure = (t: Translate, label: string) =>
   nonNegativeNumber(t, label, { max: NUMERIC_10_2_MAX, decimals: 2 });
+
+const barcode = (t: Translate) =>
+  optionalText(t, t('paperStock.barcode'), BARCODE_MAX).refine(
+    (value) => value === undefined || PRINTABLE_ASCII.test(value),
+    { message: t('validation.invalidFormat', { field: t('paperStock.barcode') }) }
+  );
 
 export const createPaperStockSchema = (t: Translate) =>
   z.object({
@@ -55,6 +63,7 @@ export const createPaperStockSchema = (t: Translate) =>
     width: measure(t, t('paperStock.width')),
     price: money(t, t('paperStock.price'), { max: NUMERIC_10_2_MAX }),
     comments: optionalText(t, t('paperStock.comments'), COMMENTS_MAX),
+    barcode: barcode(t),
   });
 
 /**

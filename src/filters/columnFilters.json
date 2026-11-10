@@ -323,12 +323,14 @@
   "paper-stock": {
     "endpoint": "/api/paper-stock",
     "filters": [
+      { "column": "code", "kind": "text" },
       { "column": "paperSupply", "kind": "entity", "entity": "paperSupply", "param": "paperSupplyUuid" },
       { "column": "warehouse", "kind": "entity", "entity": "warehouse", "param": "warehouseUuid" },
       { "column": "supplier", "kind": "entity", "entity": "supplier", "param": "supplierUuid" },
       { "column": "manufacturer", "kind": "entity", "entity": "manufacturer", "param": "manufacturerUuid" },
       { "column": "dimensions", "notFilterable": "computed" },
       { "column": "price", "kind": "number" },
+      { "column": "createdAt", "kind": "date" },
       { "column": "history", "notFilterable": "actions" },
       { "column": "actions", "notFilterable": "actions" }
     ]

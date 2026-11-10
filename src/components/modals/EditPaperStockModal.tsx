@@ -81,6 +81,7 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
         weight: paperStock.weight || undefined,
         diameter: paperStock.diameter || undefined,
         width: paperStock.width || undefined,
+        barcode: paperStock.barcode || '',
       });
       setSelectedLocation(paperStock.warehouseLocation || null);
     }
@@ -140,6 +141,7 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
       weight: data.weight || undefined,
       diameter: data.diameter || undefined,
       width: data.width || undefined,
+      barcode: data.barcode || null,
     };
 
     await paperStockApi.updatePaperStock(paperStock.uuid, stockData);
@@ -161,6 +163,16 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
     <Modal isOpen={isOpen} onClose={handleClose} title={t('paperStock.editTitle')}>
       <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
+
+        <div>
+          <label className="gd-label">{t('paperStock.code')}</label>
+          <Input name="code" type="text" value={paperStock.code || ''} readOnly data-testid="paper-stock-code" />
+        </div>
+
+        <div>
+          <label className="gd-label">{t('paperStock.barcode')}</label>
+          <Input {...register('barcode')} error={errors.barcode?.message as string} placeholder={t('paperStock.barcodePlaceholder')} data-testid="paper-stock-barcode" />
+        </div>
 
         <div>
           <label className="gd-label">
