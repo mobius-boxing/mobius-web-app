@@ -52,26 +52,28 @@ const ReelLabel: React.FC<ReelLabelProps> = ({ reel }) => {
 
   return (
     <section className="reel-label" data-testid={`reel-label-${reel.uuid}`}>
-      <table className="reel-label__table">
-        <tbody>
-          {rows.map(([label, value]) => (
-            <tr key={label}>
-              <td>{label}</td>
-              <td>{value}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="reel-label__measure reel-label__measure--diameter">
-        <span>{t('paperStock.label.diameter')}</span><strong>{roundedMeasure(reel.diameter, 'mm')}</strong>
+      <div className="reel-label__body">
+        <table className="reel-label__table">
+          <tbody>
+            {rows.map(([label, value]) => (
+              <tr key={label}>
+                <td>{label}</td>
+                <td>{value}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <div className="reel-label__measure reel-label__measure--diameter">
+          <span>{t('paperStock.label.diameter')}</span><strong>{roundedMeasure(reel.diameter, 'mm')}</strong>
+        </div>
+        <div className="reel-label__measure reel-label__measure--width">
+          <span>{t('paperStock.label.width')}</span><strong>{roundedMeasure(reel.width, 'mm')}</strong>
+        </div>
+        <div className="reel-label__measure reel-label__measure--weight">
+          <span>{t('paperStock.label.weight')}</span><strong>{roundedMeasure(reel.weight, 'kg')}</strong>
+        </div>
+        <svg ref={barcodeRef} className="reel-label__barcode" data-testid={`reel-barcode-${reel.uuid}`} />
       </div>
-      <div className="reel-label__measure reel-label__measure--width">
-        <span>{t('paperStock.label.width')}</span><strong>{roundedMeasure(reel.width, 'mm')}</strong>
-      </div>
-      <div className="reel-label__measure reel-label__measure--weight">
-        <span>{t('paperStock.label.weight')}</span><strong>{roundedMeasure(reel.weight, 'kg')}</strong>
-      </div>
-      <svg ref={barcodeRef} className="reel-label__barcode" data-testid={`reel-barcode-${reel.uuid}`} />
     </section>
   );
 };

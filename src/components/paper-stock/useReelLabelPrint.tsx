@@ -5,12 +5,19 @@ import ReelLabel from './ReelLabel';
 import { PaperStock } from '../../types';
 
 const printCss = `
-@page { margin: 13mm 25.4mm; }
+/* A zero page margin leaves the browser no room for its own header (date, page title) and footer
+   (URL, page n/N), so Procusto's 13mm/25.4mm margins are applied inside .reel-label instead.
+   .reel-label is shorter than a Letter sheet (279.4mm, the smallest one expected) and clips its
+   content, so one label can never spill onto a second page. */
+@page { size: auto; margin: 0; }
 @media print {
-  body { margin: 0; background: #fff; }
+  html, body { margin: 0 !important; padding: 0 !important; height: auto !important; min-height: 0 !important; background: #fff !important; }
+  body::before, body::after { display: none !important; }
   body > *:not(#reel-label-print-portal) { display: none !important; }
-  #reel-label-print-portal { display: block !important; }
-  .reel-label { position: relative; width: 156mm; height: 212.1mm; break-after: page; font-family: Arial, sans-serif; font-size: 18pt; }
+  #reel-label-print-portal { display: block !important; margin: 0; padding: 0; }
+  .reel-label { position: relative; width: 100%; height: 260mm; overflow: hidden; break-inside: avoid; page-break-inside: avoid; font-family: Arial, sans-serif; font-size: 18pt; }
+  .reel-label + .reel-label { break-before: page; page-break-before: always; }
+  .reel-label__body { position: absolute; left: 25.4mm; top: 13mm; width: 156mm; height: 212.1mm; }
   .reel-label__table { position: absolute; left: 10.8mm; top: 15.1mm; width: 145mm; height: 110.6mm; border-collapse: collapse; table-layout: fixed; }
   .reel-label__table tr { height: 18.43mm; }
   .reel-label__table tr:first-child { border-top: 2px solid #000; }
