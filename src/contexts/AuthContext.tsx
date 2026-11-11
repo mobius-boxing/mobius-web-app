@@ -1,8 +1,8 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { AuthUser, DeviceSession, DeviceStatus, LoginCredentials, LoginResponse } from '../types';
-import { authApi, setDeviceRejectionHandler } from '../services/api';
+import { AuthUser, DeviceSession, DeviceStatus, LoginCredentials } from '../types';
+import { authApi, refreshSession, setDeviceRejectionHandler, SessionPayload } from '../services/api';
 import { logger } from '../utils/logger';
-import { getToken, setToken, clearToken, setDeviceToken } from '../utils/session';
+import { setDeviceToken } from '../utils/session';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -43,40 +43,27 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [device, setDevice] = useState<DeviceSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const adoptSession = useCallback(async () => {
-    const currentUser = await authApi.getCurrentUser();
-    setUser(currentUser);
-    setDevice(currentUser.device ?? null);
+  const adoptSession = useCallback((session: SessionPayload) => {
+    setUser(session.user);
+    setDevice(session.device ?? null);
   }, []);
 
+  // Bootstrap: the access token is memory-only, so every page load starts by trading the
+  // HttpOnly refresh cookie for one. refreshSession retries throttling/network failures itself;
+  // whatever still fails here leaves the user on the login page without touching the cookie.
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        if (getToken()) {
-          await adoptSession();
-        }
-      } catch (error) {
-        clearToken();
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkAuth();
+    refreshSession()
+      .then(adoptSession)
+      .catch(() => {})
+      .finally(() => setIsLoading(false));
   }, [adoptSession]);
 
-  // The session lives in a cookie shared across subdomains, so login/logout can happen in
-  // another tab or app (e.g. the backoffice). Re-sync local React state when this tab regains
-  // focus: adopt a session started elsewhere, or drop ours if it was ended elsewhere.
+  // The refresh cookie is shared across subdomains, so a login can happen in another tab or app
+  // (e.g. the backoffice). A signed-out tab regaining focus tries to adopt it. The reverse (a
+  // logout elsewhere) surfaces on this tab's next request, whose refresh 401s.
   useEffect(() => {
     const sync = () => {
-      const hasToken = !!getToken();
-      if (hasToken && !user) {
-        adoptSession().catch(() => {});
-      } else if (!hasToken && user) {
-        setUser(null);
-        setDevice(null);
-      }
+      if (!user) refreshSession().then(adoptSession).catch(() => {});
     };
     window.addEventListener('focus', sync);
     document.addEventListener('visibilitychange', sync);
@@ -135,8 +122,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, [deviceBlocked, device, refreshDevice]);
 
   const login = async (credentials: LoginCredentials): Promise<void> => {
-    const response: LoginResponse = await authApi.login(credentials);
-    setToken(response.token);
+    const response = await authApi.login(credentials);
     // The raw secret is returned exactly once, by the login that issued it. It goes to
     // the cookie and nowhere else: React state keeps the device without it, so the
     // secret cannot be read back out of a component tree or a devtools snapshot.
@@ -153,7 +139,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       logger.error('Logout error:', error);
     } finally {
-      clearToken();
       localStorage.removeItem('selected_company_uuid');
       setUser(null);
       setDevice(null);

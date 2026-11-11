@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { authApi } from '../services/api';
 import { AcceptInvitationForm, ApiError, Invitation } from '../types';
 import { logger } from '../utils/logger';
-import { setToken, setDeviceToken } from '../utils/session';
+import { setDeviceToken } from '../utils/session';
 import { Skeleton } from '../components/ui/Skeleton';
 import { PASSWORD_MIN_LENGTH } from '../validation/fields';
 import mobiusLogo from '../assets/mobius-logo-text.svg';
@@ -123,7 +123,6 @@ const AcceptInvitation: React.FC = () => {
     try {
       const response = await authApi.acceptInvitation(token, formData);
 
-      setToken(response.token);
       // The invited member's device secret is issued exactly once, here: this
       // navigation reloads the app, so the cookie has to exist before it. Without
       // it their first login would mint a SECOND pending row for the same browser.
