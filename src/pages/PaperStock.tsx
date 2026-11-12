@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect , useMemo } from 'react';
 import { Plus, Trash2, Edit, Package, Printer } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams } from 'react-router-dom';
 import { PaperStock } from '../types';
 import { paperStockApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
@@ -17,6 +18,7 @@ import { useConfirmModal } from '../hooks/useConfirmModal';
 import CreatePaperStockModal from '../components/modals/CreatePaperStockModal';
 import EditPaperStockModal from '../components/modals/EditPaperStockModal';
 import ConfirmModal from '../components/ui/ConfirmModal';
+import ErrorMessage from '../components/ui/ErrorMessage';
 import { logger } from '../utils/logger';
 import { withHistory } from '../components/audit/historyColumn';
 import { useReelLabelPrint } from '../components/paper-stock/useReelLabelPrint';
@@ -32,6 +34,10 @@ const PaperStockPage: React.FC = () => {
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const confirmModal = useConfirmModal();
   const printLabels = useReelLabelPrint();
+  // A scanned reel label opens /paper-stock/<uuid>: that reel's form over the list.
+  const { uuid: scannedReelId } = useParams<{ uuid: string }>();
+  const navigate = useNavigate();
+  const [reelNotFound, setReelNotFound] = useState(false);
 
   const fetchPaperStock = useCallback((params: Record<string, unknown>) => {
     const fetchParams = effectiveCompanyId ? { ...params, companyId: effectiveCompanyId } : params;
@@ -43,6 +49,33 @@ const PaperStockPage: React.FC = () => {
     refresh();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveCompanyId]);
+
+  useEffect(() => {
+    if (!scannedReelId) return;
+    let cancelled = false;
+    setReelNotFound(false);
+    paperStockApi
+      .getPaperStockById(scannedReelId)
+      .then((stock) => {
+        if (cancelled) return;
+        setSelectedPaperStock(stock);
+        setShowEditModal(true);
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        logger.error('Error loading scanned reel:', error);
+        setReelNotFound(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [scannedReelId, navigate]);
+
+  const closeEditModal = () => {
+    setShowEditModal(false);
+    setSelectedPaperStock(null);
+    if (scannedReelId) navigate('/paper-stock', { replace: true });
+  };
 
   const handleEdit = (stock: PaperStock) => {
     setSelectedPaperStock(stock);
@@ -88,8 +121,7 @@ const PaperStockPage: React.FC = () => {
   };
 
   const handleEditSuccess = () => {
-    setShowEditModal(false);
-    setSelectedPaperStock(null);
+    closeEditModal();
     refresh();
   };
 
@@ -243,6 +275,8 @@ const PaperStockPage: React.FC = () => {
           )}
         </div>
 
+        {reelNotFound && <ErrorMessage message={t('paperStock.reelNotFound')} />}
+
         <div className="bg-white p-4 rounded-lg shadow-sm border border-secondary-200">
           <FilterBar {...filterBarProps} />
         </div>
@@ -301,12 +335,10 @@ const PaperStockPage: React.FC = () => {
 
       <EditPaperStockModal
         isOpen={showEditModal}
-        onClose={() => {
-          setShowEditModal(false);
-          setSelectedPaperStock(null);
-        }}
+        onClose={closeEditModal}
         onSuccess={handleEditSuccess}
         paperStock={selectedPaperStock}
+        readOnly={!canEdit}
       />
 
       <ConfirmModal

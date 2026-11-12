@@ -1,5 +1,5 @@
-import React, { useLayoutEffect, useRef } from 'react';
-import JsBarcode from 'jsbarcode';
+import React from 'react';
+import { QRCodeSVG } from 'qrcode.react';
 import { useTranslation } from 'react-i18next';
 import mobiusLogo from '../../assets/mobius-logo-text.svg';
 import { PaperStock } from '../../types';
@@ -42,23 +42,21 @@ const linearMeters = (weight: unknown, grammage: unknown, width: unknown) => {
   return String(Math.round((1000000 * w) / (g * a)));
 };
 
-// The headline shrinks only for codes long enough to overflow the 186mm box at 100pt.
-const headlineSize = (text: string) => Math.min(100, Math.floor(480 / (Math.max(text.length, 1) * 0.56)));
+// The headline sits between the two top QRs (about 96mm) and shrinks only for codes too long for it at 90pt.
+const headlineSize = (text: string) => Math.min(90, Math.floor(255 / (Math.max(text.length, 1) * 0.56)));
+
+// Level H survives roughly 30% damage; four copies cover a reel whose label is torn or dirty in one place.
+const ReelQr: React.FC<{ url: string; corner: string }> = ({ url, corner }) => (
+  <QRCodeSVG value={url} level="H" marginSize={2} className={`reel-label__qr reel-label__qr--${corner}`} />
+);
 
 const ReelLabel: React.FC<ReelLabelProps> = ({ reel }) => {
   const { t } = useTranslation();
-  const barcodeRef = useRef<SVGSVGElement>(null);
-  const barcode = reel.barcode ? reel.barcode.padStart(10, '0') : '0000000000';
   const reelNumber = (reel.code || '').replace(/^0+(?=\d)/, '');
   const supplierReelCode = reel.barcode && reel.barcode !== reel.code ? reel.barcode : '';
 
-  useLayoutEffect(() => {
-    const svg = barcodeRef.current;
-    if (!svg) return;
-    JsBarcode(svg, barcode, { format: 'CODE128', displayValue: false, margin: 0, width: 2, height: 100 });
-    // Bars stretch to the box; the human-readable value is plain text below, so nothing gets distorted.
-    svg.setAttribute('preserveAspectRatio', 'none');
-  }, [barcode]);
+  // The origin the label is printed from, so a label printed on dev opens dev and one printed on prod opens prod.
+  const editUrl = `${window.location.origin}/paper-stock/${reel.uuid}`;
 
   const cells = [
     [t('paperStock.label.manufacturer'), reel.manufacturer?.name || '', 'reel-label__value--upper'],
@@ -78,8 +76,12 @@ const ReelLabel: React.FC<ReelLabelProps> = ({ reel }) => {
   return (
     <section className="reel-label" data-testid={`reel-label-${reel.uuid}`}>
       <div className="reel-label__body">
-        <div className="reel-label__headline" style={{ fontSize: `${headlineSize(reelNumber)}pt` }}>
-          {reelNumber}
+        <div className="reel-label__top">
+          <ReelQr url={editUrl} corner="top-left" />
+          <div className="reel-label__headline" style={{ fontSize: `${headlineSize(reelNumber)}pt` }}>
+            {reelNumber}
+          </div>
+          <ReelQr url={editUrl} corner="top-right" />
         </div>
         <div className="reel-label__grid">
           {cells.map(([caption, value, modifier]) => (
@@ -101,11 +103,11 @@ const ReelLabel: React.FC<ReelLabelProps> = ({ reel }) => {
             </React.Fragment>
           ))}
         </div>
-        <div className="reel-label__barcode-box">
-          <svg ref={barcodeRef} className="reel-label__barcode" data-testid={`reel-barcode-${reel.uuid}`} />
-          <span className="reel-label__barcode-text">{barcode}</span>
+        <div className="reel-label__bottom">
+          <ReelQr url={editUrl} corner="bottom-left" />
+          <img className="reel-label__logo" src={mobiusLogo} alt="Mobius" />
+          <ReelQr url={editUrl} corner="bottom-right" />
         </div>
-        <img className="reel-label__logo" src={mobiusLogo} alt="Mobius" />
       </div>
     </section>
   );

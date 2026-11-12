@@ -287,6 +287,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/paper-stock/:uuid"
+              element={
+                <ProtectedRoute requiredPermission="paper-stock.edit">
+                  <PaperStock />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="/sheet-stock"

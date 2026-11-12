@@ -2622,6 +2622,8 @@
     "label": {"manufacturer":"Fabricante","paper":"Papel","grammage":"Gramaje","width":"Formato","weight":"Peso","linearMeters":"Metros lineales","diameter":"Diámetro:","deliveryNote":"Remito:","receivedAt":"Fecha ingreso:","supplierCode":"Código (Prov.):","supplier":"Proveedor:"},
     "createTitle": "Crear Stock de Bobina",
     "editTitle": "Editar Stock de Bobina",
+    "viewTitle": "Stock de Bobina",
+    "reelNotFound": "Bobina no encontrada. Puede haber sido eliminada o pertenecer a otra empresa.",
     "createButton": "Crear Stock",
     "updateButton": "Actualizar Stock",
     "columns": {

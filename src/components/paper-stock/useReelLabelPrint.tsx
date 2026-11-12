@@ -19,7 +19,11 @@ const printCss = `
   .reel-label + .reel-label { break-before: page; page-break-before: always; }
   .reel-label__body { box-sizing: border-box; position: absolute; top: 10mm; left: 0; right: 0; margin: 0 auto; width: 186mm; height: 240mm; }
   .reel-label__body * { box-sizing: border-box; }
-  .reel-label__headline { height: 38mm; border: 0.4mm solid #000; display: flex; align-items: center; justify-content: center; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; }
+  .reel-label__top, .reel-label__bottom { display: grid; grid-template-columns: 42mm 1fr 42mm; column-gap: 3mm; height: 42mm; }
+  .reel-label__top { margin-bottom: 3mm; }
+  .reel-label__bottom { margin-top: 4mm; align-items: center; justify-items: center; }
+  .reel-label__qr { display: block; width: 42mm; height: 42mm; }
+  .reel-label__headline { height: 42mm; border: 0.4mm solid #000; display: flex; align-items: center; justify-content: center; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; }
   .reel-label__grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 40mm 28mm 28mm; border-left: 0.4mm solid #000; }
   .reel-label__cell { position: relative; display: flex; align-items: center; justify-content: center; padding: 5mm 2mm 1.5mm; border-right: 0.4mm solid #000; border-bottom: 0.4mm solid #000; overflow: hidden; text-align: center; }
   .reel-label__caption { position: absolute; top: 1mm; left: 1.5mm; font-size: 8pt; text-transform: uppercase; }
@@ -28,10 +32,7 @@ const printCss = `
   .reel-label__details { margin-top: 4mm; height: 40mm; border: 0.4mm solid #000; padding: 2mm 3mm; display: grid; grid-template-columns: 42mm 1fr 22mm 1fr; align-content: space-evenly; column-gap: 2mm; font-size: 15pt; }
   .reel-label__details > * { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .reel-label__details-wide { grid-column: 2 / span 3; }
-  .reel-label__barcode-box { margin: 6mm auto 0; width: 100mm; height: 42mm; border: 0.4mm solid #000; padding: 3mm 6mm 1.5mm; display: flex; flex-direction: column; align-items: center; }
-  .reel-label__barcode { width: 88mm; height: 31mm; }
-  .reel-label__barcode-text { margin-top: 1mm; font-size: 10pt; }
-  .reel-label__logo { position: absolute; right: 0; bottom: 0; height: 7mm; }
+  .reel-label__logo { height: 9mm; }
 }
 @media screen { #reel-label-print-portal { display: none; } }
 `;
@@ -45,7 +46,7 @@ export const useReelLabelPrint = () => useCallback((reels: PaperStock[]) => {
   document.head.appendChild(style);
   document.body.appendChild(portal);
   const root = createRoot(portal);
-  // flushSync commits the labels (and their layout effects that draw the barcodes) before print() snapshots the page.
+  // flushSync commits the labels (QR codes included, they render synchronously) before print() snapshots the page.
   flushSync(() => root.render(<>{reels.map((reel) => <ReelLabel key={reel.uuid} reel={reel} />)}</>));
 
   const cleanup = () => {

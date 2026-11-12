@@ -7,6 +7,7 @@ import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
 import ModalFooter from '../ui/ModalFooter';
+import Button from '../ui/Button';
 import WarehouseLocationSelectorModal from './WarehouseLocationSelectorModal';
 import { useModalForm } from '../../hooks/useModalForm';
 import { editPaperStockSchema } from '../../validation/schemas/paperStock';
@@ -19,6 +20,7 @@ interface EditPaperStockModalProps {
   onClose: () => void;
   onSuccess: () => void;
   paperStock: PaperStock | null;
+  readOnly?: boolean;
 }
 
 const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
@@ -26,6 +28,7 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
   onClose,
   onSuccess,
   paperStock,
+  readOnly = false,
 }) => {
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
@@ -162,9 +165,10 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title={t('paperStock.editTitle')}>
-      <form onSubmit={formSubmit(onSubmit)} className="space-y-4">
+    <Modal isOpen={isOpen} onClose={handleClose} title={t(readOnly ? 'paperStock.viewTitle' : 'paperStock.editTitle')}>
+      <form onSubmit={readOnly ? (e) => e.preventDefault() : formSubmit(onSubmit)} className="space-y-4">
         <ErrorMessage message={error} />
+        <fieldset disabled={readOnly} className="space-y-4 min-w-0">
 
         <div>
           <label className="gd-label">{t('paperStock.code')}</label>
@@ -365,11 +369,21 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
           />
         </div>
 
-        <ModalFooter
-          loading={loading}
-          onCancel={handleClose}
-          submitText={t('paperStock.updateButton')}
-        />
+        </fieldset>
+
+        {readOnly ? (
+          <div className="gd-modal-footer flex justify-end">
+            <Button type="button" variant="outline" onClick={handleClose}>
+              {t('common.close')}
+            </Button>
+          </div>
+        ) : (
+          <ModalFooter
+            loading={loading}
+            onCancel={handleClose}
+            submitText={t('paperStock.updateButton')}
+          />
+        )}
       </form>
     </Modal>
   );

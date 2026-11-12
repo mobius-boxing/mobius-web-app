@@ -2622,6 +2622,8 @@
     "label": {"manufacturer":"Fabricante","paper":"Papel","grammage":"Gramaje","width":"Formato","weight":"Peso","linearMeters":"Metros lineales","diameter":"Diámetro:","deliveryNote":"Remito:","receivedAt":"Fecha ingreso:","supplierCode":"Código (Prov.):","supplier":"Proveedor:"},
     "createTitle": "Create Paper Stock",
     "editTitle": "Edit Paper Stock",
+    "viewTitle": "Paper Stock",
+    "reelNotFound": "Reel not found. It may have been deleted or belong to another company.",
     "createButton": "Create Paper Stock",
     "updateButton": "Update Paper Stock",
     "columns": {
