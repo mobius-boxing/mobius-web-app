@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Edit, Trash2, KeyRound, ShieldCheck } from 'lucide-react';
 import { Role } from '../types';
@@ -28,13 +28,12 @@ const Roles: React.FC = () => {
   // regardless of `canWrite`: this only gates create/rename/delete.
   const canWrite = has('roles.edit');
 
-  const [searchTerm, setSearchTerm] = useState('');
-
   const fetchRoles = useCallback(
     (params: Record<string, unknown>) =>
       rolesApi.getRoles({
         page: params.page as number | undefined,
         limit: params.limit as number | undefined,
+        search: params.search as string | undefined,
         ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
       }),
     [effectiveCompanyId]
@@ -44,6 +43,8 @@ const Roles: React.FC = () => {
     data,
     loading,
     error: loadError,
+    search,
+    setSearch,
     refresh,
     paginationProps,
   } = useEntityList<Role>({
@@ -63,11 +64,6 @@ const Roles: React.FC = () => {
     }
     refreshRef.current();
   }, [effectiveCompanyId]);
-
-  const roles = useMemo(() => {
-    const term = searchTerm.toLowerCase().trim();
-    return term ? data.filter((role) => role.name.toLowerCase().includes(term)) : data;
-  }, [data, searchTerm]);
 
   const confirm = useConfirmModal();
 
@@ -213,8 +209,8 @@ const Roles: React.FC = () => {
                   type="text"
                   placeholder={t('roleManagement.searchPlaceholder')}
                   aria-label={t('roleManagement.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                   className="input-field"
                 />
               </div>
@@ -224,7 +220,7 @@ const Roles: React.FC = () => {
               <div className="p-6">
                 <Table
                   columns={columns}
-                  data={roles}
+                  data={data}
                   loading={loading}
                   emptyMessage={t('roleManagement.noRoles')}
                   listId="roles"

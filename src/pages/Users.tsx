@@ -41,9 +41,6 @@ const Users: React.FC = () => {
 
   const { roles: filterRoles } = useAssignableRoles(effectiveCompanyId, hasCompanySelected);
   const [roleFilter, setRoleFilter] = useState('');
-  // The API ignores `search` for company actors (L-007), so the term filters
-  // the fetched page here instead of travelling as a query param.
-  const [searchTerm, setSearchTerm] = useState('');
 
   // superAdmin users are central-plane: the selected company is named explicitly.
   const fetchUsers = useCallback(
@@ -52,6 +49,7 @@ const Users: React.FC = () => {
         page: params.page as number | undefined,
         limit: params.limit as number | undefined,
         roleUuid: params.roleUuid as string | undefined,
+        search: params.search as string | undefined,
         ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
       }),
     [effectiveCompanyId],
@@ -61,6 +59,8 @@ const Users: React.FC = () => {
     data,
     loading,
     error: loadError,
+    search,
+    setSearch,
     setFilters,
     refresh,
     paginationProps,
@@ -103,19 +103,17 @@ const Users: React.FC = () => {
   }, [loadPending]);
 
   const rows = useMemo<Row[]>(() => {
-    const term = searchTerm.toLowerCase().trim();
-    const userRows: UserRow[] = (
-      term
-        ? data.filter((u) => [u.firstName, u.lastName, u.email].some((value) => value?.toLowerCase().includes(term)))
-        : data
-    ).map((u) => ({ ...u, kind: 'user' as const }));
+    const userRows: UserRow[] = data.map((u) => ({ ...u, kind: 'user' as const }));
     // Pending rows sit above users on page 1 only and never count toward the users total.
     if (paginationProps.page !== 1) return userRows;
+    // GET /invitations/pending takes no search param, so its small list is narrowed here.
+    const term = search.toLowerCase().trim();
     const pendingRows: PendingRow[] = pending
       .filter((p) => (!term || p.email.toLowerCase().includes(term)) && (!roleFilter || p.roleUuid === roleFilter))
+      .sort((a, b) => a.email.localeCompare(b.email, 'es', { numeric: true }))
       .map((p) => ({ ...p, kind: 'pending' as const }));
     return [...pendingRows, ...userRows];
-  }, [data, pending, searchTerm, roleFilter, paginationProps.page]);
+  }, [data, pending, search, roleFilter, paginationProps.page]);
 
   const handleRoleFilterChange = (value: string) => {
     setRoleFilter(value);
@@ -414,8 +412,8 @@ const Users: React.FC = () => {
                   type="text"
                   placeholder={t('userManagement.searchPlaceholder')}
                   aria-label={t('userManagement.searchPlaceholder')}
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
                   className="input-field"
                 />
               </div>

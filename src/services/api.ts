@@ -624,6 +624,7 @@ export const rolesApi = {
   getRoles: async (params: {
     page?: number;
     limit?: number;
+    search?: string;
     // Server-side subset rule: only roles the caller may assign.
     assignable?: boolean;
     // superAdmin only; the API ignores it for company actors.

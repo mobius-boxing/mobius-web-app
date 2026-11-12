@@ -85,6 +85,9 @@ export function useEntityList<T extends object>(
   } = options;
 
   const [data, setData] = useState<T[]>([]);
+  // The server search term `data` was fetched with; stored together with the
+  // rows so the pair can never disagree, whichever response lands last.
+  const [dataSearch, setDataSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -197,6 +200,7 @@ export function useEntityList<T extends object>(
         if (!isCurrent()) return;
 
         setData(response.data || []);
+        setDataSearch(debouncedSearch);
         setTotal(response.total || 0);
         setTotalPages(response.totalPages || 0);
 
@@ -241,17 +245,18 @@ export function useEntityList<T extends object>(
 
   /**
    * Client-side filtered data
-   * Only applies if searchFields are provided.
-   * Kept as a fallback to avoid a flash of stale unfiltered rows while the
-   * server-side search request is in-flight. When the server returns
-   * already-narrowed data this is a no-op.
+   * Only applies if searchFields are provided, and only while `data` was
+   * fetched for a different term than the one typed: it hides stale rows during
+   * the debounce and request. Once the response for the current term arrives the
+   * server's answer is shown untouched, so a row the server matched on a field
+   * missing from `searchFields` is never dropped.
    */
   const filteredData = useMemo(() => {
-    if (!search.trim() || searchFields.length === 0) {
+    const term = search.toLowerCase().trim();
+    if (!term || searchFields.length === 0 || dataSearch.trim().toLowerCase() === term) {
       return data;
     }
 
-    const term = search.toLowerCase().trim();
     return data.filter((item) =>
       searchFields.some((field) => {
         const value = (item as Record<string, unknown>)[field as string];
@@ -259,7 +264,7 @@ export function useEntityList<T extends object>(
         return String(value).toLowerCase().includes(term);
       })
     );
-  }, [data, search, searchFields]);
+  }, [data, dataSearch, search, searchFields]);
 
   useEffect(() => {
     if (autoFetch) {

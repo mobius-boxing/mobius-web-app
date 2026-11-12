@@ -156,7 +156,7 @@ const Customers: React.FC = () => {
     paginationProps,
   } = useEntityList<Customer>({
     fetchFn: fetchCustomers,
-    searchFields: ['name', 'supplierCode', 'categoryName', 'salesPersonName'],
+    searchFields: ['name', 'supplierCode', 'legalName', 'tradeName'],
     filterDefs,
   });
 
