@@ -1,14 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Edit, Camera, Trash2, ToggleLeft, ToggleRight, Users as UsersIcon } from 'lucide-react';
-import { User } from '../types';
+import { Plus, Edit, Camera, Trash2, ToggleLeft, ToggleRight, Send, XCircle, Users as UsersIcon } from 'lucide-react';
+import { User, PendingInvitation } from '../types';
 import { useAuth } from '../contexts/AuthContext';
-import { authApi, usersApi } from '../services/api';
+import { authApi, invitationsApi, usersApi } from '../services/api';
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import { useEntityList } from '../hooks/useEntityList';
 import { useConfirmModal } from '../hooks/useConfirmModal';
 import { usePermissions } from '../hooks/usePermissions';
 import { useAssignableRoles } from '../hooks/useAssignableRoles';
+import Avatar from '../components/ui/Avatar';
 import Layout from '../components/layout/Layout';
 import Button from '../components/ui/Button';
 import ActionButton from '../components/ui/ActionButton';
@@ -27,8 +28,12 @@ import { logger } from '../utils/logger';
 const errorMessage = (err: unknown, fallback: string): string =>
   (err as { response?: { data?: { message?: string } } })?.response?.data?.message || fallback;
 
+type UserRow = User & { kind: 'user' };
+type PendingRow = PendingInvitation & { kind: 'pending' };
+type Row = UserRow | PendingRow;
+
 const Users: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user: currentUser, updateUser: updateAuthUser } = useAuth();
   const { has } = usePermissions();
   const { isSuperAdmin, effectiveCompanyId, hasCompanySelected } = useEffectiveCompany();
@@ -49,7 +54,7 @@ const Users: React.FC = () => {
         roleUuid: params.roleUuid as string | undefined,
         ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
       }),
-    [effectiveCompanyId]
+    [effectiveCompanyId],
   );
 
   const {
@@ -79,13 +84,38 @@ const Users: React.FC = () => {
     refreshRef.current();
   }, [effectiveCompanyId, setFilters]);
 
-  const users = useMemo(() => {
+  const [pending, setPending] = useState<PendingInvitation[]>([]);
+  const loadPending = useCallback(async () => {
+    if (!hasCompanySelected) {
+      setPending([]);
+      return;
+    }
+    try {
+      setPending(await invitationsApi.getPending(effectiveCompanyId || undefined));
+    } catch (err: unknown) {
+      logger.error('Error loading pending invitations:', err);
+      setPending([]);
+    }
+  }, [effectiveCompanyId, hasCompanySelected]);
+
+  useEffect(() => {
+    loadPending();
+  }, [loadPending]);
+
+  const rows = useMemo<Row[]>(() => {
     const term = searchTerm.toLowerCase().trim();
-    if (!term) return data;
-    return data.filter((u) =>
-      [u.firstName, u.lastName, u.email].some((value) => value?.toLowerCase().includes(term))
-    );
-  }, [data, searchTerm]);
+    const userRows: UserRow[] = (
+      term
+        ? data.filter((u) => [u.firstName, u.lastName, u.email].some((value) => value?.toLowerCase().includes(term)))
+        : data
+    ).map((u) => ({ ...u, kind: 'user' as const }));
+    // Pending rows sit above users on page 1 only and never count toward the users total.
+    if (paginationProps.page !== 1) return userRows;
+    const pendingRows: PendingRow[] = pending
+      .filter((p) => (!term || p.email.toLowerCase().includes(term)) && (!roleFilter || p.roleUuid === roleFilter))
+      .map((p) => ({ ...p, kind: 'pending' as const }));
+    return [...pendingRows, ...userRows];
+  }, [data, pending, searchTerm, roleFilter, paginationProps.page]);
 
   const handleRoleFilterChange = (value: string) => {
     setRoleFilter(value);
@@ -112,7 +142,9 @@ const Users: React.FC = () => {
   const handleDeleteUser = (user: User) => {
     confirm.showConfirm({
       title: t('confirmModal.deleteTitle'),
-      message: t('userManagement.deleteConfirm', { name: `${user.firstName} ${user.lastName}` }),
+      message: t('userManagement.deleteConfirm', {
+        name: `${user.firstName} ${user.lastName}`,
+      }),
       variant: 'danger',
       onConfirm: async () => {
         setDeleteLoading(user.uuid);
@@ -153,6 +185,50 @@ const Users: React.FC = () => {
     }
   };
 
+  const [pendingLoading, setPendingLoading] = useState<string | null>(null);
+
+  const handleResend = async (invite: PendingInvitation) => {
+    if (!invite.roleUuid) return;
+    setPendingLoading(invite.uuid);
+    setActionError(null);
+    try {
+      await invitationsApi.createRoleInvitation({
+        email: invite.email,
+        firstName: '',
+        lastName: '',
+        roleUuid: invite.roleUuid,
+        ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
+      });
+      await loadPending();
+    } catch (err: unknown) {
+      logger.error('Error resending invitation:', err);
+      setActionError(errorMessage(err, t('userManagement.resendFailed')));
+    } finally {
+      setPendingLoading(null);
+    }
+  };
+
+  const handleRevoke = (invite: PendingInvitation) => {
+    confirm.showConfirm({
+      title: t('confirmModal.deleteTitle'),
+      message: t('userManagement.revokeConfirm', { email: invite.email }),
+      variant: 'danger',
+      onConfirm: async () => {
+        setPendingLoading(invite.uuid);
+        setActionError(null);
+        try {
+          await invitationsApi.revoke(invite.uuid);
+          await loadPending();
+        } catch (err: unknown) {
+          logger.error('Error revoking invitation:', err);
+          setActionError(errorMessage(err, t('userManagement.revokeFailed')));
+        } finally {
+          setPendingLoading(null);
+        }
+      },
+    });
+  };
+
   const canEditUser = (user: User) => isSuperAdmin || (canWriteUsers && user.role !== 'superAdmin');
   // Company actors never delete users: their lifecycle is invite/deactivate only.
   const canDeleteUser = (user: User) => isSuperAdmin && user.uuid !== currentUser?.uuid;
@@ -165,29 +241,51 @@ const Users: React.FC = () => {
       header: t('userManagement.name'),
       hideable: false,
       card: 'title' as const,
-      render: (_value: unknown, user: User) => (
-        <div className="flex items-center">
-          <div className="h-10 w-10 flex-shrink-0">
-            <UserAvatar
-              user={user}
-              className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center"
-              textClassName="text-sm font-medium text-primary-600"
-            />
-          </div>
-          <div className="ml-4">
-            <div className="text-sm font-medium text-secondary-900">
-              {user.firstName} {user.lastName}
+      render: (_value: unknown, row: Row) =>
+        row.kind === 'pending' ? (
+          <div className="flex items-center">
+            <div className="h-10 w-10 flex-shrink-0">
+              <Avatar
+                src={null}
+                initials={row.email.slice(0, 2).toUpperCase()}
+                className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center"
+                textClassName="text-sm font-medium text-primary-600"
+              />
             </div>
-            <div className="text-sm text-secondary-500">{user.email}</div>
+            <div className="ml-4">
+              <div className="text-sm font-medium text-secondary-900">{row.email}</div>
+              <div className="text-sm text-secondary-500">
+                {t('userManagement.invitedOn', {
+                  date: new Date(row.createdAt).toLocaleDateString(i18n.language),
+                })}
+              </div>
+            </div>
           </div>
-        </div>
-      ),
+        ) : (
+          <div className="flex items-center">
+            <div className="h-10 w-10 flex-shrink-0">
+              <UserAvatar
+                user={row}
+                className="h-10 w-10 rounded-full bg-primary-100 flex items-center justify-center"
+                textClassName="text-sm font-medium text-primary-600"
+              />
+            </div>
+            <div className="ml-4">
+              <div className="text-sm font-medium text-secondary-900">
+                {row.firstName} {row.lastName}
+              </div>
+              <div className="text-sm text-secondary-500">{row.email}</div>
+            </div>
+          </div>
+        ),
     },
     {
       key: 'roleName',
       header: t('userManagement.role'),
-      render: (_value: unknown, user: User) =>
-        user.role === 'superAdmin' ? (
+      render: (_value: unknown, user: Row) =>
+        user.kind === 'pending' ? (
+          <span className="text-sm text-secondary-900">{user.roleName ?? t(`userManagement.roles.${user.role}`)}</span>
+        ) : user.role === 'superAdmin' ? (
           <span className="gd-badge gd-badge-brand">{t('userManagement.roles.superAdmin')}</span>
         ) : (
           <UserRolePicker
@@ -202,54 +300,82 @@ const Users: React.FC = () => {
     {
       key: 'isActive',
       header: t('userManagement.status'),
-      render: (_value: unknown, user: User) => (
-        <span className={`gd-badge ${user.isActive ? 'gd-badge-positive' : 'gd-badge-negative'}`}>
-          {user.isActive ? t('userManagement.active') : t('userManagement.inactive')}
-        </span>
-      ),
+      render: (_value: unknown, user: Row) =>
+        user.kind === 'pending' ? (
+          <span className={`gd-badge ${user.isExpired ? 'gd-badge-negative' : 'gd-badge-warning'}`}>
+            {user.isExpired ? t('userManagement.expired') : t('userManagement.pending')}
+          </span>
+        ) : (
+          <span className={`gd-badge ${user.isActive ? 'gd-badge-positive' : 'gd-badge-negative'}`}>
+            {user.isActive ? t('userManagement.active') : t('userManagement.inactive')}
+          </span>
+        ),
     },
     {
       key: 'actions',
       header: t('userManagement.actions'),
       pinned: true,
       card: 'actions' as const,
-      render: (_value: unknown, user: User) => (
-        <div className="flex items-center space-x-2">
-          {canEditUser(user) && (
-            <ActionButton label={t('common.edit')} onClick={() => handleEditUser(user)}>
-              <Edit className="h-4 w-4" />
-            </ActionButton>
-          )}
-          {canEditUser(user) && (
-            <ActionButton label={t('avatar.changeUserPhoto')} onClick={() => setAvatarUser(user)}>
-              <Camera className="h-4 w-4" />
-            </ActionButton>
-          )}
-          {canToggleActive(user) && (
-            <ActionButton
-              label={user.isActive ? t('userManagement.deactivate') : t('userManagement.reactivate')}
-              onClick={() => handleToggleActive(user)}
-              disabled={statusLoading === user.uuid}
-            >
-              {user.isActive ? (
-                <ToggleRight className="h-5 w-5 text-green-600" />
-              ) : (
-                <ToggleLeft className="h-5 w-5" />
-              )}
-            </ActionButton>
-          )}
-          {canDeleteUser(user) && (
-            <ActionButton
-              label={t('common.delete')}
-              tone="danger"
-              onClick={() => handleDeleteUser(user)}
-              disabled={deleteLoading === user.uuid}
-            >
-              <Trash2 className="h-4 w-4" />
-            </ActionButton>
-          )}
-        </div>
-      ),
+      render: (_value: unknown, user: Row) =>
+        user.kind === 'pending' ? (
+          <div className="flex items-center space-x-2">
+            {canWriteUsers && user.roleUuid && (
+              <ActionButton
+                label={t('userManagement.resend')}
+                onClick={() => handleResend(user)}
+                disabled={pendingLoading === user.uuid}
+              >
+                <Send className="h-4 w-4" />
+              </ActionButton>
+            )}
+            {canWriteUsers && (
+              <ActionButton
+                label={t('userManagement.revoke')}
+                tone="danger"
+                onClick={() => handleRevoke(user)}
+                disabled={pendingLoading === user.uuid}
+              >
+                <XCircle className="h-4 w-4" />
+              </ActionButton>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center space-x-2">
+            {canEditUser(user) && (
+              <ActionButton label={t('common.edit')} onClick={() => handleEditUser(user)}>
+                <Edit className="h-4 w-4" />
+              </ActionButton>
+            )}
+            {canEditUser(user) && (
+              <ActionButton label={t('avatar.changeUserPhoto')} onClick={() => setAvatarUser(user)}>
+                <Camera className="h-4 w-4" />
+              </ActionButton>
+            )}
+            {canToggleActive(user) && (
+              <ActionButton
+                label={user.isActive ? t('userManagement.deactivate') : t('userManagement.reactivate')}
+                onClick={() => handleToggleActive(user)}
+                disabled={statusLoading === user.uuid}
+              >
+                {user.isActive ? (
+                  <ToggleRight className="h-5 w-5 text-green-600" />
+                ) : (
+                  <ToggleLeft className="h-5 w-5" />
+                )}
+              </ActionButton>
+            )}
+            {canDeleteUser(user) && (
+              <ActionButton
+                label={t('common.delete')}
+                tone="danger"
+                onClick={() => handleDeleteUser(user)}
+                disabled={deleteLoading === user.uuid}
+              >
+                <Trash2 className="h-4 w-4" />
+              </ActionButton>
+            )}
+          </div>
+        ),
     },
   ];
 
@@ -314,7 +440,7 @@ const Users: React.FC = () => {
               <div className="p-6">
                 <Table
                   columns={columns}
-                  data={users}
+                  data={rows}
                   loading={loading}
                   emptyMessage={t('userManagement.noUsers')}
                   listId="users"
@@ -332,6 +458,7 @@ const Users: React.FC = () => {
         onSuccess={() => {
           setIsInviteModalOpen(false);
           refresh();
+          loadPending();
         }}
         companyId={effectiveCompanyId}
       />
@@ -347,9 +474,7 @@ const Users: React.FC = () => {
               : usersApi.setUserAvatar(avatarUser.uuid, image)
           }
           remove={() =>
-            avatarUser.uuid === currentUser?.uuid
-              ? authApi.removeAvatar()
-              : usersApi.removeUserAvatar(avatarUser.uuid)
+            avatarUser.uuid === currentUser?.uuid ? authApi.removeAvatar() : usersApi.removeUserAvatar(avatarUser.uuid)
           }
           onChanged={(avatarUuid) => {
             setAvatarUser({ ...avatarUser, avatarUuid });

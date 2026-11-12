@@ -4367,6 +4367,14 @@
     },
     "actions": "Acciones",
     "deleteFailed": "No se pudo eliminar el usuario",
+    "pending": "Pendiente",
+    "expired": "Vencida",
+    "resend": "Reenviar",
+    "revoke": "Revocar",
+    "invitedOn": "Invitado el {{date}}",
+    "resendFailed": "No se pudo reenviar la invitación",
+    "revokeFailed": "No se pudo revocar la invitación",
+    "revokeConfirm": "¿Revocar la invitación de {{email}}? El enlace que recibió dejará de funcionar.",
     "selectCompanyPrompt": "Elige una empresa en el selector para gestionar sus usuarios."
   },
   "roleManagement": {

@@ -19,6 +19,7 @@ import {
   User,
   Company,
   Invitation,
+  PendingInvitation,
   InviteCompanyUserRequest,
   UpdateUserRequest,
   UserDevice,
@@ -599,6 +600,16 @@ export const invitationsApi = {
   createRoleInvitation: async (data: InviteCompanyUserRequest): Promise<Invitation> => {
     const response: AxiosResponse<ApiResponse<Invitation>> = await api.post('/api/invitations', data);
     return response.data.data!;
+  },
+
+  getPending: async (companyId?: string): Promise<PendingInvitation[]> => {
+    const params = companyId ? { companyId } : {};
+    const response: AxiosResponse<ApiResponse<PendingInvitation[]>> = await api.get('/api/invitations/pending', { params });
+    return response.data.data ?? [];
+  },
+
+  revoke: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/invitations/${uuid}`);
   },
 
   getInvitationStats: async (companyId?: string): Promise<InvitationStats> => {

@@ -4367,6 +4367,14 @@
     },
     "actions": "Actions",
     "deleteFailed": "Failed to delete user",
+    "pending": "Pending",
+    "expired": "Expired",
+    "resend": "Resend",
+    "revoke": "Revoke",
+    "invitedOn": "Invited on {{date}}",
+    "resendFailed": "Failed to resend invitation",
+    "revokeFailed": "Failed to revoke invitation",
+    "revokeConfirm": "Revoke the invitation for {{email}}? The link they received will stop working.",
     "selectCompanyPrompt": "Pick a company in the selector to manage its users."
   },
   "roleManagement": {

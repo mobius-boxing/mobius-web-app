@@ -41,6 +41,17 @@ export interface Invitation {
   createdAt: string;
 }
 
+export interface PendingInvitation {
+  uuid: string;
+  email: string;
+  role: 'member' | 'admin' | 'superAdmin';
+  roleUuid: string | null;
+  roleName: string | null;
+  expiresAt: string;
+  createdAt: string;
+  isExpired: boolean;
+}
+
 export interface LoginCredentials {
   email: string;
   password: string;
