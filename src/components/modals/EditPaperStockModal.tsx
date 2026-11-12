@@ -82,6 +82,7 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
         diameter: paperStock.diameter || undefined,
         width: paperStock.width || undefined,
         barcode: paperStock.barcode || '',
+        deliveryNote: paperStock.deliveryNote || '',
       });
       setSelectedLocation(paperStock.warehouseLocation || null);
     }
@@ -142,6 +143,7 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
       diameter: data.diameter || undefined,
       width: data.width || undefined,
       barcode: data.barcode || null,
+      deliveryNote: data.deliveryNote || null,
     };
 
     await paperStockApi.updatePaperStock(paperStock.uuid, stockData);
@@ -172,6 +174,11 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
         <div>
           <label className="gd-label">{t('paperStock.barcode')}</label>
           <Input {...register('barcode')} error={errors.barcode?.message as string} placeholder={t('paperStock.barcodePlaceholder')} data-testid="paper-stock-barcode" />
+        </div>
+
+        <div>
+          <label className="gd-label">{t('paperStock.deliveryNote')}</label>
+          <Input {...register('deliveryNote')} error={errors.deliveryNote?.message as string} placeholder={t('paperStock.deliveryNotePlaceholder')} data-testid="paper-stock-delivery-note" />
         </div>
 
         <div>

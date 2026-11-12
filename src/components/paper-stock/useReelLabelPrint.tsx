@@ -4,33 +4,34 @@ import { createRoot } from 'react-dom/client';
 import ReelLabel from './ReelLabel';
 import { PaperStock } from '../../types';
 
-const printCss = `
 /* A zero page margin leaves the browser no room for its own header (date, page title) and footer
-   (URL, page n/N), so Procusto's 13mm/25.4mm margins are applied inside .reel-label instead.
+   (URL, page n/N), so the label's margins are applied inside .reel-label instead.
    .reel-label is shorter than a Letter sheet (279.4mm, the smallest one expected) and clips its
    content, so one label can never spill onto a second page. */
+const printCss = `
 @page { size: auto; margin: 0; }
 @media print {
   html, body { margin: 0 !important; padding: 0 !important; height: auto !important; min-height: 0 !important; background: #fff !important; }
   body::before, body::after { display: none !important; }
   body > *:not(#reel-label-print-portal) { display: none !important; }
   #reel-label-print-portal { display: block !important; margin: 0; padding: 0; }
-  .reel-label { position: relative; width: 100%; height: 260mm; overflow: hidden; break-inside: avoid; page-break-inside: avoid; font-family: Arial, sans-serif; font-size: 18pt; }
+  .reel-label { position: relative; width: 100%; height: 260mm; overflow: hidden; break-inside: avoid; page-break-inside: avoid; font-family: Arial, Helvetica, sans-serif; color: #000; }
   .reel-label + .reel-label { break-before: page; page-break-before: always; }
-  .reel-label__body { position: absolute; left: 25.4mm; top: 13mm; width: 156mm; height: 212.1mm; }
-  .reel-label__table { position: absolute; left: 10.8mm; top: 15.1mm; width: 145mm; height: 110.6mm; border-collapse: collapse; table-layout: fixed; }
-  .reel-label__table tr { height: 18.43mm; }
-  .reel-label__table tr:first-child { border-top: 2px solid #000; }
-  .reel-label__table tr:last-child { border-bottom: 2px solid #000; }
-  .reel-label__table td:first-child { width: 28%; font-weight: 400; }
-  .reel-label__table td:last-child { width: 72%; font-weight: 700; }
-  .reel-label__measure { position: absolute; left: 38.6mm; width: 93.4mm; display: flex; align-items: center; gap: 7mm; }
-  .reel-label__measure span { width: 43.2mm; }
-  .reel-label__measure strong { box-sizing: border-box; display: inline-flex; width: 43.2mm; height: 9.8mm; border: 1px solid #000; align-items: center; justify-content: center; text-align: center; }
-  .reel-label__measure--diameter { top: 138.8mm; }
-  .reel-label__measure--width { top: 154.8mm; }
-  .reel-label__measure--weight { top: 170.3mm; }
-  .reel-label__barcode { position: absolute; left: 30.2mm; top: 190.4mm; width: 108.7mm; height: 21.7mm; }
+  .reel-label__body { box-sizing: border-box; position: absolute; top: 10mm; left: 0; right: 0; margin: 0 auto; width: 186mm; height: 240mm; }
+  .reel-label__body * { box-sizing: border-box; }
+  .reel-label__headline { height: 38mm; border: 0.4mm solid #000; display: flex; align-items: center; justify-content: center; font-weight: 700; line-height: 1; white-space: nowrap; overflow: hidden; }
+  .reel-label__grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 40mm 28mm 28mm; border-left: 0.4mm solid #000; }
+  .reel-label__cell { position: relative; display: flex; align-items: center; justify-content: center; padding: 5mm 2mm 1.5mm; border-right: 0.4mm solid #000; border-bottom: 0.4mm solid #000; overflow: hidden; text-align: center; }
+  .reel-label__caption { position: absolute; top: 1mm; left: 1.5mm; font-size: 8pt; text-transform: uppercase; }
+  .reel-label__value { font-size: 26pt; line-height: 1.1; overflow-wrap: anywhere; }
+  .reel-label__value--upper { text-transform: uppercase; }
+  .reel-label__details { margin-top: 4mm; height: 40mm; border: 0.4mm solid #000; padding: 2mm 3mm; display: grid; grid-template-columns: 42mm 1fr 22mm 1fr; align-content: space-evenly; column-gap: 2mm; font-size: 15pt; }
+  .reel-label__details > * { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .reel-label__details-wide { grid-column: 2 / span 3; }
+  .reel-label__barcode-box { margin: 6mm auto 0; width: 100mm; height: 42mm; border: 0.4mm solid #000; padding: 3mm 6mm 1.5mm; display: flex; flex-direction: column; align-items: center; }
+  .reel-label__barcode { width: 88mm; height: 31mm; }
+  .reel-label__barcode-text { margin-top: 1mm; font-size: 10pt; }
+  .reel-label__logo { position: absolute; right: 0; bottom: 0; height: 7mm; }
 }
 @media screen { #reel-label-print-portal { display: none; } }
 `;
@@ -54,5 +55,15 @@ export const useReelLabelPrint = () => useCallback((reels: PaperStock[]) => {
     style.remove();
   };
   window.addEventListener('afterprint', cleanup, { once: true });
-  window.requestAnimationFrame(() => window.requestAnimationFrame(() => window.print()));
+  // The logo is an <img>; print() before it loads would leave its box empty on the first print of a session.
+  const loaded = (img: HTMLImageElement) =>
+    img.complete
+      ? Promise.resolve()
+      : new Promise<void>((resolve) => {
+          img.addEventListener('load', () => resolve(), { once: true });
+          img.addEventListener('error', () => resolve(), { once: true });
+        });
+  Promise.all(Array.from(portal.querySelectorAll('img'), loaded)).then(() =>
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => window.print())),
+  );
 }, []);

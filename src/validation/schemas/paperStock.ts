@@ -41,6 +41,7 @@ import {
 const NUMERIC_10_2_MAX = 99999999.99;
 const COMMENTS_MAX = 10000;
 const BARCODE_MAX = 50;
+const DELIVERY_NOTE_MAX = 50;
 const PRINTABLE_ASCII = /^[\x20-\x7E]*$/;
 
 const measure = (t: Translate, label: string) =>
@@ -51,6 +52,9 @@ const barcode = (t: Translate) =>
     (value) => value === undefined || PRINTABLE_ASCII.test(value),
     { message: t('validation.invalidFormat', { field: t('paperStock.barcode') }) }
   );
+
+const deliveryNote = (t: Translate) =>
+  optionalText(t, t('paperStock.deliveryNote'), DELIVERY_NOTE_MAX);
 
 export const createPaperStockSchema = (t: Translate) =>
   z.object({
@@ -64,6 +68,7 @@ export const createPaperStockSchema = (t: Translate) =>
     price: money(t, t('paperStock.price'), { max: NUMERIC_10_2_MAX }),
     comments: optionalText(t, t('paperStock.comments'), COMMENTS_MAX),
     barcode: barcode(t),
+    deliveryNote: deliveryNote(t),
   });
 
 /**

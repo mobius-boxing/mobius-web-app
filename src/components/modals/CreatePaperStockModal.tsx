@@ -99,6 +99,7 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
       diameter: data.diameter || undefined,
       width: data.width || undefined,
       barcode: data.barcode || undefined,
+      deliveryNote: data.deliveryNote || undefined,
       // superAdmin operating-as: the backend resolves this body companyId;
       // regular users' company always comes from their JWT instead.
       ...(effectiveCompanyId ? { companyId: effectiveCompanyId } : {}),
@@ -140,6 +141,11 @@ const CreatePaperStockModal: React.FC<CreatePaperStockModalProps> = ({
         <div>
           <label className="gd-label">{t('paperStock.barcode')}</label>
           <Input {...register('barcode')} error={errors.barcode?.message as string} placeholder={t('paperStock.barcodePlaceholder')} data-testid="paper-stock-barcode" />
+        </div>
+
+        <div>
+          <label className="gd-label">{t('paperStock.deliveryNote')}</label>
+          <Input {...register('deliveryNote')} error={errors.deliveryNote?.message as string} placeholder={t('paperStock.deliveryNotePlaceholder')} data-testid="paper-stock-delivery-note" />
         </div>
 
         <label className="flex items-center gap-2 text-sm text-secondary-700">

@@ -1486,7 +1486,7 @@ export const paperStockApi = {
     return response.data.data!;
   },
 
-  updatePaperStock: async (id: string, data: Omit<Partial<CreatePaperStockForm>, 'barcode'> & { barcode?: string | null }): Promise<PaperStock> => {
+  updatePaperStock: async (id: string, data: Omit<Partial<CreatePaperStockForm>, 'barcode' | 'deliveryNote'> & { barcode?: string | null; deliveryNote?: string | null }): Promise<PaperStock> => {
     const response: AxiosResponse<ApiResponse<PaperStock>> = await api.put(`/api/paper-stock/${id}`, data);
     return response.data.data!;
   },

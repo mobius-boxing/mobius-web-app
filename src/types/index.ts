@@ -965,6 +965,7 @@ export interface PaperStock {
   uuid: string;
   code?: string;
   barcode?: string;
+  deliveryNote?: string | null;
   warehouseLocationId?: number;
   comments?: string;
   price?: number;
@@ -992,6 +993,7 @@ export interface CreatePaperStockForm {
   diameter?: number;
   width?: number;
   barcode?: string;
+  deliveryNote?: string;
 }
 
 export interface SheetStock {

@@ -219,7 +219,7 @@ const PaperStockPage: React.FC = () => {
     setSort,
   } = useEntityList<PaperStock>({
     fetchFn: fetchPaperStock,
-    searchFields: ['comments', 'code', 'barcode'],
+    searchFields: ['comments', 'code', 'barcode', 'deliveryNote'],
     filterDefs,
   });
 
