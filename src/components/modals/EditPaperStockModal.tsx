@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useWatch } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import { CreatePaperStockForm, PaperStock, Manufacturer, Supplier, Warehouse, PaperSupply, WarehouseLocation } from '../../types';
-import { paperStockApi, manufacturersApi, suppliersApi, warehousesApi, paperSuppliesApi } from '../../services/api';
+import { CreatePaperStockForm, PaperStock, WarehouseLocation } from '../../types';
+import { paperStockApi } from '../../services/api';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
 import ErrorMessage from '../ui/ErrorMessage';
@@ -13,7 +13,10 @@ import { useModalForm } from '../../hooks/useModalForm';
 import { editPaperStockSchema } from '../../validation/schemas/paperStock';
 import { MapPin, X } from 'lucide-react';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
-import { logger } from '../../utils/logger';
+import { EntityAutocomplete, FilterOption } from '../ui/filters';
+import { usePaperStockLookups, manufacturerOption, supplierOption, warehouseOption, paperSupplyOption } from './paperStockLookups';
+
+type LookupField = 'warehouseId' | 'paperSupplyId' | 'supplierId' | 'manufacturerId';
 
 interface EditPaperStockModalProps {
   isOpen: boolean;
@@ -32,13 +35,10 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
 }) => {
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
-  const [manufacturers, setManufacturers] = useState<Manufacturer[]>([]);
-  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-  const [paperSupplies, setPaperSupplies] = useState<PaperSupply[]>([]);
+  const { loaders, warehouses } = usePaperStockLookups(effectiveCompanyId ?? undefined);
+  const [lookups, setLookups] = useState<Partial<Record<LookupField, FilterOption>>>({});
   const [locationSelectorOpen, setLocationSelectorOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<WarehouseLocation | null>(null);
-  const [dropdownsLoaded, setDropdownsLoaded] = useState(false);
 
   const {
     form,
@@ -58,22 +58,27 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
     formState: { errors },
     reset,
     control,
+    setValue,
   } = form;
 
   const selectedWarehouseId = useWatch({ control, name: 'warehouseId' });
-  const selectedWarehouse = warehouses.find(w => w.uuid === selectedWarehouseId) || null;
+  const selectedWarehouse = (selectedWarehouseId && warehouses.get(selectedWarehouseId)) || null;
 
   const previousWarehouseId = useRef(selectedWarehouseId);
 
   useEffect(() => {
-    if (isOpen && paperStock) {
-      setDropdownsLoaded(false);
-      fetchDropdownData();
-    }
-  }, [isOpen, paperStock, effectiveCompanyId]);
-
-  useEffect(() => {
-    if (paperStock && isOpen && dropdownsLoaded) {
+    if (paperStock && isOpen) {
+      if (paperStock.warehouse) {
+        // The joined warehouse carries snake_case grid fields; the list endpoint's camelCase row is what the location grid reads.
+        warehouses.set(paperStock.warehouse.uuid, paperStock.warehouse);
+        loaders.warehouse(paperStock.warehouse.name).catch(() => undefined);
+      }
+      setLookups({
+        warehouseId: paperStock.warehouse && warehouseOption(paperStock.warehouse),
+        paperSupplyId: paperStock.paperSupply && paperSupplyOption(paperStock.paperSupply),
+        supplierId: paperStock.supplier && supplierOption(paperStock.supplier),
+        manufacturerId: paperStock.manufacturer && manufacturerOption(paperStock.manufacturer),
+      });
       reset({
         warehouseId: paperStock.warehouse?.uuid || '',
         paperSupplyId: paperStock.paperSupply?.uuid || '',
@@ -89,7 +94,7 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
       });
       setSelectedLocation(paperStock.warehouseLocation || null);
     }
-  }, [paperStock, isOpen, dropdownsLoaded, reset]);
+  }, [paperStock, isOpen, reset, warehouses, loaders]);
 
   useEffect(() => {
     if (previousWarehouseId.current && selectedWarehouseId !== previousWarehouseId.current) {
@@ -98,24 +103,9 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
     previousWarehouseId.current = selectedWarehouseId;
   }, [selectedWarehouseId]);
 
-  const fetchDropdownData = async () => {
-    try {
-      const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
-      const [manufacturersRes, suppliersRes, warehousesRes, paperSuppliesRes] = await Promise.all([
-        manufacturersApi.getManufacturers({ limit: 100, ...companyFilter }),
-        suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
-        warehousesApi.getWarehouses({ limit: 100, ...companyFilter }),
-        paperSuppliesApi.getPaperSupplies({ limit: 100, ...companyFilter }),
-      ]);
-      setManufacturers(manufacturersRes.data || []);
-      setSuppliers(suppliersRes.data || []);
-      setWarehouses(warehousesRes.data || []);
-      setPaperSupplies(paperSuppliesRes.data || []);
-    } catch (error) {
-      logger.error('Error fetching dropdown data:', error);
-    } finally {
-      setDropdownsLoaded(true);
-    }
+  const pick = (field: LookupField) => (option: FilterOption | undefined) => {
+    setLookups((prev) => ({ ...prev, [field]: option }));
+    setValue(field, option?.value ?? '', { shouldDirty: true, shouldValidate: true });
   };
 
   const handleClose = () => {
@@ -189,17 +179,14 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
           <label className="gd-label">
             {t('paperStock.warehouse')} *
           </label>
-          <select
-            {...register('warehouseId')}
-            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="">{t('paperStock.selectWarehouse')}</option>
-            {warehouses.map((warehouse) => (
-              <option key={warehouse.uuid} value={warehouse.uuid}>
-                {warehouse.name}
-              </option>
-            ))}
-          </select>
+          <input type="hidden" {...register('warehouseId')} />
+          <EntityAutocomplete
+            data-testid="paper-stock-warehouse"
+            value={lookups.warehouseId}
+            onChange={pick('warehouseId')}
+            loadOptions={loaders.warehouse}
+            placeholder={t('paperStock.selectWarehouse')}
+          />
           {errors.warehouseId && (
             <p className="mt-1 text-sm text-red-600">{errors.warehouseId.message}</p>
           )}
@@ -248,17 +235,14 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
           <label className="gd-label">
             {t('paperStock.paperSupply')} *
           </label>
-          <select
-            {...register('paperSupplyId')}
-            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="">{t('paperStock.selectPaperSupply')}</option>
-            {paperSupplies.map((supply) => (
-              <option key={supply.uuid} value={supply.uuid}>
-                {supply.code} - {supply.name}
-              </option>
-            ))}
-          </select>
+          <input type="hidden" {...register('paperSupplyId')} />
+          <EntityAutocomplete
+            data-testid="paper-stock-paper-supply"
+            value={lookups.paperSupplyId}
+            onChange={pick('paperSupplyId')}
+            loadOptions={loaders.paperSupply}
+            placeholder={t('paperStock.selectPaperSupply')}
+          />
           {errors.paperSupplyId && (
             <p className="mt-1 text-sm text-red-600">{errors.paperSupplyId.message}</p>
           )}
@@ -268,17 +252,14 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
           <label className="gd-label">
             {t('paperStock.supplier')}
           </label>
-          <select
-            {...register('supplierId')}
-            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="">{t('paperStock.selectSupplier')}</option>
-            {suppliers.map((supplier) => (
-              <option key={supplier.uuid} value={supplier.uuid}>
-                {supplier.code}
-              </option>
-            ))}
-          </select>
+          <input type="hidden" {...register('supplierId')} />
+          <EntityAutocomplete
+            data-testid="paper-stock-supplier"
+            value={lookups.supplierId}
+            onChange={pick('supplierId')}
+            loadOptions={loaders.supplier}
+            placeholder={t('paperStock.selectSupplier')}
+          />
           {errors.supplierId && (
             <p className="mt-1 text-sm text-red-600">{errors.supplierId.message as string}</p>
           )}
@@ -288,17 +269,14 @@ const EditPaperStockModal: React.FC<EditPaperStockModalProps> = ({
           <label className="gd-label">
             {t('paperStock.manufacturer')}
           </label>
-          <select
-            {...register('manufacturerId')}
-            className="w-full px-3 py-2 border border-secondary-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
-          >
-            <option value="">{t('paperStock.selectManufacturer')}</option>
-            {manufacturers.map((manufacturer) => (
-              <option key={manufacturer.uuid} value={manufacturer.uuid}>
-                {manufacturer.name}
-              </option>
-            ))}
-          </select>
+          <input type="hidden" {...register('manufacturerId')} />
+          <EntityAutocomplete
+            data-testid="paper-stock-manufacturer"
+            value={lookups.manufacturerId}
+            onChange={pick('manufacturerId')}
+            loadOptions={loaders.manufacturer}
+            placeholder={t('paperStock.selectManufacturer')}
+          />
           {errors.manufacturerId && (
             <p className="mt-1 text-sm text-red-600">{errors.manufacturerId.message as string}</p>
           )}

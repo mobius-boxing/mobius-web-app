@@ -1488,8 +1488,8 @@ export const paperStockApi = {
     };
   },
 
-  getPaperStockById: async (id: string): Promise<PaperStock> => {
-    const response: AxiosResponse<ApiResponse<PaperStock>> = await api.get(`/api/paper-stock/${id}`);
+  getPaperStockById: async (id: string, params?: { companyId?: string }): Promise<PaperStock> => {
+    const response: AxiosResponse<ApiResponse<PaperStock>> = await api.get(`/api/paper-stock/${id}`, { params });
     return response.data.data!;
   },
 

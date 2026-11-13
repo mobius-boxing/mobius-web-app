@@ -50,12 +50,14 @@ const PaperStockPage: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [effectiveCompanyId]);
 
+  const companyParams = effectiveCompanyId ? { companyId: effectiveCompanyId } : undefined;
+
   useEffect(() => {
     if (!scannedReelId) return;
     let cancelled = false;
     setReelNotFound(false);
     paperStockApi
-      .getPaperStockById(scannedReelId)
+      .getPaperStockById(scannedReelId, companyParams)
       .then((stock) => {
         if (cancelled) return;
         setSelectedPaperStock(stock);
@@ -69,7 +71,8 @@ const PaperStockPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [scannedReelId, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scannedReelId, navigate, effectiveCompanyId]);
 
   const closeEditModal = () => {
     setShowEditModal(false);
@@ -106,7 +109,7 @@ const PaperStockPage: React.FC = () => {
     refresh();
     if (created && printLabel) {
       paperStockApi
-        .getPaperStockById(created.uuid)
+        .getPaperStockById(created.uuid, companyParams)
         .then((reel) => printLabels([reel]))
         .catch((error) => logger.error('Error loading reel for label:', error));
     }
@@ -114,7 +117,7 @@ const PaperStockPage: React.FC = () => {
 
   const handlePrint = async (stock: PaperStock) => {
     try {
-      printLabels([await paperStockApi.getPaperStockById(stock.uuid)]);
+      printLabels([await paperStockApi.getPaperStockById(stock.uuid, companyParams)]);
     } catch (error) {
       logger.error('Error loading reel for label:', error);
     }
