@@ -1,6 +1,15 @@
 import { z } from 'zod';
-import { email, oneOf, optionalSelect, requiredSelect, requiredText, Translate } from '../fields';
+import {
+  email,
+  oneOf,
+  optionalSelect,
+  password,
+  requiredSelect,
+  requiredText,
+  Translate,
+} from '../fields';
 import { USER_ROLES } from './user';
+import { PASSWORD_PATTERN } from './auth';
 
 /**
  * B6 invitation schema. Bounds read from `information_schema.columns` on the
@@ -46,3 +55,22 @@ export const inviteCompanyUserSchema = (t: Translate) =>
   });
 
 export type InviteCompanyUserSchema = z.infer<ReturnType<typeof inviteCompanyUserSchema>>;
+
+/** `POST /api/users`: an invitation's fields plus a password the admin chooses. */
+export const createCompanyUserSchema = (t: Translate) =>
+  inviteCompanyUserSchema(t)
+    .extend({
+      password: password(t, t('userManagement.password'), { required: true }).regex(
+        PASSWORD_PATTERN,
+        t('userManagement.passwordPolicyInvalid')
+      ),
+      confirmPassword: z
+        .string({ error: t('resetPassword.validation.confirmPasswordRequired') })
+        .min(1, t('resetPassword.validation.confirmPasswordRequired')),
+    })
+    .refine((data) => data.password === data.confirmPassword, {
+      message: t('resetPassword.validation.passwordsMismatch'),
+      path: ['confirmPassword'],
+    });
+
+export type CreateCompanyUserSchema = z.infer<ReturnType<typeof createCompanyUserSchema>>;

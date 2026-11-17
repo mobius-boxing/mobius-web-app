@@ -4377,7 +4377,17 @@
     "resendFailed": "Failed to resend invitation",
     "revokeFailed": "Failed to revoke invitation",
     "revokeConfirm": "Revoke the invitation for {{email}}? The link they received will stop working.",
-    "selectCompanyPrompt": "Pick a company in the selector to manage its users."
+    "selectCompanyPrompt": "Pick a company in the selector to manage its users.",
+    "modeInvite": "Send invitation",
+    "modePassword": "Set a password",
+    "createTitle": "Create New User",
+    "createUser": "Create user",
+    "password": "Password",
+    "passwordPlaceholder": "Enter a password",
+    "confirmPassword": "Confirm password",
+    "confirmPasswordPlaceholder": "Repeat the password",
+    "passwordPolicyHint": "At least 12 characters, with an uppercase letter, a lowercase letter and a digit.",
+    "passwordPolicyInvalid": "Password must contain an uppercase letter, a lowercase letter and a digit."
   },
   "roleManagement": {
     "title": "Role Management",

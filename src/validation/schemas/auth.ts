@@ -28,7 +28,7 @@ import { email, password, Translate } from '../fields';
  * regex `ResetPassword.tsx` has always used; do not "improve" it here without
  * changing the product rule deliberately.
  */
-const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
+export const PASSWORD_PATTERN = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
 
 export const loginSchema = (t: Translate) =>
   z.object({

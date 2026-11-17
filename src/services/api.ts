@@ -21,6 +21,7 @@ import {
   Invitation,
   PendingInvitation,
   InviteCompanyUserRequest,
+  CreateCompanyUserRequest,
   UpdateUserRequest,
   UserDevice,
   Role,
@@ -466,6 +467,12 @@ export const usersApi = {
 
   getUserById: async (id: string): Promise<User> => {
     const response: AxiosResponse<ApiResponse<User>> = await api.get(`/api/users/${id}`);
+    return response.data.data!;
+  },
+
+  // Gated `users.edit`; superAdmin must put `companyId` in the body.
+  create: async (data: CreateCompanyUserRequest): Promise<User> => {
+    const response: AxiosResponse<ApiResponse<User>> = await api.post('/api/users', data);
     return response.data.data!;
   },
 

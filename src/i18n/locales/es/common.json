@@ -4377,7 +4377,17 @@
     "resendFailed": "No se pudo reenviar la invitación",
     "revokeFailed": "No se pudo revocar la invitación",
     "revokeConfirm": "¿Revocar la invitación de {{email}}? El enlace que recibió dejará de funcionar.",
-    "selectCompanyPrompt": "Elige una empresa en el selector para gestionar sus usuarios."
+    "selectCompanyPrompt": "Elige una empresa en el selector para gestionar sus usuarios.",
+    "modeInvite": "Enviar invitación",
+    "modePassword": "Crear con contraseña",
+    "createTitle": "Crear Nuevo Usuario",
+    "createUser": "Crear usuario",
+    "password": "Contraseña",
+    "passwordPlaceholder": "Ingrese una contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "confirmPasswordPlaceholder": "Repita la contraseña",
+    "passwordPolicyHint": "Al menos 12 caracteres, con una mayúscula, una minúscula y un número.",
+    "passwordPolicyInvalid": "La contraseña debe contener una mayúscula, una minúscula y un número."
   },
   "roleManagement": {
     "title": "Gestión de Roles",

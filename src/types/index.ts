@@ -180,6 +180,10 @@ export interface InviteCompanyUserRequest {
   companyId?: string;
 }
 
+export interface CreateCompanyUserRequest extends InviteCompanyUserRequest {
+  password: string;
+}
+
 export interface AcceptInvitationForm {
   firstName: string;
   lastName: string;
