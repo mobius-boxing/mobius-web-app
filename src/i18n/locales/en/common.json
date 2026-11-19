@@ -2,7 +2,8 @@
   "companySelector": {
     "label": "Operating as",
     "placeholder": "Select a company",
-    "noCompanySelected": "Please select a company"
+    "noCompanySelected": "Please select a company",
+    "ownCompany": "Company"
   },
   "nav": {
     "dashboard": "Dashboard",

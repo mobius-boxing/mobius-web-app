@@ -28,6 +28,7 @@ import {
   Users,
   ShieldCheck,
   Smartphone,
+  Building2,
   X,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
@@ -37,11 +38,10 @@ import ProfileModal from '../profile/ProfileModal';
 import { usePermissions } from '../../hooks/usePermissions';
 import { useTerminadora } from '../../hooks/useTerminadora';
 import { NavItem } from '../../types';
-import LanguageSwitcher from '../ui/LanguageSwitcher';
 import CompanySwitcher from '../ui/CompanySwitcher';
+import Tooltip from '../ui/Tooltip';
 import { logger } from '../../utils/logger';
 import { cn } from '../../utils/cn';
-import mobiusMark from '../../assets/mobius-mark.svg';
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
 
@@ -553,7 +553,7 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
           className="sidebar-item sidebar-item-inactive"
         >
           {getIcon(item.icon, iconSize)}
-          <span className={`ml-3 ${textSize}`}>{item.label}</span>
+          <span className={textSize}>{item.label}</span>
         </a>
       );
     }
@@ -568,10 +568,50 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
         }`}
       >
         {getIcon(item.icon, iconSize)}
-        <span className={`ml-3 ${textSize}`}>{item.label}</span>
+        <span className={textSize}>{item.label}</span>
       </NavLink>
     );
   };
+
+  const isSuperAdmin = user?.role === 'superAdmin';
+  const fullName = `${user?.firstName ?? ''} ${user?.lastName ?? ''}`.trim();
+  const roleLabel =
+    user?.roleName ?? t(`roleNames.${user?.role}`, { defaultValue: user?.role });
+  const contextLabel = isSuperAdmin
+    ? t('companySelector.label')
+    : user?.companyName
+      ? t('companySelector.ownCompany')
+      : null;
+
+  const avatar = (
+    <UserAvatar
+      user={user}
+      className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0"
+      textClassName="text-sm font-medium text-primary-600"
+    />
+  );
+
+  const railToggle =
+    variant === 'drawer' ? (
+      <button
+        ref={closeButtonRef}
+        type="button"
+        onClick={() => onNavigate?.()}
+        aria-label={t('nav.closeMenu')}
+        className="gd-sb-toggle"
+      >
+        <X className="h-5 w-5" />
+      </button>
+    ) : (
+      <button
+        type="button"
+        onClick={toggleCollapsed}
+        className="gd-sb-toggle"
+        title={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
+      >
+        {isCollapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
+      </button>
+    );
 
   return (
     <div
@@ -580,75 +620,24 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
         variant === 'drawer' ? 'w-full' : collapsed ? 'w-16' : 'w-64'
       )}
     >
-      <div className="flex items-center justify-between h-16 px-3 border-b border-secondary-200">
-        {!collapsed && (
-          <div className="flex items-center gap-2.5 pl-1">
-            <img src={mobiusMark} alt="" className="gd-sb-mark" />
-            <span className="text-lg font-bold tracking-tight text-secondary-900">
-              Mobius
-            </span>
+      {collapsed ? (
+        <div className="gd-sb-context gd-sb-context--collapsed">{railToggle}</div>
+      ) : (
+        <div className="gd-sb-context">
+          <div className="gd-sb-context__head">
+            {contextLabel && <span className="gd-sb-label">{contextLabel}</span>}
+            {railToggle}
           </div>
-        )}
-        {variant === 'drawer' ? (
-          <button
-            ref={closeButtonRef}
-            type="button"
-            onClick={() => onNavigate?.()}
-            aria-label={t('nav.closeMenu')}
-            className="p-2 rounded-lg text-secondary-500 hover:bg-secondary-100 hover:text-secondary-800 transition-colors"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        ) : (
-          <button
-            onClick={toggleCollapsed}
-            className="p-2 rounded-lg text-secondary-500 hover:bg-secondary-100 hover:text-secondary-800 transition-colors"
-            title={isCollapsed ? t('nav.expandSidebar') : t('nav.collapseSidebar')}
-          >
-            {isCollapsed ? (
-              <PanelLeft className="h-5 w-5" />
-            ) : (
-              <PanelLeftClose className="h-5 w-5" />
-            )}
-          </button>
-        )}
-      </div>
-
-      <div className={`border-b border-secondary-200 ${collapsed ? 'p-2' : 'p-4'}`}>
-        <div className={`flex items-center ${collapsed ? 'justify-center' : 'space-x-3'}`}>
-          <button
-            type="button"
-            className="gd-sb-avatar-btn"
-            aria-label={t('profile.open')}
-            onClick={() => setProfileOpen(true)}
-          >
-            <UserAvatar
-              user={user}
-              className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0"
-              textClassName="text-sm font-medium text-primary-600"
-            />
-          </button>
-          {!collapsed && (
-            <button
-              type="button"
-              className="min-w-0 text-left"
-              onClick={() => setProfileOpen(true)}
-            >
-              <span className="block text-sm font-medium text-secondary-900 truncate">
-                {user?.firstName} {user?.lastName}
-              </span>
-              <span className="block text-xs text-secondary-500 capitalize truncate">
-                {user?.roleName ?? t(`roleNames.${user?.role}`, { defaultValue: user?.role })}
-                {user?.companyName && ` • ${user.companyName}`}
-              </span>
-            </button>
+          {isSuperAdmin ? (
+            <CompanySwitcher />
+          ) : (
+            user?.companyName && (
+              <div className="gd-sb-company">
+                <Building2 className="h-4 w-4 flex-shrink-0 text-secondary-500" />
+                <span className="truncate">{user.companyName}</span>
+              </div>
+            )
           )}
-        </div>
-      </div>
-
-      {user?.role === 'superAdmin' && !collapsed && (
-        <div className="px-4 py-2 border-b border-secondary-200">
-          <CompanySwitcher />
         </div>
       )}
 
@@ -666,29 +655,63 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
         {filteredNavigation.map((item) => renderNavItem(item, 0))}
       </nav>
 
-      {!collapsed && (
-        <div className="px-4 py-2 border-t border-secondary-200">
-          <LanguageSwitcher />
-        </div>
-      )}
-
       <div className={`border-t border-secondary-200 ${collapsed ? 'p-2' : 'p-4'}`}>
-        <button
-          onClick={handleLogout}
-          aria-label={collapsed ? t('nav.signOut') : undefined}
-          onMouseEnter={
-            collapsed ? (e) => showTip(t('nav.signOut'), e.currentTarget) : undefined
-          }
-          onMouseLeave={collapsed ? hideTip : undefined}
-          onFocus={
-            collapsed ? (e) => showTip(t('nav.signOut'), e.currentTarget) : undefined
-          }
-          onBlur={collapsed ? hideTip : undefined}
-          className={`sidebar-item sidebar-item-inactive w-full ${collapsed ? 'justify-center' : 'text-left'}`}
-        >
-          <LogOut className="h-5 w-5" />
-          {!collapsed && <span className="ml-3">{t('nav.signOut')}</span>}
-        </button>
+        {collapsed ? (
+          <div className="flex flex-col items-center gap-2">
+            <button
+              type="button"
+              className="gd-sb-avatar-btn"
+              aria-label={t('profile.open')}
+              onClick={() => setProfileOpen(true)}
+              onMouseEnter={(e) => showTip(fullName, e.currentTarget)}
+              onMouseLeave={hideTip}
+              onFocus={(e) => showTip(fullName, e.currentTarget)}
+              onBlur={hideTip}
+            >
+              {avatar}
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              aria-label={t('nav.signOut')}
+              onMouseEnter={(e) => showTip(t('nav.signOut'), e.currentTarget)}
+              onMouseLeave={hideTip}
+              onFocus={(e) => showTip(t('nav.signOut'), e.currentTarget)}
+              onBlur={hideTip}
+              className="gd-sb-signout"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="gd-sb-usercard">
+            <button
+              type="button"
+              className="gd-sb-usercard__profile"
+              onClick={() => setProfileOpen(true)}
+            >
+              {avatar}
+              <span className="min-w-0">
+                <span className="block text-sm font-semibold text-secondary-900 truncate">
+                  {fullName}
+                </span>
+                <span className="block text-xs text-secondary-500 capitalize truncate">
+                  {roleLabel}
+                </span>
+              </span>
+            </button>
+            <Tooltip label={t('nav.signOut')}>
+              <button
+                type="button"
+                onClick={handleLogout}
+                aria-label={t('nav.signOut')}
+                className="gd-sb-signout"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </Tooltip>
+          </div>
+        )}
       </div>
 
       {collapsed && tip && (

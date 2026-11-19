@@ -23,9 +23,6 @@ const CompanySwitcher: React.FC = () => {
 
   return (
     <div className="relative">
-      <label className="block text-xs font-medium text-secondary-500 mb-1">
-        {t('companySelector.label')}
-      </label>
       <div className="flex items-center space-x-2 overflow-hidden">
         <Building2 className="h-4 w-4 flex-shrink-0 text-secondary-500" />
         <select

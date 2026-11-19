@@ -2,7 +2,8 @@
   "companySelector": {
     "label": "Operando como",
     "placeholder": "Seleccionar empresa",
-    "noCompanySelected": "Por favor seleccione una empresa"
+    "noCompanySelected": "Por favor seleccione una empresa",
+    "ownCompany": "Empresa"
   },
   "nav": {
     "dashboard": "Panel de Control",

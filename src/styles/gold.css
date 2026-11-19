@@ -247,6 +247,99 @@ body::after {
   background: oklch(1 0 0);
 }
 
+.gd-sb-context {
+  padding: 1rem 1rem 0.75rem;
+  border-bottom: 1px solid oklch(1 0 0 / 0.07);
+}
+
+.gd-sb-context--collapsed {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+}
+
+.gd-sb-context__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  min-height: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+/* A lone toggle (no label) still belongs at the row's right edge. */
+.gd-sb-context__head > :only-child {
+  margin-left: auto;
+}
+
+.gd-sb-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.375rem;
+  border-radius: 0.375rem;
+  color: oklch(var(--n-400));
+  transition:
+    background-color 0.3s var(--ease-snap),
+    color 0.3s var(--ease-snap);
+}
+
+/* Pull the hit area out so the icon itself lines up with the select's edge. */
+.gd-sb-context__head .gd-sb-toggle {
+  margin: -0.375rem -0.375rem -0.375rem 0;
+}
+
+.gd-sb-toggle:hover {
+  background: oklch(1 0 0 / 0.07);
+  color: oklch(var(--white));
+}
+
+.gd-sb-toggle:focus-visible {
+  outline: 2px solid oklch(var(--p-400));
+  outline-offset: 1px;
+}
+
+.gd-sb-company {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: oklch(var(--n-200));
+}
+
+.gd-sb-usercard {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem;
+  border: 1px solid oklch(1 0 0 / 0.08);
+  border-radius: 0.75rem;
+  background: oklch(1 0 0 / 0.04);
+}
+
+.gd-sb-usercard__profile {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 0.25rem;
+  border-radius: 0.5rem;
+  text-align: left;
+  transition: background-color 0.3s var(--ease-snap);
+}
+
+.gd-sb-usercard__profile:hover {
+  background: oklch(1 0 0 / 0.06);
+}
+
+.gd-sb-usercard__profile:focus-visible {
+  outline: 2px solid oklch(var(--p-400));
+  outline-offset: 1px;
+}
+
 .gd-sb-wordmark {
   display: block;
   font-family: var(--font-display);
@@ -372,7 +465,8 @@ body::after {
 }
 
 /* Selects inside the rail (company + language switchers) */
-.gd-sidebar label {
+.gd-sidebar label,
+.gd-sb-label {
   font-family: var(--font-mono);
   font-size: 0.5625rem;
   font-weight: 500;
@@ -430,6 +524,27 @@ body::after {
 .gd-sidebar .text-primary-700,
 .gd-sidebar .text-primary-900 { color: oklch(var(--p-300)) !important; }
 .gd-sidebar .text-secondary-500 { color: oklch(var(--n-400)); }
+
+.gd-sb-signout {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 0.5rem;
+  border: 1px solid oklch(1 0 0 / 0.14);
+  background: oklch(1 0 0 / 0.05);
+  color: oklch(var(--n-200));
+  transition:
+    background-color 0.3s var(--ease-snap),
+    color 0.3s var(--ease-snap);
+}
+
+.gd-sb-signout:focus-visible {
+  outline: 2px solid oklch(var(--p-400));
+  outline-offset: 1px;
+}
 
 /* Sign-out gets a danger-leaning hover; it is the one destructive control here. */
 .gd-sb-signout:hover {
