@@ -46,6 +46,11 @@ import CorrugatorPool from './pages/CorrugatorPool';
 import CorrugatorPlans from './pages/CorrugatorPlans';
 import CorrugatorPlan from './pages/CorrugatorPlan';
 import CorrugatorPlanPrint from './pages/CorrugatorPlanPrint';
+import Quotations from './pages/Quotations';
+import QuotationForm from './pages/QuotationForm';
+import SupplierPrograms from './pages/SupplierPrograms';
+import SupplierPurchaseOrderPrint from './pages/SupplierPurchaseOrderPrint';
+import SupplierTracking from './pages/SupplierTracking';
 import MachineTypes from './pages/MachineTypes';
 import PalletTypes from './pages/PalletTypes';
 import Palletizations from './pages/Palletizations';
@@ -275,6 +280,56 @@ function App() {
               element={
                 <ProtectedRoute requiredPermission="orders.edit">
                   <SalesOrderForm />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Terminadora (EsTerminadora). /new MUST precede /:uuid; the print tail is registered before the bare /supplier-programs routes (L-011). */}
+            <Route
+              path="/quotations"
+              element={
+                <ProtectedRoute requiredPermission="quotations.edit">
+                  <Quotations />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/quotations/new"
+              element={
+                <ProtectedRoute requiredPermission="quotations.edit">
+                  <QuotationForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/quotations/:uuid"
+              element={
+                <ProtectedRoute requiredPermission="quotations.edit">
+                  <QuotationForm />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/supplier-programs/:uuid/print"
+              element={
+                <ProtectedRoute requiredPermission="supplier-orders.plan">
+                  <SupplierPurchaseOrderPrint />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/supplier-programs"
+              element={
+                <ProtectedRoute requiredPermission="supplier-orders.plan">
+                  <SupplierPrograms />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/supplier-tracking"
+              element={
+                <ProtectedRoute requiredPermission="supplier-orders.receive">
+                  <SupplierTracking />
                 </ProtectedRoute>
               }
             />

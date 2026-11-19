@@ -35,6 +35,7 @@ export const createMachineTypeSchema = (t: Translate) =>
     generatesSheets: boolean(),
     requiresDie: boolean(),
     requiresPlate: boolean(),
+    isSupplier: boolean(),
   });
 
 export const editMachineTypeSchema = (t: Translate) =>

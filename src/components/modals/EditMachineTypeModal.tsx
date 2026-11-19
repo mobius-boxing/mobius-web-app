@@ -36,6 +36,7 @@ const EditMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, mac
         generatesSheets: machineType.generatesSheets ?? false,
         requiresDie: machineType.requiresDie,
         requiresPlate: machineType.requiresPlate,
+        isSupplier: machineType.isSupplier ?? false,
       });
     }
   }, [isOpen, machineType, reset]);
@@ -79,6 +80,10 @@ const EditMachineTypeModal: React.FC<Props> = ({ isOpen, onClose, onSuccess, mac
           <label className="flex items-center gap-2 text-sm text-secondary-700">
             <input type="checkbox" {...register('requiresPlate')} />
             {t('machineTypes.requiresPlate')}
+          </label>
+          <label className="flex items-center gap-2 text-sm text-secondary-700">
+            <input type="checkbox" data-testid="machine-type-is-supplier" {...register('isSupplier')} />
+            {t('machineTypes.isSupplier')}
           </label>
         </div>
         <ModalFooter onCancel={handleClose} loading={loading} submitText={t('machineTypes.editButton')} />

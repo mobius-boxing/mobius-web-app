@@ -21,6 +21,12 @@ import {
 import useEffectiveCompany from '../hooks/useEffectiveCompany';
 import { usePermissions } from '../hooks/usePermissions';
 import Layout from '../components/layout/Layout';
+import DeliveriesEditor, {
+  DeliveryDraft,
+  deliveriesError,
+  toDeliveryDrafts,
+  toDeliveryInputs,
+} from '../components/deliveries/DeliveriesEditor';
 import SalesOrderApprovalControl from '../components/sales-orders/SalesOrderApprovalControl';
 import SalesOrderLifecycleControl from '../components/sales-orders/SalesOrderLifecycleControl';
 import SalesOrderProductionOrders from '../components/production-orders/SalesOrderProductionOrders';
@@ -127,6 +133,8 @@ const SalesOrderForm: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<SalesOrderTab>('details');
+  const [deliveries, setDeliveries] = useState<DeliveryDraft[]>([]);
+  const [deliveriesDirty, setDeliveriesDirty] = useState(false);
 
   const {
     register,
@@ -238,6 +246,8 @@ const SalesOrderForm: React.FC = () => {
         const loaded = await salesOrdersApi.getSalesOrder(uuid);
         if (cancelled) return;
         setOrder(loaded);
+        setDeliveries(toDeliveryDrafts(loaded.deliveries));
+        setDeliveriesDirty(false);
         const customer = loaded.customer?.uuid ?? '';
         setCustomerOption(
           loaded.customer
@@ -331,10 +341,13 @@ const SalesOrderForm: React.FC = () => {
       ? priceNumber * quantityNumber
       : null;
 
+  const hasDeliveries = deliveries.length > 0;
+
   const buildPayload = (values: SalesOrderFormValues): SalesOrderFormPayload => {
+    // The API derives date and destination from the deliveries and answers 400
+    // DELIVERIES_CONFLICT when both travel together.
     const payload: SalesOrderFormPayload = {
       quantity: Number(values.quantity),
-      deliveryLocationUuid: values.deliveryLocationUuid || null,
       purchaseOrder: optionalText(values.purchaseOrder) ?? null,
       supplierCode: optionalText(values.supplierCode) ?? null,
       needsAdvanceInvoice: values.needsAdvanceInvoice,
@@ -343,6 +356,8 @@ const SalesOrderForm: React.FC = () => {
       dispatchNotes: optionalText(values.dispatchNotes) ?? null,
       conversionNotes: optionalText(values.conversionNotes) ?? null,
     };
+    if (!hasDeliveries) payload.deliveryLocationUuid = values.deliveryLocationUuid || null;
+    if (deliveriesDirty) payload.deliveries = toDeliveryInputs(deliveries);
     if (!isEdit) {
       // Immutable on edit (PedidoDeProductoForm.cs:80) — the API 400s a change,
       // so the form never re-sends them.
@@ -362,7 +377,7 @@ const SalesOrderForm: React.FC = () => {
     // truncates the stored instant to its day: re-sending an untouched value
     // would 403 a caller without the code, or silently rewrite a time-bearing
     // timestamp to UTC midnight. Only a dirty field travels.
-    if (dirtyFields.deliveryDate) {
+    if (dirtyFields.deliveryDate && !hasDeliveries) {
       payload.deliveryDate = values.deliveryDate || null;
     }
     // Sending price/paid without orders.edit-prices is a 403; the fields are
@@ -383,12 +398,23 @@ const SalesOrderForm: React.FC = () => {
     setSaving(true);
     setError(null);
     try {
+      const problem = deliveriesError(deliveries);
+      if (problem) {
+        setError(t(`deliveries.error.${problem}`));
+        return;
+      }
       const payload = buildPayload(values);
       const saved = uuid
         ? await salesOrdersApi.updateSalesOrder(uuid, payload)
         : await salesOrdersApi.createSalesOrder(payload);
       if (uuid) {
         setOrder(saved);
+        setDeliveries(toDeliveryDrafts(saved.deliveries));
+        setDeliveriesDirty(false);
+        if (saved.deliveries && saved.deliveries.length > 0) {
+          setValue('deliveryDate', saved.deliveryDate ? saved.deliveryDate.slice(0, 10) : '');
+          setValue('deliveryLocationUuid', saved.orderData?.deliveryLocation?.uuid ?? '');
+        }
       } else {
         navigate(`/sales-orders/${saved.uuid}`);
       }
@@ -588,7 +614,7 @@ const SalesOrderForm: React.FC = () => {
                   id="deliveryLocationUuid"
                   className={selectClass}
                   data-testid="delivery-location-select"
-                  disabled={!customerUuid}
+                  disabled={!customerUuid || hasDeliveries}
                   {...register('deliveryLocationUuid')}
                 >
                   <option value="">{t('salesOrders.placeholders.deliveryLocation')}</option>
@@ -626,6 +652,7 @@ const SalesOrderForm: React.FC = () => {
                 type="date"
                 label={t('salesOrders.fields.deliveryDate')}
                 data-testid="delivery-date-input"
+                disabled={hasDeliveries}
                 {...register('deliveryDate')}
               />
 
@@ -702,6 +729,21 @@ const SalesOrderForm: React.FC = () => {
                 {t('salesOrders.fields.invoiceSent')}
               </label>
             </div>
+
+            <DeliveriesEditor
+              rows={deliveries}
+              onChange={(rows) => {
+                setDeliveries(rows);
+                setDeliveriesDirty(true);
+              }}
+              locations={deliveryLocations}
+              parentQuantity={quantity.trim() === '' ? NaN : Number(quantity)}
+            />
+            {hasDeliveries && (
+              <p className="text-sm text-secondary-500" data-testid="deliveries-derived-notice">
+                {t('deliveries.derivedNotice')}
+              </p>
+            )}
 
             {/* 11. Observaciones — persisted on order_data */}
             <div className="bg-white p-6 rounded-lg shadow-sm border border-secondary-200 grid grid-cols-1 md:grid-cols-3 gap-4">

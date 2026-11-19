@@ -9,6 +9,7 @@ export interface User {
   roleName: string | null;
   companyId?: string;
   companyName?: string;
+  companyIsTerminadora?: boolean;
   avatarUuid?: string | null;
   isActive: boolean;
   emailVerified: boolean;
@@ -22,6 +23,10 @@ export interface Company {
   name: string;
   description?: string;
   isActive: boolean;
+  isTerminadora?: boolean;
+  slug?: string;
+  /** `{}` when the company never set branding. */
+  branding?: { displayName?: string | null; logoFileUuid?: string | null };
   createdAt: string;
   updatedAt: string;
 }
@@ -66,6 +71,8 @@ export interface AuthUser {
   role: 'member' | 'admin' | 'superAdmin';
   companyId?: string;
   companyName?: string;
+  /** From `companies.isTerminadora`; drives the Cotizaciones / Programas / Seguimiento nav (D-72). */
+  companyIsTerminadora?: boolean;
   avatarUuid?: string | null;
   /** Assigned role identity returned by `/api/auth/me`; null for superAdmins and legacy users. */
   roleUuid: string | null;
@@ -1482,6 +1489,7 @@ export interface MachineType {
   attribute?: string | null;
   corrugated: boolean;
   generatesSheets?: boolean | null;
+  isSupplier: boolean;
   createdAt?: string;
 }
 
@@ -1493,6 +1501,7 @@ export interface CreateMachineTypeForm {
   attribute?: string;
   corrugated?: boolean;
   generatesSheets?: boolean;
+  isSupplier?: boolean;
   companyId?: string;
 }
 
@@ -1515,9 +1524,10 @@ export interface Machine {
   formatsPerTable?: number | null;
   ordersPerFormat?: number | null;
   ordersPerTable?: number | null;
-  machineType?: { uuid: string; name?: string; corrugated?: boolean } | null;
+  machineType?: { uuid: string; name?: string; corrugated?: boolean; isSupplier?: boolean } | null;
   sourceWarehouse?: { uuid: string; name?: string } | null;
   destinationWarehouse?: { uuid: string; name?: string } | null;
+  supplier?: { uuid: string; code: string } | null;
   createdAt?: string;
 }
 
@@ -1540,6 +1550,7 @@ export interface CreateMachineForm {
   ordersPerFormat?: number;
   ordersPerTable?: number;
   maxScoreLines?: number;
+  supplierUuid?: string | null;
   companyId?: string;
 }
 
@@ -1944,12 +1955,16 @@ export interface SalesOrderOrderData {
 export interface SalesOrder {
   uuid: string;
   number: string;
+  quotation?: { uuid: string; number: number } | null;
   quantity: number;
   price?: number | null;
   paid?: number | null;
   /** Derived: price × quantity, null without a price. */
   priceTotal?: number | null;
   deliveryDate?: string | null;
+  deliveries?: OrderDelivery[];
+  deliveriesTotal?: number;
+  deliveriesMatch?: boolean;
   purchaseOrder?: string | null;
   supplierCode?: string | null;
   /** Present only for callers holding orders.view-sales-sector. */
@@ -2085,6 +2100,28 @@ export type ProductionOrderListFilters = {
   orderDateTo?: string;
 };
 
+export type DeliveryAmountType = 'quantity' | 'percentage';
+
+/** A delivery as the API returns it on a quotation or sales order. */
+export interface OrderDelivery {
+  uuid: string;
+  position: number;
+  deliveryDate: string;
+  deliveryLocation: { uuid: string; address: string | null } | null;
+  amountType: DeliveryAmountType;
+  amount: number;
+  /** Resolved: `amount`, or parent quantity x amount / 100. */
+  quantity: number;
+}
+
+/** One entry of the `deliveries` array sent in a quotation / sales-order body (full replace). */
+export interface DeliveryInput {
+  deliveryDate: string;
+  deliveryLocationUuid: string | null;
+  amountType: DeliveryAmountType;
+  amount: number;
+}
+
 /** What the "Alta de Pedido" form POSTs / PUTs. `number` is server-generated. */
 export interface SalesOrderFormPayload {
   customerUuid?: string;
@@ -2093,6 +2130,7 @@ export interface SalesOrderFormPayload {
   deliveryLocationUuid?: string | null;
   salesUserUuid?: string | null;
   deliveryDate?: string | null;
+  deliveries?: DeliveryInput[];
   purchaseOrder?: string | null;
   supplierCode?: string | null;
   price?: number;
@@ -2140,6 +2178,8 @@ export interface GenerationEligibility {
   requiresForce: boolean;
   oneOrderPerSalesOrder: boolean;
   defaultRow: { quantity: number; deliveryDate: string | null };
+  /** One row per delivery when the pedido has them (and `oneOrderPerSalesOrder` is off); else `[defaultRow]`. */
+  defaultRows?: Array<{ quantity: number; deliveryDate: string | null }>;
 }
 
 export interface ProductionOrder {
@@ -2204,4 +2244,198 @@ export interface ProductionOrderFormPayload {
   deliveryDate?: string | null;
   orderDate?: string | null;
   notes?: string | null;
+}
+
+
+// ── Terminadora order flow (docs/dev/terminadora-order-flow/model.md) ───────
+// 1:1 projections of the API payloads. Dates travel as ISO strings.
+
+export const QUOTATION_STATUSES = ['draft', 'informed', 'accepted', 'rejected'] as const;
+export type QuotationStatus = (typeof QUOTATION_STATUSES)[number];
+
+export interface Quotation {
+  uuid: string;
+  number: number;
+  customer: { uuid: string; name: string };
+  product: { uuid: string; code: string; description?: string | null };
+  quantity: number;
+  price: number;
+  priceTotal: number;
+  deliveryDate?: string | null;
+  deliveries?: OrderDelivery[];
+  deliveriesTotal?: number;
+  deliveriesMatch?: boolean;
+  salesUser?: { uuid: string; name: string } | null;
+  notes?: string | null;
+  status: QuotationStatus;
+  approved: boolean;
+  approvedAt?: string | null;
+  approvedByUser?: string | null;
+  ordered: boolean;
+  salesOrder: { uuid: string; number: string } | null;
+  createdByUser?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface QuotationPayload {
+  customerUuid?: string;
+  productUuid?: string;
+  quantity?: number;
+  price?: number;
+  deliveryDate?: string | null;
+  deliveries?: DeliveryInput[];
+  salesUserUuid?: string | null;
+  notes?: string | null;
+  status?: QuotationStatus;
+  companyId?: string;
+}
+
+export interface QuotationGenerateInput {
+  deliveryDate?: string;
+  purchaseOrder?: string;
+  deliveryLocationUuid?: string;
+}
+
+export interface QuotationGenerateResult {
+  quotation: Quotation;
+  salesOrder: { uuid: string; number: string };
+  productionOrders: { uuid: string; number: string }[];
+  /** `"CODE: message"` strings, e.g. `SALES_ORDER_NOT_APPROVED: …` (D-46, D-57). */
+  warnings: string[];
+}
+
+export const SUPPLIER_PO_STATUSES = ['draft', 'sent', 'completed'] as const;
+export type SupplierPurchaseOrderStatus = (typeof SUPPLIER_PO_STATUSES)[number];
+export const SUPPLIER_PO_LINE_STATUSES = ['pending', 'partial', 'completed'] as const;
+export type SupplierPurchaseOrderLineStatus = (typeof SUPPLIER_PO_LINE_STATUSES)[number];
+export type SupplierPoolStatus = 'unassigned' | 'in-draft';
+
+export interface SupplierMachineRef {
+  uuid: string;
+  code: string | null;
+  supplier: { uuid: string; code: string };
+}
+
+export interface SupplierPoolRow {
+  productionOrder: { uuid: string; number: string };
+  customer: { uuid: string; name: string } | null;
+  product: { uuid: string; code: string; description?: string | null };
+  orderQuantity: number;
+  requiredSheets: number;
+  deliveryDate?: string | null;
+  boardCode: string | null;
+  sheetLength: number | null;
+  sheetWidth: number | null;
+  scoreLines: string | null;
+  status: SupplierPoolStatus;
+  purchaseOrder: { uuid: string; number: number; supplier: { uuid: string; code: string } } | null;
+  suggestedMachine: SupplierMachineRef | null;
+  candidateMachines: SupplierMachineRef[];
+  notReady: 'no-sheet-dimensions' | 'no-corrugation' | null;
+}
+
+export interface SupplierReceipt {
+  uuid: string;
+  quantity: number;
+  /** Product units: sheets / the line's sheetsPerUnit. */
+  unitQuantity: number;
+  receivedAt: string;
+  receivedByUser?: string | null;
+  warehouse: { uuid: string; name: string };
+  productStock?: { uuid: string } | null;
+  notes?: string | null;
+  createdAt: string;
+}
+
+export interface SupplierPurchaseOrderLine {
+  uuid: string;
+  position: number;
+  productionOrder: { uuid: string; number: string };
+  customer: { uuid: string; name: string } | null;
+  product: { uuid: string; code: string; description?: string | null };
+  deliveryDate?: string | null;
+  orderNumber: string;
+  boardCode: string | null;
+  quantity: number;
+  sheetLength: number | null;
+  sheetWidth: number | null;
+  scoreLines: string | null;
+  /** Snapshot taken when the PO is sent; null in draft. */
+  sheetsPerUnit: number | null;
+  receivedQuantity: number;
+  /** Sum of the receipts' unitQuantity (only on `GET /lines`). */
+  receivedUnits?: number;
+  status: SupplierPurchaseOrderLineStatus;
+  completedAt?: string | null;
+  completedByUser?: string | null;
+  receipts?: SupplierReceipt[];
+}
+
+/** A row of `GET /supplier-purchase-orders/lines` (Seguimiento). */
+export interface SupplierTrackingLine extends SupplierPurchaseOrderLine {
+  purchaseOrder: { uuid: string; number: number; status: SupplierPurchaseOrderStatus; sentAt?: string | null };
+  supplier: { uuid: string; code: string };
+  defaultWarehouse: { uuid: string; name: string } | null;
+}
+
+export interface SupplierPurchaseOrder {
+  uuid: string;
+  number: number;
+  status: SupplierPurchaseOrderStatus;
+  machine: {
+    uuid: string;
+    code: string | null;
+    destinationWarehouse: { uuid: string; name: string } | null;
+  };
+  supplier: { uuid: string; code: string };
+  notes?: string | null;
+  sentAt?: string | null;
+  sentByUser?: string | null;
+  completedAt?: string | null;
+  createdByUser?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  lines?: SupplierPurchaseOrderLine[];
+  lineCount?: number;
+  orderedQuantity?: number;
+  receivedQuantity?: number;
+}
+
+export interface SupplierPurchaseOrderCreatePayload {
+  machineUuid: string;
+  productionOrderUuids: string[];
+  notes?: string | null;
+  companyId?: string;
+}
+
+export interface SupplierPurchaseOrderUpdatePayload {
+  notes?: string | null;
+  lines?: { productionOrderUuid: string; quantity?: number; deliveryDate?: string }[];
+}
+
+export interface SupplierReceiptPayload {
+  quantity: number;
+  warehouseUuid: string;
+  receivedAt?: string;
+  confirmMismatch?: boolean;
+  closeLine?: boolean;
+  notes?: string | null;
+}
+
+export interface SupplierReceiptResult {
+  receipt: SupplierReceipt;
+  line: SupplierPurchaseOrderLine;
+  purchaseOrder: { uuid: string; number: number; status: SupplierPurchaseOrderStatus };
+}
+
+export interface ProductStock {
+  uuid: string;
+  warehouse: { uuid: string; name: string };
+  product: { uuid: string; code: string; description?: string | null };
+  productionOrder: { uuid: string; number: string } | null;
+  quantity: number;
+  comments?: string | null;
+  createdAt: string;
+  updatedAt: string;
 }

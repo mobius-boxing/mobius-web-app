@@ -454,6 +454,22 @@
       { "column": "actions", "notFilterable": "actions" }
     ]
   },
+  "quotations": {
+    "endpoint": "/api/quotations",
+    "filters": [
+      { "column": "number", "notFilterable": "computed" },
+      { "column": "status", "kind": "select", "options": ["draft", "informed", "accepted", "rejected"] },
+      { "column": "customer", "kind": "entity", "entity": "customer", "param": "customerUuid" },
+      { "column": "product", "kind": "entity", "entity": "product", "param": "productUuid" },
+      { "column": "quantity", "notFilterable": "computed" },
+      { "column": "price", "notFilterable": "computed" },
+      { "column": "priceTotal", "notFilterable": "computed" },
+      { "column": "deliveryDate", "notFilterable": "computed" },
+      { "column": "approved", "kind": "boolean" },
+      { "column": "ordered", "kind": "boolean" },
+      { "column": "actions", "notFilterable": "actions" }
+    ]
+  },
   "production-orders": {
     "endpoint": "/api/production-orders",
     "filters": [

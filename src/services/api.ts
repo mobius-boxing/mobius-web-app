@@ -140,6 +140,19 @@ import {
   CorrugatorPlanOrderUpdatePayload,
   CorrugatorCandidate,
   CorrugatorCandidateItem,
+  Quotation,
+  QuotationPayload,
+  QuotationGenerateInput,
+  QuotationGenerateResult,
+  SupplierPoolRow,
+  SupplierPurchaseOrder,
+  SupplierPurchaseOrderCreatePayload,
+  SupplierPurchaseOrderUpdatePayload,
+  SupplierTrackingLine,
+  SupplierPurchaseOrderLine,
+  SupplierReceiptPayload,
+  SupplierReceiptResult,
+  ProductStock,
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -1984,6 +1997,16 @@ export const filesApi = {
     return response.data.data!;
   },
 
+  /** Authenticated fetch of a stored image as an object URL (caller revokes it); null when unreadable. */
+  getImageObjectUrl: async (uuid: string): Promise<string | null> => {
+    try {
+      const response = await api.get(`/api/files/${uuid}/download`, { responseType: 'blob' });
+      return window.URL.createObjectURL(response.data as Blob);
+    } catch {
+      return null;
+    }
+  },
+
   /**
    * Download through axios (auth travels in the Authorization header, so a plain
    * <a href> would 401) and trigger a browser save.
@@ -2551,5 +2574,106 @@ export const corrugatorPlansApi = {
   unregister: async (uuid: string): Promise<CorrugatorPlan> => {
     const response = await api.post(`/api/corrugator-plans/${uuid}/unregister`);
     return response.data.data;
+  },
+};
+
+
+const pageOf = <T>(d: { data: T[]; totalCount: number; page: number; limit: number; totalPages: number }): PaginatedResponse<T> => ({
+  data: d.data,
+  total: d.totalCount,
+  page: d.page,
+  limit: d.limit,
+  totalPages: d.totalPages,
+});
+
+/** Cotizaciones — `number` is assigned by the API; approval is its own PATCH. */
+export const quotationsApi = {
+  getQuotations: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<Quotation>> => {
+    const response = await api.get('/api/quotations', { params });
+    return pageOf(response.data);
+  },
+  getQuotation: async (uuid: string, params: { companyId?: string } = {}): Promise<Quotation> => {
+    const response = await api.get(`/api/quotations/${uuid}`, { params });
+    return response.data.data;
+  },
+  createQuotation: async (data: QuotationPayload): Promise<Quotation> => {
+    const response = await api.post('/api/quotations', data);
+    return response.data.data;
+  },
+  updateQuotation: async (uuid: string, data: QuotationPayload): Promise<Quotation> => {
+    const response = await api.put(`/api/quotations/${uuid}`, data);
+    return response.data.data;
+  },
+  setApproval: async (uuid: string, approved: boolean): Promise<Quotation> => {
+    const response = await api.patch(`/api/quotations/${uuid}/approval`, { approved });
+    return response.data.data;
+  },
+  /** First call creates the sales order; once it is approved, calling again runs only the production-order step (D-27, D-57). */
+  generateOrder: async (uuid: string, data: QuotationGenerateInput = {}): Promise<QuotationGenerateResult> => {
+    const response = await api.post(`/api/quotations/${uuid}/generate-order`, data);
+    return response.data.data;
+  },
+  deleteQuotation: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/quotations/${uuid}`);
+  },
+};
+
+/** Programas de corrugado para Terminadoras + Seguimiento. List params are strict (L-007): send documented ones only. */
+export const supplierPurchaseOrdersApi = {
+  getPool: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<SupplierPoolRow>> => {
+    const response = await api.get('/api/supplier-purchase-orders/pool', { params });
+    return pageOf(response.data);
+  },
+  getPurchaseOrders: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<SupplierPurchaseOrder>> => {
+    const response = await api.get('/api/supplier-purchase-orders', { params });
+    return pageOf(response.data);
+  },
+  getPurchaseOrder: async (uuid: string, params: { companyId?: string } = {}): Promise<SupplierPurchaseOrder> => {
+    const response = await api.get(`/api/supplier-purchase-orders/${uuid}`, { params });
+    return response.data.data;
+  },
+  createPurchaseOrder: async (data: SupplierPurchaseOrderCreatePayload): Promise<SupplierPurchaseOrder> => {
+    const response = await api.post('/api/supplier-purchase-orders', data);
+    return response.data.data;
+  },
+  updatePurchaseOrder: async (
+    uuid: string,
+    data: SupplierPurchaseOrderUpdatePayload,
+  ): Promise<SupplierPurchaseOrder> => {
+    const response = await api.put(`/api/supplier-purchase-orders/${uuid}`, data);
+    return response.data.data;
+  },
+  deletePurchaseOrder: async (uuid: string): Promise<void> => {
+    await api.delete(`/api/supplier-purchase-orders/${uuid}`);
+  },
+  send: async (uuid: string): Promise<SupplierPurchaseOrder> => {
+    const response = await api.post(`/api/supplier-purchase-orders/${uuid}/send`);
+    return response.data.data;
+  },
+  unsend: async (uuid: string): Promise<SupplierPurchaseOrder> => {
+    const response = await api.post(`/api/supplier-purchase-orders/${uuid}/unsend`);
+    return response.data.data;
+  },
+  getLines: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<SupplierTrackingLine>> => {
+    const response = await api.get('/api/supplier-purchase-orders/lines', { params });
+    return pageOf(response.data);
+  },
+  /** 409 `QUANTITY_MISMATCH` unless `confirmMismatch: true` when the totals differ. */
+  createReceipt: async (lineUuid: string, data: SupplierReceiptPayload): Promise<SupplierReceiptResult> => {
+    const response = await api.post(`/api/supplier-purchase-orders/lines/${lineUuid}/receipts`, data);
+    return response.data.data;
+  },
+  closeLine: async (
+    lineUuid: string,
+  ): Promise<{ line: SupplierPurchaseOrderLine; purchaseOrder: SupplierReceiptResult['purchaseOrder'] }> => {
+    const response = await api.patch(`/api/supplier-purchase-orders/lines/${lineUuid}/close`);
+    return response.data.data;
+  },
+};
+
+export const productStockApi = {
+  getProductStock: async (params: Record<string, unknown> = {}): Promise<PaginatedResponse<ProductStock>> => {
+    const response = await api.get('/api/product-stock', { params });
+    return pageOf(response.data);
   },
 };

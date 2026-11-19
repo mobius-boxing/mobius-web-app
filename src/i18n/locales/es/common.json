@@ -71,7 +71,10 @@
     "administration": "Administración",
     "users": "Usuarios",
     "roles": "Roles",
-    "devices": "Dispositivos"
+    "devices": "Dispositivos",
+    "quotations": "Cotizaciones",
+    "supplierPrograms": "Programas proveedores",
+    "supplierTracking": "Seguimiento"
   },
   "fileUploader": {
     "choose": "Elegir archivo...",
@@ -3482,7 +3485,8 @@
     },
     "validation": {
       "nameRequired": "El nombre es obligatorio"
-    }
+    },
+    "isSupplier": "Proveedor (terminadoras)"
   },
   "machines": {
     "title": "Máquinas",
@@ -3531,7 +3535,10 @@
     "sheetLengthMax": "Largo máximo de plancha (mm)",
     "maxScoreLines": "Máximo de trazadores",
     "machineWidth": "Ancho máximo de bobina (mm)",
-    "machineWidthHint": "El ancho más grande que admite la corrugadora"
+    "machineWidthHint": "El ancho más grande que admite la corrugadora",
+    "supplier": "Proveedor",
+    "selectSupplier": "Sin proveedor",
+    "supplierHint": "Solo los tipos de máquina marcados como proveedor pueden tener un proveedor asociado"
   },
   "productionRoutes": {
     "title": "Rutas de Producción",
@@ -4093,7 +4100,11 @@
       "cancelled": "Cancelado",
       "Alta": "Alta",
       "Baja": "Baja",
-      "Modificacion": "Modificación"
+      "Modificacion": "Modificación",
+      "draft": "Borrador",
+      "informed": "Informada",
+      "accepted": "Aceptada",
+      "rejected": "Rechazada"
     },
     "columns": {
       "createdAt": "Creado",
@@ -4510,5 +4521,242 @@
     "passwordFailed": "No se pudo cambiar la contraseña.",
     "passwordWrongCurrent": "La contraseña actual es incorrecta.",
     "open": "Abrir mi perfil"
+  },
+  "deliveries": {
+    "title": "Entregas",
+    "add": "Agregar entrega",
+    "empty": "Sin entregas: se usa la fecha y el lugar de entrega únicos.",
+    "date": "Fecha",
+    "destination": "Destino",
+    "noDestination": "Sin destino",
+    "type": "Tipo",
+    "typeQuantity": "Cantidad",
+    "amount": "Valor",
+    "resolved": "Cantidad resuelta",
+    "remove": "Quitar entrega",
+    "total": "Total entregas: {{total}} de {{quantity}}",
+    "mismatch": "El total de las entregas no coincide con la cantidad",
+    "derivedNotice": "Con entregas, la fecha y el lugar de entrega del pedido se calculan a partir de la primera entrega.",
+    "error": {
+      "incomplete": "Cada entrega necesita fecha y un valor mayor que cero",
+      "percentage": "Un porcentaje no puede superar 100"
+    }
+  },
+  "quotations": {
+    "title": "Cotizaciones",
+    "subtitle": "Cotizaciones a clientes; al aprobarlas se genera el pedido",
+    "add": "Nueva cotización",
+    "searchPlaceholder": "Buscar por cliente, producto o número...",
+    "empty": "No hay cotizaciones",
+    "edit": "Editar cotización",
+    "approve": "Aprobar",
+    "unapprove": "Quitar aprobación",
+    "delete": "Eliminar cotización",
+    "deleteConfirm": "¿Eliminar la cotización {{number}}?",
+    "approvalFailed": "No se pudo cambiar la aprobación",
+    "deleteFailed": "No se pudo eliminar la cotización",
+    "loadFailed": "No se pudo cargar la cotización",
+    "saveFailed": "No se pudo guardar la cotización",
+    "saved": "Cotización guardada",
+    "generateFailed": "No se pudo generar el pedido",
+    "back": "Volver",
+    "editTitle": "Cotización {{number}}",
+    "createTitle": "Nueva cotización",
+    "approved": "Aprobada",
+    "pending": "Pendiente",
+    "generateOrder": "Generar pedido",
+    "readOnlyNotice": "La cotización ya generó su pedido y no se puede modificar",
+    "approvedReadOnlyNotice": "Esta cotización está aprobada: solo se puede cambiar el estado. Desapruébela para editar el resto.",
+    "status": {
+      "draft": "Borrador",
+      "informed": "Informada al cliente",
+      "accepted": "Aceptada",
+      "rejected": "Rechazada"
+    },
+    "columns": {
+      "number": "Número",
+      "status": "Estado",
+      "customer": "Cliente",
+      "product": "Producto",
+      "quantity": "Cantidad",
+      "price": "Precio",
+      "priceTotal": "Total",
+      "deliveryDate": "F. entrega",
+      "approved": "Aprobada",
+      "salesOrder": "Pedido",
+      "actions": "Acciones"
+    },
+    "fields": {
+      "approval": "Aprobación",
+      "customer": "Cliente",
+      "product": "Producto",
+      "quantity": "Cantidad",
+      "price": "Precio unitario",
+      "priceTotal": "Total",
+      "status": "Estado",
+      "deliveryDate": "Fecha de entrega",
+      "salesUser": "Vendedor",
+      "notes": "Observaciones"
+    },
+    "placeholders": {
+      "customer": "Buscar cliente…",
+      "product": "Seleccione un producto",
+      "productNeedsCustomer": "Elija primero un cliente",
+      "salesUser": "Vendedor del cliente"
+    },
+    "validation": {
+      "customerRequired": "El cliente es obligatorio",
+      "productRequired": "El producto es obligatorio",
+      "quantityRequired": "La cantidad es obligatoria",
+      "quantityPositive": "La cantidad debe ser mayor que cero",
+      "priceRequired": "El precio es obligatorio",
+      "priceNonNegative": "El precio no puede ser negativo"
+    },
+    "generation": {
+      "salesOrder": "Pedido generado",
+      "warningTitle": "El pedido se creó, pero todavía no hay órdenes de producción",
+      "approveHint": "Apruebe el pedido (comercial y financiera) y luego genere la orden de producción.",
+      "productionOrders": "Órdenes de producción generadas",
+      "retry": "Generar orden de producción"
+    }
+  },
+  "supplierPrograms": {
+    "title": "Programas proveedores",
+    "subtitle": "Órdenes de producción a pedir a proveedores de planchas",
+    "searchPlaceholder": "Buscar por orden, cliente o producto...",
+    "filters": {
+      "supplier": "Proveedor",
+      "status": "Estado"
+    },
+    "poolStatus": {
+      "unassigned": "Sin asignar",
+      "in-draft": "En borrador"
+    },
+    "poStatus": {
+      "draft": "Borrador",
+      "sent": "Enviada",
+      "completed": "Completada"
+    },
+    "notReady": {
+      "no-sheet-dimensions": "Sin medidas de plancha",
+      "no-corrugation": "Sin corrugado",
+      "not-eligible": "No elegible"
+    },
+    "columns": {
+      "select": "Seleccionar",
+      "order": "Orden",
+      "customer": "Cliente",
+      "product": "Producto",
+      "quantity": "Cant. / planchas",
+      "board": "Corrugado",
+      "sheet": "Largo × Ancho",
+      "deliveryDate": "Fecha",
+      "supplier": "Proveedor",
+      "status": "Estado"
+    },
+    "lineColumns": {
+      "date": "Fecha",
+      "order": "O/C",
+      "board": "Corrugado",
+      "quantity": "Cantidad",
+      "length": "Largo",
+      "width": "Ancho",
+      "scoreLines": "Trazadores"
+    },
+    "poTitle": "Orden de pedido {{number}} — {{supplier}}",
+    "inDraftPo": "En orden {{number}}",
+    "linesSuffix": "líneas",
+    "print": "Imprimir",
+    "send": "Enviar al proveedor",
+    "unsend": "Deshacer envío",
+    "printButton": "Imprimir",
+    "printTitle": "Orden de pedido N.º {{number}}",
+    "printDate": "Fecha",
+    "attention": "ATENCIÓN SEÑORES {{supplier}}",
+    "notes": "Observaciones",
+    "printLoadFailed": "No se pudo cargar la orden de pedido",
+    "printNotFound": "Orden de pedido no encontrada",
+    "editQuantity": "Cantidad de {{number}}",
+    "removeLine": "Quitar {{number}} de la orden",
+    "noLinesLeft": "La orden se quedó sin líneas: elimínela o vuelva a agregar órdenes",
+    "saveFailed": "No se pudo guardar la orden de pedido",
+    "sendFailed": "No se pudo enviar la orden de pedido",
+    "loadFailed": "No se pudieron cargar las órdenes de pedido",
+    "addFailed": "No se pudieron agregar las órdenes",
+    "deleteFailed": "No se pudo eliminar la orden de pedido",
+    "unsendFailed": "No se pudo deshacer el envío",
+    "deleteConfirm": "¿Eliminar la orden de pedido {{number}}? Sus órdenes de producción vuelven al listado.",
+    "selectOrder": "Seleccionar {{number}}",
+    "selectPage": "Seleccionar la página",
+    "selectedCount_one": "{{count}} orden seleccionada",
+    "selectedCount_other": "{{count}} órdenes seleccionadas",
+    "clearSelection": "Limpiar selección",
+    "targetMachine": "Máquina proveedora",
+    "addToPo": "Agregar a orden de pedido",
+    "noCommonMachine": "Las órdenes elegidas no comparten una máquina proveedora",
+    "added_one": "{{count}} orden agregada a la orden de pedido",
+    "added_other": "{{count}} órdenes agregadas a la orden de pedido",
+    "emptyPool": "No hay órdenes de producción para pedir",
+    "draftsTitle": "Órdenes de pedido en borrador",
+    "noDrafts": "No hay órdenes de pedido en borrador",
+    "sentTitle": "Enviadas recientemente",
+    "noSent": "Todavía no se envió ninguna orden de pedido"
+  },
+  "supplierTracking": {
+    "units": "{{count}} un.",
+    "title": "Seguimiento",
+    "subtitle": "Órdenes enviadas a proveedores y recepción de planchas",
+    "searchPlaceholder": "Buscar por orden, cliente, producto o N.º de pedido...",
+    "filters": {
+      "supplier": "Proveedor",
+      "purchaseOrder": "Orden de pedido",
+      "status": "Estado"
+    },
+    "lineStatus": {
+      "pending": "Pendiente",
+      "partial": "Parcial",
+      "completed": "Completa"
+    },
+    "columns": {
+      "purchaseOrder": "Orden de pedido",
+      "supplier": "Proveedor",
+      "order": "O/C",
+      "customer": "Cliente",
+      "product": "Producto",
+      "board": "Corrugado",
+      "ordered": "Pedido",
+      "received": "Recibido",
+      "deliveryDate": "Fecha",
+      "status": "Estado",
+      "actions": "Acciones"
+    },
+    "empty": "No hay líneas enviadas a proveedores",
+    "registerReceipt": "Registrar recepción",
+    "closeShort": "Cerrar línea incompleta",
+    "closeTitle": "Cerrar línea",
+    "closeConfirm": "¿Cerrar la orden {{number}} con {{received}} de {{ordered}} recibidas?",
+    "closeFailed": "No se pudo cerrar la línea",
+    "receipt": {
+      "factor": "Planchas por unidad: {{factor}}",
+      "unitsPreview": "Equivale a {{units}} unidades de producto",
+      "title": "Registrar recepción",
+      "po": "Orden de pedido {{number}}",
+      "summary": "Pedido: {{ordered}} · Recibido hasta ahora: {{received}}",
+      "quantity": "Cantidad recibida",
+      "receivedAt": "Fecha de recepción",
+      "warehouse": "Depósito de destino",
+      "selectWarehouse": "Seleccione un depósito",
+      "notes": "Observaciones",
+      "closeLine": "Cerrar la línea aunque quede incompleta",
+      "mismatchTitle": "La cantidad no coincide con lo pedido",
+      "mismatchBody": "Se pidieron {{ordered}}, ya se recibieron {{received}} y se está registrando {{receiving}}: el total sería {{total}}. ¿Confirma la cantidad?",
+      "confirmMismatch": "Confirmar y registrar",
+      "editQuantity": "Corregir cantidad",
+      "submit": "Registrar",
+      "failed": "No se pudo registrar la recepción",
+      "quantityInvalid": "Ingrese una cantidad entera mayor que cero",
+      "warehouseRequired": "El depósito es obligatorio",
+      "saved": "Recepción registrada"
+    }
   }
 }

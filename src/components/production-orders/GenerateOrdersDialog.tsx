@@ -86,12 +86,13 @@ const GenerateOrdersDialog: React.FC<Props> = ({
           await productionOrdersApi.getGenerationEligibility(salesOrderUuid);
         if (cancelled) return;
         setEligibility(result);
-        setRows([
-          {
-            deliveryDate: toDateInput(result.defaultRow.deliveryDate),
-            quantity: String(result.defaultRow.quantity ?? 0),
-          },
-        ]);
+        const defaults = result.defaultRows?.length ? result.defaultRows : [result.defaultRow];
+        setRows(
+          defaults.map((row) => ({
+            deliveryDate: toDateInput(row.deliveryDate),
+            quantity: String(row.quantity ?? 0),
+          })),
+        );
         setSelected(0);
       } catch (err: any) {
         if (cancelled) return;

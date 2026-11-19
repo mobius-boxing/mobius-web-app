@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Machine, MachineType, CreateMachineForm, Warehouse } from '../../types';
-import { machinesApi, machineTypesApi, warehousesApi } from '../../services/api';
+import { Machine, MachineType, CreateMachineForm, Supplier, Warehouse } from '../../types';
+import { machinesApi, machineTypesApi, suppliersApi, warehousesApi } from '../../services/api';
 import { useEffectiveCompany } from '../../hooks/useEffectiveCompany';
 import { useModalForm } from '../../hooks/useModalForm';
 import {
@@ -26,14 +26,16 @@ const MachineFields: React.FC<{
   errors: any;
   machineTypes: MachineType[];
   warehouses: Warehouse[];
+  suppliers: Supplier[];
   /** Selected `machineTypeUuid`, to gate the corrugator fields below. */
   selectedTypeUuid?: string;
-}> = ({ register, errors, machineTypes, warehouses, selectedTypeUuid }) => {
+}> = ({ register, errors, machineTypes, warehouses, suppliers, selectedTypeUuid }) => {
   const { t } = useTranslation();
   const selectedType = machineTypes.find((mt) => mt.uuid === selectedTypeUuid);
   // Shown whenever the form knows the type IS corrugated, or does not know the
   // type yet (new machine, type list still loading) — never hidden by default.
   const showCorrugatorFields = !selectedType || selectedType.corrugated;
+  const isSupplierType = Boolean(selectedType?.isSupplier);
   return (
     <>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -123,6 +125,23 @@ const MachineFields: React.FC<{
           )}
         </div>
       </div>
+      <div>
+        <label className="gd-label">{t('machines.supplier')}</label>
+        <select
+          className="input-field w-full"
+          disabled={!isSupplierType}
+          data-testid="machine-supplier-select"
+          {...register('supplierUuid')}
+        >
+          <option value="">{t('machines.selectSupplier')}</option>
+          {suppliers.map((s) => (
+            <option key={s.uuid} value={s.uuid}>
+              {s.code}
+            </option>
+          ))}
+        </select>
+        {!isSupplierType && <p className="mt-1 text-xs text-secondary-500">{t('machines.supplierHint')}</p>}
+      </div>
       {showCorrugatorFields && (
         <div className="space-y-3 rounded-lg border border-secondary-200 p-3">
           <p className="gd-label">{t('machines.corrugatorSection')}</p>
@@ -182,26 +201,38 @@ const useMachineDropdowns = (isOpen: boolean) => {
   const { effectiveCompanyId } = useEffectiveCompany();
   const [machineTypes, setMachineTypes] = useState<MachineType[]>([]);
   const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   useEffect(() => {
     if (!isOpen) return;
     const companyFilter = effectiveCompanyId ? { companyId: effectiveCompanyId } : {};
     Promise.all([
       machineTypesApi.getMachineTypes({ limit: 100, ...companyFilter }),
       warehousesApi.getWarehouses({ limit: 100, ...companyFilter }),
+      suppliersApi.getSuppliers({ limit: 100, ...companyFilter }),
     ])
-      .then(([types, whs]) => {
+      .then(([types, whs, sups]) => {
         setMachineTypes(types.data);
         setWarehouses(whs.data);
+        setSuppliers(sups.data);
       })
       .catch((err) => logger.error('Error fetching machine dropdown data:', err));
   }, [isOpen, effectiveCompanyId]);
-  return { machineTypes, warehouses };
+  return { machineTypes, warehouses, suppliers };
 };
 
-const clean = (data: CreateMachineForm): CreateMachineForm => {
+/**
+ * `supplierUuid` follows the selected type: a non-supplier type sends none on
+ * create and an explicit `null` on edit, so switching a mapped machine away
+ * from a supplier type clears the mapping instead of tripping SUPPLIER_NOT_ALLOWED.
+ */
+const clean = (data: CreateMachineForm, isSupplierType: boolean, isEdit: boolean): CreateMachineForm => {
   const out: any = { ...data };
   for (const key of ['sourceWarehouseUuid', 'destinationWarehouseUuid'] as const) {
     if (!out[key]) delete out[key];
+  }
+  if (!isSupplierType || !out.supplierUuid) {
+    if (isEdit) out.supplierUuid = null;
+    else delete out.supplierUuid;
   }
   return out;
 };
@@ -209,7 +240,7 @@ const clean = (data: CreateMachineForm): CreateMachineForm => {
 export const CreateMachineModal: React.FC<BaseProps> = ({ isOpen, onClose, onSuccess }) => {
   const { t } = useTranslation();
   const { effectiveCompanyId } = useEffectiveCompany();
-  const { machineTypes, warehouses } = useMachineDropdowns(isOpen);
+  const { machineTypes, warehouses, suppliers } = useMachineDropdowns(isOpen);
 
   const {
     form: { register, handleSubmit: formSubmit, formState: { errors }, watch },
@@ -219,8 +250,10 @@ export const CreateMachineModal: React.FC<BaseProps> = ({ isOpen, onClose, onSuc
     handleClose,
   } = useModalForm<CreateMachineForm>({ defaultValues: {}, onSuccess, onClose, schema: createMachineSchema(t) });
 
+  const isSupplierType = (uuid?: string) => Boolean(machineTypes.find((mt) => mt.uuid === uuid)?.isSupplier);
+
   const onSubmit = handleSubmit((data) =>
-    machinesApi.createMachine({ ...clean(data), companyId: effectiveCompanyId })
+    machinesApi.createMachine({ ...clean(data, isSupplierType(data.machineTypeUuid), false), companyId: effectiveCompanyId })
   );
 
   return (
@@ -232,6 +265,7 @@ export const CreateMachineModal: React.FC<BaseProps> = ({ isOpen, onClose, onSuc
           errors={errors}
           machineTypes={machineTypes}
           warehouses={warehouses}
+          suppliers={suppliers}
           selectedTypeUuid={watch('machineTypeUuid')}
         />
         <ModalFooter onCancel={handleClose} loading={loading} submitText={t('machines.createButton')} />
@@ -247,7 +281,7 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
   machine,
 }) => {
   const { t } = useTranslation();
-  const { machineTypes, warehouses } = useMachineDropdowns(isOpen);
+  const { machineTypes, warehouses, suppliers } = useMachineDropdowns(isOpen);
 
   const {
     form: { register, handleSubmit: formSubmit, formState: { errors }, reset, watch, setValue },
@@ -273,6 +307,7 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
         sheetWidthMax: machine.sheetWidthMax ?? undefined,
         sourceWarehouseUuid: machine.sourceWarehouse?.uuid ?? '',
         destinationWarehouseUuid: machine.destinationWarehouse?.uuid ?? '',
+        supplierUuid: machine.supplier?.uuid ?? '',
         width: machine.width ?? undefined,
         trim: machine.trim ?? undefined,
         maxElements: machine.maxElements ?? undefined,
@@ -296,11 +331,15 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
       setValue('sourceWarehouseUuid', machine.sourceWarehouse?.uuid ?? '');
       setValue('destinationWarehouseUuid', machine.destinationWarehouse?.uuid ?? '');
     }
+    if (suppliers.length) setValue('supplierUuid', machine.supplier?.uuid ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only when the option lists change
-  }, [machineTypes, warehouses]);
+  }, [machineTypes, warehouses, suppliers]);
 
   const onSubmit = handleSubmit((data) =>
-    machinesApi.updateMachine(machine!.uuid, clean(data))
+    machinesApi.updateMachine(
+      machine!.uuid,
+      clean(data, Boolean(machineTypes.find((mt) => mt.uuid === data.machineTypeUuid)?.isSupplier), true),
+    )
   );
 
   return (
@@ -312,6 +351,7 @@ export const EditMachineModal: React.FC<BaseProps & { machine: Machine | null }>
           errors={errors}
           machineTypes={machineTypes}
           warehouses={warehouses}
+          suppliers={suppliers}
           selectedTypeUuid={watch('machineTypeUuid')}
         />
         <ModalFooter onCancel={handleClose} loading={loading} submitText={t('machines.editButton')} />

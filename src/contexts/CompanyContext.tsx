@@ -26,6 +26,9 @@ export const useCompany = () => {
   return context;
 };
 
+/** For shared chrome (Sidebar) that also renders where no CompanyProvider is mounted. */
+export const useOptionalCompany = (): CompanyContextType | undefined => useContext(CompanyContext);
+
 interface CompanyProviderProps {
   children: ReactNode;
 }

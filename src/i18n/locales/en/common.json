@@ -71,7 +71,10 @@
     "administration": "Administration",
     "users": "Users",
     "roles": "Roles",
-    "devices": "Devices"
+    "devices": "Devices",
+    "quotations": "Quotations",
+    "supplierPrograms": "Supplier programs",
+    "supplierTracking": "Tracking"
   },
   "fileUploader": {
     "choose": "Choose file...",
@@ -3482,7 +3485,8 @@
     },
     "validation": {
       "nameRequired": "Name is required"
-    }
+    },
+    "isSupplier": "Supplier (finishing companies)"
   },
   "machines": {
     "title": "Machines",
@@ -3531,7 +3535,10 @@
     "sheetLengthMax": "Maximum sheet length (mm)",
     "maxScoreLines": "Maximum score lines",
     "machineWidth": "Maximum reel width (mm)",
-    "machineWidthHint": "The widest reel the corrugator accepts"
+    "machineWidthHint": "The widest reel the corrugator accepts",
+    "supplier": "Supplier",
+    "selectSupplier": "No supplier",
+    "supplierHint": "Only machine types flagged as supplier can have a supplier assigned"
   },
   "productionRoutes": {
     "title": "Production Routes",
@@ -4093,7 +4100,11 @@
       "cancelled": "Cancelled",
       "Alta": "Created",
       "Baja": "Deleted",
-      "Modificacion": "Modified"
+      "Modificacion": "Modified",
+      "draft": "Draft",
+      "informed": "Informed",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
     },
     "columns": {
       "createdAt": "Created",
@@ -4510,5 +4521,242 @@
     "passwordFailed": "Could not change the password.",
     "passwordWrongCurrent": "The current password is incorrect.",
     "open": "Open my profile"
+  },
+  "deliveries": {
+    "title": "Deliveries",
+    "add": "Add delivery",
+    "empty": "No deliveries: the single delivery date and location are used.",
+    "date": "Date",
+    "destination": "Destination",
+    "noDestination": "No destination",
+    "type": "Type",
+    "typeQuantity": "Quantity",
+    "amount": "Amount",
+    "resolved": "Resolved quantity",
+    "remove": "Remove delivery",
+    "total": "Deliveries total: {{total}} of {{quantity}}",
+    "mismatch": "The deliveries total does not match the quantity",
+    "derivedNotice": "With deliveries, the order's delivery date and location are derived from the earliest delivery.",
+    "error": {
+      "incomplete": "Every delivery needs a date and an amount above zero",
+      "percentage": "A percentage cannot exceed 100"
+    }
+  },
+  "quotations": {
+    "title": "Quotations",
+    "subtitle": "Customer quotations; approving one lets you generate the order",
+    "add": "New quotation",
+    "searchPlaceholder": "Search by customer, product or number...",
+    "empty": "No quotations",
+    "edit": "Edit quotation",
+    "approve": "Approve",
+    "unapprove": "Remove approval",
+    "delete": "Delete quotation",
+    "deleteConfirm": "Delete quotation {{number}}?",
+    "approvalFailed": "Could not change the approval",
+    "deleteFailed": "Could not delete the quotation",
+    "loadFailed": "Could not load the quotation",
+    "saveFailed": "Could not save the quotation",
+    "saved": "Quotation saved",
+    "generateFailed": "Could not generate the order",
+    "back": "Back",
+    "editTitle": "Quotation {{number}}",
+    "createTitle": "New quotation",
+    "approved": "Approved",
+    "pending": "Pending",
+    "generateOrder": "Generate order",
+    "readOnlyNotice": "This quotation already generated its order and can no longer be edited",
+    "approvedReadOnlyNotice": "This quotation is approved: only the status can change. Unapprove it to edit the rest.",
+    "status": {
+      "draft": "Draft",
+      "informed": "Informed to customer",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "columns": {
+      "number": "Number",
+      "status": "Status",
+      "customer": "Customer",
+      "product": "Product",
+      "quantity": "Quantity",
+      "price": "Price",
+      "priceTotal": "Total",
+      "deliveryDate": "Delivery",
+      "approved": "Approved",
+      "salesOrder": "Order",
+      "actions": "Actions"
+    },
+    "fields": {
+      "approval": "Approval",
+      "customer": "Customer",
+      "product": "Product",
+      "quantity": "Quantity",
+      "price": "Unit price",
+      "priceTotal": "Total",
+      "status": "Status",
+      "deliveryDate": "Delivery date",
+      "salesUser": "Salesperson",
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "customer": "Search customer…",
+      "product": "Select a product",
+      "productNeedsCustomer": "Choose a customer first",
+      "salesUser": "Customer's salesperson"
+    },
+    "validation": {
+      "customerRequired": "Customer is required",
+      "productRequired": "Product is required",
+      "quantityRequired": "Quantity is required",
+      "quantityPositive": "Quantity must be greater than zero",
+      "priceRequired": "Price is required",
+      "priceNonNegative": "Price cannot be negative"
+    },
+    "generation": {
+      "salesOrder": "Generated order",
+      "warningTitle": "The order was created, but there are no production orders yet",
+      "approveHint": "Approve the sales order (commercial and financial) and then generate the production order.",
+      "productionOrders": "Generated production orders",
+      "retry": "Generate production order"
+    }
+  },
+  "supplierPrograms": {
+    "title": "Supplier programs",
+    "subtitle": "Production orders to request from sheet suppliers",
+    "searchPlaceholder": "Search by order, customer or product...",
+    "filters": {
+      "supplier": "Supplier",
+      "status": "Status"
+    },
+    "poolStatus": {
+      "unassigned": "Unassigned",
+      "in-draft": "In draft"
+    },
+    "poStatus": {
+      "draft": "Draft",
+      "sent": "Sent",
+      "completed": "Completed"
+    },
+    "notReady": {
+      "no-sheet-dimensions": "No sheet dimensions",
+      "no-corrugation": "No corrugation",
+      "not-eligible": "Not eligible"
+    },
+    "columns": {
+      "select": "Select",
+      "order": "Order",
+      "customer": "Customer",
+      "product": "Product",
+      "quantity": "Qty / sheets",
+      "board": "Board",
+      "sheet": "Length × Width",
+      "deliveryDate": "Date",
+      "supplier": "Supplier",
+      "status": "Status"
+    },
+    "lineColumns": {
+      "date": "Date",
+      "order": "P.O.",
+      "board": "Board",
+      "quantity": "Quantity",
+      "length": "Length",
+      "width": "Width",
+      "scoreLines": "Score lines"
+    },
+    "poTitle": "Purchase order {{number}} — {{supplier}}",
+    "inDraftPo": "In order {{number}}",
+    "linesSuffix": "lines",
+    "print": "Print",
+    "send": "Send to supplier",
+    "unsend": "Undo send",
+    "printButton": "Print",
+    "printTitle": "Purchase order No. {{number}}",
+    "printDate": "Date",
+    "attention": "ATTENTION GENTLEMEN {{supplier}}",
+    "notes": "Notes",
+    "printLoadFailed": "Could not load the purchase order",
+    "printNotFound": "Purchase order not found",
+    "editQuantity": "Quantity of {{number}}",
+    "removeLine": "Remove {{number}} from the order",
+    "noLinesLeft": "The order has no lines left: delete it or add orders again",
+    "saveFailed": "Could not save the purchase order",
+    "sendFailed": "Could not send the purchase order",
+    "loadFailed": "Could not load the purchase orders",
+    "addFailed": "Could not add the orders",
+    "deleteFailed": "Could not delete the purchase order",
+    "unsendFailed": "Could not undo the send",
+    "deleteConfirm": "Delete purchase order {{number}}? Its production orders go back to the list.",
+    "selectOrder": "Select {{number}}",
+    "selectPage": "Select page",
+    "selectedCount_one": "{{count}} order selected",
+    "selectedCount_other": "{{count}} orders selected",
+    "clearSelection": "Clear selection",
+    "targetMachine": "Supplier machine",
+    "addToPo": "Add to purchase order",
+    "noCommonMachine": "The selected orders do not share a supplier machine",
+    "added_one": "{{count}} order added to the purchase order",
+    "added_other": "{{count}} orders added to the purchase order",
+    "emptyPool": "No production orders to request",
+    "draftsTitle": "Draft purchase orders",
+    "noDrafts": "No draft purchase orders",
+    "sentTitle": "Recently sent",
+    "noSent": "No purchase order has been sent yet"
+  },
+  "supplierTracking": {
+    "units": "{{count}} units",
+    "title": "Tracking",
+    "subtitle": "Orders sent to suppliers and sheet receipts",
+    "searchPlaceholder": "Search by order, customer, product or P.O. number...",
+    "filters": {
+      "supplier": "Supplier",
+      "purchaseOrder": "Purchase order",
+      "status": "Status"
+    },
+    "lineStatus": {
+      "pending": "Pending",
+      "partial": "Partial",
+      "completed": "Complete"
+    },
+    "columns": {
+      "purchaseOrder": "Purchase order",
+      "supplier": "Supplier",
+      "order": "P.O.",
+      "customer": "Customer",
+      "product": "Product",
+      "board": "Board",
+      "ordered": "Ordered",
+      "received": "Received",
+      "deliveryDate": "Date",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "empty": "No lines sent to suppliers",
+    "registerReceipt": "Register receipt",
+    "closeShort": "Close short line",
+    "closeTitle": "Close line",
+    "closeConfirm": "Close order {{number}} with {{received}} of {{ordered}} received?",
+    "closeFailed": "Could not close the line",
+    "receipt": {
+      "factor": "Sheets per unit: {{factor}}",
+      "unitsPreview": "Equals {{units}} product units",
+      "title": "Register receipt",
+      "po": "Purchase order {{number}}",
+      "summary": "Ordered: {{ordered}} · Received so far: {{received}}",
+      "quantity": "Quantity received",
+      "receivedAt": "Receipt date",
+      "warehouse": "Destination warehouse",
+      "selectWarehouse": "Select a warehouse",
+      "notes": "Notes",
+      "closeLine": "Close the line even if it stays short",
+      "mismatchTitle": "The quantity does not match the order",
+      "mismatchBody": "{{ordered}} were ordered, {{received}} already received and you are registering {{receiving}}: the total would be {{total}}. Confirm the quantity?",
+      "confirmMismatch": "Confirm and register",
+      "editQuantity": "Edit quantity",
+      "submit": "Register",
+      "failed": "Could not register the receipt",
+      "quantityInvalid": "Enter a whole quantity greater than zero",
+      "warehouseRequired": "The warehouse is required",
+      "saved": "Receipt registered"
+    }
   }
 }

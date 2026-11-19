@@ -56,6 +56,7 @@ export const createMachineSchema = (t: Translate) =>
     sheetWidthMax: measure(t, t('machines.sheetWidthMax')),
     sourceWarehouseUuid: optionalSelect(),
     destinationWarehouseUuid: optionalSelect(),
+    supplierUuid: optionalSelect(),
     // Corrugator planning (model.md D-5 revised): 0 = sin límite, never negative.
     width: measure(t, t('machines.machineWidth')),
     trim: measure(t, t('machines.trim')),

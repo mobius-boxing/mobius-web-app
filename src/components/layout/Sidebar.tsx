@@ -35,6 +35,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import UserAvatar from '../ui/UserAvatar';
 import ProfileModal from '../profile/ProfileModal';
 import { usePermissions } from '../../hooks/usePermissions';
+import { useTerminadora } from '../../hooks/useTerminadora';
 import { NavItem } from '../../types';
 import LanguageSwitcher from '../ui/LanguageSwitcher';
 import CompanySwitcher from '../ui/CompanySwitcher';
@@ -200,8 +201,19 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
     });
   };
 
+  const esTerminadora = useTerminadora();
+
+  const salesOrdersItem: NavItem = { id: 'sales-orders', label: t('nav.salesOrders'), path: '/sales-orders', icon: 'FileText', permission: 'orders.edit', allowReadOnly: true };
+
   const navigationItems: NavItem[] = [
-    { id: 'sales-orders', label: t('nav.salesOrders'), path: '/sales-orders', icon: 'FileText', permission: 'orders.edit', allowReadOnly: true },
+    esTerminadora
+      ? {
+          id: 'orders', label: t('nav.salesOrders'), icon: 'FileText', children: [
+            salesOrdersItem,
+            { id: 'quotations', label: t('nav.quotations'), path: '/quotations', icon: 'ScrollText', permission: 'quotations.edit', allowReadOnly: true },
+          ],
+        }
+      : salesOrdersItem,
     { id: 'production-orders', label: t('nav.productionOrders'), path: '/production-orders', icon: 'Factory', permission: 'production-orders.edit', allowReadOnly: true },
     {
       id: 'masters', label: t('nav.masters'), icon: 'Database', children: [
@@ -264,8 +276,15 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
     },
     {
       id: 'production', label: t('nav.production'), icon: 'Package', children: [
-        { id: 'corrugator-pool', label: t('nav.corrugatorPool'), path: '/corrugator-pool', icon: 'Boxes', permission: 'corrugator.plan', allowReadOnly: true },
-        { id: 'corrugator-plans', label: t('nav.corrugatorPlans'), path: '/corrugator-plans', icon: 'FileText', permission: 'corrugator.plan', allowReadOnly: true },
+        ...(esTerminadora
+          ? [
+              { id: 'supplier-programs', label: t('nav.supplierPrograms'), path: '/supplier-programs', icon: 'Truck', permission: 'supplier-orders.plan', allowReadOnly: true },
+              { id: 'supplier-tracking', label: t('nav.supplierTracking'), path: '/supplier-tracking', icon: 'Route', permission: 'supplier-orders.receive', allowReadOnly: true },
+            ]
+          : [
+              { id: 'corrugator-pool', label: t('nav.corrugatorPool'), path: '/corrugator-pool', icon: 'Boxes', permission: 'corrugator.plan', allowReadOnly: true },
+              { id: 'corrugator-plans', label: t('nav.corrugatorPlans'), path: '/corrugator-plans', icon: 'FileText', permission: 'corrugator.plan', allowReadOnly: true },
+            ]),
         {
           id: 'stock', label: t('nav.stock'), icon: 'Warehouse', children: [
             { id: 'paper-stock', label: t('nav.paperStock'), path: '/paper-stock', icon: 'Package', permission: 'paper-stock.edit', allowReadOnly: true },
