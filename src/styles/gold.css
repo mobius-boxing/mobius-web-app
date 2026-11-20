@@ -247,6 +247,23 @@ body::after {
   background: oklch(1 0 0);
 }
 
+/* Same reason as the mark's tile: the wordmark's navy letters need a light
+   ground, so the brand row is a white band rather than part of the rail. */
+.gd-sb-band {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 4rem;
+  flex: none;
+  background: oklch(1 0 0);
+}
+
+.gd-sb-logo {
+  display: block;
+  height: 1.625rem;
+  width: auto;
+}
+
 .gd-sb-context {
   padding: 1rem 1rem 0.75rem;
   border-bottom: 1px solid oklch(1 0 0 / 0.07);

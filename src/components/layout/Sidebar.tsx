@@ -42,6 +42,8 @@ import CompanySwitcher from '../ui/CompanySwitcher';
 import Tooltip from '../ui/Tooltip';
 import { logger } from '../../utils/logger';
 import { cn } from '../../utils/cn';
+import mobiusMark from '../../assets/mobius-mark.svg';
+import mobiusLogo from '../../assets/mobius-logo-text.svg';
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed';
 
@@ -620,6 +622,13 @@ const Sidebar: React.FC<SidebarProps> = ({ variant = 'rail', onNavigate, closeBu
         variant === 'drawer' ? 'w-full' : collapsed ? 'w-16' : 'w-64'
       )}
     >
+      <div className="gd-sb-band">
+        {collapsed ? (
+          <img src={mobiusMark} alt="Mobius" className="gd-sb-mark" />
+        ) : (
+          <img src={mobiusLogo} alt="Mobius" className="gd-sb-logo" />
+        )}
+      </div>
       {collapsed ? (
         <div className="gd-sb-context gd-sb-context--collapsed">{railToggle}</div>
       ) : (
