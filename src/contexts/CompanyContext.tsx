@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
 import { Company } from '../types';
 import { companiesApi } from '../services/api';
+import { isLiteBuild } from '../utils/product';
 import { useAuth } from './AuthContext';
 import { logger } from '../utils/logger';
 import { COMPANY_STORAGE_KEY } from '../utils/session';
@@ -51,7 +52,10 @@ export const CompanyProvider: React.FC<CompanyProviderProps> = ({ children }) =>
     setIsLoading(true);
     try {
       const response = await companiesApi.getCompanies({ limit: 100 });
-      const fetchedCompanies = response.data || [];
+      // Only this build's product: the other product's companies answer WRONG_PRODUCT here.
+      const fetchedCompanies = (response.data || []).filter(
+        (c) => (c.product ?? 'full') === (isLiteBuild() ? 'lite' : 'full'),
+      );
       setCompanies(fetchedCompanies);
 
       const savedCompanyUuid = localStorage.getItem(STORAGE_KEY);

@@ -24,6 +24,7 @@ export interface Company {
   name: string;
   description?: string;
   isActive: boolean;
+  product?: 'full' | 'lite';
   isTerminadora?: boolean;
   slug?: string;
   /** `{}` when the company never set branding. */
