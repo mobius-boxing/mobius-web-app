@@ -1,6 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode } from 'react';
 import { AuthUser, DeviceSession, DeviceStatus, LoginCredentials } from '../types';
-import { authApi, refreshSession, setDeviceRejectionHandler, SessionPayload } from '../services/api';
+import { authApi, isWrongProductSession, refreshSession, setDeviceRejectionHandler, SessionPayload } from '../services/api';
 import { logger } from '../utils/logger';
 import { setDeviceToken } from '../utils/session';
 
@@ -42,6 +42,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [device, setDevice] = useState<DeviceSession | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  // Set once the refresh cookie is refused as the other product's: focus must not keep retrying it.
+  const wrongProductRef = useRef(false);
 
   const adoptSession = useCallback((session: SessionPayload) => {
     setUser(session.user);
@@ -54,7 +56,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     refreshSession()
       .then(adoptSession)
-      .catch(() => {})
+      .catch((error) => {
+        wrongProductRef.current = isWrongProductSession(error);
+      })
       .finally(() => setIsLoading(false));
   }, [adoptSession]);
 
@@ -63,7 +67,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // logout elsewhere) surfaces on this tab's next request, whose refresh 401s.
   useEffect(() => {
     const sync = () => {
-      if (!user) refreshSession().then(adoptSession).catch(() => {});
+      if (user || wrongProductRef.current) return;
+      refreshSession()
+        .then(adoptSession)
+        .catch((error) => {
+          wrongProductRef.current = isWrongProductSession(error);
+        });
     };
     window.addEventListener('focus', sync);
     document.addEventListener('visibilitychange', sync);
@@ -123,6 +132,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = async (credentials: LoginCredentials): Promise<void> => {
     const response = await authApi.login(credentials);
+    wrongProductRef.current = false;
     // The raw secret is returned exactly once, by the login that issued it. It goes to
     // the cookie and nowhere else: React state keeps the device without it, so the
     // secret cannot be read back out of a component tree or a devtools snapshot.

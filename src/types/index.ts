@@ -10,6 +10,7 @@ export interface User {
   companyId?: string;
   companyName?: string;
   companyIsTerminadora?: boolean;
+  companyProduct?: 'full' | 'lite';
   avatarUuid?: string | null;
   isActive: boolean;
   emailVerified: boolean;
@@ -73,6 +74,7 @@ export interface AuthUser {
   companyName?: string;
   /** From `companies.isTerminadora`; drives the Cotizaciones / Programas / Seguimiento nav (D-72). */
   companyIsTerminadora?: boolean;
+  companyProduct?: 'full' | 'lite';
   avatarUuid?: string | null;
   /** Assigned role identity returned by `/api/auth/me`; null for superAdmins and legacy users. */
   roleUuid: string | null;

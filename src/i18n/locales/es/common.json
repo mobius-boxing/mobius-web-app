@@ -1565,6 +1565,8 @@
     "contactAdmin": "Contacta a tu administrador para una invitación",
     "devCredentials": "Credenciales de Desarrollo:",
     "loginFailed": "Inicio de sesión fallido. Por favor verifica tus credenciales e intenta de nuevo.",
+    "wrongProduct": "Esta cuenta usa {{product}}",
+    "wrongProductGo": "Ir a {{product}}",
     "validation": {
       "emailRequired": "El correo electrónico es requerido",
       "emailInvalid": "Por favor ingresa un correo electrónico válido",

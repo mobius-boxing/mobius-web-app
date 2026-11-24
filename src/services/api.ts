@@ -173,6 +173,9 @@ export type SessionPayload = LoginResponse & { expiresIn: number };
 /** The refresh cookie is gone, expired or revoked: the user has to sign in again. */
 class SessionEndedError extends Error {}
 
+/** The cookie's company uses the other product: ended, and retrying cannot help. */
+class WrongProductSessionError extends SessionEndedError {}
+
 const MAX_TRANSIENT_RETRIES = 3;
 const REFRESH_LEAD_SECONDS = 60;
 const REFRESH_JITTER_SECONDS = 30;
@@ -215,6 +218,8 @@ const requestRefresh = async (): Promise<SessionPayload> => {
       return response.data.data!;
     } catch (error) {
       if (axios.isAxiosError(error) && error.response?.status === 401) throw new SessionEndedError();
+      // The cookie belongs to a company of the other product: logged-out, and not worth retrying.
+      if (axios.isAxiosError(error) && error.response?.data?.code === 'WRONG_PRODUCT') throw new WrongProductSessionError();
       if (!isTransient(error) || attempt >= MAX_TRANSIENT_RETRIES) throw error;
       await sleep(retryDelayMs(error, attempt));
     }
@@ -255,6 +260,8 @@ export const refreshSession = (): Promise<SessionPayload> => {
 };
 
 export const isSessionEnded = (error: unknown): boolean => error instanceof SessionEndedError;
+
+export const isWrongProductSession = (error: unknown): boolean => error instanceof WrongProductSessionError;
 
 const adoptSessionToken = (session: SessionPayload): void => {
   setToken(session.token);

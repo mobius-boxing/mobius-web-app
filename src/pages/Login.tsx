@@ -11,6 +11,8 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import { logger } from '../utils/logger';
 import mobiusLogo from '../assets/mobius-logo-text.svg';
+import LiteBadge from '../components/ui/LiteBadge';
+import { PRODUCT_LABEL, Product } from '../utils/product';
 
 const Login: React.FC = () => {
   const { t } = useTranslation();
@@ -20,6 +22,7 @@ const Login: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [wrongProduct, setWrongProduct] = useState<{ product: Product; appUrl: string | null } | null>(null);
 
   const {
     register,
@@ -35,12 +38,17 @@ const Login: React.FC = () => {
   const onSubmit = async (data: LoginCredentials) => {
     setIsLoading(true);
     setError('');
+    setWrongProduct(null);
 
     try {
       await login(data);
       navigate(from, { replace: true });
     } catch (err: any) {
       logger.error('Login error:', err);
+      if (err.response?.status === 409 && err.response?.data?.code === 'WRONG_PRODUCT') {
+        setWrongProduct(err.response.data.data);
+        return;
+      }
       setError(
         err.response?.data?.message ||
         t('login.loginFailed')
@@ -55,6 +63,7 @@ const Login: React.FC = () => {
       <div className="max-w-md w-full">
         <div className="flex flex-col items-center text-center mb-8">
           <img src={mobiusLogo} alt="Mobius" className="w-60 max-w-full" />
+          <LiteBadge className="mt-3" />
           <h2 className="mt-7 text-2xl font-bold tracking-tight text-secondary-900">
             {t('login.title')}
           </h2>
@@ -67,6 +76,22 @@ const Login: React.FC = () => {
           className="space-y-5 bg-white border border-secondary-200 rounded-2xl shadow-lg p-8"
           onSubmit={handleSubmit(onSubmit)}
         >
+          {wrongProduct && (
+            <div className="flex flex-col gap-2 gd-alert gd-alert-danger" role="alert">
+              <p className="text-sm text-red-800">
+                {t('login.wrongProduct', { product: PRODUCT_LABEL[wrongProduct.product] })}
+              </p>
+              {wrongProduct.appUrl && (
+                <a
+                  href={`${wrongProduct.appUrl}/login`}
+                  className="text-sm font-medium text-primary-600 hover:text-primary-700"
+                >
+                  {t('login.wrongProductGo', { product: PRODUCT_LABEL[wrongProduct.product] })}
+                </a>
+              )}
+            </div>
+          )}
+
           {error && (
             <div className="flex items-start gap-2.5 gd-alert gd-alert-danger">
               <p className="text-sm text-red-800">{error}</p>

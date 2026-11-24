@@ -1565,6 +1565,8 @@
     "contactAdmin": "Contact your administrator for an invitation",
     "devCredentials": "Development Credentials:",
     "loginFailed": "Login failed. Please check your credentials and try again.",
+    "wrongProduct": "This account uses {{product}}",
+    "wrongProductGo": "Go to {{product}}",
     "validation": {
       "emailRequired": "Email is required",
       "emailInvalid": "Please enter a valid email address",

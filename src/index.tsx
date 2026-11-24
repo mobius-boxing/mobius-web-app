@@ -4,6 +4,9 @@ import './index.css';
 import './styles/gold.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { applyProductTitle } from './utils/product';
+
+applyProductTitle();
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
